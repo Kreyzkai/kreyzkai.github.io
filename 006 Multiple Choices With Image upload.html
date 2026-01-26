@@ -30,6 +30,7 @@ button{font-size:18px;padding:10px 16px;cursor:pointer;border-radius:6px;border:
 <div id="rows"></div>
 
 <div class="controls">
+  <button id="backBtn" onclick="goBack()">⬅ Back to Main Page</button>
   <button id="addBtn">➕ Add Question</button>
   <button id="clearBtn" onclick="clearAll()">🗑 Clear All</button>
   <button id="saveBtn" onclick="generate()">💾 Save & Download Student Game</button>
@@ -97,6 +98,12 @@ function clearAll() {
     rows = [];
     rowsDiv.innerHTML = "";
     addRow();
+}
+
+function goBack() {
+    if(confirm("This will reset your workspace.")) {
+        window.location.href = 'index.html';
+    }
 }
 
 function generate(){

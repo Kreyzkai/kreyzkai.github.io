@@ -42,6 +42,7 @@
     <div id="rowsContainer"></div>
     
     <div class="controls">
+        <button class="main-btn secondary" onclick="goBack()">⬅ Back to Main Page</button>
         <button class="main-btn secondary" onclick="clearAll()">🗑 Clear All</button>
         <button class="main-btn" onclick="generate()">💾 Download Student Game</button>
     </div>
@@ -114,6 +115,12 @@ function clearAll() {
         container.innerHTML = "";
         rowCount = 0;
         addRow();
+    }
+}
+
+function goBack() {
+    if(confirm("This will reset your workspace.")) {
+        window.location.href = 'index.html';
     }
 }
 

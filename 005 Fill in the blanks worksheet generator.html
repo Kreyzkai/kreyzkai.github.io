@@ -112,6 +112,7 @@
             <h2 style="text-align: center; color: #d9534f;">Answer Key</h2>
             <div id="answerKeyContent" style="line-height: 2.5;"></div>
         </div>
+        <button class="btn-download no-print" onclick="goBack()" style="margin-right: 10px; background: #607d8b;">⬅ Back to Main Page</button>
         <button class="btn-download no-print" onclick="downloadDoc()">Download Complete Document (.doc)</button>
     </section>
 </div>
@@ -128,6 +129,12 @@ function resetAll() {
         document.getElementById('sentenceRows').innerHTML = '<div class="sentence-row" style="display:flex; gap:10px; margin-bottom:8px;"><input type="text" class="sentence-input" style="flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Sentence 1..."><button class="delete-btn" onclick="this.parentElement.remove()">✕</button></div>';
         document.getElementById('worksheet').innerHTML = "Text will appear here...";
         wordsClicked = []; usedNumbers = []; updateWordBank();
+    }
+}
+
+function goBack() {
+    if(confirm("This will reset your workspace.")) {
+        window.location.href = 'index.html';
     }
 }
 
