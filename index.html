@@ -6,113 +6,144 @@
     <title>Teaching Tools Launcher</title>
 
     <style>
-        /* Modern System Variables */
-        :root {
-            --bg-color: #f5f5f7;
-            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
-            --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
-            --accent-color: #0071e3;
-        }
+        /* Consistent Zoom Levels (5 Steps) */
+        body.scale-1 { font-size: 28px; }
+        body.scale-2 { font-size: 34px; }
+        body.scale-3 { font-size: 40px; }
+        body.scale-4 { font-size: 46px; }
+        body.scale-5 { font-size: 22px; }
 
+        /* Teaching Tools Theme - Consistent with 001-006 */
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            background: linear-gradient(135deg, #f5f5f7 0%, #d2d2d7 100%);
+            font-family: Arial, sans-serif;
+            background: #f4f6fa;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+            color: #333;
+            transition: font-size 0.2s;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 50px 40px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             max-width: 960px;
             width: 92%;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         h1 {
             text-align: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 40px;
-            color: var(--text-primary);
-            letter-spacing: -0.03em;
+            color: #003366;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         a {
             text-decoration: none;
             display: block;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s;
         }
 
         a:hover {
-            transform: scale(1.02);
+            transform: scale(1.05);
         }
 
         .card {
             background: #ffffff;
-            padding: 32px 24px;
-            border-radius: 22px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-            color: var(--text-primary);
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            color: #333;
             height: 100%;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(0,0,0,0.02);
+            border: 1px solid #eee;
         }
 
         a:hover .card {
-            box-shadow: var(--card-shadow-hover);
-            background: #ffffff;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: #f8f9fa;
         }
 
         .number {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            letter-spacing: 0.1em;
-            background: #f2f2f7;
-            padding: 4px 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 15px;
+            background: #e8f0f8;
+            padding: 8px 16px;
             border-radius: 20px;
         }
 
         .title {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 600;
             line-height: 1.4;
             text-align: center;
         }
 
-        /* Responsive tweak */
+        /* Floating Zoom Button */
+        #zoomBtn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: #003366;
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+
+        #zoomBtn:hover {
+            background: #002244;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        /* Watermark */
+        #watermark {
+            position: fixed;
+            left: 15px;
+            bottom: 20px;
+            font-size: 12px;
+            opacity: 0.3;
+            pointer-events: none;
+            color: #333;
+        }
+
+        /* Responsive */
         @media (max-width: 600px) {
-            .container { padding: 30px 20px; }
-            h1 { font-size: 1.8rem; }
+            .container { padding: 25px 15px; }
+            h1 { font-size: 1.6rem; }
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 
-<body>
+<body class="scale-1">
     <div class="container">
         <h1>Teaching Tools</h1>
 
@@ -160,5 +191,17 @@
             </a>
         </div>
     </div>
+
+    <button id="zoomBtn" onclick="toggleZoom()">🔍</button>
+    <div id="watermark">Teaching Tools</div>
+
+    <script>
+        let scale = 1;
+        
+        function toggleZoom() {
+            scale = (scale % 5) + 1;
+            document.body.className = 'scale-' + scale;
+        }
+    </script>
 </body>
 </html>
