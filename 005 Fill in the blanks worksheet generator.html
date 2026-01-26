@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chris' Canonical Worksheet Generator</title>
+<style>
+    :root {
+        --primary: #4a90e2; --secondary: #6c757d; --bg: #f4f7f6;
+        --card-bg: #ffffff; --text: #333; --accent: #ffd;
+        --border: #dcdfe6; --danger: #e74c3c;
+    }
+    body { 
+        font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text);
+        display: flex; flex-direction: column; align-items: center; padding-bottom: 50px;
+    }
+    .watermark { position: fixed; bottom: 15px; left: 15px; font-size: 14px; font-weight: bold; color: rgba(0, 0, 0, 0.2); pointer-events: none; }
+    
+    .preview-mode .no-print, .preview-mode .watermark { display: none !important; }
+    .preview-mode body { background: #525659; padding-top: 30px; }
+    .preview-mode .container { width: 210mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 0; padding: 60px; }
+    .preview-mode #worksheet { border: none; padding: 0; }
+    .preview-mode .student-header { display: flex !important; }
+    .preview-mode #closePreview { display: block !important; }
+
+    header { background: var(--primary); color: white; width: 100%; padding: 20px 0; text-align: center; margin-bottom: 30px; }
+    .container { width: 90%; max-width: 1000px; background: var(--card-bg); padding: 40px; border-radius: 12px; position: relative; }
+    section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+    h3 { color: var(--primary); font-size: 1.1rem; }
+    .title-input, .instr-input { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+    .student-header { display: none; justify-content: space-between; margin-bottom: 25px; font-weight: bold; }
+    .header-line { border-bottom: 1px solid black; width: 220px; display: inline-block; }
+    #worksheet { width: 100%; min-height: 150px; padding: 20px; border: 2px dashed var(--border); border-radius: 8px; line-height: 2.5; box-sizing: border-box; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border: 1px solid var(--border); }
+    .clickable { cursor: pointer; background-color: #eef6ff; padding: 2px 4px; border-radius: 4px; }
+    .blank { background-color: var(--accent); font-weight: normal; }
+    button { padding: 10px 20px; font-weight: 600; cursor: pointer; border: none; border-radius: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: var(--secondary); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-add { background: #f39c12; color: white; }
+    .btn-download { background: #27ae60; color: white; margin-top: 20px; width: 100%; font-size: 18px; }
+    .delete-btn { background: #ffeded; color: #e74c3c; border: 1px solid #e74c3c; padding: 5px 10px; }
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    #closePreview { display: none; position: fixed; top: 20px; right: 20px; z-index: 2000; }
+</style>
+</head>
+<body id="mainBody">
+
+<div class="watermark">cmarasigan</div>
+<button id="closePreview" class="btn-secondary" onclick="togglePreview()">✕ Return to Editor</button>
+<header class="no-print"><h1>Canonical Worksheet Generator</h1></header>
+
+<div class="container">
+    <section class="no-print">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Step 1: Content Input</h3>
+            <button class="btn-danger" style="padding: 5px 12px; font-size: 12px;" onclick="resetAll()">Reset Form</button>
+        </div>
+        <input type="text" id="docTitle" class="title-input" placeholder="Worksheet Title...">
+        <input type="text" id="docInstr" class="instr-input" placeholder="Optional Instructions...">
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Mode:</strong>
+            <label><input type="radio" name="mode" value="paragraphs" checked onclick="switchInputMode()"> Paragraphs</label>
+            <label><input type="radio" name="mode" value="sentences" onclick="switchInputMode()"> Sentences</label>
+        </div>
+        
+        <div id="bulkInputArea">
+            <textarea id="inputText" style="width:100%; min-height:100px; padding:10px; border-radius:8px; border:1px solid #ccc;" placeholder="Paste text here..."></textarea>
+            <div class="btn-row"><button class="btn-primary" onclick="loadText()">Load Text</button></div>
+        </div>
+
+        <div id="sentenceInputArea" style="display:none;">
+            <div id="sentenceRows">
+                <div class="sentence-row" style="display:flex; gap:10px; margin-bottom:8px;">
+                    <input type="text" class="sentence-input" style="flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Sentence 1...">
+                    <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-add" onclick="addSentenceRow()">+ Add Row</button>
+                <button class="btn-primary" onclick="loadText()">Load Text</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="worksheetSection">
+        <div class="student-header">
+            <span>Name: <span class="header-line"></span></span>
+            <span>Class: <span class="header-line"></span></span>
+        </div>
+        <h2 id="previewTitle" style="text-align: center; margin-bottom: 5px; display: none;"></h2>
+        <p id="previewInstr" style="text-align: center; font-style: italic; margin-bottom: 25px; display: none;"></p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="no-print">Step 2: Interactive Editor</h3>
+            <button class="no-print btn-secondary" style="padding: 5px 12px; font-size: 12px;" onclick="loadText()">Clear Blanks</button>
+        </div>
+        <div id="worksheet">Text will appear here...</div>
+    </section>
+
+    <section id="wordBankSection">
+        <h3 class="no-print">Step 3: Export Settings</h3>
+        <div class="no-print" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+            <label><input type="checkbox" id="shuffleToggle" onchange="updateWordBank()"> Shuffle Bank</label>
+            <label><input type="checkbox" id="hintToggle" onchange="updateWordBank()" checked> Show Clues/Hints</label>
+            <label><input type="checkbox" id="firstLetterToggle" onchange="applyFirstLetter()"> First Letter Hint</label>
+            <button class="btn-secondary" onclick="togglePreview()" style="margin-left: auto;">Print Preview & Key</button>
+        </div>
+        <div id="wordBankDisplay"></div>
+        <div id="answerKeyPreview" style="display:none; margin-top: 50px; border-top: 3px double #333; padding-top: 20px;">
+            <h2 style="text-align: center; color: #d9534f;">Answer Key</h2>
+            <div id="answerKeyContent" style="line-height: 2.5;"></div>
+        </div>
+        <button class="btn-download no-print" onclick="downloadDoc()">Download Complete Document (.doc)</button>
+    </section>
+</div>
+
+<script>
+let wordsClicked = [];
+let usedNumbers = [];
+
+function resetAll() {
+    if(confirm("Reset everything?")) {
+        document.getElementById('docTitle').value = "";
+        document.getElementById('docInstr').value = "";
+        document.getElementById('inputText').value = "";
+        document.getElementById('sentenceRows').innerHTML = '<div class="sentence-row" style="display:flex; gap:10px; margin-bottom:8px;"><input type="text" class="sentence-input" style="flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Sentence 1..."><button class="delete-btn" onclick="this.parentElement.remove()">✕</button></div>';
+        document.getElementById('worksheet').innerHTML = "Text will appear here...";
+        wordsClicked = []; usedNumbers = []; updateWordBank();
+    }
+}
+
+function switchInputMode() {
+    const isPara = document.querySelector('input[name="mode"]:checked').value === 'paragraphs';
+    document.getElementById('bulkInputArea').style.display = isPara ? 'block' : 'none';
+    document.getElementById('sentenceInputArea').style.display = isPara ? 'none' : 'block';
+}
+
+function addSentenceRow() {
+    const container = document.getElementById('sentenceRows');
+    const div = document.createElement('div');
+    div.className = 'sentence-row'; div.style.display = "flex"; div.style.gap = "10px"; div.style.marginBottom = "8px";
+    div.innerHTML = `<input type="text" class="sentence-input" style="flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Sentence ${container.children.length + 1}..."><button class="delete-btn" onclick="this.parentElement.remove()">✕</button>`;
+    container.appendChild(div);
+}
+
+function loadText() {
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    let text = (mode === 'paragraphs') ? document.getElementById('inputText').value : 
+               Array.from(document.querySelectorAll('.sentence-input')).map(i => i.value.trim()).filter(v => v !== "").join('\n');
+    if(!text.trim()) return;
+    
+    let wrapped = '';
+    text.split(/\n/).forEach((line, idx) => {
+        if(line.trim() === "") return;
+        let prefix = `<strong>${idx+1}. </strong>`;
+        wrapped += prefix + line.replace(/(\w+)/g, word => `<span class="clickable" onclick="wordClick(this)">${word}</span>`) + '<br><br>';
+    });
+    document.getElementById('worksheet').innerHTML = wrapped;
+    wordsClicked = []; usedNumbers = []; updateWordBank();
+}
+
+function wordClick(span) {
+    if(wordsClicked.some(w => w.span===span)) return;
+    const word = span.textContent.trim();
+    const num = getNextNum();
+    usedNumbers.push(num);
+
+    const pattern = generatePattern(word, num);
+    span.innerHTML = pattern; span.className = 'blank';
+    
+    span.onclick = () => undoBlank(span, word, num);
+    wordsClicked.push({word, jp:'', span, number:num, pattern});
+    applyFirstLetter();
+    updateWordBank();
+}
+
+function generatePattern(word, num, showFirst = false) {
+    // 1.5x length logic for penmanship room
+    const spaceCount = Math.max(Math.ceil(word.length * 1.5), 6);
+    const underscores = '_'.repeat(showFirst ? spaceCount - 1 : spaceCount);
+    const firstChar = showFirst ? word[0] : "";
+    return `${num}. ${firstChar}${underscores}`;
+}
+
+function applyFirstLetter() {
+    const showFirst = document.getElementById('firstLetterToggle').checked;
+    wordsClicked.forEach(w => {
+        w.pattern = generatePattern(w.word, w.number, showFirst);
+        w.span.innerHTML = w.pattern;
+    });
+}
+
+function getNextNum() { for(let i=1;;i++) if(!usedNumbers.includes(i)) return i; }
+
+function undoBlank(span, word, num) {
+    span.textContent = word; span.className = 'clickable';
+    span.onclick = () => wordClick(span);
+    wordsClicked = wordsClicked.filter(w => w.span !== span);
+    usedNumbers = usedNumbers.filter(n => n!==num);
+    updateWordBank();
+}
+
+function updateWordBank() {
+    const display = document.getElementById('wordBankDisplay');
+    const useHints = document.getElementById('hintToggle').checked;
+    let list = [...wordsClicked];
+    if(document.getElementById('shuffleToggle').checked) list.sort(() => Math.random() - 0.5);
+
+    if(!useHints) {
+        display.innerHTML = `<div style="border:2px solid #333; padding:15px; border-radius:8px; display:flex; flex-wrap:wrap; justify-content:center; gap:25px;">${list.map(w => `<span style="font-weight:bold; padding:2px 10px; border:1px solid #eee;">${w.word}</span>`).join('')}</div>`;
+    } else {
+        let html = `<table><tr><th>Word</th><th>Clue/Hint</th></tr>`;
+        list.forEach(item => {
+            html += `<tr><td>${item.word}</td><td><input type="text" value="${item.jp}" style="width:95%; padding:5px; border:1px solid #ddd;" placeholder="Enter hint..." oninput="updateHint('${item.word}', this.value)"></td></tr>`;
+        });
+        display.innerHTML = html + `</table>`;
+    }
+}
+
+function updateHint(word, val) {
+    const w = wordsClicked.find(x => x.word === word);
+    if(w) w.jp = val;
+}
+
+function togglePreview() {
+    const body = document.getElementById('mainBody');
+    const isEntering = body.classList.toggle('preview-mode');
+    document.getElementById('previewTitle').innerText = document.getElementById('docTitle').value;
+    document.getElementById('previewTitle').style.display = (isEntering && document.getElementById('docTitle').value) ? 'block' : 'none';
+    document.getElementById('previewInstr').innerText = document.getElementById('docInstr').value;
+    document.getElementById('previewInstr').style.display = (isEntering && document.getElementById('docInstr').value) ? 'block' : 'none';
+    document.getElementById('answerKeyPreview').style.display = isEntering ? 'block' : 'none';
+
+    if(isEntering) {
+        let keyHtml = document.getElementById('worksheet').innerHTML;
+        // Sort by length descending to prevent partial replacement issues
+        const sortedWords = [...wordsClicked].sort((a,b) => b.pattern.length - a.pattern.length);
+        sortedWords.forEach(w => { keyHtml = keyHtml.split(w.pattern).join(`<u><strong>${w.word}</strong></u>`); });
+        document.getElementById('answerKeyContent').innerHTML = keyHtml;
+        document.querySelectorAll('#wordBankDisplay input').forEach(i => {
+            const s = document.createElement('span'); s.className='tmp-hint'; s.innerText = i.value;
+            i.style.display='none'; i.parentNode.appendChild(s);
+        });
+    } else {
+        document.querySelectorAll('.tmp-hint').forEach(s => s.remove());
+        document.querySelectorAll('#wordBankDisplay input').forEach(i => i.style.display='block');
+    }
+}
+
+function downloadDoc() {
+    const title = document.getElementById('docTitle').value || "Worksheet";
+    const instr = document.getElementById('docInstr').value;
+    const useHints = document.getElementById('hintToggle').checked;
+    let bankHtml = "";
+    if(useHints) {
+        bankHtml = `<table border="1" cellpadding="10" style="width:100%; border-collapse:collapse;"><tr><th>Word</th><th>Clue/Hint</th></tr>`;
+        wordsClicked.forEach(w => { bankHtml += `<tr><td>${w.word}</td><td>${w.jp}</td></tr>`; });
+        bankHtml += `</table>`;
+    } else {
+        bankHtml = `<table border="2" cellpadding="15" style="width:100%; text-align:center;"><tr><td><font size="4"><b>`;
+        wordsClicked.forEach((w, i) => { bankHtml += w.word + (i < wordsClicked.length - 1 ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" : ""); });
+        bankHtml += `</b></font></td></tr></table>`;
+    }
+    const content = `<html><head><meta charset="utf-8"></head><body>
+        <p>Name: __________________________ Class: __________________________</p>
+        <h2 align="center">${title}</h2>
+        ${instr ? `<p align="center"><i>${instr}</i></p>` : ''}
+        <br><div style="line-height:250%;">${document.getElementById('worksheet').innerHTML}</div><br>
+        <h3>Word Bank</h3>${bankHtml}
+        <br style="page-break-before:always;">
+        <h2 align="center">Answer Key</h2>
+        <div style="line-height:250%;">${document.getElementById('answerKeyContent').innerHTML}</div></body></html>`;
+    const blob = new Blob([content], {type:'application/msword'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${title}.doc`; a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choices Game Generator</title>
+<style>
+    /* Teacher UI - Clean Professional Aesthetic */
+    body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 20px; color: #333; }
+    .teacher { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #003366; margin-bottom: 30px; }
+    
+    /* Choice Label Styles */
+    .label-settings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
+    .label-box { display: flex; flex-direction: column; gap: 5px; }
+    .label-box span { font-size: 12px; font-weight: bold; color: #666; }
+    input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+    
+    /* Row Styles */
+    .row { display: grid; grid-template-columns: 40px 2fr 1.5fr 120px 60px 50px; gap: 12px; margin-bottom: 12px; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
+    .row select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: white; }
+    .img-preview { max-height: 50px; max-width: 60px; border: 1px solid #ddd; border-radius: 4px; object-fit: cover; }
+    .deleteBtn { background: #c62828; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+    
+    .controls { display: flex; gap: 15px; margin-top: 30px; justify-content: center; }
+    button.main-btn { font-size: 18px; padding: 14px 28px; cursor: pointer; border-radius: 8px; border: none; background: #003366; color: white; transition: 0.2s; }
+    button.main-btn:hover { background: #002244; }
+    button.secondary { background: #607d8b; }
+</style>
+</head>
+<body>
+
+<div class="teacher">
+    <h1>Choices Game Generator</h1>
+    
+    <div class="label-settings">
+        <div class="label-box"><span>Choice 1 Label</span><input id="label1" placeholder="True" oninput="updateAllDropdowns()"></div>
+        <div class="label-box"><span>Choice 2 Label</span><input id="label2" placeholder="False" oninput="updateAllDropdowns()"></div>
+        <div class="label-box"><span>Choice 3 Label</span><input id="label3" placeholder="(optional)" oninput="updateAllDropdowns()"></div>
+        <div class="label-box"><span>Choice 4 Label</span><input id="label4" placeholder="(optional)" oninput="updateAllDropdowns()"></div>
+    </div>
+
+    <div id="rowsContainer"></div>
+    
+    <div class="controls">
+        <button class="main-btn secondary" onclick="clearAll()">🗑 Clear All</button>
+        <button class="main-btn" onclick="generate()">💾 Download Student Game</button>
+    </div>
+</div>
+
+<script>
+let rowCount = 0;
+const container = document.getElementById('rowsContainer');
+
+function addRow() {
+    rowCount++;
+    const div = document.createElement('div');
+    div.className = 'row';
+    div.innerHTML = `
+        <div style="font-weight:bold; color:#999">${rowCount}</div>
+        <input type="text" placeholder="Question/Statement" oninput="autoAdd(this)">
+        <select class="answer-select"></select>
+        <input type="file" accept="image/*" style="font-size:10px; width:100px" onchange="handleImg(this)">
+        <img class="img-preview" src="">
+        <button class="deleteBtn" onclick="this.parentElement.remove(); renumber();">✖</button>
+    `;
+    container.appendChild(div);
+    updateDropdown(div.querySelector('.answer-select'));
+}
+
+function updateAllDropdowns() {
+    const selects = document.querySelectorAll('.answer-select');
+    selects.forEach(sel => updateDropdown(sel));
+}
+
+function updateDropdown(select) {
+    const currentVal = select.value;
+    const l1 = document.getElementById('label1').value || "True";
+    const l2 = document.getElementById('label2').value || "False";
+    const l3 = document.getElementById('label3').value.trim();
+    const l4 = document.getElementById('label4').value.trim();
+
+    let options = [
+        {text: `Correct: ${l1}`, val: 0},
+        {text: `Correct: ${l2}`, val: 1}
+    ];
+    if(l3) options.push({text: `Correct: ${l3}`, val: 2});
+    if(l4) options.push({text: `Correct: ${l4}`, val: 3});
+
+    select.innerHTML = options.map(opt => `<option value="${opt.val}">${opt.text}</option>`).join('');
+    select.value = currentVal; // Maintain selection if still valid
+}
+
+function autoAdd(input) {
+    if (input.parentElement === container.lastElementChild && input.value.trim() !== "") {
+        addRow();
+    }
+}
+
+function handleImg(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => input.nextElementSibling.src = e.target.result;
+        reader.readAsDataURL(file);
+    }
+}
+
+function renumber() {
+    [...container.children].forEach((row, i) => row.firstElementChild.textContent = i + 1);
+}
+
+function clearAll() {
+    if(confirm("Clear all questions?")) {
+        container.innerHTML = "";
+        rowCount = 0;
+        addRow();
+    }
+}
+
+function generate() {
+    const labels = [
+        document.getElementById('label1').value || "True",
+        document.getElementById('label2').value || "False",
+        document.getElementById('label3').value.trim(),
+        document.getElementById('label4').value.trim()
+    ].filter(Boolean);
+
+    const data = [];
+    [...container.children].forEach(row => {
+        const q = row.querySelectorAll('input[type="text"]')[0].value.trim();
+        const a = parseInt(row.querySelector('select').value);
+        const img = row.querySelector('img').src;
+        if(q) data.push({q, a, img: img.includes('data:') ? img : ""});
+    });
+
+    if(!data.length) return alert("Add questions first!");
+
+    const finalHTML = studentTemplate
+        .replace('//%%LABELS%%', `const labels = ${JSON.stringify(labels)};`)
+        .replace('//%%DATA%%', `const gameData = ${JSON.stringify(data)};`);
+
+    const blob = new Blob([finalHTML], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "Choices_Game.html";
+    a.click();
+}
+
+addRow();
+
+const studentTemplate = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Choices Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body.scale-1 { font-size: 30px; }
+        body.scale-2 { font-size: 36px; }
+        body.scale-3 { font-size: 24px; }
+
+        body { font-family: Arial, sans-serif; text-align: center; background: #f0f2f5; margin: 0; transition: font-size 0.2s; }
+        
+        /* Fixed visibility logic */
+        .screen { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
+        .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        #introScreen { background: #003366; color: white; }
+        .btn-start { font-size: 1.2em; padding: 15px 50px; cursor: pointer; background: white; color: #003366; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        #gameScreen { padding-bottom: 120px; justify-content: flex-start; }
+
+        /* Navigation Bar */
+        #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; padding: 15px; display: none; justify-content: center; gap: 15px; z-index: 100; }
+        .nav-btn { font-size: 0.8em; padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; }
+        
+        #zoomBtn { position: fixed; right: 20px; bottom: 100px; width: 50px; height: 50px; border-radius: 50%; border: none; background: #003366; color: white; font-size: 24px; cursor: pointer; z-index: 101; display: flex; align-items: center; justify-content: center; }
+        #watermark { position: fixed; left: 15px; bottom: 85px; font-size: 14px; opacity: 0.3; pointer-events: none; }
+
+        #qText { font-size: 1.5em; color: #003366; margin: 20px; font-weight: bold; }
+        #qImg { max-width: 90%; max-height: 350px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 800px; margin: 0 auto; }
+        .choice-grid button { font-size: 1em; padding: 25px 10px; border: none; border-radius: 15px; color: white; cursor: pointer; font-weight: bold; }
+        .c0 { background: #1976d2; } .c1 { background: #d32f2f; } .c2 { background: #388e3c; } .c3 { background: #f9a825; color: black !important; }
+        
+        #statusMsg { font-size: 1.2em; font-weight: bold; margin-top: 25px; min-height: 1.5em; }
+    </style>
+</head>
+<body class="scale-1">
+
+    <div id="introScreen" class="screen active">
+        <h1 style="font-size:2em; margin-bottom:40px;">Choices Game</h1>
+        <button class="btn-start" onclick="startGame()">START GAME</button>
+    </div>
+
+    <div id="gameScreen" class="screen">
+        <div id="qText"></div>
+        <img id="qImg">
+        <div id="choiceContainer" class="choice-grid"></div>
+        <div id="statusMsg"></div>
+    </div>
+
+    <div id="bottomBar">
+        <button class="nav-btn" onclick="prev()">⬅ Back</button>
+        <button class="nav-btn" onclick="retry()">🔄 Retry</button>
+        <button class="nav-btn" onclick="next()">Next ➡</button>
+    </div>
+
+    <button id="zoomBtn" onclick="toggleZoom()">🔍</button>
+    <div id="watermark">cmarasigan</div>
+
+    <script>
+        //%%LABELS%%
+        //%%DATA%%
+
+        let index = 0;
+        let scale = 1;
+
+        function toggleZoom() {
+            scale = scale === 3 ? 1 : scale + 1;
+            document.body.className = 'scale-' + scale;
+        }
+
+        function startGame() {
+            document.getElementById('introScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('bottomBar').style.display = 'flex';
+            loadLevel();
+        }
+
+        function loadLevel() {
+            const d = gameData[index];
+            const qTxt = document.getElementById('qText');
+            const qImg = document.getElementById('qImg');
+            const container = document.getElementById('choiceContainer');
+            const status = document.getElementById('statusMsg');
+
+            status.textContent = "";
+            qTxt.textContent = d.q;
+            
+            if(d.img) {
+                qImg.src = d.img;
+                qImg.style.display = "block";
+            } else {
+                qImg.style.display = "none";
+            }
+
+            container.innerHTML = "";
+            labels.forEach((label, i) => {
+                const btn = document.createElement('button');
+                btn.textContent = label;
+                btn.className = 'c' + i;
+                btn.onclick = () => {
+                    if(i === d.a) {
+                        status.textContent = "✅ Correct!";
+                        status.style.color = "#2e7d32";
+                        container.querySelectorAll('button').forEach(b => b.disabled = true);
+                    } else {
+                        status.textContent = "❌ Incorrect";
+                        status.style.color = "#c62828";
+                        btn.style.opacity = "0.3";
+                        btn.disabled = true;
+                    }
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function next() {
+            if (index < gameData.length - 1) { index++; loadLevel(); }
+            else { document.getElementById('statusMsg').textContent = "🎉 Quiz Completed!"; }
+        }
+        function prev() { if (index > 0) { index--; loadLevel(); } }
+        function retry() { loadLevel(); }
+    <\/script>
+</body>
+</html>`;
+</script>
+</body>
+</html>
