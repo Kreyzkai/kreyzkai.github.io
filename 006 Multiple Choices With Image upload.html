@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Chris' Multiple Choice Generator</title>
 <style>
-/* TEACHER UI - PRESERVED AESTHETICS FROM 006 */
+/* TEACHER UI - EXACT 006 PRESERVED */
 body{font-family:Arial, sans-serif;background:#f4f6fa;padding:20px;margin:0;}
 .teacher{max-width:1450px;margin:auto;background:#fff;padding:25px;border-radius:12px;box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
 h1{text-align:center; color:#003366;}
@@ -16,10 +16,9 @@ input[type="text"], input[type="password"]{font-size:14px;padding:6px;border:1px
 .controls{margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;}
 button{font-size:18px;padding:10px 16px;cursor:pointer;border-radius:6px;border:1px solid #ccc}
 #saveBtn{background:#003366;color:white;border:none}
-#exitEditBtn{background:#555;color:white;border:none; display:none;}
 .file-label{font-size:10px; cursor:pointer; color:#1976d2; text-decoration:underline}
 
-/* STUDENT UI - 100% LOYAL TO ORIGINAL AESTHETICS */
+/* STUDENT UI - 006 GAMEPLAY */
 #studentApp { display:none; height:100vh; flex-direction:column; overflow:hidden; }
 .scale-1{font-size:20px} .scale-2{font-size:24px} .scale-3{font-size:28px} .scale-4{font-size:32px} .scale-5{font-size:16px}
 #displayArea{cursor:pointer; flex: 0 1 auto; min-height: 10vh; display:flex; align-items:center; justify-content:center; padding:10px;}
@@ -35,6 +34,14 @@ button{font-size:18px;padding:10px 16px;cursor:pointer;border-radius:6px;border:
 #watermark{position:fixed; left:12px; bottom:70px; font-size:12px; opacity:0.35; cursor:pointer; z-index:1000;}
 .correct-view { grid-column: 1 / span 2; max-height: 70vh !important; }
 .correct-view img { max-height: 55vh !important; }
+
+/* 001 START/END SCREEN OVERLAYS */
+.screen { display: none; height: 100vh; width: 100%; background: #003366; color: white; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; z-index: 2000; }
+.screen.active { display: flex; }
+.card { background: white; color: #333; padding: 40px; border-radius: 20px; text-align: center; max-width: 600px; width: 90%; }
+.card h1 { color: #003366; margin-top: 0; }
+.btn-001 { background: #28a745; color: white; border: none; padding: 20px 50px; font-size: 24px; border-radius: 50px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+.btn-retry-001 { background: #003366; color: white; border: none; padding: 15px 40px; font-size: 20px; border-radius: 50px; cursor: pointer; margin-top: 20px; }
 </style>
 </head>
 <body class="scale-1">
@@ -51,39 +58,51 @@ button{font-size:18px;padding:10px 16px;cursor:pointer;border-radius:6px;border:
             <input type="password" id="pwInput" placeholder="Set password" style="width:200px; padding:10px;" value="admin">
         </div>
     </div>
-    
     <h3>Questions & Choices</h3>
     <div id="rows"></div>
     <div class="controls">
-        <button id="backBtn" onclick="goBack()">⬅ Back to Main Page</button>
-        <button id="exitEditBtn" onclick="closeEditor()">⬅ Back to Game</button>
-    
-        <button id="addBtn" onclick="addRow()">➕ Add Question</button>
+        <button onclick="window.location.href='index.html'">⬅ Back to Main Page</button>
+        <button onclick="location.reload()">🔄 Reset Generator</button>
+        <button onclick="addRow()">➕ Add Question</button>
         <button onclick="clearAll()">🗑 Clear All</button>
         <button id="saveBtn" onclick="generate()">💾 Save & Download Student Game</button>
     </div>
 </div>
 
 <div id="studentApp">
-    <h1 id="studentTitle" style="font-size:0.7em; color:#777; padding:5px; margin:0;"></h1>
+    <div id="introScreen" class="screen active">
+        <div class="card">
+            <h1>Chris' Multiple Choice Generator</h1>
+            <h2 id="introTitle"></h2>
+            <button class="btn-001" onclick="startGame()">START GAME</button>
+        </div>
+    </div>
+
+    <h1 id="studentTitle" style="font-size:0.7em; color:#777; padding:5px; margin:0; text-align:center;"></h1>
     <div id="displayArea" onclick="toggleQ()"><div id="mainText"></div></div>
     <div class="buttons" id="buttons"></div>
     <div id="feedback"></div>
     <div id="bottomBar">
-    
         <button class="nav-btn" onclick="prev()">⬅ Prev Question</button>
         <button class="nav-btn" onclick="retry()">🔄 Retry</button>
         <button class="nav-btn" onclick="next()">Next ➡</button>
     </div>
+
+    <div id="endScreen" class="screen">
+        <div class="card">
+            <h1>Game Over!</h1>
+            <h2>You have completed the quiz.</h2>
+            <button class="btn-retry-001" onclick="location.reload()">Restart Quiz</button>
+        </div>
+    </div>
+
     <button id="zoomBtn" onclick="zoom()">🔍</button>
     <div id="watermark" onclick="rehydrate()">cmarasigan</div>
 </div>
 
 <script>
-/* CONFIGURATION DATA */
 let startData = []; 
 let activePW = "admin";
-
 const rowsDiv = document.getElementById("rows");
 const titleInput = document.getElementById("titleInput");
 const pwInput = document.getElementById("pwInput");
@@ -92,26 +111,18 @@ let qCounter = 0;
 
 window.onload = () => {
     rowsDiv.innerHTML = "";
-    rows = [];
     if(startData.length > 0) {
         document.getElementById("teacherApp").style.display = "none";
         document.getElementById("studentApp").style.display = "flex";
+        document.getElementById("introTitle").textContent = titleInput.value;
         document.getElementById("studentTitle").textContent = titleInput.value;
-        document.getElementById("exitEditBtn").style.display = "inline-block"; 
         pwInput.value = activePW; 
         startData.forEach(d => addRow(d));
         render();
-    } else {
-        addRow();
-    }
+    } else { addRow(); }
 };
 
-// RESTORED FROM 006: ORIGINAL BACK FUNCTION
-function goBack() {
-    if(confirm("This will reset your workspace.")) {
-        window.location.href = 'index.html';
-    }
-}
+function startGame() { document.getElementById("introScreen").classList.remove("active"); }
 
 function addRow(existingData = null){
     const id = "q" + qCounter++;
@@ -132,61 +143,34 @@ function addRow(existingData = null){
                 <input type="text" placeholder="Choice ${i+1}" value="${existingData && existingData.choices[i] ? existingData.choices[i] : ''}">
             </div>
         `).join('')}
-        <button class="deleteBtn" onclick="delRow(this)">✖</button>
+        <button class="deleteBtn" onclick="this.parentElement.remove(); rows=rows.filter(r=>r!==this.parentElement); renumber();">✖</button>
     `;
-    rows.push(row);
-    rowsDiv.appendChild(row);
+    rows.push(row); rowsDiv.appendChild(row);
 }
 
 function handleFile(input) {
-    const f = input.files[0];
-    if(!f) return;
-    const imgTag = input.parentElement.previousElementSibling;
     const reader = new FileReader();
-    reader.onload = ()=> { imgTag.src = reader.result; imgTag.style.display = "block"; };
-    reader.readAsDataURL(f);
+    reader.onload = ()=> { const img = input.parentElement.previousElementSibling; img.src = reader.result; img.style.display = "block"; };
+    if(input.files[0]) reader.readAsDataURL(input.files[0]);
 }
 
-function autoAdd(){
-    const lastRow = rows[rows.length-1];
-    if(lastRow && lastRow.querySelector("input").value.trim() !== "") addRow();
-}
-
-function delRow(btn){
-    btn.parentElement.remove();
-    rows = rows.filter(r => r !== btn.parentElement);
-    rows.forEach((r,i) => r.children[0].textContent = (i+1)+'.');
-}
-
+function autoAdd(){ if(rows[rows.length-1].querySelector("input").value.trim() !== "") addRow(); }
+function renumber() { rows.forEach((r,i) => r.children[0].textContent = (i+1)+'.'); }
 function clearAll() { if(confirm("Clear all?")) { rowsDiv.innerHTML = ""; rows = []; addRow(); } }
 
 function rehydrate() {
-    const pass = prompt("Enter Teacher Password to edit:");
-    if(pass === pwInput.value) {
+    if(prompt("Enter Password:") === activePW) {
         document.getElementById("studentApp").style.display = "none";
         document.getElementById("teacherApp").style.display = "block";
-        document.body.style.overflow = "auto";
-    } else if(pass !== null) {
-        alert("Incorrect password.");
     }
 }
 
-function closeEditor() {
-    document.getElementById("teacherApp").style.display = "none";
-    document.getElementById("studentApp").style.display = "flex";
-    document.body.style.overflow = "hidden";
-    syncDataFromRows();
-    render();
-}
-
-function syncDataFromRows() {
+function generate(){
     const newData = [];
-    for(const r of rows){
+    rows.forEach(r => {
         const q = r.children[1].querySelector("input").value.trim();
-        const clue = r.children[1].querySelectorAll("input")[1].value.trim();
         const choices = []; const choiceImgs = []; let correctIdx = -1;
-        const containers = r.querySelectorAll(".choiceCell");
-        containers.forEach((cell, idx) => {
+        r.querySelectorAll(".choiceCell").forEach((cell, idx) => {
             const text = cell.querySelector("input[type=text]").value.trim();
             const img = cell.querySelector("img").src || "";
             if(text !== "" || img.startsWith("data:image")) {
@@ -194,84 +178,48 @@ function syncDataFromRows() {
                 choices.push(text); choiceImgs.push(img);
             }
         });
-        if(q && choices.length >= 2 && correctIdx !== -1) newData.push({q, clue, choices, choiceImgs, correct: correctIdx});
-    }
-    if(newData.length > 0) startData = newData;
-}
-
-function generate(){
-    syncDataFromRows();
-    const quizTitle = titleInput.value.trim() || "Visual Quiz";
-    const currentPW = pwInput.value || "admin";
+        if(q && choices.length >= 2 && correctIdx !== -1) newData.push({q, clue: r.children[1].querySelectorAll("input")[1].value.trim(), choices, choiceImgs, correct: correctIdx});
+    });
 
     let docStr = document.documentElement.outerHTML;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(docStr, "text/html");
-    doc.getElementById('rows').innerHTML = '';
-    docStr = doc.documentElement.outerHTML;
-    
-    docStr = docStr.replace(/let startData = \[.*?\];/, `let startData = ${JSON.stringify(startData)};`);
-    docStr = docStr.replace(/let activePW = ".*?";/, `let activePW = "${currentPW}";`);
-    docStr = docStr.replace(/id="titleInput" value=".*?"/, `id="titleInput" value="${quizTitle}"`);
-    docStr = docStr.replace(/id="pwInput" value=".*?"/, `id="pwInput" value="${currentPW}"`);
-
+    docStr = docStr.replace(/let startData = \[.*?\];/, `let startData = ${JSON.stringify(newData)};`);
+    docStr = docStr.replace(/let activePW = ".*?";/, `let activePW = "${pwInput.value}";`);
     const blob = new Blob([docStr], {type:"text/html"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = quizTitle.replace(/\s+/g, '_') + ".html";
-    a.click();
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = (titleInput.value || "Quiz").replace(/\s+/g, '_') + ".html"; a.click();
 }
 
-/* STUDENT ENGINE */
 let i = 0, scale = 0, showingClue = false;
-const scales = ["scale-1", "scale-2", "scale-3", "scale-4", "scale-5"];
-
 function render(){
-    showingClue = false;
-    const d = startData[i];
-    const mainTextEl = document.getElementById("mainText");
-    const buttonsEl = document.getElementById("buttons");
-    mainTextEl.textContent = d.q;
-    mainTextEl.style.fontStyle = "normal";
+    showingClue = false; const d = startData[i];
+    document.getElementById("mainText").textContent = d.q;
     document.getElementById("feedback").textContent = "";
-    buttonsEl.innerHTML = "";
-
+    const btns = document.getElementById("buttons"); btns.innerHTML = "";
     d.choices.forEach((c,idx)=>{
-        const b = document.createElement("button");
-        b.className = "b"+idx;
-        if(d.choiceImgs[idx]) { const img = document.createElement("img"); img.src = d.choiceImgs[idx]; b.appendChild(img); }
-        if(c) { const span = document.createElement("span"); span.textContent = c; b.appendChild(span); }
+        const b = document.createElement("button"); b.className = "b"+idx;
+        if(d.choiceImgs[idx].length > 10) { const img = document.createElement("img"); img.src = d.choiceImgs[idx]; b.appendChild(img); }
+        if(c) { const s = document.createElement("span"); s.textContent = c; b.appendChild(s); }
         b.onclick = () => {
             if(idx === d.correct) {
-                buttonsEl.innerHTML = "";
-                let winBtn = b.cloneNode(true); 
-                winBtn.classList.add("correct-view");
-                winBtn.onclick = () => render(); 
-                buttonsEl.appendChild(winBtn);
-                document.getElementById("feedback").textContent = "Correct! (Click image to zoom out)";
-                document.getElementById("feedback").style.color = "green";
-            } else {
-                b.style.opacity = "0.15"; b.disabled = true;
-                document.getElementById("feedback").textContent = "Try again!";
-                document.getElementById("feedback").style.color = "red";
-            }
+                btns.innerHTML = ""; let win = b.cloneNode(true); win.classList.add("correct-view");
+                win.onclick = () => render(); btns.appendChild(win);
+                document.getElementById("feedback").textContent = "Correct!";
+            } else { b.style.opacity = "0.15"; b.disabled = true; document.getElementById("feedback").textContent = "Try again!"; }
         };
-        buttonsEl.appendChild(b);
+        btns.appendChild(b);
     });
 }
 
-function toggleQ() {
-    showingClue = !showingClue;
-    const d = startData[i];
-    const el = document.getElementById("mainText");
-    if(showingClue && d.clue) { el.textContent = "Clue: " + d.clue; el.style.fontStyle = "italic"; }
-    else { el.textContent = d.q; el.style.fontStyle = "normal"; }
-}
-
-function next(){ if(i < startData.length-1){ i++; render(); } }
+function next(){ if(i < startData.length-1){ i++; render(); } else { document.getElementById("endScreen").classList.add("active"); } }
 function prev(){ if(i > 0){ i--; render(); } }
 function retry(){ render(); }
-function zoom(){ scale = (scale + 1) % 5; document.body.className = scales[scale]; }
+function toggleQ() {
+    showingClue = !showingClue; const d = startData[i];
+    const el = document.getElementById("mainText");
+    el.textContent = showingClue && d.clue ? "Clue: " + d.clue : d.q;
+    el.style.fontStyle = showingClue && d.clue ? "italic" : "normal";
+}
+function zoom(){ scale = (scale + 1) % 5; document.body.className = ["scale-1","scale-2","scale-3","scale-4","scale-5"][scale]; }
 </script>
 </body>
-</html>>
+</html>
