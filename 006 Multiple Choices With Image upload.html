@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chris' Multiple Choice Image Generator (Fixed Scaling)</title>
+<title>Chris' Multiple Choice Generator</title>
 <style>
-/* Teacher UI - Word Guesser Aesthetic */
-body{font-family:Arial, sans-serif;background:#f4f6fa;padding:20px}
+/* TEACHER UI - PRESERVED AESTHETICS */
+body{font-family:Arial, sans-serif;background:#f4f6fa;padding:20px;margin:0;}
 .teacher{max-width:1450px;margin:auto;background:#fff;padding:25px;border-radius:12px;box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
 h1{text-align:center; color:#003366;}
 .row{display:grid;grid-template-columns:40px 1.5fr 1fr repeat(4, 1.2fr) 40px;gap:10px;margin-bottom:25px;align-items:start;border-bottom:1px solid #eee;padding-bottom:15px;}
-input[type="text"]{font-size:14px;padding:6px;border:1px solid #ccc;border-radius:4px;width:90%}
+input[type="text"], input[type="password"]{font-size:14px;padding:6px;border:1px solid #ccc;border-radius:4px;width:90%}
 .choiceCell{display:flex; flex-direction:column; gap:4px; align-items:center; background:#f9f9f9; padding:8px; border-radius:8px; border:1px dashed #ccc;}
 .choiceCell img{max-height:60px; max-width:100%; display:none; margin-bottom:4px; border-radius:4px;}
 .deleteBtn{border:none;background:#c62828;color:white;font-size:18px;cursor:pointer;border-radius:6px;padding:4px 8px}
@@ -17,68 +17,123 @@ input[type="text"]{font-size:14px;padding:6px;border:1px solid #ccc;border-radiu
 button{font-size:18px;padding:10px 16px;cursor:pointer;border-radius:6px;border:1px solid #ccc}
 #saveBtn{background:#003366;color:white;border:none}
 .file-label{font-size:10px; cursor:pointer; color:#1976d2; text-decoration:underline}
+
+/* STUDENT UI - 100% LOYAL TO ORIGINAL */
+#studentApp { display:none; height:100vh; flex-direction:column; overflow:hidden; }
+.scale-1{font-size:20px} .scale-2{font-size:24px} .scale-3{font-size:28px} .scale-4{font-size:32px} .scale-5{font-size:16px}
+#displayArea{cursor:pointer; flex: 0 1 auto; min-height: 10vh; display:flex; align-items:center; justify-content:center; padding:10px;}
+#mainText{font-size:1.5em; font-weight:bold; color:#003366; line-height: 1.2;}
+.buttons{display:grid; grid-template-columns:repeat(2,1fr); gap:15px; max-width:1200px; margin:0 auto; padding:0 15px; flex: 1 1 auto;}
+.buttons button{font-size:1em; padding:10px; border:none; color:white; border-radius:15px; cursor:pointer; font-weight:bold; display:flex; flex-direction:column; align-items:center; gap:5px; justify-content:center; overflow:hidden; max-height: 35vh;}
+.buttons img{width:auto; height:auto; max-width:100%; max-height:25vh; object-fit:contain; border-radius:8px; background:white;}
+.b0{background:#1976d2;} .b1{background:#d32f2f;} .b2{background:#388e3c;} .b3{background:#fbc02d;color:black;}
+#feedback{font-size:1.1em; margin:5px; font-weight:bold; min-height:1.2em; text-align:center;}
+#bottomBar { background: white; border-top: 1px solid #ccc; padding: 10px; display: flex; justify-content: center; gap: 15px;}
+.nav-btn { font-size: 0.8em; padding: 8px 16px; cursor: pointer; border: 1px solid #aaa; border-radius: 6px; background: #fff;}
+#zoomBtn{position:fixed; right:20px; bottom:80px; width:45px; height:45px; border-radius:50%; border:none; background:#003366; color:white; font-size:20px; cursor:pointer; z-index:101;}
+#watermark{position:fixed; left:12px; bottom:70px; font-size:12px; opacity:0.35; cursor:pointer; z-index:1000;}
+.correct-view { grid-column: 1 / span 2; max-height: 70vh !important; }
+.correct-view img { max-height: 55vh !important; }
 </style>
 </head>
-<body>
+<body class="scale-1">
 
-<div class="teacher">
-<h1>Chis' Multiple Choice Generator</h1>
-<p>Game Title / Topic</p>
-<input id="titleInput" placeholder="e.g. Science Quiz" style="width:300px; padding:10px; margin-bottom:20px;">
-
-<h3>Questions & Choices</h3>
-<div id="rows"></div>
-
-<div class="controls">
-  <button id="backBtn" onclick="goBack()">⬅ Back to Main Page</button>
-  <button id="addBtn">➕ Add Question</button>
-  <button id="clearBtn" onclick="clearAll()">🗑 Clear All</button>
-  <button id="saveBtn" onclick="generate()">💾 Save & Download Student Game</button>
+<div id="teacherApp" class="teacher">
+    <h1>Chris' Multiple Choice Generator</h1>
+    <div style="display:flex; gap:20px; margin-bottom:20px;">
+        <div>
+            <p>Game Title / Topic</p>
+            <input id="titleInput" placeholder="e.g. Science Quiz" style="width:300px; padding:10px;">
+        </div>
+        <div>
+            <p>Editor Password</p>
+            <input type="password" id="pwInput" placeholder="Set password" style="width:200px; padding:10px;" value="admin">
+        </div>
+    </div>
+    
+    <h3>Questions & Choices</h3>
+    <div id="rows"></div>
+    <div class="controls">
+        <button onclick="location.reload()">⬅ Reset Generator</button>
+        <button id="addBtn" onclick="addRow()">➕ Add Question</button>
+        <button onclick="clearAll()">🗑 Clear All</button>
+        <button id="saveBtn" onclick="generate()">💾 Save & Download Student Game</button>
+    </div>
 </div>
+
+<div id="studentApp">
+    <h1 id="studentTitle" style="font-size:0.7em; color:#777; padding:5px; margin:0;"></h1>
+    <div id="displayArea" onclick="toggleQ()"><div id="mainText"></div></div>
+    <div class="buttons" id="buttons"></div>
+    <div id="feedback"></div>
+    <div id="bottomBar">
+        <button class="nav-btn" onclick="prev()">⬅ Back</button>
+        <button class="nav-btn" onclick="retry()">🔄 Retry</button>
+        <button class="nav-btn" onclick="next()">Next ➡</button>
+    </div>
+    <button id="zoomBtn" onclick="zoom()">🔍</button>
+    <div id="watermark" onclick="rehydrate()">cmarasigan</div>
 </div>
 
 <script>
-let rows = [];
-let qCounter = 0;
+/* CONFIGURATION DATA */
+let startData = []; 
+let activePW = "admin";
+
 const rowsDiv = document.getElementById("rows");
 const titleInput = document.getElementById("titleInput");
+const pwInput = document.getElementById("pwInput");
+let rows = [];
+let qCounter = 0;
 
-function addRow(){
+window.onload = () => {
+    rowsDiv.innerHTML = "";
+    rows = [];
+
+    if(startData.length > 0) {
+        document.getElementById("teacherApp").style.display = "none";
+        document.getElementById("studentApp").style.display = "flex";
+        document.getElementById("studentTitle").textContent = titleInput.value;
+        pwInput.value = activePW; 
+        startData.forEach(d => addRow(d));
+        render();
+    } else {
+        addRow();
+    }
+};
+
+function addRow(existingData = null){
     const id = "q" + qCounter++;
     const row = document.createElement("div");
     row.className = "row";
     row.innerHTML = `
         <div style="font-weight:bold; padding-top:8px">${rows.length+1}.</div>
         <div>
-            <input type="text" placeholder="Question" oninput="autoAdd()" style="margin-bottom:5px">
-            <input type="text" placeholder="Clue (optional)">
+            <input type="text" placeholder="Question" oninput="autoAdd()" style="margin-bottom:5px" value="${existingData?existingData.q:''}">
+            <input type="text" placeholder="Clue (optional)" value="${existingData?existingData.clue:''}">
         </div>
-        <div style="font-size:11px; color:#666">Tick the correct answer -></div>
-        ${[1,2,3,4].map(i => `
+        <div style="font-size:11px; color:#666">Tick correct -></div>
+        ${[0,1,2,3].map(i => `
             <div class="choiceCell">
-                <input type="radio" name="${id}" ${i===1?'checked':''}>
-                <img src="" style="display:none">
-                <label class="file-label">Upload<input type="file" accept="image/*" style="display:none"></label>
-                <input type="text" placeholder="Choice ${i}">
+                <input type="radio" name="${id}" ${ (existingData && existingData.correct === i) || (!existingData && i===0) ? 'checked' : ''}>
+                <img src="${existingData && existingData.choiceImgs[i] ? existingData.choiceImgs[i] : ''}" style="display:${existingData && existingData.choiceImgs[i] ? 'block' : 'none'}">
+                <label class="file-label">Upload<input type="file" accept="image/*" style="display:none" onchange="handleFile(this)"></label>
+                <input type="text" placeholder="Choice ${i+1}" value="${existingData && existingData.choices[i] ? existingData.choices[i] : ''}">
             </div>
         `).join('')}
         <button class="deleteBtn" onclick="delRow(this)">✖</button>
     `;
-
-    const fileInputs = row.querySelectorAll("input[type=file]");
-    fileInputs.forEach(input => {
-        input.onchange = function(e){
-            const f = e.target.files[0];
-            if(!f) return;
-            const imgTag = input.parentElement.previousElementSibling;
-            const reader = new FileReader();
-            reader.onload = ()=> { imgTag.src = reader.result; imgTag.style.display = "block"; };
-            reader.readAsDataURL(f);
-        }
-    });
-
     rows.push(row);
     rowsDiv.appendChild(row);
+}
+
+function handleFile(input) {
+    const f = input.files[0];
+    if(!f) return;
+    const imgTag = input.parentElement.previousElementSibling;
+    const reader = new FileReader();
+    reader.onload = ()=> { imgTag.src = reader.result; imgTag.style.display = "block"; };
+    reader.readAsDataURL(f);
 }
 
 function autoAdd(){
@@ -87,206 +142,117 @@ function autoAdd(){
 }
 
 function delRow(btn){
-    const row = btn.parentElement;
-    row.remove();
-    rows = rows.filter(r => r !== row);
+    btn.parentElement.remove();
+    rows = rows.filter(r => r !== btn.parentElement);
     rows.forEach((r,i) => r.children[0].textContent = (i+1)+'.');
 }
 
-function clearAll() {
-    if(!confirm("Clear all questions?")) return;
-    rows = [];
-    rowsDiv.innerHTML = "";
-    addRow();
-}
+function clearAll() { if(confirm("Clear all?")) { rowsDiv.innerHTML = ""; rows = []; addRow(); } }
 
-function goBack() {
-    if(confirm("This will reset your workspace.")) {
-        window.location.href = 'index.html';
+function rehydrate() {
+    const pass = prompt("Enter Teacher Password to edit:");
+    if(pass === pwInput.value) {
+        document.getElementById("studentApp").style.display = "none";
+        document.getElementById("teacherApp").style.display = "block";
+        document.body.style.overflow = "auto";
+    } else if(pass !== null) {
+        alert("Incorrect password.");
     }
 }
 
 function generate(){
     const quizTitle = titleInput.value.trim() || "Visual Quiz";
+    const currentPW = pwInput.value || "admin";
     const data = [];
+    
     for(const r of rows){
         const q = r.children[1].querySelector("input").value.trim();
         const clue = r.children[1].querySelectorAll("input")[1].value.trim();
-        const choices = [];
-        const choiceImgs = [];
-        let correctIdx = -1;
-        
+        const choices = []; const choiceImgs = []; let correctIdx = -1;
         const containers = r.querySelectorAll(".choiceCell");
-        containers.forEach((cell) => {
+        containers.forEach((cell, idx) => {
             const text = cell.querySelector("input[type=text]").value.trim();
             const img = cell.querySelector("img").src || "";
-            const isChecked = cell.querySelector("input[type=radio]").checked;
-            
-            if(text !== "" || (img.startsWith("data:image"))) {
-                if(isChecked) correctIdx = choices.length;
-                choices.push(text);
-                choiceImgs.push(img);
+            if(text !== "" || img.startsWith("data:image")) {
+                if(cell.querySelector("input[type=radio]").checked) correctIdx = choices.length;
+                choices.push(text); choiceImgs.push(img);
             }
         });
-
-        if(q && choices.length >= 2 && correctIdx !== -1) {
-            data.push({q, clue, choices, choiceImgs, correct: correctIdx});
-        }
+        if(q && choices.length >= 2 && correctIdx !== -1) data.push({q, clue, choices, choiceImgs, correct: correctIdx});
     }
+
+    if(!data.length) return alert("Add at least one valid question.");
+
+    // EXPORT LOGIC
+    let docStr = document.documentElement.outerHTML;
+
+    // Remove the live question rows from the code string before saving
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(docStr, "text/html");
+    doc.getElementById('rows').innerHTML = '';
+    docStr = doc.documentElement.outerHTML;
     
-    if(!data.length) return alert("Please ensure questions are filled out with at least 2 choices.");
+    // Inject logic
+    docStr = docStr.replace(/let startData = \[.*?\];/, `let startData = ${JSON.stringify(data)};`);
+    docStr = docStr.replace(/let activePW = ".*?";/, `let activePW = "${currentPW}";`);
+    docStr = docStr.replace(/id="titleInput" value=".*?"/, `id="titleInput" value="${quizTitle}"`);
+    docStr = docStr.replace(/id="pwInput" value=".*?"/, `id="pwInput" value="${currentPW}"`);
 
-    const studentHTML = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>${quizTitle}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-/* Scale adjustments */
-body.scale-1{font-size:20px} body.scale-2{font-size:24px} body.scale-3{font-size:28px} body.scale-4{font-size:32px} body.scale-5{font-size:16px}
-
-body{
-    font-family:Arial; background:#f4f6fa; margin:0; 
-    height: 100vh; display: flex; flex-direction: column; 
-    overflow: hidden; transition: font-size 0.2s;
-}
-
-h1{font-size:0.7em; color:#777; padding:5px; margin:0; flex-shrink: 0;}
-
-#displayArea{
-    cursor:pointer; flex: 0 1 auto; min-height: 10vh;
-    display:flex; align-items:center; justify-content:center; padding:10px;
-}
-#mainText{font-size:1.5em; font-weight:bold; color:#003366; line-height: 1.2;}
-
-.buttons{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:15px; 
-    max-width:1200px; margin:0 auto; padding:0 15px;
-    flex: 1 1 auto; /* Grow to fill available space */
-}
-
-.buttons button{
-    font-size:1em; padding:10px; border:none; color:white; border-radius:15px; 
-    cursor:pointer; font-weight:bold; display:flex; flex-direction:column; 
-    align-items:center; gap:5px; justify-content:center; overflow:hidden;
-    max-height: 35vh; /* Keep buttons within view height */
-}
-
-.buttons img{
-    width:auto; height:auto; max-width:100%; max-height:25vh; 
-    object-fit:contain; border-radius:8px; background:white;
-}
-
-.b0{background:#1976d2;} .b1{background:#d32f2f;} .b2{background:#388e3c;} .b3{background:#fbc02d;color:black;}
-
-#feedback{font-size:1.1em; margin:5px; font-weight:bold; min-height:1.2em; flex-shrink: 0;}
-
-#bottomBar { 
-    background: white; border-top: 1px solid #ccc; 
-    padding: 10px; display: flex; justify-content: center; gap: 15px; flex-shrink: 0;
-}
-
-.nav-btn { font-size: 0.8em; padding: 8px 16px; cursor: pointer; border: 1px solid #aaa; border-radius: 6px; background: #fff;}
-
-#zoomBtn{position:fixed; right:20px; bottom:80px; width:45px; height:45px; border-radius:50%; border:none; background:#003366; color:white; font-size:20px; cursor:pointer; z-index:101;}
-#watermark{position:fixed; left:12px; bottom:70px; font-size:12px; opacity:0.35}
-
-/* Win View - keeps within screen */
-.correct-view { grid-column: 1 / span 2; max-height: 70vh !important; }
-.correct-view img { max-height: 55vh !important; }
-</style>
-</head>
-<body class="scale-1">
-<h1>${quizTitle}</h1>
-<div id="displayArea" onclick="toggleQ()"><div id="mainText"></div></div>
-<div class="buttons" id="buttons"></div>
-<div id="feedback"></div>
-<div id="bottomBar">
-    <button class="nav-btn" onclick="prev()">⬅ Back</button>
-    <button class="nav-btn" onclick="retry()">🔄 Retry</button>
-    <button class="nav-btn" onclick="next()">Next ➡</button>
-</div>
-<button id="zoomBtn" onclick="zoom()">🔍</button>
-<div id="watermark">cmarasigan</div>
-<script>
-const data = %%DATA_PLACEHOLDER%%;
-let i = 0, scale = 0, showingClue = false;
-const scales = ["scale-1", "scale-2", "scale-3", "scale-4", "scale-5"];
-const mainTextEl = document.getElementById("mainText");
-const feedbackEl = document.getElementById("feedback");
-const buttonsEl = document.getElementById("buttons");
-
-function toggleQ() {
-    showingClue = !showingClue;
-    const d = data[i];
-    if(showingClue && d.clue) {
-        mainTextEl.textContent = "Clue: " + d.clue;
-        mainTextEl.style.fontStyle = "italic";
-    } else {
-        mainTextEl.textContent = d.q;
-        mainTextEl.style.fontStyle = "normal";
-        showingClue = false;
-    }
-}
-
-function render(){
-  showingClue = false;
-  const d = data[i];
-  mainTextEl.textContent = d.q;
-  mainTextEl.style.fontStyle = "normal";
-  feedbackEl.textContent = "";
-  buttonsEl.innerHTML = "";
-  
-  d.choices.forEach((c,idx)=>{
-    const b = document.createElement("button");
-    b.className = "b"+idx;
-    if(d.choiceImgs[idx] && d.choiceImgs[idx].startsWith("data:image")){
-        const img = document.createElement("img");
-        img.src = d.choiceImgs[idx];
-        b.appendChild(img);
-    }
-    if(c && c.trim() !== ""){
-        const span = document.createElement("span");
-        span.textContent = c;
-        b.appendChild(span);
-    }
-    b.onclick = ()=> {
-        if(idx === d.correct){
-            buttonsEl.innerHTML = "";
-            let winBtn = b.cloneNode(true);
-            winBtn.classList.add("correct-view");
-            buttonsEl.appendChild(winBtn);
-            feedbackEl.textContent = "Correct!";
-            feedbackEl.style.color="green";
-        } else {
-            b.style.opacity = "0.15";
-            b.disabled = true;
-            feedbackEl.textContent = "Try again!";
-            feedbackEl.style.color="red";
-        }
-    };
-    buttonsEl.appendChild(b);
-  });
-}
-function next(){ if(i < data.length-1){ i++; render(); } else feedbackEl.textContent = "🎉 Quiz Finished!"; }
-function prev(){ if(i > 0){ i--; render(); } }
-function retry(){ render(); }
-function zoom(){ scale = (scale + 1) % 5; document.body.className = scales[scale]; }
-render();
-<\/script>
-</body>
-</html>`.replace('%%DATA_PLACEHOLDER%%', JSON.stringify(data));
-
-    const blob = new Blob([studentHTML], {type:"text/html"});
+    const blob = new Blob([docStr], {type:"text/html"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = quizTitle.replace(/\s+/g, '_') + ".html";
     a.click();
 }
 
-document.getElementById("addBtn").onclick = addRow;
-addRow();
+/* STUDENT ENGINE */
+let i = 0, scale = 0, showingClue = false;
+const scales = ["scale-1", "scale-2", "scale-3", "scale-4", "scale-5"];
+
+function render(){
+    showingClue = false;
+    const d = startData[i];
+    const mainTextEl = document.getElementById("mainText");
+    const buttonsEl = document.getElementById("buttons");
+    mainTextEl.textContent = d.q;
+    mainTextEl.style.fontStyle = "normal";
+    document.getElementById("feedback").textContent = "";
+    buttonsEl.innerHTML = "";
+
+    d.choices.forEach((c,idx)=>{
+        const b = document.createElement("button");
+        b.className = "b"+idx;
+        if(d.choiceImgs[idx]) { const img = document.createElement("img"); img.src = d.choiceImgs[idx]; b.appendChild(img); }
+        if(c) { const span = document.createElement("span"); span.textContent = c; b.appendChild(span); }
+        b.onclick = () => {
+            if(idx === d.correct) {
+                buttonsEl.innerHTML = "";
+                let winBtn = b.cloneNode(true); winBtn.classList.add("correct-view");
+                buttonsEl.appendChild(winBtn);
+                document.getElementById("feedback").textContent = "Correct!";
+                document.getElementById("feedback").style.color = "green";
+            } else {
+                b.style.opacity = "0.15"; b.disabled = true;
+                document.getElementById("feedback").textContent = "Try again!";
+                document.getElementById("feedback").style.color = "red";
+            }
+        };
+        buttonsEl.appendChild(b);
+    });
+}
+
+function toggleQ() {
+    showingClue = !showingClue;
+    const d = startData[i];
+    const el = document.getElementById("mainText");
+    if(showingClue && d.clue) { el.textContent = "Clue: " + d.clue; el.style.fontStyle = "italic"; }
+    else { el.textContent = d.q; el.style.fontStyle = "normal"; }
+}
+
+function next(){ if(i < startData.length-1){ i++; render(); } }
+function prev(){ if(i > 0){ i--; render(); } }
+function retry(){ render(); }
+function zoom(){ scale = (scale + 1) % 5; document.body.className = scales[scale]; }
 </script>
 </body>
 </html>
