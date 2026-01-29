@@ -17,7 +17,7 @@
     
     .preview-mode .no-print, .preview-mode .watermark { display: none !important; }
     .preview-mode body { background: #525659; padding-top: 30px; }
-    .preview-mode .container { width: 210mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 0; padding: 60px; }
+    .preview-mode .container { width: 210mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 0; padding: 60px 60px 60px calc(60px + 1cm); }
     .preview-mode #worksheet { border: none; padding: 0; }
     .preview-mode .student-header { display: flex !important; }
     .preview-mode #closePreview { display: block !important; }
@@ -185,7 +185,7 @@ function wordClick(span) {
 
 function generatePattern(word, num, showFirst = false) {
     // 1.5x length logic for penmanship room
-    const spaceCount = Math.max(Math.ceil(word.length * 1.5), 6);
+    const spaceCount = Math.max(Math.ceil(word.length * 3), 10);
     const underscores = '_'.repeat(showFirst ? spaceCount - 1 : spaceCount);
     const firstChar = showFirst ? word[0] : "";
     return `${num}. ${firstChar}${underscores}`;
@@ -284,4 +284,4 @@ function downloadDoc() {
 }
 </script>
 </body>
-</html>
+</html>>
