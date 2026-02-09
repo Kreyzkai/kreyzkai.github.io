@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chris'Sentence Jumbler Generator – Gold Standard</title>
+<style>
+    /* Teacher UI Aesthetic - Standardized */
+    body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 20px; color: #333; }
+    .teacher { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #003366; margin-bottom: 30px; }
+    
+    .settings-panel { display: flex; gap: 20px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #eee; }
+    input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+
+    .row { display: grid; grid-template-columns: 40px 2fr 1.5fr 50px; gap: 12px; margin-bottom: 12px; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
+    .deleteBtn { background: #c62828; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+    
+    .controls { display: flex; gap: 15px; margin-top: 30px; justify-content: center; }
+    button.main-btn { font-size: 18px; padding: 14px 28px; cursor: pointer; border-radius: 8px; border: none; background: #003366; color: white; transition: 0.2s; }
+    button.secondary { background: #607d8b; }
+    
+    .mode-section { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
+    .mode-section h3 { margin: 0 0 10px 0; color: #003366; font-size: 16px; }
+    .mode-section label { margin-right: 20px; font-size: 14px; }
+    .help-text { font-size: 12px; color: #666; margin-top: 8px; font-style: italic; }
+    .progress-text { text-align: center; color: #666; margin-bottom: 15px; font-size: 14px; }
+    
+    .sentence-block { background: #fafbfc; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e1e4e8; }
+    .sentence-block .block-header { font-weight: bold; color: #003366; margin-bottom: 10px; font-size: 15px; }
+    .sentence-block input[type="text"] { margin-bottom: 8px; }
+    .sentence-block input[type="file"] { font-size: 13px; padding: 8px; }
+    .image-preview { font-size: 12px; color: #2e7d32; margin-top: 5px; }
+</style>
+</head>
+<body>
+
+<div class="teacher">
+    <h1>Chris' Sentence Jumbler Generator</h1>
+    
+    <div class="settings-panel">
+        <input type="text" id="titleInput" placeholder="Enter Game Title (e.g. Daily Routines)">
+    </div>
+
+    <div class="settings-panel">
+        <input type="password" id="editPassword" placeholder="Edit Password (optional - allows re-editing student game)">
+    </div>
+
+    <div class="mode-section">
+        <h3>Jumble Mode</h3>
+        <label><input type="radio" name="mode" value="word" checked> Word Mode (splits by spaces)</label>
+        <label><input type="radio" name="mode" value="phrase"> Phrase Mode (use // to separate phrases)</label>
+        <div class="help-text">Phrase Mode example: The United States // is located in // North America</div>
+    </div>
+
+    <div class="mode-section">
+        <h3>Pattern Mode (Optional)</h3>
+        <label><input type="checkbox" id="patternMode"> Enable Custom Patterns</label>
+        <div class="help-text">Use parentheses to mark jumbled sections: The time (was when he) a child.</div>
+    </div>
+
+    <div class="progress-text" id="progressText">0 sentences added</div>
+
+    <div id="rowsContainer"></div>
+    
+    <div class="controls">
+        <button class="main-btn secondary" onclick="goBack()">⬅ Back to Main Page</button>
+        <button class="main-btn secondary" onclick="clearAll()">🗑 Clear All</button>
+        <button class="main-btn" onclick="generate()">💾 Download Student Game</button>
+    </div>
+</div>
+
+<script>
+let rowCount = 0;
+const container = document.getElementById('rowsContainer');
+
+function addRow(sentence = "", clue = "", imageData = "") {
+    rowCount++;
+    const div = document.createElement('div');
+    div.className = 'sentence-block';
+    div.dataset.index = rowCount;
+    div.innerHTML = `
+        <div class="block-header">Sentence ${rowCount}</div>
+        <input type="text" class="sentence-input" placeholder="Full Sentence (e.g. I go to school.)" value="${sentence}" oninput="autoAdd(this); saveToStorage();">
+        <input type="text" class="clue-input" placeholder="Clue/Hint (Optional)" value="${clue}" oninput="saveToStorage();">
+        <div style="margin-top: 10px;">
+            <label style="font-size: 13px; color: #666;">Image (optional):</label>
+            <input type="file" accept="image/*" class="image-input" onchange="saveToStorage();">
+            ${imageData ? '<div class="image-preview">✓ Image loaded from edit</div>' : ''}
+        </div>
+        <button class="deleteBtn" onclick="deleteRow(this); saveToStorage();">✖</button>
+    `;
+    container.appendChild(div);
+    
+    // Store image data if provided (from edit mode)
+    if (imageData) {
+        div.dataset.imageData = imageData;
+    }
+    
+    updateProgress();
+}
+
+function autoAdd(input) {
+    if (input.parentElement === container.lastElementChild && input.value.trim() !== "") {
+        addRow();
+    }
+}
+
+function deleteRow(btn) {
+    if(!confirm("Delete this sentence?")) return;
+    btn.parentElement.remove();
+    renumber();
+    updateProgress();
+    saveToStorage();
+    
+    // Ensure at least one row exists
+    if (container.children.length === 0) {
+        addRow();
+    }
+}
+
+function renumber() {
+    [...container.children].forEach((row, i) => {
+        row.querySelector('.block-header').textContent = `Sentence ${i + 1}`;
+        row.dataset.index = i + 1;
+    });
+}
+
+function updateProgress() {
+    const rows = [...container.children];
+    let count = 0;
+    rows.forEach(row => {
+        const input = row.querySelector('.sentence-input');
+        if (input && input.value.trim() !== "") count++;
+    });
+    document.getElementById('progressText').textContent = `${count} sentence${count !== 1 ? 's' : ''} added`;
+}
+
+function saveToStorage() {
+    const data = {
+        title: document.getElementById('titleInput').value,
+        mode: document.querySelector('input[name="mode"]:checked').value,
+        patternMode: document.getElementById('patternMode').checked,
+        editPassword: document.getElementById('editPassword').value,
+        sentences: []
+    };
+    
+    [...container.children].forEach(row => {
+        const sentence = row.querySelector('.sentence-input').value;
+        const clue = row.querySelector('.clue-input').value;
+        if (sentence.trim() !== "") {
+            data.sentences.push({ sentence, clue });
+        }
+    });
+    
+    localStorage.setItem('chrisJumblerData', JSON.stringify(data));
+}
+
+function loadFromStorage() {
+    const saved = localStorage.getItem('chrisJumblerData');
+    if (!saved) return;
+    
+    try {
+        const data = JSON.parse(saved);
+        document.getElementById('titleInput').value = data.title || "";
+        document.getElementById('editPassword').value = data.editPassword || "";
+        
+        if (data.mode) {
+            document.querySelector(`input[name="mode"][value="${data.mode}"]`).checked = true;
+        }
+        
+        if (data.patternMode !== undefined) {
+            document.getElementById('patternMode').checked = data.patternMode;
+        }
+        
+        if (data.sentences && data.sentences.length > 0) {
+            data.sentences.forEach(item => {
+                addRow(item.sentence, item.clue);
+            });
+        }
+    } catch (e) {
+        console.error("Failed to load saved data:", e);
+    }
+}
+
+function clearAll() {
+    if(confirm("Delete all rows?")) {
+        localStorage.removeItem('chrisJumblerData');
+        container.innerHTML = "";
+        rowCount = 0;
+        addRow();
+        document.getElementById('titleInput').value = "";
+        updateProgress();
+    }
+}
+
+function goBack() {
+    if(confirm("This will reset your workspace.")) {
+        window.location.href = 'index.html';
+    }
+}
+
+function generate() {
+    const title = document.getElementById('titleInput').value || "Sentence Jumbler";
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const patternMode = document.getElementById('patternMode').checked;
+    const editPassword = document.getElementById('editPassword').value;
+    const data = [];
+    const images = [];
+    const fileInputs = [];
+
+    [...container.children].forEach(row => {
+        const sentence = row.querySelector('.sentence-input').value.trim();
+        const clue = row.querySelector('.clue-input').value.trim();
+        const fileInput = row.querySelector('.image-input');
+        
+        if(sentence) {
+            data.push({
+                s: sentence,
+                c: clue,
+                mode: mode,
+                patternMode: patternMode
+            });
+            fileInputs.push(fileInput);
+            images.push("");
+        }
+    });
+
+    if(!data.length) return alert("Please add at least one sentence.");
+
+    let remaining = fileInputs.length;
+    
+    if (remaining === 0) {
+        buildAndDownload();
+    } else {
+        fileInputs.forEach((inp, i) => {
+            // Check if there's stored image data from edit mode
+            const row = inp.closest('.sentence-block');
+            if (row && row.dataset.imageData) {
+                images[i] = row.dataset.imageData;
+                if (--remaining === 0) buildAndDownload();
+                return;
+            }
+            
+            if (!inp.files[0]) {
+                if (--remaining === 0) buildAndDownload();
+                return;
+            }
+            const r = new FileReader();
+            r.onload = e => {
+                images[i] = e.target.result;
+                if (--remaining === 0) buildAndDownload();
+            };
+            r.readAsDataURL(inp.files[0]);
+        });
+    }
+
+    function buildAndDownload() {
+        const finalHTML = studentTemplate
+            .replace('//%%TITLE%%', `const gameTitle = "${title}";`)
+            .replace('//%%DATA%%', `const gameData = ${JSON.stringify(data)};`)
+            .replace('//%%IMAGES%%', `const gameImages = ${JSON.stringify(images)};`)
+            .replace('//%%PASSWORD%%', `const editPassword = "${editPassword}";`);
+
+        const blob = new Blob([finalHTML], {type: 'text/html'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = title.replace(/\s+/g, '_') + ".html";
+        a.click();
+    }
+}
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+    // Check if coming from edit mode
+    const editData = localStorage.getItem('chrisJumblerEditMode');
+    if (editData) {
+        try {
+            const data = JSON.parse(editData);
+            
+            // Clear the edit mode flag
+            localStorage.removeItem('chrisJumblerEditMode');
+            
+            // Populate teacher interface
+            document.getElementById('titleInput').value = data.title || "";
+            document.getElementById('editPassword').value = data.editPassword || "";
+            
+            if (data.mode) {
+                document.querySelector(`input[name="mode"][value="${data.mode}"]`).checked = true;
+            }
+            
+            if (data.patternMode !== undefined) {
+                document.getElementById('patternMode').checked = data.patternMode;
+            }
+            
+            // Clear container first
+            container.innerHTML = "";
+            rowCount = 0;
+            
+            // Add sentences with images
+            if (data.sentences && data.sentences.length > 0) {
+                data.sentences.forEach(item => {
+                    addRow(item.sentence, item.clue, item.imageData);
+                });
+            }
+            
+            updateProgress();
+            alert("Game loaded for editing! Images have been restored.");
+        } catch (e) {
+            console.error("Failed to load edit data:", e);
+            loadFromStorage();
+        }
+    } else {
+        loadFromStorage();
+    }
+    
+    if (container.children.length === 0) {
+        addRow();
+    }
+});
+
+// Auto-save on unload
+window.addEventListener('beforeunload', saveToStorage);
+
+const studentTemplate = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sentence Jumbler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Gold Standard Zoom (5 Steps) */
+        body.scale-1 { font-size: 28px; }
+        body.scale-2 { font-size: 34px; }
+        body.scale-3 { font-size: 40px; }
+        body.scale-4 { font-size: 46px; }
+        body.scale-5 { font-size: 22px; }
+
+        body { font-family: Arial, sans-serif; text-align: center; background: #f0f2f5; margin: 0; transition: font-size 0.2s; color: #333; overflow-x: hidden; }
+        
+        .screen { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
+        .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        #introScreen { background: #003366; color: white; }
+        .btn-start { font-size: 1.2em; padding: 15px 50px; cursor: pointer; background: white; color: #003366; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        #gameScreen { padding-bottom: 140px; justify-content: flex-start; }
+
+        /* Navigation Bar */
+        #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; padding: 15px; display: none; justify-content: center; gap: 15px; z-index: 100; font-size: 16px; }
+        .nav-btn { font-size: 16px; padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; font-weight: bold; }
+        .check-btn { background: #003366; color: white; border: none; }
+        
+        #zoomBtn { position: fixed; right: 20px; bottom: 100px; width: 55px; height: 55px; border-radius: 50%; border: none; background: #003366; color: white; font-size: 26px; cursor: pointer; z-index: 101; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #watermark { position: fixed; left: 15px; bottom: 85px; font-size: 14px; opacity: 0.3; cursor: pointer; z-index: 50; }
+
+        #gameImage { max-width: 90%; max-height: 40vh; object-fit: contain; display: none; margin: 15px auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #clueText { font-style: italic; color: #666; margin: 20px 0; min-height: 1.2em; font-size: 0.9em; max-width: 90%; }
+        
+        /* Word Areas */
+        .word-area { width: 95%; max-width: 1000px; min-height: 4em; border: 2px dashed #ccc; border-radius: 15px; margin: 20px auto; padding: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; background: rgba(255,255,255,0.5); align-content: flex-start; }
+        #answerArea { border: 2px solid #003366; background: #fff; cursor: pointer; }
+        
+        .word-btn { font-size: 0.9em; padding: 0.4em 0.8em; background: white; border: 1px solid #003366; border-radius: 8px; cursor: pointer; transition: 0.1s; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .word-btn:active { transform: translateY(2px); }
+        .word-btn.locked { background: #e8f5e9; border-color: #2e7d32; cursor: default; }
+        .word-btn.fixed { background: #e3f2fd; border: 2px solid #1976d2; cursor: default; pointer-events: none; }
+        .word-btn.selected { background: #fff9c4; border-color: #f57f17; box-shadow: 0 0 10px rgba(245,127,23,0.5); }
+        
+        .drop-zone { min-height: 3em; border: 3px dashed #ff9800; border-radius: 10px; background: #fff3e0; display: inline-flex; flex-wrap: wrap; gap: 8px; padding: 10px; align-items: center; justify-content: center; align-content: flex-start; position: relative; cursor: pointer; }
+        .drop-zone.empty { min-width: 200px; }
+        .drop-zone.empty::before { content: "DROP HERE"; color: #f57c00; font-size: 0.7em; font-weight: bold; opacity: 0.5; }
+        .drop-zone:not(.empty)::before { display: none; }
+
+        #statusMsg { font-size: 1.1em; font-weight: bold; margin: 15px; min-height: 1.4em; }
+    </style>
+</head>
+<body class="scale-1">
+
+    <div id="introScreen" class="screen active">
+        <h1 id="mainTitle" style="font-size:2em; margin-bottom:40px;">Sentence Jumbler</h1>
+        <button class="btn-start" onclick="startGame()">START GAME</button>
+    </div>
+
+    <div id="gameScreen" class="screen">
+        <div id="imageStatusContainer" style="display: flex; align-items: center; justify-content: center; gap: 20px; margin: 20px auto; max-width: 95%;">
+            <div id="statusLeft" style="font-size: 1.1em; font-weight: bold; min-width: 80px; display: none;"></div>
+            <img id="gameImage">
+            <div id="statusRight" style="font-size: 1.1em; font-weight: bold; min-width: 80px; display: none;"></div>
+        </div>
+        
+        <div id="clueText"></div>
+        
+        <div id="statusMsg" style="display: block;"></div>
+        
+        <div id="answerArea" class="word-area"></div>
+        
+        <div id="poolArea" class="word-area"></div>
+    </div>
+
+    <div id="bottomBar">
+        <button class="nav-btn" onclick="prev()">⬅ Back</button>
+        <button class="nav-btn" onclick="retry()">🔄 Retry</button>
+        <button class="nav-btn check-btn" onclick="checkAnswer()">✅ Check</button>
+        <button class="nav-btn" onclick="next()">Next ➡</button>
+    </div>
+
+    <button id="zoomBtn" onclick="toggleZoom()">🔍</button>
+    <div id="watermark" onclick="openEditMode()">cmarasigan</div>
+
+    <script>
+        //%%TITLE%%
+        //%%DATA%%
+        //%%IMAGES%%
+        //%%PASSWORD%%
+
+        let index = 0, scale = 1, locked = false;
+        let dropZones = [];
+        let selectedWord = null;
+        let isPatternMode = false;
+
+        function openEditMode() {
+            console.log("Edit mode clicked!");
+            console.log("gameTitle:", typeof gameTitle !== 'undefined' ? gameTitle : "UNDEFINED");
+            console.log("gameData:", typeof gameData !== 'undefined' ? gameData : "UNDEFINED");
+            console.log("editPassword:", typeof editPassword !== 'undefined' ? editPassword : "UNDEFINED");
+            
+            // Check if password is set
+            if (typeof editPassword !== 'undefined' && editPassword) {
+                const userPassword = prompt("Enter edit password to modify this game:");
+                if (userPassword !== editPassword) {
+                    alert("Incorrect password!");
+                    return;
+                }
+            }
+            
+            // Extract and save data for editing
+            const editData = {
+                title: gameTitle,
+                mode: gameData.length > 0 ? gameData[0].mode : 'word',
+                patternMode: gameData.length > 0 ? gameData[0].patternMode : false,
+                editPassword: typeof editPassword !== 'undefined' ? editPassword : '',
+                sentences: gameData.map((item, i) => ({
+                    sentence: item.s,
+                    clue: item.c,
+                    imageData: gameImages[i] || ''
+                }))
+            };
+            
+            console.log("Edit data prepared:", editData);
+            
+            // Save to localStorage
+            localStorage.setItem('chrisJumblerEditMode', JSON.stringify(editData));
+            console.log("Saved to localStorage");
+            
+            // Redirect to teacher interface
+            const currentPath = window.location.pathname;
+            const teacherPath = currentPath.replace(/[^/]*\.html$/, '008_For_Yuria_Sensei_-_Beta_Test_Sentence_Jumbler__1_.html');
+            console.log("Redirecting to:", teacherPath);
+            window.location.href = teacherPath;
+        }
+
+        function toggleZoom() {
+            scale = (scale % 5) + 1;
+            document.body.className = 'scale-' + scale;
+        }
+
+        function startGame() {
+            document.getElementById('mainTitle').textContent = gameTitle;
+            document.getElementById('introScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('bottomBar').style.display = 'flex';
+            loadLevel();
+        }
+
+        function shuffle(array) {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        }
+
+        function loadLevel() {
+            locked = false;
+            selectedWord = null;
+            dropZones = [];
+            const data = gameData[index];
+            isPatternMode = data.patternMode;
+            
+            // Handle image and status display
+            const img = document.getElementById('gameImage');
+            const statusMsg = document.getElementById('statusMsg');
+            const statusLeft = document.getElementById('statusLeft');
+            const statusRight = document.getElementById('statusRight');
+            
+            if (gameImages[index]) {
+                img.src = gameImages[index];
+                img.style.display = 'block';
+                // Hide center status, show side status placeholders
+                statusMsg.style.display = 'none';
+                statusLeft.style.display = 'block';
+                statusRight.style.display = 'block';
+                statusLeft.textContent = "";
+                statusRight.textContent = "";
+            } else {
+                img.style.display = 'none';
+                // Show center status, hide side status
+                statusMsg.style.display = 'block';
+                statusLeft.style.display = 'none';
+                statusRight.style.display = 'none';
+                statusMsg.textContent = "";
+            }
+            
+            document.getElementById('clueText').textContent = data.c || "";
+            
+            const answerArea = document.getElementById('answerArea');
+            const poolArea = document.getElementById('poolArea');
+            answerArea.innerHTML = "";
+            poolArea.innerHTML = "";
+            
+            // Set up click handler for answer area (for non-pattern mode)
+            if (!isPatternMode) {
+                answerArea.onclick = function(e) {
+                    // Only respond if clicking the answer area itself, not a word button
+                    if (e.target === answerArea) {
+                        handleAnswerAreaClick();
+                    }
+                };
+            } else {
+                answerArea.onclick = null;
+            }
+            
+            // Pattern Mode Logic
+            if (data.patternMode) {
+                const pattern = /\\(([^)]+)\\)/g;
+                let lastIndex = 0;
+                let match;
+                const sentence = data.s;
+                const allJumbledWords = [];
+                
+                while ((match = pattern.exec(sentence)) !== null) {
+                    // Add fixed words before this match
+                    if (match.index > lastIndex) {
+                        const fixedText = sentence.substring(lastIndex, match.index).trim();
+                        if (fixedText) {
+                            fixedText.split(" ").forEach(w => {
+                                if (w.trim()) {
+                                    answerArea.appendChild(createWordBtn(w, true));
+                                }
+                            });
+                        }
+                    }
+                    
+                    // Collect jumbled words for this section
+                    const jumbledSection = match[1];
+                    const delimiter = data.mode === "phrase" ? "//" : " ";
+                    const parts = jumbledSection.split(delimiter).map(p => p.trim()).filter(p => p);
+                    
+                    // Create drop zone sized for this jumbled section
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone empty';
+                    dropZone.dataset.zoneIndex = dropZones.length;
+                    
+                    // Calculate width based on character count
+                    const totalChars = parts.join(' ').length;
+                    const estimatedWidth = Math.max(200, totalChars * 12 + 60); // 12px per char + padding
+                    dropZone.style.minWidth = estimatedWidth + 'px';
+                    
+                    dropZone.onclick = function(e) {
+                        e.stopPropagation();
+                        handleDropZoneClick(this);
+                    };
+                    answerArea.appendChild(dropZone);
+                    dropZones.push(dropZone);
+                    
+                    allJumbledWords.push(...parts);
+                    
+                    lastIndex = pattern.lastIndex;
+                }
+                
+                // Add remaining fixed words
+                if (lastIndex < sentence.length) {
+                    const fixedText = sentence.substring(lastIndex).trim();
+                    if (fixedText) {
+                        fixedText.split(" ").forEach(w => {
+                            if (w.trim()) {
+                                answerArea.appendChild(createWordBtn(w, true));
+                            }
+                        });
+                    }
+                }
+                
+                // Shuffle and add jumbled words to pool
+                shuffle(allJumbledWords).forEach(w => {
+                    poolArea.appendChild(createWordBtn(w, false));
+                });
+                
+            } else {
+                // Regular mode - everything in pool
+                const delimiter = data.mode === "phrase" ? "//" : " ";
+                const words = data.s.split(delimiter).map(p => p.trim()).filter(p => p);
+                shuffle(words).forEach(w => {
+                    poolArea.appendChild(createWordBtn(w, false));
+                });
+            }
+        }
+
+        function createWordBtn(text, isFixed) {
+            const btn = document.createElement('button');
+            btn.className = 'word-btn' + (isFixed ? ' fixed' : '');
+            btn.textContent = text;
+            if (!isFixed) {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    handleWordClick(this);
+                };
+            }
+            return btn;
+        }
+
+        function handleWordClick(btn) {
+            if (locked) return;
+            
+            const poolArea = document.getElementById('poolArea');
+            const answerArea = document.getElementById('answerArea');
+            
+            // If in pattern mode
+            if (isPatternMode) {
+                // If clicking a word in a drop zone, move it back to pool
+                if (btn.parentElement.classList && btn.parentElement.classList.contains('drop-zone')) {
+                    poolArea.appendChild(btn);
+                    btn.classList.remove('selected');
+                    updateDropZoneStates();
+                    selectedWord = null;
+                    return;
+                }
+                
+                // If clicking a word in the pool, select it
+                if (btn.parentElement === poolArea) {
+                    // Deselect all other words
+                    document.querySelectorAll('.word-btn.selected').forEach(w => w.classList.remove('selected'));
+                    
+                    // Select this word
+                    btn.classList.add('selected');
+                    selectedWord = btn;
+                }
+            } else {
+                // Non-pattern mode: toggle between pool and answer
+                if (btn.parentElement === poolArea) {
+                    answerArea.appendChild(btn);
+                } else if (btn.parentElement === answerArea) {
+                    poolArea.appendChild(btn);
+                }
+            }
+        }
+
+        function handleAnswerAreaClick() {
+            if (locked || isPatternMode) return;
+            
+            const poolArea = document.getElementById('poolArea');
+            const answerArea = document.getElementById('answerArea');
+            
+            // Find first word in pool and move it to answer
+            const firstWord = poolArea.querySelector('.word-btn:not(.fixed)');
+            if (firstWord) {
+                answerArea.appendChild(firstWord);
+            }
+        }
+
+        function handleDropZoneClick(zone) {
+            if (locked) return;
+            if (!selectedWord) return;
+            
+            // Move selected word to this drop zone
+            zone.appendChild(selectedWord);
+            selectedWord.classList.remove('selected');
+            selectedWord = null;
+            updateDropZoneStates();
+        }
+
+        function updateDropZoneStates() {
+            dropZones.forEach(zone => {
+                if (zone.children.length > 0) {
+                    zone.classList.remove('empty');
+                } else {
+                    zone.classList.add('empty');
+                }
+            });
+        }
+
+        function checkAnswer() {
+            if(locked) return;
+            
+            const data = gameData[index];
+            const answerArea = document.getElementById('answerArea');
+            
+            // Build answer sequence
+            const answerSequence = [];
+            [...answerArea.children].forEach(child => {
+                if (child.classList.contains('word-btn')) {
+                    answerSequence.push(child.textContent);
+                } else if (child.classList.contains('drop-zone')) {
+                    [...child.children].forEach(btn => {
+                        answerSequence.push(btn.textContent);
+                    });
+                }
+            });
+            
+            // Build correct sequence
+            let correctSequence = [];
+            
+            if (data.patternMode) {
+                const pattern = /\\(([^)]+)\\)/g;
+                let lastIndex = 0;
+                let match;
+                const sentence = data.s;
+                
+                while ((match = pattern.exec(sentence)) !== null) {
+                    // Add fixed words
+                    if (match.index > lastIndex) {
+                        const fixedText = sentence.substring(lastIndex, match.index).trim();
+                        if (fixedText) {
+                            correctSequence.push(...fixedText.split(" ").filter(w => w.trim()));
+                        }
+                    }
+                    
+                    // Add jumbled words in correct order
+                    const jumbledSection = match[1];
+                    const delimiter = data.mode === "phrase" ? "//" : " ";
+                    correctSequence.push(...jumbledSection.split(delimiter).map(p => p.trim()).filter(p => p));
+                    
+                    lastIndex = pattern.lastIndex;
+                }
+                
+                // Add remaining fixed words
+                if (lastIndex < sentence.length) {
+                    const fixedText = sentence.substring(lastIndex).trim();
+                    if (fixedText) {
+                        correctSequence.push(...fixedText.split(" ").filter(w => w.trim()));
+                    }
+                }
+            } else {
+                const delimiter = data.mode === "phrase" ? "//" : " ";
+                correctSequence = data.s.split(delimiter).map(p => p.trim()).filter(p => p);
+            }
+            
+            const statusMsg = document.getElementById('statusMsg');
+            const statusLeft = document.getElementById('statusLeft');
+            const statusRight = document.getElementById('statusRight');
+            const hasImage = gameImages[index];
+            
+            const isCorrect = answerSequence.length === correctSequence.length &&
+                            answerSequence.every((word, i) => word === correctSequence[i]);
+
+            if(isCorrect) {
+                if (hasImage) {
+                    statusLeft.textContent = "✅ Correct!";
+                    statusLeft.style.color = "green";
+                    statusRight.textContent = "✅ Correct!";
+                    statusRight.style.color = "green";
+                } else {
+                    statusMsg.textContent = "✅ Correct!";
+                    statusMsg.style.color = "green";
+                }
+                locked = true;
+                document.querySelectorAll('.word-btn:not(.fixed)').forEach(b => {
+                    b.classList.add('locked');
+                    b.onclick = null;
+                });
+            } else {
+                if (hasImage) {
+                    statusLeft.textContent = "❌ Incorrect";
+                    statusLeft.style.color = "#c62828";
+                    statusRight.textContent = "❌ Incorrect";
+                    statusRight.style.color = "#c62828";
+                } else {
+                    statusMsg.textContent = "❌ Incorrect, try again!";
+                    statusMsg.style.color = "#c62828";
+                }
+            }
+        }
+
+        function next() {
+            if (index < gameData.length - 1) { 
+                index++; 
+                loadLevel(); 
+            } else { 
+                const statusMsg = document.getElementById('statusMsg');
+                const statusLeft = document.getElementById('statusLeft');
+                const statusRight = document.getElementById('statusRight');
+                
+                // Show completion message in center regardless of image
+                statusMsg.style.display = 'block';
+                statusLeft.style.display = 'none';
+                statusRight.style.display = 'none';
+                statusMsg.textContent = "🎉 All sentences completed!";
+                statusMsg.style.color = "green";
+            }
+        }
+        function prev() { if (index > 0) { index--; loadLevel(); } }
+        function retry() { loadLevel(); }
+    <\/script>
+</body>
+</html>`;
+</script>
+</body>
+</html>
