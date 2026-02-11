@@ -17,8 +17,7 @@
     
     .preview-mode .no-print, .preview-mode .watermark { display: none !important; }
     .preview-mode body { background: #525659; padding-top: 30px; }
-    /* Adjusted Left Margin for Preview: adds 1cm to existing 60px padding */
-    .preview-mode .container { width: 210mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 0; padding: 60px 60px 60px calc(60px + 1cm); }
+    .preview-mode .container { width: 210mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 0; padding: 60px; }
     .preview-mode #worksheet { border: none; padding: 0; }
     .preview-mode .student-header { display: flex !important; }
     .preview-mode #closePreview { display: block !important; }
@@ -50,7 +49,7 @@
 
 <div class="watermark">cmarasigan</div>
 <button id="closePreview" class="btn-secondary" onclick="togglePreview()">✕ Return to Editor</button>
-<header class="no-print"><h1>Basic Fill-in-the-blanks Worksheet Generator</h1></header>
+<header class="no-print"><h1>Canonical Worksheet Generator</h1></header>
 
 <div class="container">
     <section class="no-print">
@@ -97,7 +96,7 @@
             <h3 class="no-print">Step 2: Interactive Editor</h3>
             <button class="no-print btn-secondary" style="padding: 5px 12px; font-size: 12px;" onclick="loadText()">Clear Blanks</button>
         </div>
-        <div id="worksheet">Text will appear here, Click on the words you want to be blanked out.</div>
+        <div id="worksheet">Text will appear here...</div>
     </section>
 
     <section id="wordBankSection">
@@ -162,8 +161,7 @@ function loadText() {
     let wrapped = '';
     text.split(/\n/).forEach((line, idx) => {
         if(line.trim() === "") return;
-        // Fix: Only apply 1. line numbers in Sentence Mode
-        let prefix = (mode === 'sentences') ? `<strong>${idx+1}. </strong>` : '';
+        let prefix = `<strong>${idx+1}. </strong>`;
         wrapped += prefix + line.replace(/(\w+)/g, word => `<span class="clickable" onclick="wordClick(this)">${word}</span>`) + '<br><br>';
     });
     document.getElementById('worksheet').innerHTML = wrapped;
@@ -186,16 +184,10 @@ function wordClick(span) {
 }
 
 function generatePattern(word, num, showFirst = false) {
-    const mode = document.querySelector('input[name="mode"]:checked').value;
-    // Length logic: 3.0x length for penmanship room, minimum 10 characters
-    const spaceCount = Math.max(Math.ceil(word.length * 3.0), 10);
+    // 1.5x length logic for penmanship room
+    const spaceCount = Math.max(Math.ceil(word.length * 1.5), 6);
     const underscores = '_'.repeat(showFirst ? spaceCount - 1 : spaceCount);
     const firstChar = showFirst ? word[0] : "";
-    
-    // Logic: In sentence mode, hide the "1." prefix so it doesn't double-number
-    if (mode === 'sentences') {
-        return `<span style="display:none">${num}. </span>${firstChar}${underscores}`;
-    }
     return `${num}. ${firstChar}${underscores}`;
 }
 
@@ -252,10 +244,7 @@ function togglePreview() {
         let keyHtml = document.getElementById('worksheet').innerHTML;
         // Sort by length descending to prevent partial replacement issues
         const sortedWords = [...wordsClicked].sort((a,b) => b.pattern.length - a.pattern.length);
-        sortedWords.forEach(w => { 
-            // In Sentence Mode, w.pattern includes the hidden span, so this split still works
-            keyHtml = keyHtml.split(w.pattern).join(`<u><strong>${w.word}</strong></u>`); 
-        });
+        sortedWords.forEach(w => { keyHtml = keyHtml.split(w.pattern).join(`<u><strong>${w.word}</strong></u>`); });
         document.getElementById('answerKeyContent').innerHTML = keyHtml;
         document.querySelectorAll('#wordBankDisplay input').forEach(i => {
             const s = document.createElement('span'); s.className='tmp-hint'; s.innerText = i.value;
@@ -281,8 +270,7 @@ function downloadDoc() {
         wordsClicked.forEach((w, i) => { bankHtml += w.word + (i < wordsClicked.length - 1 ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" : ""); });
         bankHtml += `</b></font></td></tr></table>`;
     }
-    // Added margin-left: 1cm to the content body for Word export
-    const content = `<html><head><meta charset="utf-8"></head><body style="margin-left: 1cm; margin-right: 1cm; font-family: 'Segoe UI', sans-serif;">
+    const content = `<html><head><meta charset="utf-8"></head><body>
         <p>Name: __________________________ Class: __________________________</p>
         <h2 align="center">${title}</h2>
         ${instr ? `<p align="center"><i>${instr}</i></p>` : ''}
