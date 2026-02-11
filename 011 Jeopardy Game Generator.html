@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeopardy Game Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    .jeopardy-font {
+      font-family: 'Bebas Neue', sans-serif;
+    }
+    .ui-font {
+      font-family: 'Inter', sans-serif;
+    }
+    .jeopardy-blue {
+      background: linear-gradient(180deg, #060CE9 0%, #0A1172 100%);
+    }
+    .jeopardy-gold {
+      color: #FFD700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .cell-hover:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    .tab-active {
+      border-bottom: 3px solid #3B82F6;
+      color: #3B82F6;
+    }
+    .preview-modal {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+      50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    }
+    .pulse-btn:hover {
+      animation: pulse 1.5s infinite;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full ui-font bg-slate-900 text-white overflow-auto">
+  <div id="app" class="h-full w-full"><!-- Teacher Interface -->
+   <div id="teacher-interface" class="min-h-full p-6">
+    <div class="max-w-6xl mx-auto"><!-- Header -->
+     <div class="text-center mb-8">
+      <h1 class="jeopardy-font text-5xl jeopardy-gold mb-2">🎯 Jeopardy Game Generator</h1>
+      <p class="text-slate-400">Create custom Jeopardy games for your classroom</p><a href="index.html" class="inline-block mt-4 px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition"> ← Back to Activity Maker </a>
+     </div><!-- Configuration Panel -->
+     <div class="bg-slate-800 rounded-2xl p-6 mb-6 shadow-xl">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><span class="text-2xl">⚙️</span> Game Configuration</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><!-- Game Title -->
+       <div><label class="block text-sm font-medium text-slate-300 mb-2">Game Title</label> <input type="text" id="game-title" placeholder="Enter game title..." class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+       </div><!-- Number of Categories -->
+       <div><label class="block text-sm font-medium text-slate-300 mb-2">Categories (Columns)</label> <select id="num-categories" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"> <option value="3">3 Categories</option> <option value="4">4 Categories</option> <option value="5">5 Categories</option> <option value="6" selected>6 Categories</option> </select>
+       </div><!-- Number of Questions -->
+       <div><label class="block text-sm font-medium text-slate-300 mb-2">Questions per Category</label> <select id="num-questions" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"> <option value="3">3 Questions</option> <option value="4">4 Questions</option> <option value="5" selected>5 Questions</option> </select>
+       </div><!-- Number of Players -->
+       <div><label class="block text-sm font-medium text-slate-300 mb-2">Number of Players</label> <select id="num-players" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"> <option value="2">2 Players</option> <option value="3" selected>3 Players</option> <option value="4">4 Players</option> <option value="5">5 Players</option> <option value="6">6 Players</option> </select>
+       </div>
+      </div><button id="apply-config" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition flex items-center gap-2"> <span>✓</span> Apply Configuration </button>
+     </div><!-- Player Names -->
+     <div class="bg-slate-800 rounded-2xl p-6 mb-6 shadow-xl">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><span class="text-2xl">  </span> Player Names</h2>
+      <div id="player-names-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"><!-- Player name inputs will be generated here -->
+      </div>
+     </div><!-- Categories -->
+     <div class="bg-slate-800 rounded-2xl p-6 mb-6 shadow-xl">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><span class="text-2xl">📚</span> Category Names</h2>
+      <div id="categories-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"><!-- Category inputs will be generated here -->
+      </div>
+     </div><!-- Questions Editor -->
+     <div class="bg-slate-800 rounded-2xl p-6 mb-6 shadow-xl">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><span class="text-2xl">❓</span> Questions &amp; Answers</h2><!-- Category Tabs -->
+      <div id="category-tabs" class="flex flex-wrap gap-2 mb-6 border-b border-slate-700 pb-4"><!-- Tabs will be generated here -->
+      </div><!-- Questions for Selected Category -->
+      <div id="questions-editor" class="space-y-4"><!-- Question inputs will be generated here -->
+      </div>
+     </div><!-- Action Buttons -->
+     <div class="flex flex-wrap gap-4 justify-center"><button id="preview-btn" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold text-lg transition pulse-btn flex items-center gap-2 shadow-lg"> <span class="text-xl">👁️</span> Preview Game </button> <button id="download-btn" class="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-xl font-semibold text-lg transition pulse-btn flex items-center gap-2 shadow-lg"> <span class="text-xl">⬇️</span> Download Game </button>
+     </div>
+     <p class="text-center text-slate-500 text-sm mt-4">💡 Tip: The downloaded game is a standalone HTML file that students can open in any browser</p>
+    </div>
+   </div><!-- Preview Modal -->
+   <div id="preview-modal" class="fixed inset-0 bg-black/90 z-50 hidden overflow-auto">
+    <div class="p-4"><button id="close-preview" class="fixed top-4 right-4 z-50 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition"> ✕ Close Preview </button>
+     <div id="preview-content" class="preview-modal"><!-- Preview will be rendered here -->
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      default_title: "My Jeopardy Game"
+    };
+
+    let config = { ...defaultConfig };
+
+    // Game state
+    let gameData = {
+      title: "My Jeopardy Game",
+      numCategories: 6,
+      numQuestions: 5,
+      numPlayers: 3,
+      players: [],
+      categories: [],
+      questions: {} // { categoryIndex: { questionIndex: { question, answer, questionImage, answerImage } } }
+    };
+
+    let selectedCategoryTab = 0;
+
+    // Point values
+    const getPointValues = (numQuestions) => {
+      const base = [100, 200, 300, 400, 500];
+      return base.slice(0, numQuestions);
+    };
+
+    // Initialize player names
+    function initializePlayers() {
+      gameData.players = [];
+      for (let i = 0; i < gameData.numPlayers; i++) {
+        gameData.players.push(`Player ${i + 1}`);
+      }
+      renderPlayerNames();
+    }
+
+    // Initialize categories
+    function initializeCategories() {
+      gameData.categories = [];
+      for (let i = 0; i < gameData.numCategories; i++) {
+        gameData.categories.push(`Category ${i + 1}`);
+      }
+      renderCategories();
+      renderCategoryTabs();
+    }
+
+    // Initialize questions
+    function initializeQuestions() {
+      gameData.questions = {};
+      for (let c = 0; c < gameData.numCategories; c++) {
+        gameData.questions[c] = {};
+        for (let q = 0; q < gameData.numQuestions; q++) {
+          gameData.questions[c][q] = {
+            question: "",
+            answer: "",
+            questionImage: null,
+            answerImage: null
+          };
+        }
+      }
+      renderQuestionsEditor();
+    }
+
+    // Render player name inputs
+    function renderPlayerNames() {
+      const container = document.getElementById('player-names-container');
+      container.innerHTML = '';
+      
+      for (let i = 0; i < gameData.numPlayers; i++) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label class="block text-sm font-medium text-slate-300 mb-2">Player ${i + 1}</label>
+          <input type="text" data-player="${i}" value="${gameData.players[i] || ''}" 
+            placeholder="Enter name..."
+            class="player-name-input w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+        `;
+        container.appendChild(div);
+      }
+      
+      document.querySelectorAll('.player-name-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.player);
+          gameData.players[idx] = e.target.value;
+        });
+      });
+    }
+
+    // Render category inputs
+    function renderCategories() {
+      const container = document.getElementById('categories-container');
+      container.innerHTML = '';
+      
+      for (let i = 0; i < gameData.numCategories; i++) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label class="block text-sm font-medium text-slate-300 mb-2">Category ${i + 1}</label>
+          <input type="text" data-category="${i}" value="${gameData.categories[i] || ''}" 
+            placeholder="Enter category..."
+            class="category-input w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+        `;
+        container.appendChild(div);
+      }
+      
+      document.querySelectorAll('.category-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.category);
+          gameData.categories[idx] = e.target.value;
+          renderCategoryTabs();
+        });
+      });
+    }
+
+    // Render category tabs
+    function renderCategoryTabs() {
+      const container = document.getElementById('category-tabs');
+      container.innerHTML = '';
+      
+      for (let i = 0; i < gameData.numCategories; i++) {
+        const btn = document.createElement('button');
+        btn.className = `px-4 py-2 rounded-t-lg font-medium transition ${selectedCategoryTab === i ? 'tab-active bg-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`;
+        btn.textContent = gameData.categories[i] || `Category ${i + 1}`;
+        btn.addEventListener('click', () => {
+          selectedCategoryTab = i;
+          renderCategoryTabs();
+          renderQuestionsEditor();
+        });
+        container.appendChild(btn);
+      }
+    }
+
+    // Render questions editor
+    function renderQuestionsEditor() {
+      const container = document.getElementById('questions-editor');
+      container.innerHTML = '';
+      
+      const pointValues = getPointValues(gameData.numQuestions);
+      
+      for (let q = 0; q < gameData.numQuestions; q++) {
+        const questionData = gameData.questions[selectedCategoryTab]?.[q] || {};
+        const points = pointValues[q];
+        
+        const div = document.createElement('div');
+        div.className = 'bg-slate-700 rounded-xl p-5 border border-slate-600';
+        div.innerHTML = `
+          <div class="flex items-center gap-3 mb-4">
+            <span class="jeopardy-font text-2xl text-amber-400">$${points}</span>
+            <span class="text-slate-400">Question ${q + 1}</span>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Question Side -->
+            <div class="space-y-3">
+              <label class="block text-sm font-medium text-blue-400">Question / Clue</label>
+              <textarea data-cat="${selectedCategoryTab}" data-q="${q}" data-field="question" 
+                placeholder="Enter the question or clue..."
+                class="question-field w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none h-24">${questionData.question || ''}</textarea>
+              
+              <div class="flex items-center gap-2">
+                <label class="text-sm text-slate-400">Question Image (optional):</label>
+                <input type="file" accept="image/*" data-cat="${selectedCategoryTab}" data-q="${q}" data-field="questionImage"
+                  class="image-input text-sm text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:cursor-pointer hover:file:bg-blue-700">
+              </div>
+              ${questionData.questionImage ? `
+                <div class="relative inline-block">
+                  <img src="${questionData.questionImage}" class="h-20 rounded-lg border border-slate-600">
+                  <button data-cat="${selectedCategoryTab}" data-q="${q}" data-field="questionImage" 
+                    class="remove-image-btn absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-sm hover:bg-red-700">✕</button>
+                </div>
+              ` : ''}
+            </div>
+            
+            <!-- Answer Side -->
+            <div class="space-y-3">
+              <label class="block text-sm font-medium text-emerald-400">Answer</label>
+              <textarea data-cat="${selectedCategoryTab}" data-q="${q}" data-field="answer" 
+                placeholder="Enter the answer..."
+                class="question-field w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none h-24">${questionData.answer || ''}</textarea>
+              
+              <div class="flex items-center gap-2">
+                <label class="text-sm text-slate-400">Answer Image (optional):</label>
+                <input type="file" accept="image/*" data-cat="${selectedCategoryTab}" data-q="${q}" data-field="answerImage"
+                  class="image-input text-sm text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:cursor-pointer hover:file:bg-emerald-700">
+              </div>
+              ${questionData.answerImage ? `
+                <div class="relative inline-block">
+                  <img src="${questionData.answerImage}" class="h-20 rounded-lg border border-slate-600">
+                  <button data-cat="${selectedCategoryTab}" data-q="${q}" data-field="answerImage" 
+                    class="remove-image-btn absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-white text-sm hover:bg-red-700">✕</button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+      
+      // Attach event listeners
+      document.querySelectorAll('.question-field').forEach(field => {
+        field.addEventListener('input', (e) => {
+          const cat = parseInt(e.target.dataset.cat);
+          const q = parseInt(e.target.dataset.q);
+          const fieldName = e.target.dataset.field;
+          if (!gameData.questions[cat]) gameData.questions[cat] = {};
+          if (!gameData.questions[cat][q]) gameData.questions[cat][q] = {};
+          gameData.questions[cat][q][fieldName] = e.target.value;
+        });
+      });
+      
+      document.querySelectorAll('.image-input').forEach(input => {
+        input.addEventListener('change', async (e) => {
+          const cat = parseInt(e.target.dataset.cat);
+          const q = parseInt(e.target.dataset.q);
+          const fieldName = e.target.dataset.field;
+          const file = e.target.files[0];
+          
+          if (file) {
+            const base64 = await fileToBase64(file);
+            if (!gameData.questions[cat]) gameData.questions[cat] = {};
+            if (!gameData.questions[cat][q]) gameData.questions[cat][q] = {};
+            gameData.questions[cat][q][fieldName] = base64;
+            renderQuestionsEditor();
+          }
+        });
+      });
+      
+      document.querySelectorAll('.remove-image-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const cat = parseInt(e.target.dataset.cat);
+          const q = parseInt(e.target.dataset.q);
+          const fieldName = e.target.dataset.field;
+          if (gameData.questions[cat] && gameData.questions[cat][q]) {
+            gameData.questions[cat][q][fieldName] = null;
+          }
+          renderQuestionsEditor();
+        });
+      });
+    }
+
+    // Convert file to base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Generate the student game HTML
+    function generateStudentGame() {
+      const pointValues = getPointValues(gameData.numQuestions);
+      const title = gameData.title || config.default_title || "Jeopardy Game";
+      
+      const questionsJSON = JSON.stringify(gameData.questions);
+      const categoriesJSON = JSON.stringify(gameData.categories);
+      const playersJSON = JSON.stringify(gameData.players);
+      const pointValuesJSON = JSON.stringify(pointValues);
+      
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #060CE9 0%, #0A1172 100%);
+      min-height: 100vh;
+      color: white;
+      padding: 20px;
+    }
+    .jeopardy-font { font-family: 'Bebas Neue', sans-serif; }
+    .title {
+      text-align: center;
+      font-size: 3rem;
+      color: #FFD700;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1200px) {
+      .title {
+        font-size: 2.5rem;
+      }
+    }
+    @media (max-width: 768px) {
+      .title {
+        font-size: 1.8rem;
+      }
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(${gameData.numCategories}, 1fr);
+      gap: 8px;
+      max-width: 1400px;
+      margin: 0 auto 20px;
+      padding: 0 10px;
+    }
+    @media (max-width: 1200px) {
+      .board {
+        gap: 6px;
+      }
+    }
+    @media (max-width: 768px) {
+      .board {
+        gap: 5px;
+      }
+    }
+    .category-header {
+      background: linear-gradient(180deg, #1a1a8c 0%, #0f0f5c 100%);
+      padding: 15px 10px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-radius: 8px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #FFD700;
+    }
+    @media (max-width: 1200px) {
+      .category-header {
+        padding: 12px 8px;
+        font-size: 0.9rem;
+        min-height: 70px;
+      }
+    }
+    @media (max-width: 768px) {
+      .category-header {
+        padding: 10px 6px;
+        font-size: 0.75rem;
+        min-height: 60px;
+      }
+    }
+    .cell {
+      background: linear-gradient(180deg, #1a1a8c 0%, #0f0f5c 100%);
+      padding: 20px;
+      text-align: center;
+      font-size: 2rem;
+      color: #FFD700;
+      cursor: pointer;
+      border-radius: 8px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    @media (max-width: 1200px) {
+      .cell {
+        padding: 15px;
+        font-size: 1.5rem;
+        min-height: 70px;
+      }
+    }
+    @media (max-width: 768px) {
+      .cell {
+        padding: 12px;
+        font-size: 1.2rem;
+        min-height: 60px;
+      }
+    }
+    .cell:hover:not(.used) {
+      transform: scale(1.05);
+      border-color: #FFD700;
+      box-shadow: 0 0 20px rgba(255,215,0,0.3);
+    }
+    .cell.used {
+      background: #1a1a3c;
+      color: #333;
+      cursor: default;
+    }
+    .players {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 0 10px;
+    }
+    @media (max-width: 1200px) {
+      .players {
+        gap: 15px;
+      }
+    }
+    @media (max-width: 768px) {
+      .players {
+        gap: 10px;
+      }
+    }
+    .player {
+      background: rgba(255,255,255,0.1);
+      padding: 15px 25px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 150px;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    @media (max-width: 1200px) {
+      .player {
+        padding: 12px 20px;
+        min-width: 130px;
+      }
+    }
+    @media (max-width: 768px) {
+      .player {
+        padding: 10px 15px;
+        min-width: 110px;
+      }
+    }
+    .player.active {
+      border-color: #FFD700;
+      background: rgba(255,215,0,0.2);
+    }
+    .player-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .player-score {
+      font-size: 1.5rem;
+      color: #FFD700;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      padding: 20px;
+      overflow: auto;
+    }
+    .modal.show { display: flex; align-items: center; justify-content: center; }
+    .modal-content {
+      background: linear-gradient(180deg, #060CE9 0%, #0A1172 100%);
+      border: 4px solid #FFD700;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+      animation: zoomIn 0.3s ease-out;
+    }
+    @media (max-width: 768px) {
+      .modal-content {
+        padding: 25px;
+        border-width: 3px;
+      }
+    }
+    @keyframes zoomIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-points {
+      font-size: 3rem;
+      color: #FFD700;
+      margin-bottom: 20px;
+    }
+    .modal-question {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .modal-image {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .modal-answer {
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 1.3rem;
+      display: none;
+    }
+    .modal-answer.show { display: block; }
+    .btn {
+      padding: 12px 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.2s;
+    }
+    @media (max-width: 768px) {
+      .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        margin: 3px;
+      }
+    }
+    .btn-reveal { background: #FFD700; color: #000; }
+    .btn-reveal:hover { background: #FFC000; }
+    .btn-correct { background: #22c55e; color: white; }
+    .btn-correct:hover { background: #16a34a; }
+    .btn-wrong { background: #ef4444; color: white; }
+    .btn-wrong:hover { background: #dc2626; }
+    .btn-close { background: #6b7280; color: white; }
+    .btn-close:hover { background: #4b5563; }
+    .scoring-btns { margin-top: 20px; }
+    .player-select {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .player-select-btn {
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .player-select-btn:hover {
+      background: rgba(255,215,0,0.3);
+    }
+    .reset-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .reset-btn:hover { background: #dc2626; }
+    @media (max-width: 768px) {
+      .reset-btn {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        bottom: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="title jeopardy-font">${escapeHtml(title)}</h1>
+  
+  <div class="players" id="players"></div>
+  
+  <div class="board" id="board"></div>
+  
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-points jeopardy-font" id="modal-points"></div>
+      <div class="modal-question" id="modal-question"></div>
+      <img class="modal-image" id="modal-question-image" style="display:none;">
+      <div>
+        <button class="btn btn-reveal" id="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+      </div>
+      <div class="modal-answer" id="modal-answer"></div>
+      <img class="modal-image" id="modal-answer-image" style="display:none;">
+      <div class="scoring-btns" id="scoring-btns" style="display:none;">
+        <p style="margin-bottom:10px;">Who answered correctly?</p>
+        <div class="player-select" id="player-select"></div>
+        <div style="margin-top:15px;">
+          <button class="btn btn-wrong" onclick="wrongAnswer()">No One / Wrong</button>
+          <button class="btn btn-close" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <button class="reset-btn" onclick="resetGame()">Reset Game</button>
+  
+  <!-- Watermark -->
+  <div style="position: fixed; bottom: 20px; left: 20px; opacity: 0.5; font-size: 0.9rem; color: #FFD700; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); pointer-events: none;">
+    © CMarasigan
+  </div>
+  
+  <!-- Zoom Controls -->
+  <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); border: 2px solid #FFD700; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 50;">
+    <button onclick="decreaseZoom()" style="width: 40px; height: 40px; background: #FFD700; color: #000; border: none; border-radius: 6px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s;" title="Zoom Out">−</button>
+    <div id="zoom-level" style="text-align: center; color: #FFD700; font-weight: bold; min-width: 40px;">100%</div>
+    <button onclick="increaseZoom()" style="width: 40px; height: 40px; background: #FFD700; color: #000; border: none; border-radius: 6px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">+</button>
+  </div>
+
+  <script>
+    const categories = ${categoriesJSON};
+    const questions = ${questionsJSON};
+    const players = ${playersJSON};
+    const pointValues = ${pointValuesJSON};
+    const numCategories = ${gameData.numCategories};
+    const numQuestions = ${gameData.numQuestions};
+    
+    let scores = {};
+    let usedCells = {};
+    let currentPoints = 0;
+    let currentZoom = 100;
+    const zoomLevels = [100, 125, 150, 175, 200];
+    
+    function increaseZoom() {
+      const currentIndex = zoomLevels.indexOf(currentZoom);
+      if (currentIndex < zoomLevels.length - 1) {
+        currentZoom = zoomLevels[currentIndex + 1];
+        applyZoom();
+      }
+    }
+    
+    function decreaseZoom() {
+      const currentIndex = zoomLevels.indexOf(currentZoom);
+      if (currentIndex > 0) {
+        currentZoom = zoomLevels[currentIndex - 1];
+        applyZoom();
+      }
+    }
+    
+    function applyZoom() {
+      document.body.style.fontSize = (currentZoom / 100) + 'rem';
+      document.getElementById('zoom-level').textContent = currentZoom + '%';
+    }
+    
+    function init() {
+      players.forEach((p, i) => { scores[i] = 0; });
+      renderPlayers();
+      renderBoard();
+    }
+    
+    function renderPlayers() {
+      const container = document.getElementById('players');
+      container.innerHTML = '';
+      players.forEach((name, i) => {
+        const div = document.createElement('div');
+        div.className = 'player';
+        div.innerHTML = '<div class="player-name">' + escapeHtml(name) + '</div><div class="player-score jeopardy-font">$' + scores[i] + '</div>';
+        container.appendChild(div);
+      });
+    }
+    
+    function renderBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      
+      // Headers
+      categories.forEach(cat => {
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.textContent = cat;
+        board.appendChild(header);
+      });
+      
+      // Cells
+      for (let q = 0; q < numQuestions; q++) {
+        for (let c = 0; c < numCategories; c++) {
+          const cell = document.createElement('div');
+          const cellKey = c + '-' + q;
+          cell.className = 'cell jeopardy-font' + (usedCells[cellKey] ? ' used' : '');
+          cell.textContent = '$' + pointValues[q];
+          if (!usedCells[cellKey]) {
+            cell.onclick = () => openQuestion(c, q);
+          }
+          board.appendChild(cell);
+        }
+      }
+    }
+    
+    function openQuestion(cat, q) {
+      const data = questions[cat] && questions[cat][q] ? questions[cat][q] : {};
+      currentPoints = pointValues[q];
+      
+      document.getElementById('modal-points').textContent = '$' + currentPoints;
+      document.getElementById('modal-question').textContent = data.question || 'No question set';
+      
+      const qImg = document.getElementById('modal-question-image');
+      if (data.questionImage) {
+        qImg.src = data.questionImage;
+        qImg.style.display = 'block';
+      } else {
+        qImg.style.display = 'none';
+      }
+      
+      document.getElementById('modal-answer').textContent = data.answer || 'No answer set';
+      document.getElementById('modal-answer').classList.remove('show');
+      
+      const aImg = document.getElementById('modal-answer-image');
+      if (data.answerImage) {
+        aImg.src = data.answerImage;
+      }
+      aImg.style.display = 'none';
+      
+      document.getElementById('reveal-btn').style.display = 'inline-block';
+      document.getElementById('scoring-btns').style.display = 'none';
+      
+      document.getElementById('modal').classList.add('show');
+      
+      usedCells[cat + '-' + q] = true;
+      renderBoard();
+      
+      // Setup player select buttons
+      const playerSelect = document.getElementById('player-select');
+      playerSelect.innerHTML = '';
+      players.forEach((name, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'player-select-btn';
+        btn.textContent = name;
+        btn.onclick = () => correctAnswer(i);
+        playerSelect.appendChild(btn);
+      });
+    }
+    
+    function revealAnswer() {
+      document.getElementById('modal-answer').classList.add('show');
+      const aImg = document.getElementById('modal-answer-image');
+      if (aImg.src && questions) {
+        aImg.style.display = 'block';
+      }
+      document.getElementById('reveal-btn').style.display = 'none';
+      document.getElementById('scoring-btns').style.display = 'block';
+    }
+    
+    function correctAnswer(playerIndex) {
+      scores[playerIndex] += currentPoints;
+      renderPlayers();
+      closeModal();
+    }
+    
+    function wrongAnswer() {
+      closeModal();
+    }
+    
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+    }
+    
+    function resetGame() {
+      if (window.confirm && confirm('Are you sure you want to reset the game?')) {
+        scores = {};
+        players.forEach((p, i) => { scores[i] = 0; });
+        usedCells = {};
+        renderPlayers();
+        renderBoard();
+      }
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    init();
+  <\/script>
+</body>
+</html>`;
+    }
+
+    // Escape HTML for safe insertion
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    // Preview the game
+    function showPreview() {
+      const previewContent = document.getElementById('preview-content');
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width: 100%; height: 90vh; border: none; border-radius: 12px;';
+      iframe.srcdoc = generateStudentGame();
+      previewContent.innerHTML = '';
+      previewContent.appendChild(iframe);
+      document.getElementById('preview-modal').classList.remove('hidden');
+    }
+
+    // Download the game
+    function downloadGame() {
+      const html = generateStudentGame();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (gameData.title || 'jeopardy-game').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Apply configuration
+    function applyConfig() {
+      gameData.numCategories = parseInt(document.getElementById('num-categories').value);
+      gameData.numQuestions = parseInt(document.getElementById('num-questions').value);
+      gameData.numPlayers = parseInt(document.getElementById('num-players').value);
+      
+      initializePlayers();
+      initializeCategories();
+      initializeQuestions();
+    }
+
+    // Element SDK integration
+    async function onConfigChange(cfg) {
+      config = { ...defaultConfig, ...cfg };
+      const titleInput = document.getElementById('game-title');
+      if (titleInput && !titleInput.value) {
+        titleInput.placeholder = config.default_title || defaultConfig.default_title;
+      }
+    }
+
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ["default_title", cfg.default_title || defaultConfig.default_title]
+      ]);
+    }
+
+    // Initialize
+    function initialize() {
+      // Set up event listeners
+      document.getElementById('game-title').addEventListener('input', (e) => {
+        gameData.title = e.target.value;
+      });
+      
+      document.getElementById('apply-config').addEventListener('click', applyConfig);
+      document.getElementById('preview-btn').addEventListener('click', showPreview);
+      document.getElementById('download-btn').addEventListener('click', downloadGame);
+      document.getElementById('close-preview').addEventListener('click', () => {
+        document.getElementById('preview-modal').classList.add('hidden');
+      });
+      
+      // Initial setup
+      applyConfig();
+      
+      // Initialize SDK
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities,
+          mapToEditPanelValues
+        });
+      }
+    }
+
+    initialize();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cc05858e0601ec9',t:'MTc3MDc3NjE5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
