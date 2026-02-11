@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeopardy Game Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Nunito', sans-serif;
+    }
+    .title-font {
+      font-family: 'Fredoka One', cursive;
+    }
+    .game-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s ease;
+    }
+    .game-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+    }
+    .category-header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .btn-warning {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .btn-fun {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .bounce {
+      animation: bounce 0.5s ease;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .shake {
+      animation: shake 0.5s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .rainbow-text {
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      left: 15px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .zoom-btn {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      z-index: 1000;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    .retry-btn {
+      position: fixed;
+      bottom: 40px;
+      left: 15px;
+      z-index: 1000;
+    }
+    .tab-active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .input-field {
+      border: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+    .player-score {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+    .category-tab {
+      transition: all 0.3s ease;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 overflow-auto">
+  <div id="app" class="h-full w-full"></div>
+  <script>
+    const defaultConfig = {
+      app_title: 'Jeopardy Game Generator'
+    };
+
+    let config = { ...defaultConfig };
+
+    // State
+    let currentView = 'teacher';
+    let gameTitle = 'My Awesome Jeopardy Game! 🎉';
+    let numCategories = 3;
+    let numQuestions = 3;
+    let numPlayers = 2;
+    let categories = [];
+    let players = [];
+    let previewMode = false;
+    let currentZoom = 1;
+    const zoomLevels = [1, 1.1, 1.2, 1.3, 1.4];
+    let zoomIndex = 0;
+
+    // Encouraging statements
+    const correctStatements = [
+      "🎉 AMAZING! You're on fire!",
+      "🌟 BRILLIANT! Keep it up!",
+      "🚀 WOW! You're a genius!",
+      "💪 INCREDIBLE! Nothing can stop you!",
+      "🎯 PERFECT! You nailed it!",
+      "✨ FANTASTIC! You're crushing it!",
+      "🏆 CHAMPION! That was awesome!",
+      "🔥 UNSTOPPABLE! Way to go!",
+      "💎 SUPERSTAR! You rock!",
+      "🎪 SPECTACULAR! Keep shining!"
+    ];
+
+    const incorrectStatements = [
+      "😊 Nice try! You'll get the next one!",
+      "💪 Don't give up! You're learning!",
+      "🌈 Almost there! Keep going!",
+      "⭐ Good effort! Next time for sure!",
+      "🎈 No worries! Stay positive!",
+      "🌻 Keep trying! You're doing great!",
+      "🦋 Learning is growing! Try again!",
+      "🌟 Every mistake is progress!",
+      "🎨 Creativity counts! Keep at it!",
+      "🎭 That took courage! Keep playing!"
+    ];
+
+    function getRandomStatement(isCorrect) {
+      const statements = isCorrect ? correctStatements : incorrectStatements;
+      return statements[Math.floor(Math.random() * statements.length)];
+    }
+
+    function initializeGame() {
+      categories = [];
+      for (let i = 0; i < numCategories; i++) {
+        const questions = [];
+        for (let j = 0; j < numQuestions; j++) {
+          questions.push({
+            points: (j + 1) * 100,
+            question: '',
+            questionImage: '',
+            answer: '',
+            answerImage: '',
+            answered: false
+          });
+        }
+        categories.push({
+          name: `Category ${i + 1}`,
+          questions: questions
+        });
+      }
+      
+      players = [];
+      for (let i = 0; i < numPlayers; i++) {
+        players.push({
+          name: `Player/Group ${i + 1}`,
+          score: 0
+        });
+      }
+    }
+
+    function createConfetti() {
+      const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd'];
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = '-10px';
+        confetti.style.width = '10px';
+        confetti.style.height = '10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+        
+        const animation = confetti.animate([
+          { top: '-10px', opacity: 1 },
+          { top: '100%', opacity: 0 }
+        ], {
+          duration: 2000 + Math.random() * 1000,
+          easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        });
+        
+        animation.onfinish = () => confetti.remove();
+      }
+    }
+
+    function handleImageUpload(file, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => callback(e.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    function cycleZoom() {
+      zoomIndex = (zoomIndex + 1) % zoomLevels.length;
+      currentZoom = zoomLevels[zoomIndex];
+      const appContent = document.getElementById('app-content');
+      if (appContent) {
+        appContent.style.transform = `scale(${currentZoom})`;
+        appContent.style.transformOrigin = 'top left';
+      }
+    }
+
+    function renderTeacherInterface() {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div id="app-content" class="min-h-full w-full p-4 md:p-6">
+          <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-6">
+              <h1 class="title-font text-3xl md:text-4xl text-white mb-2 rainbow-text">${config.app_title}</h1>
+              <p class="text-purple-200 text-lg">Create amazing quiz games for your students! 🎮</p>
+              <a href="index.html" class="inline-block mt-3 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-sm font-semibold transition-all">
+                ← Back to Activity Maker
+              </a>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6 border border-white/20">
+              <h2 class="title-font text-2xl text-white mb-4">⚙️ Game Settings</h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-purple-200 font-semibold mb-2">🎮 Game Title</label>
+                  <input type="text" id="game-title" value="${gameTitle}" 
+                    class="input-field w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 font-semibold outline-none"
+                    placeholder="Enter game title...">
+                </div>
+                
+                <div>
+                  <label class="block text-purple-200 font-semibold mb-2">📚 Categories (3-6)</label>
+                  <select id="num-categories" class="input-field w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 font-semibold outline-none">
+                    ${[3,4,5,6].map(n => `<option value="${n}" ${n === numCategories ? 'selected' : ''}>${n} Categories</option>`).join('')}
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-purple-200 font-semibold mb-2">❓ Questions per Category (3-5)</label>
+                  <select id="num-questions" class="input-field w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 font-semibold outline-none">
+                    ${[3,4,5].map(n => `<option value="${n}" ${n === numQuestions ? 'selected' : ''}>${n} Questions</option>`).join('')}
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-purple-200 font-semibold mb-2">👥 Number of Players/Groups (1-6)</label>
+                  <select id="num-players" class="input-field w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 font-semibold outline-none">
+                    ${[1,2,3,4,5,6].map(n => `<option value="${n}" ${n === numPlayers ? 'selected' : ''}>${n} Player/Group${n > 1 ? 's' : ''}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              
+              <button id="apply-settings" class="btn-fun mt-4 px-6 py-3 rounded-xl text-white font-bold shadow-lg hover:shadow-xl transition-all">
+                🔄 Apply Settings
+              </button>
+            </div>
+
+            <!-- Questions Editor with Tabs -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6 border border-white/20">
+              <h2 class="title-font text-2xl text-white mb-4">📝 Questions & Answers</h2>
+              
+              <!-- Category Tabs -->
+              <div class="flex flex-wrap gap-2 mb-6 pb-4 border-b border-white/20">
+                ${categories.map((cat, catIndex) => `
+                  <button class="category-tab px-4 py-2 rounded-xl font-semibold transition-all ${catIndex === 0 ? 'tab-active shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}"
+                    data-cat="${catIndex}">
+                    ${cat.name || `Category ${catIndex + 1}`}
+                  </button>
+                `).join('')}
+              </div>
+              
+              <!-- Category Content -->
+              <div id="categories-editor" class="space-y-4">
+                ${categories.map((cat, catIndex) => `
+                  <div class="category-content ${catIndex === 0 ? 'block' : 'hidden'}" data-cat="${catIndex}">
+                    <div class="mb-4">
+                      <label class="block text-purple-200 font-semibold mb-2">📌 Category Name</label>
+                      <input type="text" value="${cat.name}" 
+                        class="category-name input-field w-full px-4 py-3 rounded-xl bg-white/90 text-gray-800 font-semibold outline-none"
+                        data-cat="${catIndex}" placeholder="Enter category name...">
+                    </div>
+                    
+                    <div class="grid gap-4">
+                      ${cat.questions.map((q, qIndex) => `
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                          <div class="flex items-center gap-2 mb-3">
+                            <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                              $${q.points}
+                            </span>
+                          </div>
+                          
+                          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                              <label class="block text-purple-200 text-sm font-semibold mb-1">Question</label>
+                              <textarea class="question-text input-field w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 text-sm outline-none resize-none"
+                                data-cat="${catIndex}" data-q="${qIndex}" rows="2" placeholder="Enter question...">${q.question}</textarea>
+                              <div class="mt-2">
+                                <label class="text-purple-200 text-xs font-semibold cursor-pointer hover:text-white transition-colors">
+                                  📷 Add Question Image
+                                  <input type="file" accept="image/*" class="hidden question-image-input" data-cat="${catIndex}" data-q="${qIndex}">
+                                </label>
+                                ${q.questionImage ? `<div class="mt-2"><img src="${q.questionImage}" class="w-20 h-20 object-cover rounded-lg"></div>` : ''}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <label class="block text-purple-200 text-sm font-semibold mb-1">Answer</label>
+                              <textarea class="answer-text input-field w-full px-3 py-2 rounded-lg bg-white/90 text-gray-800 text-sm outline-none resize-none"
+                                data-cat="${catIndex}" data-q="${qIndex}" rows="2" placeholder="Enter answer...">${q.answer}</textarea>
+                              <div class="mt-2">
+                                <label class="text-purple-200 text-xs font-semibold cursor-pointer hover:text-white transition-colors">
+                                  📷 Add Answer Image
+                                  <input type="file" accept="image/*" class="hidden answer-image-input" data-cat="${catIndex}" data-q="${qIndex}">
+                                </label>
+                                ${q.answerImage ? `<div class="mt-2"><img src="${q.answerImage}" class="w-20 h-20 object-cover rounded-lg"></div>` : ''}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-4 justify-center mb-20">
+              <button id="preview-btn" class="btn-primary px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                👁️ Preview Game
+              </button>
+              <button id="download-btn" class="btn-success px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                📥 Download Game
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="watermark">CMarasigan</div>
+        <button class="zoom-btn btn-primary text-white" id="zoom-btn" title="Zoom (${Math.round(currentZoom * 100)}%)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+            <path d="M11 8v6"></path>
+            <path d="M8 11h6"></path>
+          </svg>
+        </button>
+      `;
+
+      // Event listeners
+      document.getElementById('game-title').addEventListener('input', (e) => {
+        gameTitle = e.target.value;
+      });
+
+      document.getElementById('num-categories').addEventListener('change', (e) => {
+        numCategories = parseInt(e.target.value);
+      });
+
+      document.getElementById('num-questions').addEventListener('change', (e) => {
+        numQuestions = parseInt(e.target.value);
+      });
+
+      document.getElementById('num-players').addEventListener('change', (e) => {
+        numPlayers = parseInt(e.target.value);
+      });
+
+      document.getElementById('apply-settings').addEventListener('click', () => {
+        initializeGame();
+        renderTeacherInterface();
+      });
+
+      // Category tabs
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          const catIndex = parseInt(e.target.dataset.cat);
+          document.querySelectorAll('.category-tab').forEach(t => {
+            t.classList.remove('tab-active', 'shadow-lg');
+            t.classList.add('bg-white/10', 'text-white', 'hover:bg-white/20');
+          });
+          e.target.classList.add('tab-active', 'shadow-lg');
+          e.target.classList.remove('bg-white/10', 'text-white', 'hover:bg-white/20');
+
+          document.querySelectorAll('.category-content').forEach(content => {
+            content.classList.add('hidden');
+          });
+          document.querySelector(`.category-content[data-cat="${catIndex}"]`).classList.remove('hidden');
+        });
+      });
+
+      document.querySelectorAll('.category-name').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const catIndex = parseInt(e.target.dataset.cat);
+          categories[catIndex].name = e.target.value;
+          document.querySelector(`.category-tab[data-cat="${catIndex}"]`).textContent = e.target.value || `Category ${catIndex + 1}`;
+        });
+      });
+
+      document.querySelectorAll('.question-text').forEach(textarea => {
+        textarea.addEventListener('input', (e) => {
+          const catIndex = parseInt(e.target.dataset.cat);
+          const qIndex = parseInt(e.target.dataset.q);
+          categories[catIndex].questions[qIndex].question = e.target.value;
+        });
+      });
+
+      document.querySelectorAll('.answer-text').forEach(textarea => {
+        textarea.addEventListener('input', (e) => {
+          const catIndex = parseInt(e.target.dataset.cat);
+          const qIndex = parseInt(e.target.dataset.q);
+          categories[catIndex].questions[qIndex].answer = e.target.value;
+        });
+      });
+
+      document.querySelectorAll('.question-image-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const catIndex = parseInt(e.target.dataset.cat);
+          const qIndex = parseInt(e.target.dataset.q);
+          if (e.target.files[0]) {
+            handleImageUpload(e.target.files[0], (base64) => {
+              categories[catIndex].questions[qIndex].questionImage = base64;
+              renderTeacherInterface();
+            });
+          }
+        });
+      });
+
+      document.querySelectorAll('.answer-image-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const catIndex = parseInt(e.target.dataset.cat);
+          const qIndex = parseInt(e.target.dataset.q);
+          if (e.target.files[0]) {
+            handleImageUpload(e.target.files[0], (base64) => {
+              categories[catIndex].questions[qIndex].answerImage = base64;
+              renderTeacherInterface();
+            });
+          }
+        });
+      });
+
+      document.getElementById('preview-btn').addEventListener('click', () => {
+        previewMode = true;
+        renderGamePreview();
+      });
+
+      document.getElementById('download-btn').addEventListener('click', downloadGame);
+
+      document.getElementById('zoom-btn').addEventListener('click', cycleZoom);
+    }
+
+    function renderGamePreview() {
+      const app = document.getElementById('app');
+      let currentQuestion = null;
+      let showingAnswer = false;
+      let feedbackMessage = '';
+
+      function renderBoard() {
+        app.innerHTML = `
+          <div id="app-content" class="min-h-full w-full p-3 md:p-6" style="transform: scale(${currentZoom}); transform-origin: top left;">
+            <div class="max-w-6xl mx-auto">
+              <!-- Header -->
+              <div class="text-center mb-4">
+                <h1 class="title-font text-2xl md:text-4xl text-white rainbow-text">${gameTitle}</h1>
+              </div>
+
+              <!-- Scoreboard -->
+              <div class="flex flex-wrap justify-center gap-3 mb-4">
+                ${players.map((player, index) => `
+                  <div class="player-score rounded-2xl px-4 py-2 text-center min-w-24">
+                    <input type="text" value="${player.name}" 
+                      class="player-name bg-transparent text-center text-gray-800 font-bold text-sm outline-none w-full"
+                      data-player="${index}">
+                    <div class="text-2xl font-bold text-purple-700">${player.score}</div>
+                    <div class="flex gap-1 justify-center mt-1">
+                      <button class="score-adjust bg-red-400 hover:bg-red-500 text-white w-6 h-6 rounded-full text-xs font-bold transition-all"
+                        data-player="${index}" data-action="subtract">-</button>
+                      <button class="score-adjust bg-green-400 hover:bg-green-500 text-white w-6 h-6 rounded-full text-xs font-bold transition-all"
+                        data-player="${index}" data-action="add">+</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Game Board -->
+              <div class="overflow-x-auto">
+                <div class="grid gap-2 min-w-max" style="grid-template-columns: repeat(${numCategories}, minmax(120px, 1fr));">
+                  <!-- Category Headers -->
+                  ${categories.map(cat => `
+                    <div class="category-header rounded-xl p-3 text-center">
+                      <span class="text-white font-bold text-sm md:text-base">${cat.name}</span>
+                    </div>
+                  `).join('')}
+                  
+                  <!-- Question Cards -->
+                  ${Array.from({length: numQuestions}, (_, qIndex) => 
+                    categories.map((cat, catIndex) => {
+                      const q = cat.questions[qIndex];
+                      return `
+                        <button class="game-card rounded-xl p-4 text-center ${q.answered ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}"
+                          data-cat="${catIndex}" data-q="${qIndex}" ${q.answered ? 'disabled' : ''}>
+                          <span class="text-yellow-300 font-bold text-xl md:text-2xl">$${q.points}</span>
+                        </button>
+                      `;
+                    }).join('')
+                  ).join('')}
+                </div>
+              </div>
+
+              <!-- Back Button -->
+              <div class="text-center mt-6">
+                <button id="back-to-editor" class="btn-warning px-6 py-3 rounded-xl text-white font-bold shadow-lg hover:shadow-xl transition-all">
+                  ✏️ Back to Editor
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all" id="retry-btn">
+            🔄 Retry Game
+          </button>
+          <div class="watermark">CMarasigan</div>
+          <button class="zoom-btn btn-primary text-white" id="zoom-btn" title="Zoom (${Math.round(currentZoom * 100)}%)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+              <path d="M11 8v6"></path>
+              <path d="M8 11h6"></path>
+            </svg>
+          </button>
+        `;
+
+        // Event listeners
+        document.querySelectorAll('.game-card:not([disabled])').forEach(card => {
+          card.addEventListener('click', (e) => {
+            const catIndex = parseInt(e.currentTarget.dataset.cat);
+            const qIndex = parseInt(e.currentTarget.dataset.q);
+            currentQuestion = { catIndex, qIndex };
+            showingAnswer = false;
+            feedbackMessage = '';
+            renderQuestion();
+          });
+        });
+
+        document.querySelectorAll('.player-name').forEach(input => {
+          input.addEventListener('input', (e) => {
+            const playerIndex = parseInt(e.target.dataset.player);
+            players[playerIndex].name = e.target.value;
+          });
+        });
+
+        document.querySelectorAll('.score-adjust').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const playerIndex = parseInt(e.target.dataset.player);
+            const action = e.target.dataset.action;
+            const q = categories[currentQuestion?.catIndex]?.questions[currentQuestion?.qIndex];
+            const points = q ? q.points : 100;
+            if (action === 'add') {
+              players[playerIndex].score += points;
+            } else {
+              players[playerIndex].score -= points;
+            }
+            renderBoard();
+          });
+        });
+
+        document.getElementById('back-to-editor').addEventListener('click', () => {
+          previewMode = false;
+          renderTeacherInterface();
+        });
+
+        document.getElementById('retry-btn').addEventListener('click', () => {
+          categories.forEach(cat => {
+            cat.questions.forEach(q => q.answered = false);
+          });
+          players.forEach(p => p.score = 0);
+          renderBoard();
+        });
+
+        document.getElementById('zoom-btn').addEventListener('click', cycleZoom);
+      }
+
+      function renderQuestion() {
+        const q = categories[currentQuestion.catIndex].questions[currentQuestion.qIndex];
+        app.innerHTML = `
+          <div id="app-content" class="min-h-full w-full p-4 flex items-center justify-center" style="transform: scale(${currentZoom}); transform-origin: top left;">
+            <div class="max-w-2xl w-full">
+              <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/20 text-center">
+                <div class="mb-4">
+                  <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold text-lg">
+                    ${categories[currentQuestion.catIndex].name} - $${q.points}
+                  </span>
+                </div>
+                
+                ${!showingAnswer ? `
+                  <div class="mb-6">
+                    <h2 class="title-font text-xl md:text-2xl text-white mb-4">📝 Question:</h2>
+                    <p class="text-white text-lg md:text-xl">${q.question || 'No question set'}</p>
+                    ${q.questionImage ? `<img src="${q.questionImage}" class="mt-4 max-w-full max-h-48 mx-auto rounded-xl shadow-lg" loading="lazy" onerror="this.style.background='#e5e7eb'; this.alt='Image unavailable';">` : ''}
+                  </div>
+                  
+                  <button id="show-answer" class="btn-success px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                    🔍 Show Answer
+                  </button>
+                ` : `
+                  <div class="mb-6">
+                    <h2 class="title-font text-xl md:text-2xl text-green-300 mb-4">✅ Answer:</h2>
+                    <p class="text-white text-lg md:text-xl">${q.answer || 'No answer set'}</p>
+                    ${q.answerImage ? `<img src="${q.answerImage}" class="mt-4 max-w-full max-h-48 mx-auto rounded-xl shadow-lg" loading="lazy" onerror="this.style.background='#e5e7eb'; this.alt='Image unavailable';">` : ''}
+                  </div>
+                  
+                  ${feedbackMessage ? `
+                    <div class="mb-6 p-4 rounded-2xl ${feedbackMessage.includes('🎉') || feedbackMessage.includes('AMAZING') || feedbackMessage.includes('BRILLIANT') || feedbackMessage.includes('WOW') || feedbackMessage.includes('INCREDIBLE') || feedbackMessage.includes('PERFECT') || feedbackMessage.includes('FANTASTIC') || feedbackMessage.includes('CHAMPION') || feedbackMessage.includes('UNSTOPPABLE') || feedbackMessage.includes('SUPERSTAR') || feedbackMessage.includes('SPECTACULAR') ? 'bg-green-500/30' : 'bg-orange-500/30'}">
+                      <p class="text-white text-xl font-bold bounce">${feedbackMessage}</p>
+                    </div>
+                  ` : ''}
+                  
+                  <div class="flex flex-wrap gap-3 justify-center mb-6">
+                    ${players.map((player, index) => `
+                      <div class="flex gap-2">
+                        <button class="award-correct bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold transition-all"
+                          data-player="${index}">
+                          ✓ ${player.name}
+                        </button>
+                        <button class="award-incorrect bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-bold transition-all"
+                          data-player="${index}">
+                          ✗ ${player.name}
+                        </button>
+                      </div>
+                    `).join('')}
+                  </div>
+                  
+                  <button id="back-to-board" class="btn-primary px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                    🎮 Back to Board
+                  </button>
+                `}
+              </div>
+            </div>
+          </div>
+          
+          <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all" id="retry-btn">
+            🔄 Retry Game
+          </button>
+          <div class="watermark">CMarasigan</div>
+          <button class="zoom-btn btn-primary text-white" id="zoom-btn" title="Zoom (${Math.round(currentZoom * 100)}%)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+              <path d="M11 8v6"></path>
+              <path d="M8 11h6"></path>
+            </svg>
+          </button>
+        `;
+
+        if (!showingAnswer) {
+          document.getElementById('show-answer').addEventListener('click', () => {
+            showingAnswer = true;
+            renderQuestion();
+          });
+        } else {
+          document.querySelectorAll('.award-correct').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const playerIndex = parseInt(e.target.dataset.player);
+              players[playerIndex].score += q.points;
+              feedbackMessage = getRandomStatement(true);
+              createConfetti();
+              renderQuestion();
+            });
+          });
+
+          document.querySelectorAll('.award-incorrect').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const playerIndex = parseInt(e.target.dataset.player);
+              players[playerIndex].score -= q.points;
+              feedbackMessage = getRandomStatement(false);
+              renderQuestion();
+            });
+          });
+
+          document.getElementById('back-to-board').addEventListener('click', () => {
+            q.answered = true;
+            currentQuestion = null;
+            renderBoard();
+          });
+        }
+
+        document.getElementById('retry-btn').addEventListener('click', () => {
+          categories.forEach(cat => {
+            cat.questions.forEach(q => q.answered = false);
+          });
+          players.forEach(p => p.score = 0);
+          renderBoard();
+        });
+
+        document.getElementById('zoom-btn').addEventListener('click', cycleZoom);
+      }
+
+      renderBoard();
+    }
+
+    function downloadGame() {
+      const gameHTML = generateStandaloneGame();
+      const blob = new Blob([gameHTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${gameTitle.replace(/[^a-z0-9]/gi, '_')}_jeopardy.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function generateStandaloneGame() {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${gameTitle}</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { box-sizing: border-box; }
+    * { font-family: 'Nunito', sans-serif; }
+    .title-font { font-family: 'Fredoka One', cursive; }
+    .game-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); transition: all 0.3s ease; }
+    .game-card:hover { transform: scale(1.02); box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4); }
+    .category-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .btn-fun { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .player-score { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+    .rainbow-text { background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .watermark { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: rgba(255, 255, 255, 0.5); z-index: 1000; pointer-events: none; }
+    .zoom-btn { position: fixed; bottom: 15px; right: 15px; z-index: 1000; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
+    .retry-btn { position: fixed; bottom: 40px; left: 15px; z-index: 1000; }
+    .confetti { position: fixed; pointer-events: none; z-index: 9999; }
+    .bounce { animation: bounce 0.5s ease; }
+    @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 overflow-auto">
+  <div id="app"></div>
+  <script>
+    const gameData = ${JSON.stringify({ gameTitle, categories, players, numCategories, numQuestions })};
+    let currentQuestion = null;
+    let showingAnswer = false;
+    let feedbackMessage = '';
+    let currentZoom = 1;
+    const zoomLevels = [1, 1.1, 1.2, 1.3, 1.4];
+    let zoomIndex = 0;
+
+    const correctStatements = ${JSON.stringify(correctStatements)};
+    const incorrectStatements = ${JSON.stringify(incorrectStatements)};
+
+    function getRandomStatement(isCorrect) {
+      const statements = isCorrect ? correctStatements : incorrectStatements;
+      return statements[Math.floor(Math.random() * statements.length)];
+    }
+
+    function createConfetti() {
+      const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd'];
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = '-10px';
+        confetti.style.width = '10px';
+        confetti.style.height = '10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        document.body.appendChild(confetti);
+        const animation = confetti.animate([{ top: '-10px', opacity: 1 }, { top: '100%', opacity: 0 }], { duration: 2000 + Math.random() * 1000, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+        animation.onfinish = () => confetti.remove();
+      }
+    }
+
+    function cycleZoom() {
+      zoomIndex = (zoomIndex + 1) % zoomLevels.length;
+      currentZoom = zoomLevels[zoomIndex];
+      const appContent = document.getElementById('app-content');
+      if (appContent) {
+        appContent.style.transform = 'scale(' + currentZoom + ')';
+        appContent.style.transformOrigin = 'top left';
+      }
+    }
+
+    function renderBoard() {
+      const app = document.getElementById('app');
+      app.innerHTML = \`
+        <div id="app-content" class="min-h-screen w-full p-3 md:p-6">
+          <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-4">
+              <h1 class="title-font text-2xl md:text-4xl text-white rainbow-text">\${gameData.gameTitle}</h1>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3 mb-4">
+              \${gameData.players.map((player, index) => \`
+                <div class="player-score rounded-2xl px-4 py-2 text-center min-w-24">
+                  <input type="text" value="\${player.name}" class="player-name bg-transparent text-center text-gray-800 font-bold text-sm outline-none w-full" data-player="\${index}">
+                  <div class="text-2xl font-bold text-purple-700">\${player.score}</div>
+                  <div class="flex gap-1 justify-center mt-1">
+                    <button class="score-adjust bg-red-400 hover:bg-red-500 text-white w-6 h-6 rounded-full text-xs font-bold" data-player="\${index}" data-action="subtract">-</button>
+                    <button class="score-adjust bg-green-400 hover:bg-green-500 text-white w-6 h-6 rounded-full text-xs font-bold" data-player="\${index}" data-action="add">+</button>
+                  </div>
+                </div>
+              \`).join('')}
+            </div>
+            <div class="overflow-x-auto">
+              <div class="grid gap-2 min-w-max" style="grid-template-columns: repeat(\${gameData.numCategories}, minmax(120px, 1fr));">
+                \${gameData.categories.map(cat => \`<div class="category-header rounded-xl p-3 text-center"><span class="text-white font-bold text-sm md:text-base">\${cat.name}</span></div>\`).join('')}
+                \${Array.from({length: gameData.numQuestions}, (_, qIndex) => gameData.categories.map((cat, catIndex) => {
+                  const q = cat.questions[qIndex];
+                  return \`<button class="game-card rounded-xl p-4 text-center \${q.answered ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}" data-cat="\${catIndex}" data-q="\${qIndex}" \${q.answered ? 'disabled' : ''}><span class="text-yellow-300 font-bold text-xl md:text-2xl">$\${q.points}</span></button>\`;
+                }).join('')).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <div class="watermark">CMarasigan</div>
+        <button class="zoom-btn btn-primary text-white" id="zoom-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M11 8v6"></path><path d="M8 11h6"></path></svg></button>
+      \`;
+
+      document.querySelectorAll('.game-card:not([disabled])').forEach(card => {
+        card.addEventListener('click', (e) => {
+          currentQuestion = { catIndex: parseInt(e.currentTarget.dataset.cat), qIndex: parseInt(e.currentTarget.dataset.q) };
+          showingAnswer = false;
+          feedbackMessage = '';
+          renderQuestion();
+        });
+      });
+
+      document.querySelectorAll('.player-name').forEach(input => {
+        input.addEventListener('input', (e) => { gameData.players[parseInt(e.target.dataset.player)].name = e.target.value; });
+      });
+
+      document.querySelectorAll('.score-adjust').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const playerIndex = parseInt(e.target.dataset.player);
+          const action = e.target.dataset.action;
+          const q = gameData.categories[currentQuestion?.catIndex]?.questions[currentQuestion?.qIndex];
+          const points = q ? q.points : 100;
+          gameData.players[playerIndex].score += action === 'add' ? points : -points;
+          renderBoard();
+        });
+      });
+
+      document.getElementById('retry-btn').addEventListener('click', () => {
+        gameData.categories.forEach(cat => cat.questions.forEach(q => q.answered = false));
+        gameData.players.forEach(p => p.score = 0);
+        renderBoard();
+      });
+
+      document.getElementById('zoom-btn').addEventListener('click', cycleZoom);
+    }
+
+    function renderQuestion() {
+      const q = gameData.categories[currentQuestion.catIndex].questions[currentQuestion.qIndex];
+      const app = document.getElementById('app');
+      app.innerHTML = \`
+        <div id="app-content" class="min-h-screen w-full p-4 flex items-center justify-center">
+          <div class="max-w-2xl w-full">
+            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/20 text-center">
+              <div class="mb-4"><span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold text-lg">\${gameData.categories[currentQuestion.catIndex].name} - $\${q.points}</span></div>
+              \${!showingAnswer ? \`
+                <div class="mb-6">
+                  <h2 class="title-font text-xl md:text-2xl text-white mb-4">📝 Question:</h2>
+                  <p class="text-white text-lg md:text-xl">\${q.question || 'No question set'}</p>
+                  \${q.questionImage ? \`<img src="\${q.questionImage}" class="mt-4 max-w-full max-h-48 mx-auto rounded-xl shadow-lg" loading="lazy">\` : ''}
+                </div>
+                <button id="show-answer" class="btn-success px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">🔍 Show Answer</button>
+              \` : \`
+                <div class="mb-6">
+                  <h2 class="title-font text-xl md:text-2xl text-green-300 mb-4">✅ Answer:</h2>
+                  <p class="text-white text-lg md:text-xl">\${q.answer || 'No answer set'}</p>
+                  \${q.answerImage ? \`<img src="\${q.answerImage}" class="mt-4 max-w-full max-h-48 mx-auto rounded-xl shadow-lg" loading="lazy">\` : ''}
+                </div>
+                \${feedbackMessage ? \`<div class="mb-6 p-4 rounded-2xl \${feedbackMessage.includes('🎉') || feedbackMessage.includes('AMAZING') || feedbackMessage.includes('BRILLIANT') ? 'bg-green-500/30' : 'bg-orange-500/30'}"><p class="text-white text-xl font-bold bounce">\${feedbackMessage}</p></div>\` : ''}
+                <div class="flex flex-wrap gap-3 justify-center mb-6">
+                  \${gameData.players.map((player, index) => \`
+                    <div class="flex gap-2">
+                      <button class="award-correct bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold" data-player="\${index}">✓ \${player.name}</button>
+                      <button class="award-incorrect bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-bold" data-player="\${index}">✗ \${player.name}</button>
+                    </div>
+                  \`).join('')}
+                </div>
+                <button id="back-to-board" class="btn-primary px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">🎮 Back to Board</button>
+              \`}
+            </div>
+          </div>
+        </div>
+        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <div class="watermark">CMarasigan</div>
+        <button class="zoom-btn btn-primary text-white" id="zoom-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M11 8v6"></path><path d="M8 11h6"></path></svg></button>
+      \`;
+
+      if (!showingAnswer) {
+        document.getElementById('show-answer').addEventListener('click', () => { showingAnswer = true; renderQuestion(); });
+      } else {
+        document.querySelectorAll('.award-correct').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            gameData.players[parseInt(e.target.dataset.player)].score += q.points;
+            feedbackMessage = getRandomStatement(true);
+            createConfetti();
+            renderQuestion();
+          });
+        });
+        document.querySelectorAll('.award-incorrect').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            gameData.players[parseInt(e.target.dataset.player)].score -= q.points;
+            feedbackMessage = getRandomStatement(false);
+            renderQuestion();
+          });
+        });
+        document.getElementById('back-to-board').addEventListener('click', () => { q.answered = true; currentQuestion = null; renderBoard(); });
+      }
+
+      document.getElementById('retry-btn').addEventListener('click', () => {
+        gameData.categories.forEach(cat => cat.questions.forEach(q => q.answered = false));
+        gameData.players.forEach(p => p.score = 0);
+        renderBoard();
+      });
+
+      document.getElementById('zoom-btn').addEventListener('click', cycleZoom);
+    }
+
+    renderBoard();
+  <\/script>
+</body>
+</html>`;
+    }
+
+    // Initialize
+    initializeGame();
+
+    // Element SDK initialization
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...newConfig };
+          const titleEl = document.querySelector('.rainbow-text');
+          if (titleEl && currentView === 'teacher') {
+            titleEl.textContent = config.app_title || defaultConfig.app_title;
+          }
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['app_title', config.app_title || defaultConfig.app_title]
+        ])
+      });
+    }
+
+    renderTeacherInterface();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cc09676941c1ec9',t:'MTc3MDc3ODc0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
