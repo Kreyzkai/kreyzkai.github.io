@@ -4,18 +4,15 @@
 <meta charset="UTF-8">
 <title>Chris' Choices Game Generator</title>
 <style>
-    /* Teacher UI - Clean Professional Aesthetic */
     body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 20px; color: #333; }
     .teacher { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #003366; margin-bottom: 30px; }
     
-    /* Choice Label Styles */
     .label-settings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
     .label-box { display: flex; flex-direction: column; gap: 5px; }
     .label-box span { font-size: 12px; font-weight: bold; color: #666; }
     input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
     
-    /* Row Styles */
     .row { display: grid; grid-template-columns: 40px 2fr 1.5fr 120px 60px 50px; gap: 12px; margin-bottom: 12px; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
     .row select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: white; }
     .img-preview { max-height: 50px; max-width: 60px; border: 1px solid #ddd; border-radius: 4px; object-fit: cover; }
@@ -88,7 +85,7 @@ function updateDropdown(select) {
     if(l4) options.push({text: `Correct: ${l4}`, val: 3});
 
     select.innerHTML = options.map(opt => `<option value="${opt.val}">${opt.text}</option>`).join('');
-    select.value = currentVal; // Maintain selection if still valid
+    select.value = currentVal;
 }
 
 function autoAdd(input) {
@@ -168,21 +165,40 @@ const studentTemplate = `<!DOCTYPE html>
 
         body { font-family: Arial, sans-serif; text-align: center; background: #f0f2f5; margin: 0; transition: font-size 0.2s; }
         
-        /* Fixed visibility logic */
         .screen { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
         .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
         #introScreen { background: #003366; color: white; }
         .btn-start { font-size: 1.2em; padding: 15px 50px; cursor: pointer; background: white; color: #003366; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
-        #gameScreen { padding-bottom: 120px; justify-content: flex-start; }
+        #gameScreen { padding-bottom: 70px; justify-content: flex-start; }
 
-        /* Navigation Bar */
-        #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; padding: 15px; display: none; justify-content: center; gap: 15px; z-index: 100; }
-        .nav-btn { font-size: 0.8em; padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; }
-        
-        #zoomBtn { position: fixed; right: 20px; bottom: 100px; width: 50px; height: 50px; border-radius: 50%; border: none; background: #003366; color: white; font-size: 24px; cursor: pointer; z-index: 101; display: flex; align-items: center; justify-content: center; }
-        #watermark { position: fixed; left: 15px; bottom: 85px; font-size: 14px; opacity: 0.3; pointer-events: none; }
+        /* Static bottom bar that does not zoom */
+        #bottomBar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ccc;
+            padding: 5px;
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            font-size: 16px; /* fixed size */
+            transform: scale(1); /* prevents zoom scaling */
+            transform-origin: bottom;
+        }
+
+        #bottomBar .nav-btn {
+            font-size: 16px; /* fixed size */
+        }
+
+        .nav-btn { padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; font-weight: bold; }
+
+        #zoomBtn { position: fixed; right: 20px; bottom: 50px; width: 50px; height: 50px; border-radius: 50%; border: none; background: #003366; color: white; font-size: 24px; cursor: pointer; z-index: 101; display: flex; align-items: center; justify-content: center; }
+        #watermark { position: fixed; left: 15px; bottom: 50px; font-size: 14px; opacity: 0.3; pointer-events: none; }
 
         #qText { font-size: 1.5em; color: #003366; margin: 20px; font-weight: bold; }
         #qImg { max-width: 90%; max-height: 350px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
