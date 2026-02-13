@@ -12,7 +12,6 @@
     .settings-panel { display: flex; gap: 15px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
     .settings-panel input { padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; flex-grow: 1; }
 
-    /* Clean Grid Layout - Image moved to far right */
     .row { display: grid; grid-template-columns: 30px 1.5fr 1fr 1fr 1fr 1fr 1fr 1.2fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
     .row input { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     .deleteBtn { background: #c62828; color: white; border: none; padding: 8px; cursor: pointer; border-radius: 6px; font-weight: bold; }
@@ -155,9 +154,30 @@ const studentTemplate = `<!DOCTYPE html>
         
         #gameScreen { padding-bottom: 140px; justify-content: flex-start; }
 
-        #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; padding: 15px; display: none; justify-content: center; gap: 15px; z-index: 100; }
-        .nav-btn { font-size: 0.8em; padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; font-weight: bold; }
-        
+        /* Static bottom bar that does not zoom */
+        #bottomBar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ccc;
+            padding: 15px;
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            z-index: 100;
+            font-size: 16px; /* fixed size */
+            transform: scale(1); /* prevents zoom scaling */
+            transform-origin: bottom;
+        }
+
+        #bottomBar .nav-btn {
+            font-size: 16px; /* fixed size */
+        }
+
+        .nav-btn { padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; font-weight: bold; }
+
         #zoomBtn { position: fixed; right: 20px; bottom: 100px; width: 55px; height: 55px; border-radius: 50%; border: none; background: #003366; color: white; font-size: 26px; cursor: pointer; z-index: 101; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         .img-container { width: 100%; display: flex; justify-content: center; align-items: center; margin: 15px 0; }
@@ -165,7 +185,6 @@ const studentTemplate = `<!DOCTYPE html>
 
         #questionText { font-weight: bold; margin: 20px 0; padding: 0 10px; }
 
-        /* Hint Logic */
         .hint-box { margin-bottom: 20px; }
         .btn-hint { font-size: 0.6em; padding: 6px 18px; cursor: pointer; border-radius: 20px; border: 1px solid #003366; background: #eef2f7; color: #003366; font-weight: bold; }
         #hintText { font-style: italic; color: #666; margin-top: 10px; font-size: 0.8em; display: none; }
@@ -241,7 +260,6 @@ const studentTemplate = `<!DOCTYPE html>
             document.getElementById('questionText').textContent = qData.q;
             document.getElementById('feedback').textContent = "";
             
-            // Hint Reset
             const hintBtn = document.getElementById('hintBtn');
             const hintText = document.getElementById('hintText');
             if (qData.h) {
