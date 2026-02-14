@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESL Flash Card Creator</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Nunito', sans-serif;
+    }
+    
+    .card-preview {
+      aspect-ratio: 3/4;
+      transition: all 0.3s ease;
+    }
+    
+    .card-preview:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    
+    .tab-btn {
+      transition: all 0.2s ease;
+    }
+    
+    .tab-btn.active {
+      background: #0ea5e9;
+      color: white;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    .toast {
+      animation: slideIn 0.3s ease forwards;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .image-preview {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #f1f5f9;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 2rem;
+    }
+
+    .pair-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+      border-radius: 15px;
+      border: 2px solid #e0f2fe;
+    }
+
+    .card-input-group {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .card-title {
+      font-weight: 700;
+      color: #0c4a6e;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .optional-badge {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-left: 5px;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gradient-to-br from-sky-50 via-white to-amber-50">
+  <div id="app" class="h-full overflow-auto"><!-- Header -->
+   <header class="bg-white shadow-sm border-b border-sky-100 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4">
+     <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+       <div class="w-12 h-12 bg-gradient-to-br from-sky-400 to-sky-600 rounded-xl flex items-center justify-center shadow-lg"><span class="text-2xl">🎴</span>
+       </div>
+       <div>
+        <h1 id="app-title" class="text-2xl font-extrabold text-sky-900">ESL Flash Card Creator</h1>
+        <p class="text-sm text-sky-600">Create memory games with custom pairs</p>
+       </div>
+      </div>
+      <div class="flex gap-2"><button id="tab-create" class="tab-btn active px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> ✏️ Create Cards </button> <button id="tab-preview" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> 👁️ Preview </button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Toast Container -->
+   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2"></div><!-- Main Content -->
+   <main class="max-w-6xl mx-auto px-4 py-6"><!-- Create Tab -->
+    <div id="create-section" class="space-y-6"><!-- Game Settings -->
+     <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <h2 class="text-lg font-bold text-sky-900 mb-4 flex items-center gap-2">⚙️ Game Settings</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+       <div><label class="block text-sm font-semibold text-sky-800 mb-2">Game Title</label> <input type="text" id="game-title" value="Memory Match Game" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 font-medium">
+       </div>
+       <div><label class="block text-sm font-semibold text-sky-800 mb-2">Card Back Color</label>
+        <div class="flex gap-2"><input type="color" id="card-color" value="#0ea5e9" class="w-14 h-12 rounded-lg cursor-pointer border-2 border-sky-200"> <input type="text" id="card-color-text" value="#0ea5e9" class="flex-1 px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 font-mono">
+        </div>
+       </div>
+      </div>
+     </section><!-- Add Pair Form -->
+     <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <h2 class="text-lg font-bold text-sky-900 mb-4 flex items-center gap-2">➕ Add New Pair</h2>
+      <div class="pair-container"><!-- Card 1 -->
+       <div class="card-input-group">
+        <div class="card-title">
+         Card 1
+        </div><label class="block text-sm font-semibold text-sky-800 mb-2">Text / Label</label> <input type="text" id="pair-card1-text" placeholder="e.g., Apple" class="w-full px-4 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 mb-3"> <label class="block text-sm font-semibold text-sky-800 mb-2">Upload Image <span class="optional-badge">(optional)</span></label>
+        <div class="mb-3"><input type="file" id="pair-card1-image" accept="image/*" class="hidden">
+         <div id="pair-card1-preview" class="image-placeholder">
+          📷
+         </div><button type="button" onclick="document.getElementById('pair-card1-image').click()" class="mt-2 w-full bg-sky-100 text-sky-700 py-2 px-3 rounded-lg font-semibold hover:bg-sky-200 transition text-sm"> Choose Image </button> <button type="button" id="pair-card1-clear" onclick="clearImage('pair-card1')" class="mt-2 w-full bg-red-100 text-red-700 py-2 px-3 rounded-lg font-semibold hover:bg-red-200 transition text-sm hidden"> Clear Image </button>
+        </div>
+       </div><!-- Card 2 -->
+       <div class="card-input-group">
+        <div class="card-title">
+         Card 2
+        </div><label class="block text-sm font-semibold text-sky-800 mb-2">Text / Label</label> <input type="text" id="pair-card2-text" placeholder="e.g., 苹果" class="w-full px-4 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 mb-3"> <label class="block text-sm font-semibold text-sky-800 mb-2">Upload Image <span class="optional-badge">(optional)</span></label>
+        <div class="mb-3"><input type="file" id="pair-card2-image" accept="image/*" class="hidden">
+         <div id="pair-card2-preview" class="image-placeholder">
+          📷
+         </div><button type="button" onclick="document.getElementById('pair-card2-image').click()" class="mt-2 w-full bg-sky-100 text-sky-700 py-2 px-3 rounded-lg font-semibold hover:bg-sky-200 transition text-sm"> Choose Image </button> <button type="button" id="pair-card2-clear" onclick="clearImage('pair-card2')" class="mt-2 w-full bg-red-100 text-red-700 py-2 px-3 rounded-lg font-semibold hover:bg-red-200 transition text-sm hidden"> Clear Image </button>
+        </div>
+       </div>
+      </div><button id="add-pair-btn" class="mt-6 w-full bg-gradient-to-r from-sky-500 to-sky-600 text-white py-3 px-6 rounded-xl font-bold hover:from-sky-600 hover:to-sky-700 transition shadow-lg hover:shadow-xl"> ➕ Add Pair to Deck </button>
+     </section><!-- Pair List -->
+     <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex items-center justify-between mb-4">
+       <h2 class="text-lg font-bold text-sky-900 flex items-center gap-2">🃏 Your Pairs <span id="pair-count" class="text-sky-500 font-normal">(0 pairs)</span></h2><button id="clear-all-btn" class="text-red-500 hover:text-red-700 font-semibold text-sm transition hidden"> 🗑️ Clear All </button>
+      </div>
+      <div id="pair-list" class="space-y-4">
+       <div class="text-center py-12 text-sky-400">
+        <div class="text-5xl mb-3">
+         📝
+        </div>
+        <p class="font-medium">No pairs yet. Add your first pair above!</p>
+       </div>
+      </div>
+     </section><!-- Download Section -->
+     <section class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl shadow-lg p-6 border border-amber-200">
+      <h2 class="text-lg font-bold text-amber-900 mb-4 flex items-center gap-2">📥 Export Your Cards</h2>
+      <div class="grid md:grid-cols-2 gap-4"><button id="download-game-btn" class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-4 px-6 rounded-xl font-bold hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"> <span class="text-2xl">🎮</span>
+        <div class="text-left">
+         <div>
+          Download HTML Game
+         </div>
+         <div class="text-sm font-normal opacity-90">
+          Interactive memory match
+         </div>
+        </div></button> <button id="download-print-btn" class="bg-gradient-to-r from-violet-500 to-violet-600 text-white py-4 px-6 rounded-xl font-bold hover:from-violet-600 hover:to-violet-700 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"> <span class="text-2xl">🖨️</span>
+        <div class="text-left">
+         <div>
+          Download Print Version
+         </div>
+         <div class="text-sm font-normal opacity-90">
+          A4 sheet with cut lines
+         </div>
+        </div></button>
+      </div>
+     </section>
+    </div><!-- Preview Tab -->
+    <div id="preview-section" class="hidden">
+     <div class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <h2 class="text-lg font-bold text-sky-900 mb-4 flex items-center gap-2">👁️ Game Preview</h2>
+      <div id="preview-container" class="min-h-96 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl p-6">
+       <div class="text-center py-12 text-sky-400">
+        <div class="text-5xl mb-3">
+         🎴
+        </div>
+        <p class="font-medium">Add pairs to see a preview of your memory game!</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: 'ESL Flash Card Creator',
+      game_title: 'Memory Match Game'
+    };
+
+    let config = { ...defaultConfig };
+    let pairs = [];
+    let card1Image = null;
+    let card2Image = null;
+    let currentTab = 'create';
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColor = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-sky-500';
+      toast.className = 'toast ' + bgColor + ' text-white px-4 py-3 rounded-xl shadow-lg font-medium flex items-center gap-2';
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+      toast.innerHTML = '<span>' + icon + '</span><span>' + message + '</span>';
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function clearImage(cardNum) {
+      if (cardNum === 'pair-card1') {
+        card1Image = null;
+        document.getElementById('pair-card1-preview').innerHTML = '<div style="font-size: 2rem;">📷</div>';
+        document.getElementById('pair-card1-clear').classList.add('hidden');
+      } else {
+        card2Image = null;
+        document.getElementById('pair-card2-preview').innerHTML = '<div style="font-size: 2rem;">📷</div>';
+        document.getElementById('pair-card2-clear').classList.add('hidden');
+      }
+    }
+
+    function setupImageInput(inputId, previewId, clearBtnId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      const clearBtn = document.getElementById(clearBtnId);
+
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            if (inputId === 'pair-card1-image') {
+              card1Image = dataUrl;
+            } else {
+              card2Image = dataUrl;
+            }
+            preview.innerHTML = '<img src="' + dataUrl + '" alt="Preview" class="image-preview">';
+            clearBtn.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    setupImageInput('pair-card1-image', 'pair-card1-preview', 'pair-card1-clear');
+    setupImageInput('pair-card2-image', 'pair-card2-preview', 'pair-card2-clear');
+
+    function addPair() {
+      const text1 = document.getElementById('pair-card1-text').value.trim();
+      const text2 = document.getElementById('pair-card2-text').value.trim();
+
+      if (!text1 || !text2) {
+        showToast('Please fill in both cards!', 'error');
+        return;
+      }
+
+      pairs.push({
+        id: Date.now(),
+        card1: { text: text1, image: card1Image },
+        card2: { text: text2, image: card2Image }
+      });
+
+      document.getElementById('pair-card1-text').value = '';
+      document.getElementById('pair-card2-text').value = '';
+      document.getElementById('pair-card1-preview').innerHTML = '<div style="font-size: 2rem;">📷</div>';
+      document.getElementById('pair-card2-preview').innerHTML = '<div style="font-size: 2rem;">📷</div>';
+      document.getElementById('pair-card1-clear').classList.add('hidden');
+      document.getElementById('pair-card2-clear').classList.add('hidden');
+      card1Image = null;
+      card2Image = null;
+
+      renderPairList();
+      showToast('Added pair to your deck!');
+    }
+
+    function removePair(id) {
+      pairs = pairs.filter(p => p.id !== id);
+      renderPairList();
+      showToast('Pair removed');
+    }
+
+    function renderPairList() {
+      const list = document.getElementById('pair-list');
+      const count = document.getElementById('pair-count');
+      const clearBtn = document.getElementById('clear-all-btn');
+
+      count.textContent = '(' + pairs.length + ' pair' + (pairs.length !== 1 ? 's' : '') + ')';
+      clearBtn.classList.toggle('hidden', pairs.length === 0);
+
+      if (pairs.length === 0) {
+        list.innerHTML = '<div class="text-center py-12 text-sky-400"><div class="text-5xl mb-3">📝</div><p class="font-medium">No pairs yet. Add your first pair above!</p></div>';
+        updatePreview();
+        return;
+      }
+
+      let html = '';
+      for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        const card1Content = pair.card1.image ? 
+          '<img src="' + pair.card1.image + '" alt="Card 1" class="w-16 h-20 object-cover rounded-lg border-2 border-sky-300">' :
+          '<div class="w-16 h-20 bg-sky-200 rounded-lg border-2 border-sky-300 flex items-center justify-center text-2xl">📝</div>';
+        const card2Content = pair.card2.image ? 
+          '<img src="' + pair.card2.image + '" alt="Card 2" class="w-16 h-20 object-cover rounded-lg border-2 border-sky-300">' :
+          '<div class="w-16 h-20 bg-sky-200 rounded-lg border-2 border-sky-300 flex items-center justify-center text-2xl">📝</div>';
+        
+        html += '<div class="bg-gradient-to-r from-sky-50 to-sky-100 rounded-xl p-4 border-2 border-sky-200 flex gap-4 fade-in" style="animation-delay: ' + (i * 0.05) + 's">' +
+          '<div class="flex-1"><div class="flex items-center gap-3">' +
+          card1Content +
+          '<div><div class="text-sm font-semibold text-sky-600">Card 1</div>' +
+          '<div class="font-bold text-sky-900">' + pair.card1.text + '</div></div></div></div>' +
+          '<div class="flex items-center text-2xl text-sky-500">↔️</div>' +
+          '<div class="flex-1"><div class="flex items-center gap-3">' +
+          card2Content +
+          '<div><div class="text-sm font-semibold text-sky-600">Card 2</div>' +
+          '<div class="font-bold text-sky-900">' + pair.card2.text + '</div></div></div></div>' +
+          '<button type="button" onclick="removePair(' + pair.id + ')" class="text-red-500 hover:text-red-700 font-bold text-xl hover:bg-red-100 px-3 py-2 rounded-lg transition">✕</button>' +
+          '</div>';
+      }
+      list.innerHTML = html;
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const container = document.getElementById('preview-container');
+      
+      if (pairs.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-sky-400"><div class="text-5xl mb-3">🎴</div><p class="font-medium">Add pairs to see a preview of your memory game!</p></div>';
+        return;
+      }
+
+      const previewPairs = pairs.slice(0, 4);
+      const cardColor = document.getElementById('card-color').value;
+      const totalCards = previewPairs.length * 2;
+
+      let html = '<div class="text-center mb-4"><h3 class="font-bold text-sky-900">' + document.getElementById('game-title').value + 
+                 '</h3><p class="text-sm text-sky-600">Preview showing ' + previewPairs.length + ' of ' + pairs.length + 
+                 ' pairs (' + totalCards + ' total cards)</p></div>' +
+                 '<div class="grid grid-cols-4 gap-3 max-w-2xl mx-auto">';
+      
+      for (let i = 0; i < previewPairs.length; i++) {
+        const pair = previewPairs[i];
+        html += '<div class="aspect-[3/4] rounded-lg shadow-md flex items-center justify-center cursor-pointer transition hover:scale-105" ' +
+                'style="background: ' + cardColor + '; border: 2px solid ' + cardColor + '"><span style="color: white;">?</span></div>';
+        
+        if (pair.card1.image) {
+          html += '<div class="aspect-[3/4] rounded-lg shadow-md flex items-center justify-center text-2xl overflow-hidden bg-white border-2 border-sky-200">' +
+                  '<img src="' + pair.card1.image + '" alt="Card" style="width: 100%; height: 100%; object-fit: cover;"></div>';
+        } else {
+          html += '<div class="aspect-[3/4] rounded-lg shadow-md flex flex-col items-center justify-center text-center bg-sky-50 border-2 border-sky-200 p-2">' +
+                  '<span style="font-size: 1.5rem; margin-bottom: 5px;">📝</span><span style="font-size: 0.75rem; color: #0c4a6e; font-weight: 600;">' + pair.card1.text + '</span></div>';
+        }
+      }
+      
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function generateGameTemplate(gameTitle, cardColor, gameCards, totalPairs, pairsData) {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>` + gameTitle + `</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+    body { min-height: 100vh; background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 100%); padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 30px; }
+    h1 { color: #0c4a6e; font-size: 2.5rem; margin-bottom: 10px; }
+    .stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; flex-wrap: wrap; }
+    .stat { background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .stat-value { font-size: 2rem; font-weight: 800; color: ` + cardColor + `; }
+    .stat-label { color: #64748b; font-size: 0.9rem; }
+    .game-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; perspective: 1000px; }
+    @media (max-width: 600px) { .game-board { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+    .card { aspect-ratio: 3/4; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.5s; border-radius: 15px; }
+    .card.flipped { transform: rotateY(180deg); }
+    .card.matched { cursor: pointer; }
+    .card.matched:hover { opacity: 0.9; }
+    .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); overflow: hidden; }
+    .card-front { background: ` + cardColor + `; color: white; font-size: 3rem; }
+    .card-back { background: white; transform: rotateY(180deg); border: 3px solid ` + cardColor + `; padding: 10px; }
+    .card-image { width: 100%; height: 100%; object-fit: cover; }
+    .card-text { font-weight: 700; color: #0c4a6e; font-size: 0.85rem; text-align: center; word-break: break-word; padding: 5px; }
+    .card.matched .card-back { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-color: #10b981; }
+    .controls { text-align: center; margin-top: 30px; }
+    .btn { background: ` + cardColor + `; color: white; border: none; padding: 15px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+    .match-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 150; }
+    .match-modal.show { display: flex; }
+    .match-content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 700px; width: 90%; padding: 20px; background: rgba(255,255,255,0.15); border-radius: 20px; backdrop-filter: blur(10px); }
+    .match-card-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .match-card { aspect-ratio: 3/4; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; }
+    .match-card img { width: 100%; height: 100%; object-fit: cover; }
+    .match-text { color: #0c4a6e; font-size: 1.4rem; font-weight: 800; text-align: center; word-break: break-word; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 10px; }
+    .match-btn { background: #0c4a6e; color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: 700; border-radius: 10px; cursor: pointer; transition: all 0.2s; width: 100%; }
+    .match-btn:hover { background: #082f49; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    .close-button { grid-column: 1 / -1; }
+    .win-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 100; }
+    .win-modal.show { display: flex; }
+    .win-content { background: white; padding: 40px; border-radius: 25px; text-align: center; max-width: 400px; }
+    .win-emoji { font-size: 5rem; margin-bottom: 20px; }
+    .win-title { font-size: 2rem; color: #0c4a6e; margin-bottom: 10px; }
+    .win-stats { color: #64748b; margin-bottom: 20px; }
+    .win-buttons { display: flex; flex-direction: column; gap: 15px; }
+    .win-btn { background: ` + cardColor + `; color: white; border: none; padding: 15px 30px; font-size: 1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .win-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+    .win-btn.secondary { background: #64748b; }
+    .review-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); align-items: flex-start; justify-content: center; z-index: 150; overflow-y: auto; padding: 20px 0; }
+    .review-modal.show { display: flex; }
+    .review-content { background: white; padding: 40px; border-radius: 20px; max-width: 900px; width: 90%; margin: 20px auto; }
+    .review-title { font-size: 2rem; color: #0c4a6e; margin-bottom: 30px; text-align: center; }
+    .review-table { width: 100%; border-collapse: collapse; }
+    .review-table th { background: #0c4a6e; color: white; padding: 15px; text-align: left; font-weight: 700; }
+    .review-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+    .review-table tr:hover { background: #f0f9ff; }
+    .review-img { width: 60px; height: 80px; object-fit: cover; border-radius: 8px; }
+    .review-pair-row { font-weight: 600; background: #f0f9ff; }
+    .review-close { background: #0c4a6e; color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: 700; border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-top: 20px; width: 100%; }
+    .review-close:hover { background: #082f49; }
+    @media (max-width: 700px) { .match-content { grid-template-columns: 1fr; gap: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎴 ` + gameTitle + `</h1>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value" id="moves">0</div>
+          <div class="stat-label">Moves</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="pairs">0/` + totalPairs + `</div>
+          <div class="stat-label">Pairs Found</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="timer">0:00</div>
+          <div class="stat-label">Time</div>
+        </div>
+      </div>
+    </header>
+    <div class="game-board" id="game-board"></div>
+    <div class="controls">
+      <button class="btn" onclick="resetGame()">🔄 New Game</button>
+    </div>
+  </div>
+
+  <div class="match-modal" id="match-modal">
+    <div class="match-content">
+      <div class="match-card-container">
+        <div id="match-card-1" class="match-card"></div>
+        <div id="match-text-1" class="match-text"></div>
+      </div>
+      <div class="match-card-container">
+        <div id="match-card-2" class="match-card"></div>
+        <div id="match-text-2" class="match-text"></div>
+      </div>
+      <button class="match-btn close-button" onclick="closeMatchModal()">← Back to Board</button>
+    </div>
+  </div>
+
+  <div class="review-modal" id="review-modal">
+    <div class="review-content">
+      <h2 class="review-title">📚 Review All Pairs</h2>
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th>Card 1</th>
+            <th>Text</th>
+            <th>Card 2</th>
+            <th>Text</th>
+          </tr>
+        </thead>
+        <tbody id="review-body">
+        </tbody>
+      </table>
+      <button class="review-close" onclick="closeReviewModal()">Close Review</button>
+    </div>
+  </div>
+
+  <div class="win-modal" id="win-modal">
+    <div class="win-content">
+      <div class="win-emoji">🎉</div>
+      <h2 class="win-title">Congratulations!</h2>
+      <p class="win-stats" id="win-stats"></p>
+      <div class="win-buttons">
+        <button class="win-btn" onclick="resetGame()">🔄 Play Again</button>
+        <button class="win-btn secondary" onclick="showReview()">📚 Review Pairs</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cardData = ` + JSON.stringify(gameCards) + `;
+    const totalPairs = ` + totalPairs + `;
+    const pairsData = ` + JSON.stringify(pairsData) + `;
+    let shuffledCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let moves = 0;
+    let timerInterval = null;
+    let seconds = 0;
+    let gameStarted = false;
+    let matchedPairIds = new Set();
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderBoard() {
+      shuffledCards = shuffle(cardData);
+      const board = document.getElementById('game-board');
+      board.innerHTML = shuffledCards.map((card, index) => {
+        let backContent = '';
+        if (card.image) {
+          backContent = '<img src="' + card.image + '" alt="Card" class="card-image"><div class="card-text">' + card.content + '</div>';
+        } else {
+          backContent = '<div class="card-text" style="font-size: 1.2rem;">' + card.content + '</div>';
+        }
+        return '<div class="card" data-index="' + index + '" data-pair-id="' + card.pairId + '" onclick="flipCard(this)">' +
+          '<div class="card-face card-front">?</div>' +
+          '<div class="card-face card-back">' + backContent + '</div></div>';
+      }).join('');
+    }
+
+    function startTimer() {
+      if (!gameStarted) {
+        gameStarted = true;
+        timerInterval = setInterval(() => {
+          seconds++;
+          const mins = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          document.getElementById('timer').textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }, 1000);
+      }
+    }
+
+    function flipCard(cardEl) {
+      if (flippedCards.length >= 2 || cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+      
+      startTimer();
+      cardEl.classList.add('flipped');
+      flippedCards.push(cardEl);
+
+      if (flippedCards.length === 2) {
+        moves++;
+        document.getElementById('moves').textContent = moves;
+        checkMatch();
+      }
+    }
+
+    function showMatchPopup(card1Data, card2Data) {
+      const card1Back = card1Data.image ? 
+        '<img src="' + card1Data.image + '" alt="Card 1">' :
+        '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f0f9ff; font-size: 2rem; color: #0c4a6e; font-weight: 700;">' + (card1Data.text || card1Data.content || '') + '</div>';
+      
+      const card2Back = card2Data.image ? 
+        '<img src="' + card2Data.image + '" alt="Card 2">' :
+        '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f0f9ff; font-size: 2rem; color: #0c4a6e; font-weight: 700;">' + (card2Data.text || card2Data.content || '') + '</div>';
+      
+      document.getElementById('match-card-1').innerHTML = card1Back;
+      document.getElementById('match-card-2').innerHTML = card2Back;
+      document.getElementById('match-text-1').textContent = card1Data.text || card1Data.content || '';
+      document.getElementById('match-text-2').textContent = card2Data.text || card2Data.content || '';
+      document.getElementById('match-modal').classList.add('show');
+    }
+
+    function closeMatchModal() {
+      document.getElementById('match-modal').classList.remove('show');
+    }
+
+    function checkMatch() {
+      const card1El = flippedCards[0];
+      const card2El = flippedCards[1];
+      const card1Data = shuffledCards[card1El.dataset.index];
+      const card2Data = shuffledCards[card2El.dataset.index];
+
+      if (card1Data.pairId === card2Data.pairId) {
+        card1El.classList.add('matched');
+        card2El.classList.add('matched');
+        matchedPairIds.add(card1Data.pairId);
+        matchedPairs++;
+        document.getElementById('pairs').textContent = matchedPairs + '/' + totalPairs;
+        
+        showMatchPopup(card1Data, card2Data);
+        flippedCards = [];
+        
+        if (matchedPairs === totalPairs) {
+          setTimeout(endGame, 1500);
+        }
+      } else {
+        setTimeout(() => {
+          card1El.classList.remove('flipped');
+          card2El.classList.remove('flipped');
+          flippedCards = [];
+        }, 1000);
+      }
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      document.getElementById('win-stats').textContent = 'You completed the game in ' + moves + ' moves and ' + mins + ':' + (secs < 10 ? '0' : '') + secs + '!';
+      document.getElementById('win-modal').classList.add('show');
+    }
+
+    function showReview() {
+      const tbody = document.getElementById('review-body');
+      tbody.innerHTML = pairsData.map((pair, index) => {
+        const card1Content = pair.card1.image ? 
+          '<img src="' + pair.card1.image + '" alt="Card 1" class="review-img">' :
+          '<div class="review-img" style="background: #f0f9ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #0c4a6e;">📝</div>';
+        const card2Content = pair.card2.image ? 
+          '<img src="' + pair.card2.image + '" alt="Card 2" class="review-img">' :
+          '<div class="review-img" style="background: #f0f9ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #0c4a6e;">📝</div>';
+        
+        return '<tr class="review-pair-row"><td colspan="4" style="font-size:1.1rem;padding:12px;background:#e0f2fe;color:#0c4a6e;">Pair ' + (index + 1) + '</td></tr>' +
+          '<tr><td>' + card1Content + '</td>' +
+          '<td>' + (pair.card1.text || '') + '</td>' +
+          '<td>' + card2Content + '</td>' +
+          '<td>' + (pair.card2.text || '') + '</td></tr>';
+      }).join('');
+      document.getElementById('win-modal').classList.remove('show');
+      document.getElementById('review-modal').classList.add('show');
+    }
+
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.remove('show');
+    }
+
+    function resetGame() {
+      document.getElementById('win-modal').classList.remove('show');
+      document.getElementById('review-modal').classList.remove('show');
+      document.getElementById('match-modal').classList.remove('show');
+      clearInterval(timerInterval);
+      seconds = 0;
+      moves = 0;
+      matchedPairs = 0;
+      gameStarted = false;
+      flippedCards = [];
+      matchedPairIds.clear();
+      document.getElementById('moves').textContent = '0';
+      document.getElementById('pairs').textContent = '0/' + totalPairs;
+      document.getElementById('timer').textContent = '0:00';
+      renderBoard();
+    }
+
+    document.addEventListener('click', function(e) {
+      const card = e.target.closest('.card.matched');
+      if (card && !document.getElementById('match-modal').classList.contains('show')) {
+        const pairId = parseInt(card.dataset.pairId);
+        const pair = pairsData[pairId];
+        showMatchPopup(pair.card1, pair.card2);
+      }
+    });
+
+    renderBoard();
+  <\/script>
+</body>
+</html>`;
+    }
+
+    function generateGameHTML() {
+      const gameTitle = document.getElementById('game-title').value;
+      const cardColor = document.getElementById('card-color').value;
+
+      const gameCards = [];
+      for (let i = 0; i < pairs.length; i++) {
+        gameCards.push({ pairId: i, content: pairs[i].card1.text, text: pairs[i].card1.text, image: pairs[i].card1.image });
+        gameCards.push({ pairId: i, content: pairs[i].card2.text, text: pairs[i].card2.text, image: pairs[i].card2.image });
+      }
+
+      return generateGameTemplate(gameTitle, cardColor, gameCards, pairs.length, pairs);
+    }
+
+    function generatePrintHTML() {
+      const gameTitle = document.getElementById('game-title').value;
+      const cardColor = document.getElementById('card-color').value;
+
+      let pairHtml = '';
+      let reverseHtml = '';
+      for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        if (pair.card1.image) {
+          pairHtml += '<div class="card"><img src="' + pair.card1.image + '" alt="Card" class="card-image"><div class="card-text">' + pair.card1.text + '</div></div>';
+        } else {
+          pairHtml += '<div class="card"><div class="card-text" style="font-size: 1.2rem; color: #0c4a6e; font-weight: 700;">' + pair.card1.text + '</div></div>';
+        }
+        if (pair.card2.image) {
+          pairHtml += '<div class="card"><img src="' + pair.card2.image + '" alt="Card" class="card-image"><div class="card-text">' + pair.card2.text + '</div></div>';
+        } else {
+          pairHtml += '<div class="card"><div class="card-text" style="font-size: 1.2rem; color: #0c4a6e; font-weight: 700;">' + pair.card2.text + '</div></div>';
+        }
+        reverseHtml += '<div class="card card-back">?</div>';
+      }
+
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + gameTitle + '</title><style>@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800");*{margin:0;padding:0;box-sizing:border-box;font-family:Nunito,sans-serif}@page{size:A4;margin:10mm}h1{text-align:center;color:#0c4a6e;margin-bottom:5mm;font-size:18pt}.instructions{text-align:center;color:#64748b;margin-bottom:5mm;font-size:10pt}.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.card{height:60mm;border:2px dashed #94a3b8;border-radius:5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3mm;position:relative;background:#fff;page-break-inside:avoid;overflow:hidden}.card::before{content:"✂️";position:absolute;top:-3mm;left:50%;transform:translateX(-50%);font-size:8pt;color:#94a3b8}.card-image{width:100%;height:45mm;object-fit:cover;margin-bottom:2mm}.card-text{font-weight:700;color:#0c4a6e;font-size:11pt;text-align:center;word-break:break-word}.card-back{background:' + cardColor + ';color:#fff;font-size:28pt}.print-btn{position:fixed;top:20px;right:20px;background:' + cardColor + ';color:#fff;border:none;padding:15px 30px;font-size:16px;font-weight:700;border-radius:10px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.2)}@media print{.no-print{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><button class="print-btn no-print" onclick="window.print()">🖨️ Print Cards</button><div class="page"><h1>🎴 ' + gameTitle + '</h1><p class="instructions">Cut along the dashed lines. Print this page twice for front and back!</p><div class="card-grid">' + pairHtml + '</div></div><div class="page"><h1>Card Backs</h1><div class="card-grid">' + reverseHtml + '</div></div></body></html>';
+    }
+
+    function downloadFile(content, filename) {
+      const blob = new Blob([content], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('create-section').classList.toggle('hidden', tab !== 'create');
+      document.getElementById('preview-section').classList.toggle('hidden', tab !== 'preview');
+      document.getElementById('tab-create').classList.toggle('active', tab === 'create');
+      document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
+      
+      if (tab === 'preview') {
+        updatePreview();
+      }
+    }
+
+    document.getElementById('add-pair-btn').addEventListener('click', addPair);
+    
+    document.getElementById('pair-card1-text').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addPair();
+    });
+
+    document.getElementById('pair-card2-text').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addPair();
+    });
+
+    document.getElementById('clear-all-btn').addEventListener('click', () => {
+      pairs = [];
+      renderPairList();
+      showToast('All pairs cleared');
+    });
+
+    document.getElementById('download-game-btn').addEventListener('click', () => {
+      if (pairs.length < 1) {
+        showToast('Add at least 1 pair to create a game!', 'error');
+        return;
+      }
+      downloadFile(generateGameHTML(), 'memory-game.html');
+      showToast('Game downloaded! Open the HTML file in any browser.');
+    });
+
+    document.getElementById('download-print-btn').addEventListener('click', () => {
+      if (pairs.length < 1) {
+        showToast('Add at least 1 pair to print!', 'error');
+        return;
+      }
+      downloadFile(generatePrintHTML(), 'printable-cards.html');
+      showToast('Print version downloaded! Open and use your browser print function.');
+    });
+
+    document.getElementById('tab-create').addEventListener('click', () => switchTab('create'));
+    document.getElementById('tab-preview').addEventListener('click', () => switchTab('preview'));
+
+    document.getElementById('card-color').addEventListener('input', (e) => {
+      document.getElementById('card-color-text').value = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('card-color-text').addEventListener('input', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+        document.getElementById('card-color').value = e.target.value;
+        updatePreview();
+      }
+    });
+
+    document.getElementById('game-title').addEventListener('input', updatePreview);
+
+    async function initApp() {
+      if (window.elementSdk) {
+        await window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (newConfig) => {
+            config = { ...defaultConfig, ...newConfig };
+            document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+            document.getElementById('game-title').value = config.game_title || defaultConfig.game_title;
+          },
+          mapToCapabilities: (cfg) => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (cfg) => new Map([
+            ['app_title', cfg.app_title || defaultConfig.app_title],
+            ['game_title', cfg.game_title || defaultConfig.game_title]
+          ])
+        });
+      }
+    }
+
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cda70b5f2fdef1e',t:'MTc3MTA0OTgyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
