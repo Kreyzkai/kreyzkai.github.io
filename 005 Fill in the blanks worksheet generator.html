@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <title>Chris' Worksheet Generator</title>
-  <style>
+<head>
+<meta charset="UTF-8">
+<title>Chris' Worksheet Generator</title>
+<style>
     :root {
         --primary: #4a90e2; --secondary: #6c757d; --bg: #f4f7f6;
         --card-bg: #ffffff; --text: #333; --accent: #ffd;
@@ -44,63 +44,80 @@
     .btn-row { display: flex; gap: 10px; margin-top: 10px; }
     #closePreview { display: none; position: fixed; top: 20px; right: 20px; z-index: 2000; }
 </style>
-  <style>body { box-sizing: border-box; }</style>
-  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
- </head>
- <body id="mainBody">
-  <div class="watermark">
-   cmarasigan
-  </div><button id="closePreview" class="btn-secondary" onclick="togglePreview()">✕ Return to Editor</button>
-  <header class="no-print">
-   <h1>Fill in the blanks- Worksheet Generator Only</h1>
-  </header>
-  <div class="container">
-   <section class="no-print">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-     <h3>Step 1: Content Input</h3><button class="btn-danger" style="padding: 5px 12px; font-size: 12px;" onclick="resetAll()">Reset Form</button>
-    </div><input type="text" id="docTitle" class="title-input" placeholder="Worksheet Title..."> <input type="text" id="docInstr" class="instr-input" placeholder="Optional Instructions...">
-    <div style="margin-bottom: 15px;"><strong>Mode:</strong> <label><input type="radio" name="mode" value="paragraphs" checked onclick="switchInputMode()"> Paragraphs</label> <label><input type="radio" name="mode" value="sentences" onclick="switchInputMode()"> Sentences</label>
-    </div>
-    <div id="bulkInputArea"><textarea id="inputText" style="width:100%; min-height:100px; padding:10px; border-radius:8px; border:1px solid #ccc;" placeholder="Paste text here..."></textarea>
-     <div class="btn-row">
-      <button class="btn-primary" onclick="loadText()">Load Text</button>
-     </div>
-    </div>
-    <div id="sentenceInputArea" style="display:none;">
-     <div id="sentenceRows">
-      <div class="sentence-row" style="display:flex; gap:10px; margin-bottom:8px;"><input type="text" class="sentence-input" style="flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Sentence 1..."> <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
-      </div>
-     </div>
-     <div class="btn-row"><button class="btn-add" onclick="addSentenceRow()">+ Add Row</button> <button class="btn-primary" onclick="loadText()">Load Text</button>
-     </div>
-    </div>
-   </section>
-   <section id="worksheetSection">
-    <div class="student-header"><span>Name: <span class="header-line"></span></span> <span>Class: <span class="header-line"></span></span>
-    </div>
-    <h2 id="previewTitle" style="text-align: center; margin-bottom: 5px; display: none;"></h2>
-    <p id="previewInstr" style="text-align: center; font-style: italic; margin-bottom: 25px; display: none;"></p>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-     <h3 class="no-print">Step 2: Interactive Editor</h3><button class="no-print btn-secondary" style="padding: 5px 12px; font-size: 12px;" onclick="loadText()">Clear Blanks</button>
-    </div>
-    <div id="worksheet">
-     Text will appear here...
-    </div>
-   </section>
-   <section id="wordBankSection">
-    <h3 class="no-print">Step 3: Export Settings</h3>
-    <div class="no-print" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;"><label><input type="checkbox" id="shuffleToggle" onchange="updateWordBank()"> Shuffle Bank</label> <label><input type="checkbox" id="hintToggle" onchange="updateWordBank()" checked> Show Clues/Hints</label> <label><input type="checkbox" id="firstLetterToggle" onchange="applyFirstLetter()"> First Letter Hint</label> <button class="btn-secondary" onclick="togglePreview()" style="margin-left: auto;">Print Preview &amp; Key</button>
-    </div>
-    <div id="wordBankDisplay"></div>
-    <div id="answerKeyPreview" style="display:none; margin-top: 50px; border-top: 3px double #333; padding-top: 20px;">
-     <h2 style="text-align: center; color: #d9534f;">Answer Key</h2>
-     <div id="answerKeyContent" style="line-height: 2.5;"></div>
-    </div><button class="btn-download no-print" onclick="goBack()" style="margin-right: 10px; background: #607d8b;">⬅ Back to Main Page</button> <button class="btn-download no-print" onclick="downloadDoc()">Download Complete Document (.doc)</button>
-   </section>
-  </div>
-  <script>
+</head>
+<body id="mainBody">
+
+<div class="watermark">cmarasigan</div>
+<button id="closePreview" class="btn-secondary" onclick="togglePreview()">✕ Return to Editor</button>
+<header class="no-print"><h1>Canonical Worksheet Generator</h1></header>
+
+<div class="container">
+    <section class="no-print">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Step 1: Content Input</h3>
+            <button class="btn-danger" style="padding: 5px 12px; font-size: 12px;" onclick="resetAll()">Reset Form</button>
+        </div>
+        <input type="text" id="docTitle" class="title-input" placeholder="Worksheet Title...">
+        <input type="text" id="docInstr" class="instr-input" placeholder="Optional Instructions...">
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Mode:</strong>
+            <label><input type="radio" name="mode" value="paragraphs" checked onclick="switchInputMode()"> Paragraphs</label>
+            <label><input type="radio" name="mode" value="sentences" onclick="switchInputMode()"> Sentences</label>
+        </div>
+        
+        <div id="bulkInputArea">
+            <textarea id="inputText" style="width:100%; min-height:100px; padding:10px; border-radius:8px; border:1px solid #ccc;" placeholder="Paste text here..."></textarea>
+            <div class="btn-row"><button class="btn-primary" onclick="loadText()">Load Text</button></div>
+        </div>
+
+        <div id="sentenceInputArea" style="display:none;">
+            <div id="sentenceRows">
+                <div class="sentence-row" style="display:flex; gap:10px; margin-bottom:8px;">
+                    <input type="text" class="sentence-input" style="flex-grow:1; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Sentence 1...">
+                    <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-add" onclick="addSentenceRow()">+ Add Row</button>
+                <button class="btn-primary" onclick="loadText()">Load Text</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="worksheetSection">
+        <div class="student-header">
+            <span>Name: <span class="header-line"></span></span>
+            <span>Class: <span class="header-line"></span></span>
+        </div>
+        <h2 id="previewTitle" style="text-align: center; margin-bottom: 5px; display: none;"></h2>
+        <p id="previewInstr" style="text-align: center; font-style: italic; margin-bottom: 25px; display: none;"></p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="no-print">Step 2: Interactive Editor</h3>
+            <button class="no-print btn-secondary" style="padding: 5px 12px; font-size: 12px;" onclick="loadText()">Clear Blanks</button>
+        </div>
+        <div id="worksheet">Text will appear here...</div>
+    </section>
+
+    <section id="wordBankSection">
+        <h3 class="no-print">Step 3: Export Settings</h3>
+        <div class="no-print" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+            <label><input type="checkbox" id="shuffleToggle" onchange="updateWordBank()"> Shuffle Bank</label>
+            <label><input type="checkbox" id="hintToggle" onchange="updateWordBank()" checked> Show Clues/Hints</label>
+            <label><input type="checkbox" id="firstLetterToggle" onchange="applyFirstLetter()"> First Letter Hint</label>
+            <button class="btn-secondary" onclick="togglePreview()" style="margin-left: auto;">Print Preview & Key</button>
+        </div>
+        <div id="wordBankDisplay"></div>
+        <div id="answerKeyPreview" style="display:none; margin-top: 50px; border-top: 3px double #333; padding-top: 20px;">
+            <h2 style="text-align: center; color: #d9534f;">Answer Key</h2>
+            <div id="answerKeyContent" style="line-height: 2.5;"></div>
+        </div>
+        <button class="btn-download no-print" onclick="goBack()" style="margin-right: 10px; background: #607d8b;">⬅ Back to Main Page</button>
+        <button class="btn-download no-print" onclick="downloadDoc()">Download Complete Document (.doc)</button>
+    </section>
+</div>
+
+<script>
 let wordsClicked = [];
 let usedNumbers = [];
 
@@ -116,7 +133,9 @@ function resetAll() {
 }
 
 function goBack() {
-    window.location.href = 'index.html';
+    if(confirm("This will reset your workspace.")) {
+        window.location.href = 'index.html';
+    }
 }
 
 function switchInputMode() {
@@ -142,12 +161,8 @@ function loadText() {
     let wrapped = '';
     text.split(/\n/).forEach((line, idx) => {
         if(line.trim() === "") return;
-        const isPara = mode === 'paragraphs';
-        let prefix = isPara ? `<strong>${idx+1}. </strong>` : `<strong>${idx+1}. </strong>`;
-        // Separate words from punctuation: "word," becomes <span>word</span>,
-        wrapped += prefix + line.replace(/(\w+)(\W*)/g, (match, word, punct) => {
-            return `<span class="clickable" onclick="wordClick(this)">${word}</span>${punct}`;
-        }) + '<br><br>';
+        let prefix = `<strong>${idx+1}. </strong>`;
+        wrapped += prefix + line.replace(/(\w+)/g, word => `<span class="clickable" onclick="wordClick(this)">${word}</span>`) + '<br><br>';
     });
     document.getElementById('worksheet').innerHTML = wrapped;
     wordsClicked = []; usedNumbers = []; updateWordBank();
@@ -156,9 +171,8 @@ function loadText() {
 function wordClick(span) {
     if(wordsClicked.some(w => w.span===span)) return;
     const word = span.textContent.trim();
-    const mode = document.querySelector('input[name="mode"]:checked').value;
-    const num = mode === 'paragraphs' ? getNextNum() : null;
-    if(num !== null) usedNumbers.push(num);
+    const num = getNextNum();
+    usedNumbers.push(num);
 
     const pattern = generatePattern(word, num);
     span.innerHTML = pattern; span.className = 'blank';
@@ -174,12 +188,7 @@ function generatePattern(word, num, showFirst = false) {
     const spaceCount = Math.max(Math.ceil(word.length * 1.5), 6);
     const underscores = '_'.repeat(showFirst ? spaceCount - 1 : spaceCount);
     const firstChar = showFirst ? word[0] : "";
-    // Only show number in paragraph mode (when num is not null)
-    if(num !== null) {
-        return `${num}. ${firstChar}${underscores}`;
-    } else {
-        return `${firstChar}${underscores}`;
-    }
+    return `${num}. ${firstChar}${underscores}`;
 }
 
 function applyFirstLetter() {
@@ -196,7 +205,7 @@ function undoBlank(span, word, num) {
     span.textContent = word; span.className = 'clickable';
     span.onclick = () => wordClick(span);
     wordsClicked = wordsClicked.filter(w => w.span !== span);
-    if(num !== null) usedNumbers = usedNumbers.filter(n => n!==num);
+    usedNumbers = usedNumbers.filter(n => n!==num);
     updateWordBank();
 }
 
@@ -274,5 +283,5 @@ function downloadDoc() {
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${title}.doc`; a.click();
 }
 </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cd2b534d4563c1a',t:'MTc3MDk2ODc0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>

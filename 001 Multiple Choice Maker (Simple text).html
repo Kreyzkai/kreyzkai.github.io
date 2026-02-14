@@ -2,61 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chris' Multiple Choice Generator – Linked Edition</title>
+<title>Chris' Multiple Choice Generator – Refined & Fixed</title>
 <style>
+    /* Teacher UI Aesthetic */
     body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 20px; color: #333; }
     .teacher { max-width: 1300px; margin: auto; background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #003366; margin-bottom: 20px; }
-
+    
     .settings-panel { display: flex; gap: 15px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
     .settings-panel input { padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; flex-grow: 1; }
 
+    /* Clean Grid Layout - Image moved to far right */
     .row { display: grid; grid-template-columns: 30px 1.5fr 1fr 1fr 1fr 1fr 1fr 1.2fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
     .row input { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     .deleteBtn { background: #c62828; color: white; border: none; padding: 8px; cursor: pointer; border-radius: 6px; font-weight: bold; }
-
+    
     .img-upload-cell { font-size: 10px; display: flex; flex-direction: column; align-items: center; }
     .img-preview { max-height: 35px; margin-top: 2px; border-radius: 4px; display: none; }
 
     .controls { display: flex; gap: 15px; margin-top: 25px; justify-content: center; }
     button.main-btn { font-size: 16px; padding: 12px 24px; cursor: pointer; border-radius: 8px; border: none; background: #003366; color: white; transition: 0.2s; }
     button.secondary { background: #607d8b; }
-
-    .mode-section { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
-    .mode-section h3 { margin: 0 0 10px 0; color: #003366; font-size: 16px; }
-    .mode-section label { margin-right: 20px; font-size: 14px; }
-    .help-text { font-size: 12px; color: #666; margin-top: 8px; font-style: italic; }
 </style>
 </head>
 <body>
 
 <div class="teacher">
-    <h1>Multiple Choice Setup</h1>
-
+    <h1>Chris' Multiple Choice Setup</h1>
+    
     <div class="settings-panel">
         <label>Game Title:</label>
         <input type="text" id="titleInput" placeholder="e.g. Comet II Lesson 11">
     </div>
 
-    <div class="mode-section">
-        <h3>Link Next Game (Optional)</h3>
-        <label><input type="checkbox" id="enableNextGame" onchange="toggleNextGameSection()"> Link to another game after completion</label>
-        <div id="nextGameSection" style="display: none; margin-top: 15px;">
-            <label style="display: block; margin-bottom: 8px;">Next Game Type:</label>
-            <select id="nextGameType" style="width: 100%; padding: 10px; font-size: 14px; margin-bottom: 10px;">
-                <option value="">-- Select Game Type --</option>
-                <option value="multiple_choice">Multiple Choice Game</option>
-                <option value="fill_blank">Fill in the Blank Game</option>
-                <option value="jumbler">Sentence Jumbler</option>
-            </select>
-            <label style="display: block; margin-bottom: 8px;">Upload Next Game File:</label>
-            <input type="file" id="nextGameFile" accept=".html" style="width: 100%; padding: 8px; font-size: 14px;">
-            <div class="help-text">Upload the student game file (.html) that should play next</div>
-        </div>
-    </div>
-
     <div id="rowsContainer"></div>
-
+    
     <div class="controls">
         <button class="main-btn secondary" onclick="goBack()">⬅ Back to Main Page</button>
         <button class="main-btn secondary" onclick="clearAll()">🗑 Clear All</button>
@@ -120,11 +100,6 @@ function goBack() {
     }
 }
 
-function toggleNextGameSection() {
-    const enabled = document.getElementById('enableNextGame').checked;
-    document.getElementById('nextGameSection').style.display = enabled ? 'block' : 'none';
-}
-
 function generate() {
     const title = document.getElementById('titleInput').value || "Multiple Choice Quiz";
     const data = [];
@@ -144,40 +119,15 @@ function generate() {
 
     if(!data.length) return alert("Add at least one question!");
 
-    const enableNextGame = document.getElementById('enableNextGame').checked;
-    const nextGameFile = document.getElementById('nextGameFile').files[0];
-    const nextGameType = document.getElementById('nextGameType').value;
+    const finalHTML = studentTemplate
+        .replace('//%%TITLE%%', `const gameTitle = "${title}";`)
+        .replace('//%%DATA%%', `const gameData = ${JSON.stringify(data)};`);
 
-    if (enableNextGame && nextGameFile && nextGameType) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            const nextGameHTML = e.target.result;
-            proceedWithGeneration(nextGameHTML, nextGameType);
-        };
-        reader.readAsText(nextGameFile);
-    } else {
-        proceedWithGeneration(null, null);
-    }
-
-    function proceedWithGeneration(nextGameHTML, nextGameType) {
-        let finalHTML = studentTemplate
-            .replace('//%%TITLE%%', `const gameTitle = "${title}";`)
-            .replace('//%%DATA%%', `const gameData = ${JSON.stringify(data)};`);
-
-        if (nextGameHTML && nextGameType) {
-            const base64HTML = btoa(unescape(encodeURIComponent(nextGameHTML)));
-            const nextGameData = { type: nextGameType, html: base64HTML };
-            finalHTML = finalHTML.replace('//%%NEXTGAME%%', `const nextGameData = ${JSON.stringify(nextGameData)};`);
-        } else {
-            finalHTML = finalHTML.replace('//%%NEXTGAME%%', `const nextGameData = null;`);
-        }
-
-        const blob = new Blob([finalHTML], {type: 'text/html'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = title.replace(/\s+/g, '_') + ".html";
-        a.click();
-    }
+    const blob = new Blob([finalHTML], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title.replace(/\s+/g, '_') + ".html";
+    a.click();
 }
 
 addRow();
@@ -196,21 +146,30 @@ const studentTemplate = `<!DOCTYPE html>
         body.scale-5 { font-size: 22px; }
 
         body { font-family: Arial, sans-serif; text-align: center; background: #f4f7fa; margin: 0; transition: font-size 0.2s; color: #333; }
+        
         .screen { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
         .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
+        
         #introScreen { background: #003366; color: white; }
         .btn-start { font-size: 1.2em; padding: 15px 50px; cursor: pointer; background: white; color: #003366; border: none; border-radius: 50px; font-weight: bold; }
-
+        
         #gameScreen { padding-bottom: 140px; justify-content: flex-start; }
 
-        #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; padding: 15px; display: none; justify-content: center; gap: 15px; z-index: 100; font-size: 16px; transform: scale(1); transform-origin: bottom; }
-        .nav-btn { font-size: 16px; padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; font-weight: bold; }
-        .check-btn { background: #003366; color: white; border: none; }
-
+        #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; padding: 15px; display: none; justify-content: center; gap: 15px; z-index: 100; }
+        .nav-btn { font-size: 0.8em; padding: 10px 20px; cursor: pointer; border: 1px solid #aaa; border-radius: 8px; background: #fff; font-weight: bold; }
+        
         #zoomBtn { position: fixed; right: 20px; bottom: 100px; width: 55px; height: 55px; border-radius: 50%; border: none; background: #003366; color: white; font-size: 26px; cursor: pointer; z-index: 101; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
+        .img-container { width: 100%; display: flex; justify-content: center; align-items: center; margin: 15px 0; }
+        #qImg { max-width: 80%; max-height: 250px; border-radius: 10px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
         #questionText { font-weight: bold; margin: 20px 0; padding: 0 10px; }
+
+        /* Hint Logic */
+        .hint-box { margin-bottom: 20px; }
+        .btn-hint { font-size: 0.6em; padding: 6px 18px; cursor: pointer; border-radius: 20px; border: 1px solid #003366; background: #eef2f7; color: #003366; font-weight: bold; }
+        #hintText { font-style: italic; color: #666; margin-top: 10px; font-size: 0.8em; display: none; }
+
         .choices-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; width: 95%; max-width: 900px; margin: 20px auto; }
         .choice-btn { font-size: 0.9em; padding: 18px 10px; background: white; border: 2px solid #003366; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: bold; color: #003366; }
         .choice-btn.correct { background: #2e7d32 !important; color: white; border-color: #2e7d32; }
@@ -228,6 +187,13 @@ const studentTemplate = `<!DOCTYPE html>
 
     <div id="gameScreen" class="screen">
         <div id="questionText"></div>
+        <div class="hint-box" id="hintBox">
+            <button id="hintBtn" class="btn-hint" onclick="toggleHint()">Show Hint</button>
+            <div id="hintText"></div>
+        </div>
+        <div class="img-container">
+            <img id="qImg">
+        </div>
         <div id="choices" class="choices-grid"></div>
         <div id="feedback"></div>
     </div>
@@ -242,7 +208,6 @@ const studentTemplate = `<!DOCTYPE html>
     <script>
         //%%TITLE%%
         //%%DATA%%
-        //%%NEXTGAME%%
 
         let index = 0, scale = 1, answered = false;
 
@@ -259,14 +224,38 @@ const studentTemplate = `<!DOCTYPE html>
             loadQuestion();
         }
 
+        function toggleHint() {
+            const txt = document.getElementById('hintText');
+            const btn = document.getElementById('hintBtn');
+            const isHidden = window.getComputedStyle(txt).display === 'none';
+            txt.style.display = isHidden ? 'block' : 'none';
+            btn.textContent = isHidden ? 'Hide Hint' : 'Show Hint';
+        }
+
         function loadQuestion() {
             answered = false;
             const qData = gameData[index];
             const correctStr = qData.choices[0];
             const shuffledChoices = [...qData.choices].sort(() => Math.random() - 0.5);
-
+            
             document.getElementById('questionText').textContent = qData.q;
             document.getElementById('feedback').textContent = "";
+            
+            // Hint Reset
+            const hintBtn = document.getElementById('hintBtn');
+            const hintText = document.getElementById('hintText');
+            if (qData.h) {
+                document.getElementById('hintBox').style.display = 'block';
+                hintText.textContent = qData.h;
+                hintText.style.display = 'none';
+                hintBtn.textContent = 'Show Hint';
+            } else {
+                document.getElementById('hintBox').style.display = 'none';
+            }
+
+            const img = document.getElementById('qImg');
+            if(qData.img) { img.src = qData.img; img.style.display = 'block'; }
+            else { img.style.display = 'none'; }
 
             const container = document.getElementById('choices');
             container.innerHTML = "";
@@ -295,38 +284,9 @@ const studentTemplate = `<!DOCTYPE html>
         }
 
         function next() {
-            if (index < gameData.length - 1) { 
-                index++; 
-                loadQuestion(); 
-            } else { 
-                document.getElementById('feedback').textContent = "🎉 Quiz Complete!";
-                if (typeof nextGameData !== 'undefined' && nextGameData) showContinueButton();
-            }
+            if (index < gameData.length - 1) { index++; loadQuestion(); }
+            else { document.getElementById('feedback').textContent = "🎉 Quiz Complete!"; }
         }
-
-        function showContinueButton() {
-            const bottomBar = document.getElementById('bottomBar');
-            bottomBar.innerHTML = '';
-            const continueBtn = document.createElement('button');
-            continueBtn.className = 'nav-btn check-btn';
-            continueBtn.style.fontSize = '18px';
-            continueBtn.style.padding = '12px 24px';
-            continueBtn.textContent = '➡️ Continue to Next Game';
-            continueBtn.onclick = launchNextGame;
-            bottomBar.appendChild(continueBtn);
-        }
-
-        function launchNextGame() {
-            if (!nextGameData) {
-                alert('No next game configured.');
-                return;
-            }
-            const decodedHTML = decodeURIComponent(escape(atob(nextGameData.html)));
-            const blob = new Blob([decodedHTML], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            window.location.href = url;
-        }
-
         function prev() { if (index > 0) { index--; loadQuestion(); } }
     <\/script>
 </body>
