@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en" class="h-full">
  <head>
@@ -86,7 +87,7 @@
     }
     .zoom-btn {
       position: fixed;
-      top: 15px;
+      bottom: 15px;
       right: 15px;
       z-index: 1000;
       width: 50px;
@@ -100,7 +101,7 @@
     }
     .retry-btn {
       position: fixed;
-      top: 40px;
+      bottom: 40px;
       left: 15px;
       z-index: 1000;
     }
@@ -183,6 +184,7 @@
     let numCategories = 3;
     let numQuestions = 3;
     let numPlayers = 2;
+    let pointSystem = 'row'; // 'row' or 'category'
     let categories = [];
     let players = [];
     let previewMode = false;
@@ -257,18 +259,21 @@
     }
 
     function initializeGame() {
-      categories = Array.from({ length: numCategories }, (_, i) => ({
-        name: `Category ${i + 1}`,
-        questions: Array.from({ length: numQuestions }, (_, j) => ({
+      categories = Array.from({ length: numCategories }, (_, catIndex) => ({
+        name: `Category ${catIndex + 1}`,
+        questions: Array.from({ length: numQuestions }, (_, qIndex) => ({
           question: '',
           answer: '',
-          points: (j + 1) * 100,
+          points: pointSystem === 'row' ? (qIndex + 1) * 100 : (catIndex + 1) * 100,
           answered: false,
           questionImage: '',
           answerImage: ''
         }))
       }));
-      players = Array.from({ length: numPlayers }, (_, i) => ({ name: `Player ${i + 1}`, score: 0 }));
+      players = Array.from({ length: numPlayers }, (_, i) => ({ 
+        name: `Player ${i + 1}`, 
+        score: 0 
+      }));
     }
 
     function renderTeacherInterface() {
@@ -306,6 +311,29 @@
                     <label class="block text-white font-bold mb-2">Players:</label>
                     <input type="number" id="num-players" value="${numPlayers}" min="1" max="6" class="input-field w-full px-4 py-3 rounded-xl outline-none">
                   </div>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-white font-bold mb-2">Point Value System:</label>
+                <div class="flex gap-4">
+                  <label class="flex items-center text-white cursor-pointer">
+                    <input type="radio" name="point-system" value="row" ${pointSystem === 'row' ? 'checked' : ''} class="mr-2 w-5 h-5">
+                    <span>By Row (100, 200, 300...)</span>
+                  </label>
+                  <label class="flex items-center text-white cursor-pointer">
+                    <input type="radio" name="point-system" value="category" ${pointSystem === 'category' ? 'checked' : ''} class="mr-2 w-5 h-5">
+                    <span>By Category (Cat 1 = 100, Cat 2 = 200...)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <label class="block text-white font-bold mb-3">Player Names:</label>
+                <div id="player-names-container" class="grid md:grid-cols-3 gap-4">
+                  ${players.map((player, i) => `
+                    <input type="text" class="player-name-input input-field px-4 py-3 rounded-xl outline-none" data-player="${i}" value="${player.name}" placeholder="Player ${i + 1}">
+                  `).join('')}
                 </div>
               </div>
               
@@ -351,14 +379,16 @@
                 <div>
                   <label class="block text-white font-bold mb-2">Question:</label>
                   <textarea class="question-input input-field w-full px-4 py-3 rounded-xl outline-none resize-none" rows="3" data-q="${i}">${q.question}</textarea>
-                  <label class="block text-white font-bold mb-2 mt-2">Question Image URL (optional):</label>
-                  <input type="text" class="question-image-input input-field w-full px-4 py-3 rounded-xl outline-none" data-q="${i}" value="${q.questionImage}">
+                  <label class="block text-white font-bold mb-2 mt-2">Question Image (optional):</label>
+                  <input type="file" accept="image/*" class="question-image-input input-field w-full px-4 py-3 rounded-xl outline-none bg-white text-gray-800" data-q="${i}">
+                  ${q.questionImage ? `<img src="${q.questionImage}" class="mt-2 max-w-full h-32 rounded-lg" />` : ''}
                 </div>
                 <div>
                   <label class="block text-white font-bold mb-2">Answer:</label>
                   <textarea class="answer-input input-field w-full px-4 py-3 rounded-xl outline-none resize-none" rows="3" data-q="${i}">${q.answer}</textarea>
-                  <label class="block text-white font-bold mb-2 mt-2">Answer Image URL (optional):</label>
-                  <input type="text" class="answer-image-input input-field w-full px-4 py-3 rounded-xl outline-none" data-q="${i}" value="${q.answerImage}">
+                  <label class="block text-white font-bold mb-2 mt-2">Answer Image (optional):</label>
+                  <input type="file" accept="image/*" class="answer-image-input input-field w-full px-4 py-3 rounded-xl outline-none bg-white text-gray-800" data-q="${i}">
+                  ${q.answerImage ? `<img src="${q.answerImage}" class="mt-2 max-w-full h-32 rounded-lg" />` : ''}
                 </div>
               </div>
             </div>
@@ -379,11 +409,31 @@
         });
 
         document.querySelectorAll('.question-image-input').forEach(input => {
-          input.addEventListener('input', (e) => cat.questions[parseInt(e.target.dataset.q)].questionImage = e.target.value);
+          input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                cat.questions[parseInt(e.target.dataset.q)].questionImage = event.target.result;
+                renderCategoryContent();
+              };
+              reader.readAsDataURL(file);
+            }
+          });
         });
 
         document.querySelectorAll('.answer-image-input').forEach(input => {
-          input.addEventListener('input', (e) => cat.questions[parseInt(e.target.dataset.q)].answerImage = e.target.value);
+          input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                cat.questions[parseInt(e.target.dataset.q)].answerImage = event.target.result;
+                renderCategoryContent();
+              };
+              reader.readAsDataURL(file);
+            }
+          });
         });
       }
 
@@ -400,18 +450,54 @@
 
       document.getElementById('game-title').addEventListener('input', (e) => gameTitle = e.target.value);
 
+      // Add player name input listeners
+      document.querySelectorAll('.player-name-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const playerIndex = parseInt(e.target.dataset.player);
+          if (players[playerIndex]) {
+            players[playerIndex].name = e.target.value;
+          }
+        });
+      });
+
       document.getElementById('apply-setup').addEventListener('click', () => {
         const newNumCat = parseInt(document.getElementById('num-categories').value);
         const newNumQ = parseInt(document.getElementById('num-questions').value);
         const newNumPlayers = parseInt(document.getElementById('num-players').value);
+        const newPointSystem = document.querySelector('input[name="point-system"]:checked').value;
 
-        if (newNumCat !== numCategories || newNumQ !== numQuestions || newNumPlayers !== numPlayers) {
-          numCategories = newNumCat;
-          numQuestions = newNumQ;
-          numPlayers = newNumPlayers;
+        // Save current player names before reinitializing
+        const currentPlayerNames = players.map(p => p.name);
+        
+        // Check if we need to reinitialize (structure changed)
+        const structureChanged = newNumCat !== numCategories || newNumQ !== numQuestions || newNumPlayers !== numPlayers;
+        const pointSystemChanged = newPointSystem !== pointSystem;
+
+        numCategories = newNumCat;
+        numQuestions = newNumQ;
+        numPlayers = newNumPlayers;
+        pointSystem = newPointSystem;
+        
+        if (structureChanged) {
+          // Full reinitialize if structure changed
           initializeGame();
-          renderTeacherInterface();
+        } else if (pointSystemChanged) {
+          // Just update points if only point system changed
+          categories.forEach((cat, catIndex) => {
+            cat.questions.forEach((q, qIndex) => {
+              q.points = pointSystem === 'row' ? (qIndex + 1) * 100 : (catIndex + 1) * 100;
+            });
+          });
         }
+        
+        // Restore player names where possible
+        players.forEach((player, i) => {
+          if (currentPlayerNames[i]) {
+            player.name = currentPlayerNames[i];
+          }
+        });
+        
+        renderTeacherInterface();
       });
 
       document.getElementById('preview-btn').addEventListener('click', () => {
@@ -523,7 +609,7 @@
     }
     .zoom-btn {
       position: fixed;
-      top: 15px;
+      bottom: 15px;
       right: 15px;
       z-index: 1000;
       width: 50px;
@@ -537,7 +623,7 @@
     }
     .retry-btn {
       position: fixed;
-      top: 40px;
+      bottom: 40px;
       left: 15px;
       z-index: 1000;
     }
@@ -730,6 +816,7 @@
       });
 
       document.getElementById('zoom-btn').addEventListener('click', cycleFontScale);
+
     }
 
     function renderQuestion() {
@@ -821,6 +908,7 @@
       });
 
       document.getElementById('zoom-btn').addEventListener('click', cycleFontScale);
+
     }
 
     renderBoard();
@@ -878,6 +966,7 @@
           </div>
         </div>
         <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button class="btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="back-to-editor" style="position: fixed; bottom: 75px; left: 15px; z-index: 1000;">✏️ Back to Editor</button>
         <div class="watermark">CMarasigan</div>
         <button class="zoom-btn btn-primary text-white" id="zoom-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -917,6 +1006,10 @@
         gameData.categories.forEach(cat => cat.questions.forEach(q => q.answered = false));
         gameData.players.forEach(p => p.score = 0);
         renderBoard();
+      });
+
+      document.getElementById('back-to-editor').addEventListener('click', () => {
+        renderTeacherInterface();
       });
 
       document.getElementById('zoom-btn').addEventListener('click', cycleFontScale);
@@ -972,6 +1065,7 @@
           </div>
         </div>
         <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button class="btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="back-to-editor" style="position: fixed; bottom: 75px; left: 15px; z-index: 1000;">✏️ Back to Editor</button>
         <div class="watermark">CMarasigan</div>
         <button class="zoom-btn btn-primary text-white" id="zoom-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1008,6 +1102,10 @@
         gameData.categories.forEach(cat => cat.questions.forEach(q => q.answered = false));
         gameData.players.forEach(p => p.score = 0);
         renderBoard();
+      });
+
+      document.getElementById('back-to-editor').addEventListener('click', () => {
+        renderTeacherInterface();
       });
 
       document.getElementById('zoom-btn').addEventListener('click', cycleFontScale);
