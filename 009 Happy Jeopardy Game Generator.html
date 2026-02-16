@@ -164,6 +164,149 @@
     .category-name {
       font-size: calc(1.3rem * var(--base-font-size));
     }
+    
+    /* Instructions button */
+    .instructions-btn {
+      position: fixed;
+      bottom: 35px;
+      left: 15px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(102, 126, 234, 0.7);
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      font-size: 10px;
+      color: white;
+      font-weight: 600;
+      border: none;
+    }
+    
+    .instructions-btn:hover {
+      background: rgba(102, 126, 234, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .instructions-btn img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    /* Instructions modal */
+    .instructions-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .instructions-modal.show {
+      display: flex;
+    }
+    
+    .instructions-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    
+    .instructions-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .instructions-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+    
+    .instructions-content h2 {
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .instructions-content h3 {
+      color: #feca57;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    
+    .instructions-content p,
+    .instructions-content li {
+      color: white;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    
+    .instructions-content ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .instructions-content .highlight {
+      background: rgba(254, 202, 87, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .back-to-editor-btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .back-to-editor-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -360,6 +503,69 @@
           </div>
         </div>
         <div class="watermark">CMarasigan</div>
+        
+        <button class="instructions-btn" id="instructions-btn">
+          <img src="https://i.imgur.com/sPiDZQ9.png" alt="Instructions">
+          Click me for instructions
+        </button>
+        
+        <div class="instructions-modal" id="instructions-modal">
+          <div class="instructions-content">
+            <button class="instructions-close" id="close-instructions">×</button>
+            <h2>📚 How to Use Happy Jeopardy Game Generator</h2>
+            
+            <h3>🎮 Game Settings</h3>
+            <ul>
+              <li>Set your <span class="highlight">Game Title</span></li>
+              <li>Choose number of <span class="highlight">Categories</span> (3-8)</li>
+              <li>Choose number of <span class="highlight">Questions</span> per category (3-10)</li>
+              <li>Click <span class="highlight">"✓ Apply Settings"</span> to update the game board</li>
+            </ul>
+
+            <h3>👥 Players Setup</h3>
+            <ul>
+              <li>Add player names using the <span class="highlight">"+ Add Player"</span> button</li>
+              <li>You can add as many players as you need</li>
+              <li>Remove players using the <span class="highlight">❌</span> button</li>
+            </ul>
+
+            <h3>📝 Creating Questions</h3>
+            <ul>
+              <li>Click on category tabs to switch between categories</li>
+              <li>Name each category</li>
+              <li>For each question:
+                <ul>
+                  <li>Enter the <span class="highlight">Question</span> text</li>
+                  <li>Enter the <span class="highlight">Answer</span> text</li>
+                  <li>Optionally add images for questions and answers</li>
+                  <li>Points are automatically assigned (100, 200, 300, etc.)</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>📤 Upload, Preview & Download</h3>
+            <ul>
+              <li><span class="highlight">📤 Upload Game</span>: Load a previously saved game HTML file to edit it</li>
+              <li><span class="highlight">👀 Preview Game</span>: Test your game before downloading</li>
+              <li><span class="highlight">💾 Download Game</span>: Save your game as an HTML file that students can play</li>
+              <li>Downloaded games can be uploaded later for editing or reuse</li>
+            </ul>
+
+            <h3>🎯 Playing the Game</h3>
+            <ul>
+              <li>Click <span class="highlight">"🚀 Start Game"</span> to begin (or open downloaded HTML)</li>
+              <li>Click on any dollar amount to reveal the question</li>
+              <li>Click <span class="highlight">"Show Answer"</span> to reveal the answer</li>
+              <li>Award points to players who answer correctly (✓) or incorrectly (✗)</li>
+              <li>Use <span class="highlight">"🔄 Retry Game"</span> to reset scores and play again</li>
+            </ul>
+
+            <h3>🔍 Zoom Feature</h3>
+            <p>Click the zoom button (bottom right) to adjust text size for better visibility!</p>
+            
+            <button class="back-to-editor-btn" id="back-to-editor-btn">← Back to Editor</button>
+          </div>
+        </div>
       `;
 
       let selectedCategory = 0;
@@ -516,6 +722,25 @@
 
       document.getElementById('upload-game-btn').addEventListener('click', () => {
         uploadGameHTML();
+      });
+
+      document.getElementById('instructions-btn').addEventListener('click', () => {
+        document.getElementById('instructions-modal').classList.add('show');
+      });
+
+      document.getElementById('close-instructions').addEventListener('click', () => {
+        document.getElementById('instructions-modal').classList.remove('show');
+      });
+
+      document.getElementById('back-to-editor-btn').addEventListener('click', () => {
+        document.getElementById('instructions-modal').classList.remove('show');
+      });
+
+      // Close modal when clicking outside
+      document.getElementById('instructions-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'instructions-modal') {
+          document.getElementById('instructions-modal').classList.remove('show');
+        }
       });
     }
 
