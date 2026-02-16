@@ -104,6 +104,21 @@
       left: 15px;
       z-index: 1000;
     }
+    
+    .back-to-board-btn {
+      position: fixed;
+      bottom: 75px;
+      right: 15px;
+      z-index: 1000;
+    }
+    
+    .show-answer-btn {
+      position: fixed;
+      bottom: 115px;
+      right: 15px;
+      z-index: 1000;
+    }
+    
     .tab-active {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -498,7 +513,7 @@
               <button id="download-game-btn" class="btn-fun px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">💾 Download Game</button>
               <button id="preview-btn" class="btn-success px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">👀 Preview Game</button>
               <button id="start-game-btn" class="btn-warning px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">🚀 Start Game</button>
-              <button id="upload-game-btn" class="btn-primary px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">📤 Upload Game for Editing</button>
+              <button id="upload-game-btn" class="btn-primary px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">📤 Upload Game</button>
             </div>
           </div>
         </div>
@@ -587,14 +602,24 @@
                   <textarea class="question-input input-field w-full px-4 py-3 rounded-xl outline-none resize-none" rows="3" data-q="${i}">${q.question}</textarea>
                   <label class="block text-white font-bold mb-2 mt-2">Question Image (optional):</label>
                   <input type="file" accept="image/*" class="question-image-input input-field w-full px-4 py-3 rounded-xl outline-none bg-white text-gray-800" data-q="${i}">
-                  ${q.questionImage ? `<img src="${q.questionImage}" class="mt-2 max-w-full h-32 rounded-lg" />` : ''}
+                  ${q.questionImage ? `
+                    <div class="mt-2 relative inline-block">
+                      <img src="${q.questionImage}" class="max-w-full h-32 rounded-lg" />
+                      <button class="remove-question-image absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full font-bold text-xs" data-q="${i}">✕</button>
+                    </div>
+                  ` : ''}
                 </div>
                 <div>
                   <label class="block text-white font-bold mb-2">Answer:</label>
                   <textarea class="answer-input input-field w-full px-4 py-3 rounded-xl outline-none resize-none" rows="3" data-q="${i}">${q.answer}</textarea>
                   <label class="block text-white font-bold mb-2 mt-2">Answer Image (optional):</label>
                   <input type="file" accept="image/*" class="answer-image-input input-field w-full px-4 py-3 rounded-xl outline-none bg-white text-gray-800" data-q="${i}">
-                  ${q.answerImage ? `<img src="${q.answerImage}" class="mt-2 max-w-full h-32 rounded-lg" />` : ''}
+                  ${q.answerImage ? `
+                    <div class="mt-2 relative inline-block">
+                      <img src="${q.answerImage}" class="max-w-full h-32 rounded-lg" />
+                      <button class="remove-answer-image absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full font-bold text-xs" data-q="${i}">✕</button>
+                    </div>
+                  ` : ''}
                 </div>
               </div>
             </div>
@@ -641,6 +666,22 @@
             }
           });
         });
+
+        document.querySelectorAll('.remove-question-image').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const qIndex = parseInt(e.target.dataset.q);
+            cat.questions[qIndex].questionImage = '';
+            renderCategoryContent();
+          });
+        });
+
+        document.querySelectorAll('.remove-answer-image').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const qIndex = parseInt(e.target.dataset.q);
+            cat.questions[qIndex].answerImage = '';
+            renderCategoryContent();
+          });
+        });
       }
 
       renderCategoryContent();
@@ -672,36 +713,82 @@
         const newNumPlayers = parseInt(document.getElementById('num-players').value);
         const newPointSystem = document.querySelector('input[name="point-system"]:checked').value;
 
-        // Save current player names before reinitializing
-        const currentPlayerNames = players.map(p => p.name);
+        // Save current data
+        const currentCategories = categories.slice();
+        const currentPlayers = players.slice();
         
-        // Check if we need to reinitialize (structure changed)
-        const structureChanged = newNumCat !== numCategories || newNumQ !== numQuestions || newNumPlayers !== numPlayers;
-        const pointSystemChanged = newPointSystem !== pointSystem;
-
+        // Update global settings
         numCategories = newNumCat;
         numQuestions = newNumQ;
         numPlayers = newNumPlayers;
+        const pointSystemChanged = newPointSystem !== pointSystem;
         pointSystem = newPointSystem;
         
-        if (structureChanged) {
-          // Full reinitialize if structure changed
-          initializeGame();
-        } else if (pointSystemChanged) {
-          // Just update points if only point system changed
-          categories.forEach((cat, catIndex) => {
+        // Handle categories - preserve existing data
+        if (newNumCat > currentCategories.length) {
+          // Adding categories - keep existing and add new ones
+          for (let i = currentCategories.length; i < newNumCat; i++) {
+            currentCategories.push({
+              name: `Category ${i + 1}`,
+              questions: Array.from({ length: numQuestions }, (_, qIndex) => ({
+                question: '',
+                answer: '',
+                points: pointSystem === 'row' ? (qIndex + 1) * 100 : (i + 1) * 100,
+                answered: false,
+                questionImage: '',
+                answerImage: ''
+              }))
+            });
+          }
+        } else if (newNumCat < currentCategories.length) {
+          // Removing categories - keep only the first newNumCat
+          currentCategories.splice(newNumCat);
+        }
+        
+        // Handle questions per category - preserve existing data
+        currentCategories.forEach((cat, catIndex) => {
+          if (newNumQ > cat.questions.length) {
+            // Adding questions - keep existing and add new ones
+            for (let i = cat.questions.length; i < newNumQ; i++) {
+              cat.questions.push({
+                question: '',
+                answer: '',
+                points: pointSystem === 'row' ? (i + 1) * 100 : (catIndex + 1) * 100,
+                answered: false,
+                questionImage: '',
+                answerImage: ''
+              });
+            }
+          } else if (newNumQ < cat.questions.length) {
+            // Removing questions - keep only the first newNumQ
+            cat.questions.splice(newNumQ);
+          }
+          
+          // Update points if point system changed
+          if (pointSystemChanged) {
             cat.questions.forEach((q, qIndex) => {
               q.points = pointSystem === 'row' ? (qIndex + 1) * 100 : (catIndex + 1) * 100;
             });
-          });
-        }
-        
-        // Restore player names where possible
-        players.forEach((player, i) => {
-          if (currentPlayerNames[i]) {
-            player.name = currentPlayerNames[i];
           }
         });
+        
+        // Handle players - preserve existing data
+        if (newNumPlayers > currentPlayers.length) {
+          // Adding players - keep existing and add new ones
+          for (let i = currentPlayers.length; i < newNumPlayers; i++) {
+            currentPlayers.push({
+              name: `Player ${i + 1}`,
+              score: 0
+            });
+          }
+        } else if (newNumPlayers < currentPlayers.length) {
+          // Removing players - keep only the first newNumPlayers
+          currentPlayers.splice(newNumPlayers);
+        }
+        
+        // Update global arrays
+        categories = currentCategories;
+        players = currentPlayers;
         
         renderTeacherInterface();
       });
@@ -908,6 +995,18 @@
       position: fixed;
       top: 40px;
       left: 15px;
+      z-index: 1000;
+    }
+    .back-to-board-btn {
+      position: fixed;
+      top: 100px;
+      right: 15px;
+      z-index: 1000;
+    }
+    .show-answer-btn {
+      position: fixed;
+      top: 140px;
+      right: 15px;
       z-index: 1000;
     }
     .player-score {
@@ -1119,9 +1218,6 @@
                 <p class="text-white text-6xl font-bold">\${q.question || 'No question set'}</p>
                 \${q.questionImage ? \`<img src="\${q.questionImage}" class="mt-8 max-w-2xl max-h-96 mx-auto rounded-xl shadow-lg" loading="lazy">\` : ''}
               </div>
-              <button id="show-answer" class="btn-success px-12 py-6 rounded-2xl text-white font-bold text-3xl shadow-lg">
-                🔍 Show Answer
-              </button>
             \` : \`
               <div class="mb-12">
                 <h2 class="title-font answer-text text-green-300 mb-8">✅ Answer:</h2>
@@ -1145,13 +1241,16 @@
                   </div>
                 \`).join('')}
               </div>
-              <button id="back-to-board" class="btn-primary px-12 py-6 rounded-2xl text-white font-bold text-3xl shadow-lg">
-                🎮 Back to Board
-              </button>
             \`}
           </div>
         </div>
         <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button id="back-to-board" class="back-to-board-btn btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" style="display: \${showingAnswer ? 'block' : 'none'}">
+          🎮 Board
+        </button>
+        <button id="show-answer" class="show-answer-btn btn-success px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" style="display: \${!showingAnswer ? 'block' : 'none'}">
+          🔍 Answer
+        </button>
         <div class="watermark">CMarasigan</div>
         <button class="zoom-btn btn-primary text-white" id="zoom-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1315,9 +1414,6 @@
                 <p class="text-white text-6xl font-bold">${q.question || 'No question set'}</p>
                 ${q.questionImage ? `<img src="${q.questionImage}" class="mt-8 max-w-2xl max-h-96 mx-auto rounded-xl shadow-lg" loading="lazy">` : ''}
               </div>
-              <button id="show-answer" class="btn-success px-12 py-6 rounded-2xl text-white font-bold text-3xl shadow-lg">
-                🔍 Show Answer
-              </button>
             ` : `
               <div class="mb-12">
                 <h2 class="title-font answer-text text-green-300 mb-8">✅ Answer:</h2>
@@ -1341,13 +1437,16 @@
                   </div>
                 `).join('')}
               </div>
-              <button id="back-to-board" class="btn-primary px-12 py-6 rounded-2xl text-white font-bold text-3xl shadow-lg">
-                🎮 Back to Board
-              </button>
             `}
           </div>
         </div>
         <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button id="back-to-board" class="back-to-board-btn btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" style="display: ${showingAnswer ? 'block' : 'none'}">
+          🎮 Board
+        </button>
+        <button id="show-answer" class="show-answer-btn btn-success px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" style="display: ${!showingAnswer ? 'block' : 'none'}">
+          🔍 Answer
+        </button>
         <button class="btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="back-to-editor" style="position: fixed; bottom: 75px; left: 15px; z-index: 1000;">✏️ Back to Editor</button>
         <div class="watermark">CMarasigan</div>
         <button class="zoom-btn btn-primary text-white" id="zoom-btn">
