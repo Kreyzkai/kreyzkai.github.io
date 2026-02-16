@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,6 +30,149 @@
     .sentence-block input[type="text"] { margin-bottom: 8px; }
     .sentence-block input[type="file"] { font-size: 13px; padding: 8px; }
     .image-preview { font-size: 12px; color: #2e7d32; margin-top: 5px; }
+    
+    /* Instructions button */
+    .instructions-btn {
+      position: fixed;
+      bottom: 115px;
+      left: 15px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(0, 51, 102, 0.7);
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      font-size: 10px;
+      color: white;
+      font-weight: 600;
+      border: none;
+    }
+    
+    .instructions-btn:hover {
+      background: rgba(0, 51, 102, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 51, 102, 0.3);
+    }
+    
+    .instructions-btn img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    /* Instructions modal */
+    .instructions-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .instructions-modal.show {
+      display: flex;
+    }
+    
+    .instructions-content {
+      background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    
+    .instructions-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .instructions-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+    
+    .instructions-content h2 {
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .instructions-content h3 {
+      color: #feca57;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    
+    .instructions-content p,
+    .instructions-content li {
+      color: white;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    
+    .instructions-content ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .instructions-content .highlight {
+      background: rgba(254, 202, 87, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .back-to-editor-btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .back-to-editor-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+    }
 </style>
 </head>
 <body>
@@ -84,7 +226,69 @@
         <button class="main-btn secondary" onclick="goBack()">⬅ Back to Main Page</button>
         <button class="main-btn secondary" onclick="clearAll()">🗑 Clear All</button>
         <button class="main-btn" onclick="generate()">💾 Download Student Game</button>
+        <button class="main-btn secondary" onclick="uploadGame()">📤 Upload Game</button>
     </div>
+</div>
+
+<button class="instructions-btn" id="instructions-btn">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="Instructions">
+  Click me for instructions
+</button>
+
+<div class="instructions-modal" id="instructions-modal">
+  <div class="instructions-content">
+    <button class="instructions-close" id="close-instructions">×</button>
+    <h2>📚 How to Use Sentence Jumbler Generator</h2>
+    
+    <h3>🎮 Game Setup</h3>
+    <ul>
+      <li>Enter a <span class="highlight">Game Title</span> (e.g., "Daily Routines")</li>
+      <li>Optionally set an <span class="highlight">Edit Password</span> to allow re-editing the student game later</li>
+    </ul>
+
+    <h3>🔀 Jumble Mode</h3>
+    <ul>
+      <li><span class="highlight">Words</span>: Jumbles individual words (e.g., "I like pizza" → "I ekil azzip")</li>
+      <li><span class="highlight">Letters</span>: Jumbles individual letters (e.g., "I like pizza" → "I eilk aipzz")</li>
+      <li><span class="highlight">Pattern Mode</span>: When enabled, maintains word patterns (useful for revealing structure)</li>
+    </ul>
+
+    <h3>📝 Adding Sentences</h3>
+    <ul>
+      <li>Click <span class="highlight">"+ Add Row"</span> to create new sentences</li>
+      <li>Enter the <span class="highlight">Sentence</span> that will be jumbled</li>
+      <li>Add an optional <span class="highlight">Clue</span> to help students</li>
+      <li>Upload an optional <span class="highlight">Image</span> for visual context</li>
+      <li>Click <span class="highlight">❌ Delete</span> to remove unwanted rows</li>
+    </ul>
+
+    <h3>🎯 Next Game Feature (Optional)</h3>
+    <ul>
+      <li>Enable <span class="highlight">"Link to Next Game"</span> to chain multiple activities</li>
+      <li>Upload another HTML game file (any of the 12 generator outputs)</li>
+      <li>Select the game type from the dropdown</li>
+      <li>Students will see a "Next Game" button after completing all sentences</li>
+    </ul>
+
+    <h3>📤 Upload & Download</h3>
+    <ul>
+      <li><span class="highlight">📤 Upload Game</span>: Load a previously downloaded game HTML file to edit it</li>
+      <li><span class="highlight">💾 Download Student Game</span>: Save your game as an HTML file for students</li>
+      <li>Downloaded games preserve all images and settings</li>
+      <li>Students can re-edit games if you set an edit password</li>
+    </ul>
+
+    <h3>👨‍🎓 Student Experience</h3>
+    <ul>
+      <li>Students see jumbled sentences one at a time</li>
+      <li>They can reveal clues or images for help</li>
+      <li>Green checkmark = correct answer, moves to next</li>
+      <li>Red X = incorrect, they can try again</li>
+      <li>Progress bar shows completion status</li>
+    </ul>
+    
+    <button class="back-to-editor-btn" id="back-to-editor-btn">← Back to Editor</button>
+  </div>
 </div>
 
 <script>
@@ -221,6 +425,119 @@ function goBack() {
         window.location.href = 'index.html';
     }
 }
+
+function uploadGame() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.html';
+    
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const htmlContent = event.target.result;
+                
+                // Extract game data from the HTML file
+                const titleMatch = htmlContent.match(/const gameTitle = "([^"]*)";/);
+                const dataMatch = htmlContent.match(/const gameData = (\[[\s\S]*?\]);/);
+                const imagesMatch = htmlContent.match(/const gameImages = (\[[\s\S]*?\]);/);
+                const passwordMatch = htmlContent.match(/const editPassword = "([^"]*)";/);
+                
+                if (!dataMatch || !titleMatch) {
+                    alert('❌ No valid game data found in file!');
+                    return;
+                }
+                
+                const gameTitle = titleMatch[1];
+                const gameData = JSON.parse(dataMatch[1]);
+                const gameImages = imagesMatch ? JSON.parse(imagesMatch[1]) : [];
+                const editPassword = passwordMatch ? passwordMatch[1] : '';
+                
+                // Validate the data
+                if (!Array.isArray(gameData) || gameData.length === 0) {
+                    alert('❌ Invalid game file format!');
+                    return;
+                }
+                
+                // Load the data into the editor
+                document.getElementById('titleInput').value = gameTitle;
+                document.getElementById('editPassword').value = editPassword;
+                
+                // Set mode from first item (they should all be the same)
+                if (gameData[0].mode) {
+                    const modeRadio = document.querySelector(`input[name="mode"][value="${gameData[0].mode}"]`);
+                    if (modeRadio) modeRadio.checked = true;
+                }
+                
+                // Set pattern mode
+                if (gameData[0].patternMode !== undefined) {
+                    document.getElementById('patternMode').checked = gameData[0].patternMode;
+                }
+                
+                // Clear existing rows
+                container.innerHTML = "";
+                rowCount = 0;
+                
+                // Add rows with data
+                gameData.forEach((item, index) => {
+                    addRow(item.s, item.c, gameImages[index] || '');
+                });
+                
+                updateProgress();
+                alert('✅ Game loaded successfully!');
+            } catch (error) {
+                console.error('Error parsing game file:', error);
+                alert('❌ Error reading game file!');
+            }
+        };
+        
+        reader.onerror = () => {
+            alert('❌ Error reading file!');
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    input.click();
+}
+
+// Instructions modal event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const instructionsBtn = document.getElementById('instructions-btn');
+    const instructionsModal = document.getElementById('instructions-modal');
+    const closeInstructions = document.getElementById('close-instructions');
+    const backToEditor = document.getElementById('back-to-editor-btn');
+    
+    if (instructionsBtn) {
+        instructionsBtn.addEventListener('click', () => {
+            instructionsModal.classList.add('show');
+        });
+    }
+    
+    if (closeInstructions) {
+        closeInstructions.addEventListener('click', () => {
+            instructionsModal.classList.remove('show');
+        });
+    }
+    
+    if (backToEditor) {
+        backToEditor.addEventListener('click', () => {
+            instructionsModal.classList.remove('show');
+        });
+    }
+    
+    // Close modal when clicking outside
+    if (instructionsModal) {
+        instructionsModal.addEventListener('click', (e) => {
+            if (e.target.id === 'instructions-modal') {
+                instructionsModal.classList.remove('show');
+            }
+        });
+    }
+});
 
 function generate() {
     const title = document.getElementById('titleInput').value || "Sentence Jumbler";
