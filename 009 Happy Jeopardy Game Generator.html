@@ -572,7 +572,7 @@
               <li>Click on any dollar amount to reveal the question</li>
               <li>Click <span class="highlight">"Show Answer"</span> to reveal the answer</li>
               <li>Award points to players who answer correctly (✓) or incorrectly (✗)</li>
-              <li>Use <span class="highlight">"🔄 Retry Game"</span> to reset scores and play again</li>
+              <li>Use <span class="highlight">"🔄"</span> to reset scores and play again</li>
             </ul>
 
             <h3>🔍 Zoom Feature</h3>
@@ -1132,14 +1132,14 @@
             <div class="text-center mb-6">
               <h1 class="title-font board-title text-white rainbow-text">\${gameData.gameTitle}</h1>
             </div>
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
               \${gameData.players.map((player, index) => \`
-                <div class="player-score rounded-2xl px-6 py-3 text-center min-w-32">
-                  <input type="text" value="\${player.name}" class="player-name bg-transparent text-center text-gray-800 font-bold text-xl outline-none w-full" data-player="\${index}">
-                  <div class="text-4xl font-bold text-purple-700">\${player.score}</div>
-                  <div class="flex gap-2 justify-center mt-2">
-                    <button class="score-adjust bg-red-400 hover:bg-red-500 text-white w-8 h-8 rounded-full text-lg font-bold" data-player="\${index}" data-action="subtract">-</button>
-                    <button class="score-adjust bg-green-400 hover:bg-green-500 text-white w-8 h-8 rounded-full text-lg font-bold" data-player="\${index}" data-action="add">+</button>
+                <div class="player-score rounded-2xl px-3 py-2 text-center max-w-44">
+                  <input type="text" value="\${player.name}" class="player-name bg-transparent text-center text-gray-800 font-bold text-sm outline-none w-full mb-1 truncate" data-player="\${index}" maxlength="12">
+                  <div class="flex items-center justify-center gap-2">
+                    <button class="score-adjust bg-red-400 hover:bg-red-500 text-white w-8 h-8 rounded-full text-base font-bold flex-shrink-0" data-player="\${index}" data-action="subtract">−</button>
+                    <div class="text-2xl font-bold text-purple-700 min-w-16 flex-shrink-0">\${player.score}</div>
+                    <button class="score-adjust bg-green-400 hover:bg-green-500 text-white w-8 h-8 rounded-full text-base font-bold flex-shrink-0" data-player="\${index}" data-action="add">+</button>
                   </div>
                 </div>
               \`).join('')}
@@ -1155,7 +1155,7 @@
             </div>
           </div>
         </div>
-        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄</button>
         <div class="watermark">CMarasigan</div>
         <button class="zoom-btn btn-primary text-white" id="zoom-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1229,13 +1229,13 @@
                   <p class="text-white text-4xl font-bold bounce">\${feedbackMessage}</p>
                 </div>
               \` : ''}
-              <div class="flex flex-wrap gap-4 justify-center mb-8">
+              <div class="flex flex-wrap gap-2 justify-center mb-8">
                 \${gameData.players.map((player, index) => \`
-                  <div class="flex gap-3">
-                    <button class="award-correct bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl font-bold text-2xl" data-player="\${index}">
+                  <div class="flex gap-2">
+                    <button class="award-correct bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-base" data-player="\${index}">
                       ✓ \${player.name}
                     </button>
-                    <button class="award-incorrect bg-red-400 hover:bg-red-500 text-white px-8 py-4 rounded-2xl font-bold text-2xl" data-player="\${index}">
+                    <button class="award-incorrect bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-base" data-player="\${index}">
                       ✗ \${player.name}
                     </button>
                   </div>
@@ -1244,7 +1244,7 @@
             \`}
           </div>
         </div>
-        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄</button>
         <button id="back-to-board" class="back-to-board-btn btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" style="display: \${showingAnswer ? 'block' : 'none'}">
           🎮 Board
         </button>
@@ -1324,14 +1324,14 @@
             <div class="text-center mb-6">
               <h1 class="title-font board-title text-white rainbow-text">${gameData.gameTitle}</h1>
             </div>
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
               ${gameData.players.map((player, index) => `
-                <div class="player-score rounded-2xl px-6 py-3 text-center min-w-32">
-                  <input type="text" value="${player.name}" class="player-name bg-transparent text-center text-gray-800 font-bold text-xl outline-none w-full" data-player="${index}">
-                  <div class="text-4xl font-bold text-purple-700">${player.score}</div>
-                  <div class="flex gap-2 justify-center mt-2">
-                    <button class="score-adjust bg-red-400 hover:bg-red-500 text-white w-8 h-8 rounded-full text-lg font-bold" data-player="${index}" data-action="subtract">-</button>
-                    <button class="score-adjust bg-green-400 hover:bg-green-500 text-white w-8 h-8 rounded-full text-lg font-bold" data-player="${index}" data-action="add">+</button>
+                <div class="player-score rounded-2xl px-3 py-2 text-center max-w-44">
+                  <input type="text" value="${player.name}" class="player-name bg-transparent text-center text-gray-800 font-bold text-sm outline-none w-full mb-1 truncate" data-player="${index}" maxlength="12">
+                  <div class="flex items-center justify-center gap-2">
+                    <button class="score-adjust bg-red-400 hover:bg-red-500 text-white w-8 h-8 rounded-full text-base font-bold flex-shrink-0" data-player="${index}" data-action="subtract">−</button>
+                    <div class="text-2xl font-bold text-purple-700 min-w-16 flex-shrink-0">${player.score}</div>
+                    <button class="score-adjust bg-green-400 hover:bg-green-500 text-white w-8 h-8 rounded-full text-base font-bold flex-shrink-0" data-player="${index}" data-action="add">+</button>
                   </div>
                 </div>
               `).join('')}
@@ -1347,7 +1347,7 @@
             </div>
           </div>
         </div>
-        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄</button>
         <button class="btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="back-to-editor" style="position: fixed; bottom: 75px; left: 15px; z-index: 1000;">✏️ Back to Editor</button>
         <div class="watermark">CMarasigan</div>
         <button class="zoom-btn btn-primary text-white" id="zoom-btn">
@@ -1425,13 +1425,13 @@
                   <p class="text-white text-4xl font-bold bounce">${feedbackMessage}</p>
                 </div>
               ` : ''}
-              <div class="flex flex-wrap gap-4 justify-center mb-8">
+              <div class="flex flex-wrap gap-2 justify-center mb-8">
                 ${gameData.players.map((player, index) => `
-                  <div class="flex gap-3">
-                    <button class="award-correct bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl font-bold text-2xl" data-player="${index}">
+                  <div class="flex gap-2">
+                    <button class="award-correct bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-base" data-player="${index}">
                       ✓ ${player.name}
                     </button>
-                    <button class="award-incorrect bg-red-400 hover:bg-red-500 text-white px-8 py-4 rounded-2xl font-bold text-2xl" data-player="${index}">
+                    <button class="award-incorrect bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-base" data-player="${index}">
                       ✗ ${player.name}
                     </button>
                   </div>
@@ -1440,7 +1440,7 @@
             `}
           </div>
         </div>
-        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄 Retry Game</button>
+        <button class="retry-btn btn-fun px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" id="retry-btn">🔄</button>
         <button id="back-to-board" class="back-to-board-btn btn-primary px-4 py-2 rounded-xl text-white font-bold text-sm shadow-lg" style="display: ${showingAnswer ? 'block' : 'none'}">
           🎮 Board
         </button>
