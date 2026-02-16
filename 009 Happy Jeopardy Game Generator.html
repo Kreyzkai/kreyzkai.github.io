@@ -416,6 +416,31 @@
       document.documentElement.style.setProperty('--base-font-size', currentFontScale + 'rem');
     }
 
+    function formatText(text) {
+      if (!text) return '';
+      
+      // Escape HTML to prevent injection, but we'll add back our formatting
+      let formatted = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      // Convert markdown-style formatting
+      // Bold: **text**
+      formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      
+      // Italic: *text*
+      formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      
+      // Underline: __text__
+      formatted = formatted.replace(/__(.+?)__/g, '<u>$1</u>');
+      
+      // Convert line breaks to <br> tags
+      formatted = formatted.replace(/\n/g, '<br>');
+      
+      return formatted;
+    }
+
     function initializeGame() {
       categories = Array.from({ length: numCategories }, (_, catIndex) => ({
         name: `Category ${catIndex + 1}`,
@@ -553,10 +578,19 @@
                 <ul>
                   <li>Enter the <span class="highlight">Question</span> text</li>
                   <li>Enter the <span class="highlight">Answer</span> text</li>
+                  <li>Press <span class="highlight">Enter</span> to create line breaks</li>
                   <li>Optionally add images for questions and answers</li>
                   <li>Points are automatically assigned (100, 200, 300, etc.)</li>
                 </ul>
               </li>
+            </ul>
+
+            <h3>✨ Text Formatting</h3>
+            <ul>
+              <li><span class="highlight">**Bold text**</span> → <strong>Bold text</strong></li>
+              <li><span class="highlight">*Italic text*</span> → <em>Italic text</em></li>
+              <li><span class="highlight">__Underlined text__</span> → <u>Underlined text</u></li>
+              <li>Use these in questions and answers for emphasis!</li>
             </ul>
 
             <h3>📤 Upload, Preview & Download</h3>
@@ -601,6 +635,7 @@
                 <div>
                   <label class="block text-white font-bold mb-2">Question:</label>
                   <textarea class="question-input input-field w-full px-4 py-3 rounded-xl outline-none resize-none" rows="3" data-q="${i}">${q.question}</textarea>
+                  <p class="text-purple-200 text-xs mt-1">💡 Tip: Use **bold**, *italic*, __underline__. Press Enter for line breaks.</p>
                   <label class="block text-white font-bold mb-2 mt-2">Question Image (optional):</label>
                   <input type="file" accept="image/*" class="question-image-input input-field w-full px-4 py-3 rounded-xl outline-none bg-white text-gray-800" data-q="${i}">
                   ${q.questionImage ? `
@@ -613,6 +648,7 @@
                 <div>
                   <label class="block text-white font-bold mb-2">Answer:</label>
                   <textarea class="answer-input input-field w-full px-4 py-3 rounded-xl outline-none resize-none" rows="3" data-q="${i}">${q.answer}</textarea>
+                  <p class="text-purple-200 text-xs mt-1">💡 Tip: Use **bold**, *italic*, __underline__. Press Enter for line breaks.</p>
                   <label class="block text-white font-bold mb-2 mt-2">Answer Image (optional):</label>
                   <input type="file" accept="image/*" class="answer-image-input input-field w-full px-4 py-3 rounded-xl outline-none bg-white text-gray-800" data-q="${i}">
                   ${q.answerImage ? `
@@ -1126,6 +1162,22 @@
       document.documentElement.style.setProperty('--base-font-size', currentFontScale + 'rem');
     }
 
+    function formatText(text) {
+      if (!text) return '';
+      
+      let formatted = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      formatted = formatted.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+      formatted = formatted.replace(/\\*(.+?)\\*/g, '<em>$1</em>');
+      formatted = formatted.replace(/__(.+?)__/g, '<u>$1</u>');
+      formatted = formatted.replace(/\\n/g, '<br>');
+      
+      return formatted;
+    }
+
     function renderBoard() {
       const app = document.getElementById('app');
       app.innerHTML = \`
@@ -1217,13 +1269,13 @@
             \${!showingAnswer ? \`
               <div class="mb-12">
                 <h2 class="title-font question-text text-white mb-8">📝 Question:</h2>
-                <p class="text-white text-6xl font-bold">\${q.question || 'No question set'}</p>
+                <div class="text-white text-6xl font-bold">\${formatText(q.question) || 'No question set'}</div>
                 \${q.questionImage ? \`<img src="\${q.questionImage}" class="mt-8 max-w-2xl max-h-96 mx-auto rounded-xl shadow-lg" loading="lazy">\` : ''}
               </div>
             \` : \`
               <div class="mb-12">
                 <h2 class="title-font answer-text text-green-300 mb-8">✅ Answer:</h2>
-                <p class="text-white text-6xl font-bold">\${q.answer || 'No answer set'}</p>
+                <div class="text-white text-6xl font-bold">\${formatText(q.answer) || 'No answer set'}</div>
                 \${q.answerImage ? \`<img src="\${q.answerImage}" class="mt-8 max-w-2xl max-h-96 mx-auto rounded-xl shadow-lg" loading="lazy">\` : ''}
               </div>
               \${feedbackMessage ? \`
@@ -1413,13 +1465,13 @@
             ${!showingAnswer ? `
               <div class="mb-12">
                 <h2 class="title-font question-text text-white mb-8">📝 Question:</h2>
-                <p class="text-white text-6xl font-bold">${q.question || 'No question set'}</p>
+                <div class="text-white text-6xl font-bold">${formatText(q.question) || 'No question set'}</div>
                 ${q.questionImage ? `<img src="${q.questionImage}" class="mt-8 max-w-2xl max-h-96 mx-auto rounded-xl shadow-lg" loading="lazy">` : ''}
               </div>
             ` : `
               <div class="mb-12">
                 <h2 class="title-font answer-text text-green-300 mb-8">✅ Answer:</h2>
-                <p class="text-white text-6xl font-bold">${q.answer || 'No answer set'}</p>
+                <div class="text-white text-6xl font-bold">${formatText(q.answer) || 'No answer set'}</div>
                 ${q.answerImage ? `<img src="${q.answerImage}" class="mt-8 max-w-2xl max-h-96 mx-auto rounded-xl shadow-lg" loading="lazy">` : ''}
               </div>
               ${feedbackMessage ? `
