@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en" class="h-full">
  <head>
@@ -356,6 +355,7 @@
               <button id="download-game-btn" class="btn-fun px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">💾 Download Game</button>
               <button id="preview-btn" class="btn-success px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">👀 Preview Game</button>
               <button id="start-game-btn" class="btn-warning px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">🚀 Start Game</button>
+              <button id="upload-game-btn" class="btn-primary px-8 py-4 rounded-xl text-white font-bold text-lg shadow-lg">📤 Upload Game</button>
             </div>
           </div>
         </div>
@@ -513,6 +513,10 @@
       document.getElementById('download-game-btn').addEventListener('click', () => {
         downloadGameHTML();
       });
+
+      document.getElementById('upload-game-btn').addEventListener('click', () => {
+        uploadGameHTML();
+      });
     }
 
     function downloadGameHTML() {
@@ -526,6 +530,60 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+
+    function uploadGameHTML() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.html';
+      
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const htmlContent = event.target.result;
+            
+            // Extract game data from the HTML file
+            const match = htmlContent.match(/let gameData = ({[\s\S]*?});/);
+            if (!match) {
+              alert('❌ No game data found in file!');
+              return;
+            }
+            
+            const uploadedData = JSON.parse(match[1]);
+            
+            // Validate the data
+            if (!uploadedData.gameTitle || !uploadedData.categories || !uploadedData.players) {
+              alert('❌ Invalid game file format!');
+              return;
+            }
+            
+            // Load the data into the editor
+            gameTitle = uploadedData.gameTitle;
+            numCategories = uploadedData.numCategories || uploadedData.categories.length;
+            numQuestions = uploadedData.numQuestions || uploadedData.categories[0]?.questions.length || 5;
+            categories = uploadedData.categories;
+            players = uploadedData.players;
+            
+            alert('✅ Game loaded successfully!');
+            renderTeacherInterface();
+          } catch (error) {
+            console.error('Error parsing game file:', error);
+            alert('❌ Error reading game file!');
+          }
+        };
+        
+        reader.onerror = () => {
+          alert('❌ Error reading file!');
+        };
+        
+        reader.readAsText(file);
+      };
+      
+      input.click();
     }
 
     function generateStandaloneGame() {
