@@ -1,2692 +1,746 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fill in the Blanks - Interactive Game</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Fill in the Blank - Game Creator</title>
 <style>
-:root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-light: #64748b;
-  --border: #e2e8f0;
-  --accent: #fbbf24;
-  --shadow: rgba(0, 0, 0, 0.1);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Fredoka', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  color: var(--text);
-  position: relative;
-}
-
-.watermark {
-  position: fixed;
-  bottom: 15px;
-  left: 15px;
-  font-size: 14px;
-  font-weight: bold;
-  color: rgba(255, 255, 255, 0.3);
-  pointer-events: none;
-  z-index: 9999;
-}
-
-.game-container {
-  background: var(--card);
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 1200px;
-  width: 100%;
-  overflow: hidden;
-  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Setup Screen */
-.setup-screen {
-  padding: 60px 40px;
-  text-align: center;
-}
-
-.setup-screen h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 20px;
-  animation: fadeIn 0.8s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.setup-screen .subtitle {
-  font-size: 1.25rem;
-  color: var(--text-light);
-  margin-bottom: 50px;
-  animation: fadeIn 0.8s ease-out 0.2s both;
-}
-
-.input-group {
-  margin-bottom: 30px;
-  text-align: left;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-  animation: fadeIn 0.8s ease-out 0.4s both;
-}
-
-.input-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: var(--text);
-  font-size: 1rem;
-}
-
-.input-group input[type="text"],
-.input-group textarea {
-  width: 100%;
-  padding: 14px 18px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  font-family: 'Fredoka', sans-serif;
-  font-size: 1rem;
-  transition: all 0.3s;
-}
-
-.input-group input[type="text"]:focus,
-.input-group textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.input-group textarea {
-  min-height: 150px;
-  resize: vertical;
-  line-height: 1.6;
-}
-
-.mode-toggle {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  background: var(--bg);
-  padding: 8px;
-  border-radius: 12px;
-  width: fit-content;
-}
-
-.mode-option {
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 600;
-  background: transparent;
-  color: var(--text-light);
-}
-
-.mode-option:hover {
-  background: white;
-}
-
-.mode-option.selected {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-}
-
-.difficulty-options {
-  display: flex;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.difficulty-option {
-  flex: 1;
-  padding: 16px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: center;
-  background: var(--bg);
-}
-
-.difficulty-option:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-}
-
-.difficulty-option.selected {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: white;
-}
-
-.difficulty-option .difficulty-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 5px;
-}
-
-.difficulty-option .difficulty-desc {
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.distractor-mode {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.distractor-option {
-  flex: 1;
-  padding: 12px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-  background: var(--bg);
-  text-align: center;
-  font-weight: 600;
-}
-
-.distractor-option:hover {
-  border-color: var(--primary);
-}
-
-.distractor-option.selected {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: white;
-}
-
-.custom-distractors-input {
-  display: none;
-  margin-top: 15px;
-  padding: 15px;
-  background: var(--bg);
-  border-radius: 10px;
-}
-
-.custom-distractors-input.active {
-  display: block;
-}
-
-.custom-distractors-input textarea {
-  min-height: 100px;
-  font-size: 0.95rem;
-}
-
-.custom-distractors-input .helper-text {
-  font-size: 0.85rem;
-  color: var(--text-light);
-  margin-top: 8px;
-}
-
-.btn {
-  padding: 16px 40px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: 'Fredoka', sans-serif;
-  transition: all 0.3s;
-  animation: fadeIn 0.8s ease-out 0.6s both;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-secondary {
-  background: var(--secondary);
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(90, 98, 104, 0.4);
-}
-
-/* Game Screen */
-.game-screen {
-  display: none;
-  grid-template-columns: 300px 1fr;
-  min-height: 600px;
-}
-
-.game-screen.active {
-  display: grid;
-}
-
-/* Word Bank Sidebar */
-.word-bank-sidebar {
-  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
-  padding: 30px 20px;
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-}
-
-.word-bank-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.word-bank-title::before {
-  content: '📚';
-  font-size: 1.5rem;
-}
-
-.word-bank-items {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.word-item {
-  background: white;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  cursor: grab;
-  transition: all 0.3s;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
-}
-
-.word-item:hover:not(.used) {
-  border-color: var(--primary);
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px var(--shadow);
-}
-
-.word-item:active:not(.used) {
-  cursor: grabbing;
-}
-
-.word-item.used {
-  opacity: 0.4;
-  text-decoration: line-through;
-  cursor: not-allowed;
-  background: var(--bg);
-}
-
-.word-item.hint-mode {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.9rem;
-}
-
-/* Main Game Area */
-.game-main {
-  display: flex;
-  flex-direction: column;
-  padding: 40px;
-}
-
-.game-header {
-  margin-bottom: 30px;
-}
-
-.progress-bar-container {
-  background: var(--bg);
-  height: 8px;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.progress-bar {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-  height: 100%;
-  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border-radius: 10px;
-}
-
-.game-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-.stat-value {
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.game-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-
-/* Sentence Display */
-.sentence-container {
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  padding: 40px;
-  margin-bottom: 30px;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  animation: sentenceSlide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes sentenceSlide {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.sentence-text {
-  font-size: 1.4rem;
-  line-height: 2;
-  color: var(--text);
-  text-align: center;
-}
-
-.paragraph-text {
-  text-align: left;
-  max-width: 800px;
-}
-
-.blank {
-  display: inline-block;
-  min-width: 120px;
-  padding: 4px 12px;
-  margin: 0 4px;
-  border-bottom: 3px dashed var(--primary);
-  background: linear-gradient(to bottom, transparent 0%, rgba(99, 102, 241, 0.05) 100%);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  text-align: center;
-}
-
-.blank:hover {
-  background: rgba(99, 102, 241, 0.1);
-  transform: translateY(-2px);
-}
-
-.blank.filled {
-  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.2) 100%);
-  border-bottom-color: var(--success);
-  font-weight: 600;
-  color: var(--success);
-}
-
-.blank.correct {
-  animation: correctPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.3) 100%);
-}
-
-@keyframes correctPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.blank.incorrect {
-  animation: shake 0.5s;
-  background: linear-gradient(to bottom, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.2) 100%);
-  border-bottom-color: var(--error);
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
-}
-
-.blank .first-letter-hint {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-weight: 700;
-  color: var(--primary);
-  opacity: 0.6;
-}
-
-/* Navigation */
-.game-nav {
-  display: flex;
-  gap: 15px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-btn {
-  padding: 12px 24px;
-  border: 2px solid var(--border);
-  background: white;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: 'Fredoka', sans-serif;
-  font-size: 1rem;
-}
-
-.nav-btn:hover:not(:disabled) {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: white;
-  transform: translateY(-2px);
-}
-
-.nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.hint-btn {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-}
-
-.hint-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
-}
-
-/* Word Selection Screen */
-.selectable-word {
-  display: inline;
-  padding: 2px 6px;
-  margin: 0 2px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: transparent;
-  border-bottom: 2px solid transparent;
-}
-
-.selectable-word:hover {
-  background: rgba(99, 102, 241, 0.1);
-  border-bottom-color: var(--primary);
-}
-
-.selectable-word.selected {
-  background: linear-gradient(to bottom, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.3) 100%);
-  border-bottom: 3px solid var(--accent);
-  font-weight: 600;
-  color: #d97706;
-}
-
-.selectable-word.punctuation {
-  cursor: default;
-  padding: 0;
-  margin: 0;
-}
-
-.selectable-word.punctuation:hover {
-  background: transparent;
-  border-bottom-color: transparent;
-}
-
-/* Completion Screen */
-.completion-screen {
-  display: none;
-  padding: 60px 40px;
-  text-align: center;
-}
-
-.completion-screen.active {
-  display: block;
-  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.completion-icon {
-  font-size: 6rem;
-  margin-bottom: 20px;
-  animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.completion-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 20px;
-}
-
-.completion-stats {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin: 40px 0;
-}
-
-.completion-stat {
-  text-align: center;
-}
-
-.completion-stat-value {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.completion-stat-label {
-  font-size: 1rem;
-  color: var(--text-light);
-  margin-top: 5px;
-}
-
-.star-rating {
-  font-size: 3rem;
-  margin: 30px 0;
-}
-
-.star {
-  display: inline-block;
-  animation: starPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-.star:nth-child(1) { animation-delay: 0.1s; }
-.star:nth-child(2) { animation-delay: 0.2s; }
-.star:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes starPop {
-  from { transform: scale(0) rotate(-180deg); opacity: 0; }
-  to { transform: scale(1) rotate(0); opacity: 1; }
-}
-
-.completion-actions {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 30px;
-}
-
-.confetti {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background: var(--primary);
-  position: absolute;
-  animation: confettiFall 3s linear;
-}
-
-@keyframes confettiFall {
-  to {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .game-screen {
-    grid-template-columns: 1fr;
-  }
-
-  .word-bank-sidebar {
-    max-height: 200px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .word-bank-items {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .word-item {
-    flex: 0 0 calc(50% - 5px);
-  }
-
-  .sentence-container {
-    padding: 30px 20px;
-  }
-
-  .sentence-text {
-    font-size: 1.2rem;
-  }
-
-  .setup-screen h1 {
-    font-size: 2rem;
-  }
-
-  .completion-stats {
-    flex-direction: column;
-    gap: 20px;
-  }
-}
+body { font-family: Arial, sans-serif; max-width: 900px; margin: 50px auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+.screen { display: none; background: white; padding: 40px; border-radius: 20px; }
+.screen.active { display: block; }
+.word { display: inline; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+.word:hover { background: #e0e0e0; }
+.word.selected { background: #a7c7e7; border: 2px solid #4169e1; padding: 2px 2px; }
+button { padding: 12px 24px; margin: 10px 5px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #6366f1; color: white; font-weight: 600; }
+button:hover { background: #4f46e5; }
+button.secondary { background: #e5e7eb; color: #374151; }
+button.success { background: #10b981; color: white; }
+#selectableText { line-height: 2.2; font-size: 18px; margin: 20px 0; padding: 20px; border: 2px solid #ccc; border-radius: 12px; min-height: 150px; }
+.blank { display: inline-block; min-width: 100px; border-bottom: 2px dashed #333; padding: 4px 8px; margin: 0 4px; cursor: pointer; background: #f9f9f9; border-radius: 4px; }
+.blank:hover { background: #fef3c7; }
+.blank.filled { background: #d1fae5; border-bottom: 2px solid #10b981; color: #059669; font-weight: 600; }
+.word-item { display: inline-block; padding: 10px 20px; margin: 5px; background: #f0f0f0; border: 2px solid #333; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.word-item:hover { background: #e0e7ff; transform: translateY(-2px); }
+.word-item.used { opacity: 0.3; text-decoration: line-through; cursor: not-allowed; }
+#wordBank { margin: 20px 0; padding: 20px; border: 2px solid #ccc; border-radius: 12px; background: #f9fafb; }
+h1 { color: #6366f1; margin-bottom: 10px; }
+input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+textarea { min-height: 150px; font-family: Arial, sans-serif; }
+label { font-weight: 600; color: #374151; display: block; margin-top: 15px; }
+select { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+.mode-btn { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 16px; transition: all 0.2s; }
+.mode-btn:hover { border-color: #6366f1; }
+.mode-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
 </style>
 </head>
 <body>
 
-<div class="watermark">cmarasigan</div>
-
-<div class="game-container">
-  <!-- Setup Screen -->
-  <div class="setup-screen active" id="setupScreen">
-    <h1>Fill in the Blanks</h1>
-    <p class="subtitle">Create your interactive learning game</p>
-    
-    <div class="input-group">
-      <label for="gameTitle">Game Title</label>
-      <input type="text" id="gameTitle" placeholder="e.g., Vocabulary Practice">
-    </div>
-
-    <div class="input-group">
-      <label for="gameText">Paste Your Text</label>
-      <textarea id="gameText" placeholder="Enter your text here..."></textarea>
-    </div>
-
-    <div class="input-group">
-      <label>Display Mode</label>
-      <div class="mode-toggle">
-        <div class="mode-option" data-mode="sentence" onclick="selectDisplayMode('sentence')">📝 Sentence-by-Sentence</div>
-        <div class="mode-option selected" data-mode="paragraph" onclick="selectDisplayMode('paragraph')">📄 Full Paragraph</div>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <label>Difficulty Level</label>
-      <div class="difficulty-options">
-        <div class="difficulty-option selected" data-difficulty="easy">
-          <div class="difficulty-name">Easy</div>
-          <div class="difficulty-desc">Word bank visible</div>
-        </div>
-        <div class="difficulty-option" data-difficulty="medium">
-          <div class="difficulty-name">Medium</div>
-          <div class="difficulty-desc">With hints</div>
-        </div>
-        <div class="difficulty-option" data-difficulty="hard">
-          <div class="difficulty-name">Hard</div>
-          <div class="difficulty-desc">No word bank</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <label>Distractor Words</label>
-      <div class="distractor-mode">
-        <div class="distractor-option selected" data-distractor-mode="auto">
-          <div>🎲 Auto (2-6 words)</div>
-        </div>
-        <div class="distractor-option" data-distractor-mode="custom">
-          <div>✏️ Custom List</div>
-        </div>
-      </div>
-      
-      <div class="custom-distractors-input" id="customDistractorsInput">
-        <label style="font-size: 0.9rem; margin-bottom: 8px;">Enter Distractor Words</label>
-        <textarea id="customDistractorsList" placeholder="Enter distractor words, one per line or separated by commas..."></textarea>
-        <div class="helper-text">💡 These words will be added to the word bank to make it more challenging</div>
-      </div>
-    </div>
-
-    <div class="input-group" id="autoDistractorCount" style="display: block;">
-      <label>Number of Auto Distractors (per sentence/section)</label>
-      <div class="difficulty-options">
-        <div class="difficulty-option selected" data-distractors="2">
-          <div class="difficulty-name">2</div>
-          <div class="difficulty-desc">Easier</div>
-        </div>
-        <div class="difficulty-option" data-distractors="4">
-          <div class="difficulty-name">4</div>
-          <div class="difficulty-desc">Medium</div>
-        </div>
-        <div class="difficulty-option" data-distractors="6">
-          <div class="difficulty-name">6</div>
-          <div class="difficulty-desc">Harder</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-        <input type="checkbox" id="enableNextGame" onchange="toggleNextGameSection()" style="width: auto; cursor: pointer;">
-        <span style="font-weight: 600;">🔗 Link to Another Game (Optional)</span>
-      </label>
-      <div id="nextGameSection" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
-        <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text);">Next Game Type:</label>
-        <select id="nextGameType" style="width: 100%; padding: 12px; font-size: 14px; margin-bottom: 12px; border: 2px solid var(--border); border-radius: 8px;">
-          <option value="">-- Select Game Type --</option>
-          <option value="fill_blank">Fill in the Blank Game</option>
-          <option value="jumbler">Sentence Jumbler</option>
-          <option value="multiple_choice">Multiple Choice Game</option>
-        </select>
-        <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text);">Upload Next Game File:</label>
-        <input type="file" id="nextGameFile" accept=".html" style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid var(--border); border-radius: 8px;">
-        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 8px;">💡 Upload the student game file (.html) that should play after this one</div>
-      </div>
-    </div>
-
-    <button class="btn btn-primary" onclick="loadTextForEditing()">Next: Select Words to Blank</button>
+<div id="setupScreen" class="screen active">
+  <h1>🎮 Fill in the Blank - Game Creator</h1>
+  <p style="color: #6b7280; margin-bottom: 20px;">Create an interactive learning game for your students</p>
+  
+  <div style="margin-bottom: 20px; padding: 15px; background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px;">
+    <label style="font-weight: 600; color: #166534; margin-bottom: 10px;">📁 Load Existing Game:</label>
+    <input type="file" id="rehydrateFile" accept=".html" onchange="rehydrateGame()" style="margin-top: 10px;">
+    <p style="font-size: 0.85rem; color: #15803d; margin-top: 5px;">Upload a previously downloaded student game to edit it</p>
   </div>
-
-  <!-- Word Selection Screen -->
-  <div class="setup-screen" id="wordSelectionScreen">
-    <h1>Select Words to Blank Out</h1>
-    <p class="subtitle">Click on words to toggle them as blanks</p>
-    
-    <div class="input-group">
-      <div id="selectableText" style="font-size: 1.2rem; line-height: 2; padding: 20px; background: white; border: 2px solid var(--border); border-radius: 12px; min-height: 200px;"></div>
-    </div>
-
-    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
-      <button class="btn" onclick="backToSetup()" style="background: #6c757d; color: white;">← Back</button>
-      <button class="btn btn-primary" onclick="startGameFromSelection()">Preview Game</button>
-      <button class="btn btn-primary" onclick="downloadStudentGame()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">📥 Download for Students</button>
-    </div>
+  
+  <label>Game Title:</label>
+  <input type="text" id="gameTitle" placeholder="Enter a title for your game">
+  
+  <label>Display Mode:</label>
+  <div style="display: flex; gap: 10px; margin: 10px 0;">
+    <button type="button" class="mode-btn active" onclick="selectMode('paragraph')" data-mode="paragraph">
+      📄 Full Paragraph
+    </button>
+    <button type="button" class="mode-btn" onclick="selectMode('sentence')" data-mode="sentence">
+      📝 Sentence-by-Sentence
+    </button>
   </div>
+  
+  <label>Difficulty:</label>
+  <select id="difficulty">
+    <option value="easy">Easy - Show all words</option>
+    <option value="medium">Medium - Show hints (first letter)</option>
+    <option value="hard">Hard - Type answers (no word bank)</option>
+  </select>
+  
+  <label>Number of Distractors (wrong answer choices):</label>
+  <input type="number" id="distractors" min="0" max="10" value="2">
+  
+  <label>Your Text:</label>
+  <textarea id="gameText" placeholder="Paste or type your text here...">When you set a goal you should think clearly about what and when. Imagine that you are a member of the school band.</textarea>
+  
+  <button onclick="loadText()">Next: Select Words & Phrases →</button>
+</div>
 
-  <!-- Game Screen -->
-  <div class="game-screen" id="gameScreen">
-    <!-- Word Bank Sidebar -->
-    <div class="word-bank-sidebar">
-      <div class="word-bank-title">Word Bank</div>
-      <div class="word-bank-items" id="wordBankItems"></div>
-    </div>
-
-    <!-- Main Game Area -->
-    <div class="game-main">
-      <div class="game-header">
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-        </div>
-        <div class="game-stats">
-          <div class="stat">
-            <span>📊 Progress:</span>
-            <span class="stat-value" id="progressText">0/0</span>
-          </div>
-          <div class="stat">
-            <span>⭐ Accuracy:</span>
-            <span class="stat-value" id="accuracyText">100%</span>
-          </div>
-          <div class="stat">
-            <span>⏱️ Time:</span>
-            <span class="stat-value" id="timerText">0:00</span>
-          </div>
-        </div>
-        <h2 class="game-title" id="gameTitleDisplay"></h2>
-      </div>
-
-      <div class="sentence-container">
-        <div class="sentence-text" id="sentenceDisplay"></div>
-      </div>
-
-      <div class="game-nav">
-        <button class="nav-btn" id="prevBtn" onclick="previousSentence()">← Previous</button>
-        <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 Hint</button>
-        <button class="nav-btn" id="nextBtn" onclick="nextSentence()" disabled>Next →</button>
-      </div>
-    </div>
+<div id="selectionScreen" class="screen">
+  <h1>Select Words & Phrases</h1>
+  <p style="color: #6b7280; margin-bottom: 15px;">Click a word to select it, or click and drag to select a phrase</p>
+  <div id="selectableText"></div>
+  <div style="margin-top: 20px;">
+    <button class="secondary" onclick="clearAll()">Clear All</button>
+    <button onclick="generateGame()">Preview Game</button>
+    <button class="success" onclick="downloadGame()">📥 Download for Students</button>
   </div>
+</div>
 
-  <!-- Completion Screen -->
-  <div class="completion-screen" id="completionScreen">
-    <div class="completion-icon">🎉</div>
-    <h2 class="completion-title">Congratulations!</h2>
-    <p class="subtitle">You've completed the exercise!</p>
-    
-    <div class="completion-stats">
-      <div class="completion-stat">
-        <div class="completion-stat-value" id="finalAccuracy">0%</div>
-        <div class="completion-stat-label">Accuracy</div>
-      </div>
-      <div class="completion-stat">
-        <div class="completion-stat-value" id="finalTime">0:00</div>
-        <div class="completion-stat-label">Time</div>
-      </div>
-      <div class="completion-stat">
-        <div class="completion-stat-value" id="finalAttempts">0</div>
-        <div class="completion-stat-label">Attempts</div>
-      </div>
-    </div>
-
-    <div class="star-rating" id="starRating"></div>
-
-    <div class="completion-actions">
-      <button class="btn btn-primary" onclick="restartGame()">🔄 Try Again</button>
-      <button class="btn btn-primary" onclick="newGame()">✨ New Game</button>
-    </div>
-  </div>
+<div id="gameScreen" class="screen">
+  <h1 id="gameTitle2"></h1>
+  <div id="sentenceDisplay"></div>
+  <div id="wordBank"></div>
+  <button class="secondary" onclick="backToSelection()">← Back to Selection</button>
 </div>
 
 <script>
 let gameData = {
   title: '',
+  rawText: '',
+  tokens: [],
+  blankGroups: [],
+  nextKey: 1,
   sentences: [],
-  currentSentence: 0,
+  usedWords: new Set(),
+  displayMode: 'paragraph',
   difficulty: 'easy',
   distractorCount: 2,
-  distractorMode: 'auto', // 'auto' or 'custom'
-  customDistractors: [],
-  displayMode: 'paragraph', // 'sentence' or 'paragraph'
-  wordBank: [],
-  usedWords: new Set(),
-  startTime: null,
-  totalAttempts: 0,
-  correctAttempts: 0,
-  hintsUsed: 0,
-  allWords: [],
-  rawText: '',
-  selectedWordIndices: new Set(),
-  nextGameData: null // Will store next game info
+  currentSentence: 0
 };
 
-let timerInterval = null;
+let dragStart = null;
+let isDragging = false;
+let selectedBlank = null;
 
-// Toggle next game section visibility
-function toggleNextGameSection() {
-  const checkbox = document.getElementById('enableNextGame');
-  const section = document.getElementById('nextGameSection');
-  section.style.display = checkbox.checked ? 'block' : 'none';
-}
-
-// Setup difficulty selection
-document.querySelectorAll('.difficulty-option').forEach(option => {
-  option.addEventListener('click', function() {
-    const parent = this.parentElement;
-    parent.querySelectorAll('.difficulty-option').forEach(o => o.classList.remove('selected'));
-    this.classList.add('selected');
-    
-    if (this.dataset.difficulty) {
-      gameData.difficulty = this.dataset.difficulty;
-    }
-    if (this.dataset.distractors) {
-      gameData.distractorCount = parseInt(this.dataset.distractors);
-    }
-  });
-});
-
-// Distractor mode selection
-document.querySelectorAll('.distractor-option').forEach(option => {
-  option.addEventListener('click', function() {
-    document.querySelectorAll('.distractor-option').forEach(o => o.classList.remove('selected'));
-    this.classList.add('selected');
-    
-    gameData.distractorMode = this.dataset.distractorMode;
-    
-    const customInput = document.getElementById('customDistractorsInput');
-    const autoCount = document.getElementById('autoDistractorCount');
-    
-    if (gameData.distractorMode === 'custom') {
-      customInput.classList.add('active');
-      autoCount.style.display = 'none';
-    } else {
-      customInput.classList.remove('active');
-      autoCount.style.display = 'block';
-    }
-  });
-});
-
-function selectDisplayMode(mode) {
+function selectMode(mode) {
   gameData.displayMode = mode;
-  document.querySelectorAll('.mode-option').forEach(o => o.classList.remove('selected'));
-  document.querySelector(`.mode-option[data-mode="${mode}"]`).classList.add('selected');
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
 }
 
-function loadTextForEditing() {
-  const title = document.getElementById('gameTitle').value || 'Fill in the Blanks';
+function loadText() {
+  const title = document.getElementById('gameTitle').value.trim() || 'Fill in the Blanks';
   const text = document.getElementById('gameText').value.trim();
+  if (!text) { alert('Enter text first!'); return; }
   
-  if (!text) {
-    alert('Please enter some text to create your game!');
-    return;
-  }
-
-  // Get custom distractors if in custom mode
-  if (gameData.distractorMode === 'custom') {
-    const customText = document.getElementById('customDistractorsList').value.trim();
-    if (customText) {
-      // Split by newlines or commas
-      gameData.customDistractors = customText
-        .split(/[\n,]+/)
-        .map(w => w.trim())
-        .filter(w => w.length > 0);
-    } else {
-      gameData.customDistractors = [];
-    }
-  }
-
   gameData.title = title;
   gameData.rawText = text;
+  gameData.difficulty = document.getElementById('difficulty').value;
+  gameData.distractorCount = parseInt(document.getElementById('distractors').value);
+  gameData.tokens = [];
+  gameData.blankGroups = [];
   
-  // Parse text into words and display for selection
+  const re = /(\s+)/g;
+  let last = 0, idx = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) gameData.tokens.push({ text: text.slice(last, m.index), isSpace: false, index: idx++ });
+    gameData.tokens.push({ text: m[0], isSpace: true, index: idx++ });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) gameData.tokens.push({ text: text.slice(last), isSpace: false, index: idx++ });
+  
+  renderSelection();
+  document.getElementById('setupScreen').classList.remove('active');
+  document.getElementById('selectionScreen').classList.add('active');
+}
+
+function renderSelection() {
   const container = document.getElementById('selectableText');
   container.innerHTML = '';
   
-  // Split by sentences first
-  const sentenceRegex = /[^.!?]+[.!?]+/g;
-  const sentences = text.match(sentenceRegex) || [text];
-  
-  let globalWordIndex = 0;
-  const allWords = [];
-  
-  sentences.forEach((sentence, sentIndex) => {
-    const words = sentence.trim().split(/(\s+|[.,!?;:'"()])/);
-    
-    words.forEach(token => {
-      if (!token.trim()) {
-        container.appendChild(document.createTextNode(token));
-        return;
-      }
+  gameData.tokens.forEach(tok => {
+    if (tok.isSpace) {
+      if (tok.text.includes('\n')) container.appendChild(document.createElement('br'));
+      else container.appendChild(document.createTextNode(tok.text));
+    } else {
+      const span = document.createElement('span');
+      span.className = 'word';
+      span.dataset.idx = tok.index;
+      span.textContent = tok.text;
       
-      const isPunctuation = /^[.,!?;:'"()]$/.test(token);
-      const cleanWord = token.replace(/[.,!?;:'"()]/g, '');
+      const inGroup = gameData.blankGroups.find(g => g.indices.includes(tok.index));
+      if (inGroup) span.classList.add('selected');
       
-      if (isPunctuation) {
-        const span = document.createElement('span');
-        span.className = 'selectable-word punctuation';
-        span.textContent = token;
-        container.appendChild(span);
-      } else if (cleanWord.length > 0) {
-        const span = document.createElement('span');
-        span.className = 'selectable-word';
-        span.textContent = token;
-        span.dataset.wordIndex = globalWordIndex;
-        span.dataset.cleanWord = cleanWord;
-        span.dataset.sentenceIndex = sentIndex;
-        
-        // Auto-suggest words
-        const commonWords = new Set(['the', 'and', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'is', 'are', 'was', 'be', 'it', 'as', 'by', 'or', 'but', 'not', 'can', 'do', 'if', 'so', 'up', 'out', 'my', 'me', 'we', 'us', 'he', 'she', 'you', 'that', 'this', 'with', 'from', 'they', 'have', 'been', 'were', 'said', 'will', 'what', 'when', 'your', 'them', 'than', 'then', 'some', 'time', 'very', 'just', 'know', 'take', 'make', 'could', 'would', 'should', 'which', 'their', 'about', 'there', 'think', 'also', 'only', 'first', 'other', 'these', 'those', 'people', 'after', 'before', 'being', 'where']);
-        
-        if (cleanWord.length > 4 && !commonWords.has(cleanWord.toLowerCase())) {
-          span.classList.add('selected');
-          gameData.selectedWordIndices.add(globalWordIndex);
+      span.addEventListener('mousedown', e => { 
+        if (inGroup) {
+          gameData.blankGroups = gameData.blankGroups.filter(g => g.key !== inGroup.key);
+          renderSelection();
+          return;
         }
-        
-        span.addEventListener('click', function() {
-          this.classList.toggle('selected');
-          const idx = parseInt(this.dataset.wordIndex);
-          if (this.classList.contains('selected')) {
-            gameData.selectedWordIndices.add(idx);
-          } else {
-            gameData.selectedWordIndices.delete(idx);
-          }
-        });
-        
-        container.appendChild(span);
-        
-        allWords.push({
-          word: cleanWord,
-          index: globalWordIndex,
-          sentenceIndex: sentIndex
-        });
-        
-        globalWordIndex++;
-      }
-    });
-    
-    // Add line break between sentences
-    if (sentIndex < sentences.length - 1) {
-      container.appendChild(document.createElement('br'));
+        dragStart = tok.index; 
+        isDragging = true; 
+        e.preventDefault(); 
+      });
+      
+      span.addEventListener('mouseup', e => {
+        if (isDragging && dragStart === tok.index && !inGroup) {
+          gameData.blankGroups.push({
+            key: String(gameData.nextKey++),
+            indices: [tok.index],
+            text: tok.text
+          });
+          renderSelection();
+          isDragging = false;
+          dragStart = null;
+          e.stopPropagation();
+        }
+      });
+      
+      span.addEventListener('mouseenter', () => { 
+        if (isDragging && dragStart !== null && dragStart !== tok.index) {
+          highlightRange(dragStart, tok.index); 
+        }
+      });
+      
+      container.appendChild(span);
     }
   });
   
-  gameData.allWords = allWords;
-  
-  document.getElementById('setupScreen').classList.remove('active');
-  document.getElementById('wordSelectionScreen').classList.add('active');
+  document.addEventListener('mouseup', () => {
+    if (isDragging && dragStart !== null) createBlank();
+    isDragging = false;
+    dragStart = null;
+  });
 }
 
-function backToSetup() {
-  document.getElementById('wordSelectionScreen').classList.remove('active');
-  document.getElementById('setupScreen').classList.add('active');
+function highlightRange(start, end) {
+  const min = Math.min(start, end);
+  const max = Math.max(start, end);
+  document.querySelectorAll('.word').forEach(w => {
+    const idx = parseInt(w.dataset.idx);
+    w.style.background = (idx >= min && idx <= max) ? 'rgba(99, 102, 241, 0.3)' : '';
+  });
 }
 
-function startGameFromSelection() {
-  if (gameData.selectedWordIndices.size === 0) {
-    alert('Please select at least one word to blank out!');
-    return;
-  }
+function createBlank() {
+  const selectedIndices = [];
+  document.querySelectorAll('.word').forEach(w => {
+    if (w.style.background) selectedIndices.push(parseInt(w.dataset.idx));
+  });
   
-  parseSentencesFromSelection();
-
-  gameData.currentSentence = 0;
-  gameData.usedWords = new Set();
-  gameData.startTime = Date.now();
-  gameData.totalAttempts = 0;
-  gameData.correctAttempts = 0;
-  gameData.hintsUsed = 0;
-
-  document.getElementById('wordSelectionScreen').classList.remove('active');
-  document.getElementById('gameScreen').classList.add('active');
-  document.getElementById('gameTitleDisplay').textContent = gameData.title;
-
-  renderWordBank();
-  renderSentence();
-  startTimer();
+  if (selectedIndices.length === 0) return;
+  
+  selectedIndices.sort((a, b) => a - b);
+  const text = selectedIndices.map(i => gameData.tokens.find(t => t.index === i).text).join(' ');
+  
+  gameData.blankGroups.push({
+    key: String(gameData.nextKey++),
+    indices: selectedIndices,
+    text: text
+  });
+  
+  renderSelection();
 }
 
-function parseSentencesFromSelection() {
-  const sentenceRegex = /[^.!?]+[.!?]+/g;
-  const rawSentences = gameData.rawText.match(sentenceRegex) || [gameData.rawText];
-  
-  gameData.sentences = [];
-  
-  if (gameData.displayMode === 'paragraph') {
-    // Combine all into one "sentence" for paragraph mode
-    const allText = gameData.rawText;
-    const allWords = allText.split(/\s+/);
-    const blanks = [];
-    
-    gameData.allWords.forEach(wordObj => {
-      if (gameData.selectedWordIndices.has(wordObj.index)) {
-        const cleanWords = allWords.map(w => w.replace(/[.,!?;:'"]/g, ''));
-        const wordIndex = cleanWords.findIndex((w, idx) => {
-          return w === wordObj.word && !blanks.find(b => b.index === idx);
-        });
-        
-        if (wordIndex !== -1) {
-          blanks.push({
-            index: wordIndex,
-            word: wordObj.word,
-            filled: false,
-            userAnswer: null
-          });
-        }
-      }
-    });
+function clearAll() {
+  gameData.blankGroups = [];
+  renderSelection();
+}
 
-    if (blanks.length > 0) {
-      gameData.sentences.push({
-        text: allText,
-        words: allWords,
-        blanks: blanks,
-        completed: false
-      });
+function generateGame() {
+  if (gameData.blankGroups.length === 0) { alert('Select at least one word or phrase!'); return; }
+  
+  const tokenToWordPos = new Map();
+  let wordPos = 0;
+  gameData.tokens.forEach(t => {
+    if (!t.isSpace) {
+      tokenToWordPos.set(t.index, wordPos);
+      wordPos++;
     }
-  } else {
-    // Sentence-by-sentence mode
-    rawSentences.forEach((sentence, sentIndex) => {
-      const trimmed = sentence.trim();
-      if (!trimmed) return;
-      
-      const words = trimmed.split(/\s+/);
-      const blanks = [];
-      
-      const wordsInSentence = gameData.allWords.filter(w => w.sentenceIndex === sentIndex);
-      
-      wordsInSentence.forEach(wordObj => {
-        if (gameData.selectedWordIndices.has(wordObj.index)) {
-          const cleanWords = words.map(w => w.replace(/[.,!?;:'"]/g, ''));
-          const wordIndex = cleanWords.findIndex((w, idx) => {
-            return w === wordObj.word && !blanks.find(b => b.index === idx);
-          });
-          
-          if (wordIndex !== -1) {
-            blanks.push({
-              index: wordIndex,
-              word: wordObj.word,
-              filled: false,
-              userAnswer: null
-            });
-          }
-        }
-      });
-
-      if (blanks.length > 0) {
-        gameData.sentences.push({
-          text: trimmed,
-          words: words,
-          blanks: blanks,
-          completed: false
-        });
-      }
+  });
+  
+  const allWords = gameData.tokens.filter(t => !t.isSpace).map(t => t.text);
+  const allBlanks = [];
+  
+  gameData.blankGroups.forEach(g => {
+    const sortedIndices = [...g.indices].sort((a, b) => a - b);
+    const firstTokenIdx = sortedIndices[0];
+    const wordPosition = tokenToWordPos.get(firstTokenIdx);
+    
+    allBlanks.push({
+      position: wordPosition,
+      text: g.text,
+      wordCount: g.indices.length,
+      key: g.key,
+      filled: false,
+      userAnswer: null
     });
+  });
+  
+  allBlanks.sort((a, b) => a.position - b.position);
+  
+  // Build sentences based on mode
+  if (gameData.displayMode === 'sentence') {
+    gameData.sentences = [];
+    const sentenceRegex = /[^.!?]+[.!?]+/g;
+    const rawSentences = gameData.rawText.match(sentenceRegex) || [gameData.rawText];
+    
+    let globalWordPos = 0;
+    rawSentences.forEach(sentText => {
+      const sentWords = sentText.trim().split(/\s+/);
+      const sentBlanks = allBlanks.filter(b => 
+        b.position >= globalWordPos && b.position < globalWordPos + sentWords.length
+      ).map(b => ({ ...b, position: b.position - globalWordPos }));
+      
+      if (sentBlanks.length > 0) {
+        gameData.sentences.push({ words: sentWords, blanks: sentBlanks, completed: false });
+      }
+      globalWordPos += sentWords.length;
+    });
+  } else {
+    gameData.sentences = [{
+      words: allWords,
+      blanks: allBlanks,
+      completed: false
+    }];
   }
   
-  if (gameData.sentences.length === 0) {
-    alert('No valid sentences with blanks were created. Please select some words!');
-    return;
-  }
+  gameData.usedWords = new Set();
+  gameData.currentSentence = 0;
+  
+  document.getElementById('selectionScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('gameTitle2').textContent = gameData.title;
+  renderGame();
+}
 
-  // Build comprehensive word list
-  const uniqueWords = new Set();
-  gameData.allWords.forEach(w => uniqueWords.add(w.word));
-  gameData.comprehensiveWordList = Array.from(uniqueWords);
+function renderGame() {
+  const sentence = gameData.sentences[gameData.currentSentence];
+  const container = document.getElementById('sentenceDisplay');
+  container.innerHTML = '';
+  
+  let wordIdx = 0;
+  while (wordIdx < sentence.words.length) {
+    const blank = sentence.blanks.find(b => b.position === wordIdx);
+    
+    if (blank) {
+      const span = document.createElement('span');
+      span.className = 'blank';
+      span.dataset.key = blank.key;
+      span.dataset.answer = blank.text;
+      
+      if (blank.filled) {
+        span.textContent = blank.userAnswer;
+        span.classList.add('filled');
+      } else {
+        span.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+      }
+      
+      container.appendChild(span);
+      wordIdx += blank.wordCount;
+    } else {
+      container.appendChild(document.createTextNode(' ' + sentence.words[wordIdx]));
+      wordIdx++;
+    }
+  }
+  
+  renderWordBank();
+  updateNavigation();
+}
+
+function updateNavigation() {
+  const gameScreen = document.getElementById('gameScreen');
+  let navDiv = document.getElementById('navigation');
+  
+  if (!navDiv) {
+    navDiv = document.createElement('div');
+    navDiv.id = 'navigation';
+    navDiv.style.textAlign = 'center';
+    navDiv.style.marginTop = '20px';
+    gameScreen.insertBefore(navDiv, gameScreen.lastElementChild);
+  }
+  
+  navDiv.innerHTML = '';
+  
+  if (gameData.displayMode === 'sentence') {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Previous';
+    prevBtn.className = 'secondary';
+    prevBtn.disabled = gameData.currentSentence === 0;
+    prevBtn.onclick = () => {
+      if (gameData.currentSentence > 0) {
+        gameData.currentSentence--;
+        gameData.usedWords = new Set();
+        renderGame();
+      }
+    };
+    
+    const nextBtn = document.createElement('button');
+    const isLast = gameData.currentSentence === gameData.sentences.length - 1;
+    nextBtn.textContent = isLast ? 'Finish' : 'Next →';
+    nextBtn.id = 'nextBtn';
+    nextBtn.onclick = () => {
+      if (gameData.currentSentence < gameData.sentences.length - 1) {
+        gameData.currentSentence++;
+        gameData.usedWords = new Set();
+        renderGame();
+      } else {
+        alert('Game complete!');
+      }
+    };
+    
+    // Check if current sentence is complete
+    const sentence = gameData.sentences[gameData.currentSentence];
+    const allFilled = sentence.blanks.every(b => b.filled);
+    nextBtn.disabled = !allFilled;
+    
+    navDiv.appendChild(prevBtn);
+    navDiv.appendChild(nextBtn);
+    
+    const progress = document.createElement('p');
+    progress.style.marginTop = '10px';
+    progress.style.color = '#6b7280';
+    progress.textContent = `Sentence ${gameData.currentSentence + 1} of ${gameData.sentences.length}`;
+    navDiv.appendChild(progress);
+  }
 }
 
 function renderWordBank() {
-  const container = document.getElementById('wordBankItems');
-  container.innerHTML = '';
-
-  if (gameData.difficulty === 'hard') {
-    container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">Type your answers!</p>';
-    return;
-  }
-
-  const sentence = gameData.sentences[gameData.currentSentence];
-  const correctWords = sentence.blanks.map(b => b.word);
-  
-  let distractors = [];
-  
-  if (gameData.distractorMode === 'custom' && gameData.customDistractors.length > 0) {
-    // Use custom distractors
-    distractors = gameData.customDistractors.filter(w => !correctWords.includes(w));
-  } else {
-    // Use auto distractors
-    const otherWords = gameData.comprehensiveWordList.filter(w => !correctWords.includes(w));
-    const shuffledOthers = shuffleArray(otherWords);
-    distractors = shuffledOthers.slice(0, gameData.distractorCount);
-  }
-  
-  const currentWordBank = shuffleArray([...correctWords, ...distractors]);
-  
-  currentWordBank.forEach(word => {
-    const wordItem = document.createElement('div');
-    wordItem.className = 'word-item';
-    
-    if (gameData.difficulty === 'medium') {
-      wordItem.classList.add('hint-mode');
-      wordItem.textContent = word[0] + '_'.repeat(word.length - 1);
-      wordItem.dataset.fullWord = word;
-    } else {
-      wordItem.textContent = word;
-    }
-    
-    wordItem.dataset.word = word;
-    
-    if (gameData.usedWords.has(word)) {
-      wordItem.classList.add('used');
-    }
-
-    wordItem.addEventListener('click', () => selectWordFromBank(word));
-    
-    container.appendChild(wordItem);
-  });
-}
-
-function renderSentence() {
-  const sentence = gameData.sentences[gameData.currentSentence];
-  const container = document.getElementById('sentenceDisplay');
-  
-  // Apply paragraph styling if in paragraph mode
-  if (gameData.displayMode === 'paragraph') {
-    container.classList.add('paragraph-text');
-  } else {
-    container.classList.remove('paragraph-text');
-  }
-  
-  gameData.usedWords = new Set();
-  container.innerHTML = '';
-  
-  sentence.words.forEach((word, index) => {
-    const blank = sentence.blanks.find(b => b.index === index);
-    
-    if (blank) {
-      const blankSpan = document.createElement('span');
-      blankSpan.className = 'blank';
-      if (blank.filled) {
-        blankSpan.classList.add('filled');
-        blankSpan.textContent = blank.userAnswer;
-        gameData.usedWords.add(blank.userAnswer);
-      } else {
-        blankSpan.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-      }
-      blankSpan.dataset.blankIndex = sentence.blanks.indexOf(blank);
-      blankSpan.addEventListener('click', () => selectBlank(sentence.blanks.indexOf(blank)));
-      container.appendChild(blankSpan);
-    } else {
-      container.appendChild(document.createTextNode(' ' + word));
-    }
-  });
-
-  renderWordBank();
-  updateProgress();
-  updateNavButtons();
-}
-
-let selectedWord = null;
-let selectedBlankIndex = null;
-
-function selectBlank(index) {
-  const sentence = gameData.sentences[gameData.currentSentence];
-  const blank = sentence.blanks[index];
-  
-  // If a word is already selected, try to fill this blank
-  if (selectedWord !== null) {
-    fillBlankWithWord(index, selectedWord);
-    selectedWord = null;
-    // Remove highlight from all words
-    document.querySelectorAll('.word-item').forEach(w => w.style.boxShadow = '');
-    return;
-  }
-  
-  // Otherwise, just highlight the blank as selected
-  selectedBlankIndex = index;
-  const blanks = document.querySelectorAll('.blank');
-  blanks.forEach(b => b.style.boxShadow = '');
-  if (blanks[index]) {
-    blanks[index].style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.3)';
-  }
-}
-
-function selectWordFromBank(word) {
-  if (gameData.usedWords.has(word)) return;
-  
-  // Highlight the selected word
-  selectedWord = word;
-  document.querySelectorAll('.word-item').forEach(w => {
-    if (w.dataset.word === word) {
-      w.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.5)';
-      w.style.transform = 'scale(1.05)';
-    } else {
-      w.style.boxShadow = '';
-      w.style.transform = '';
-    }
-  });
-  
-  // If a blank is already selected, fill it immediately
-  if (selectedBlankIndex !== null) {
-    fillBlankWithWord(selectedBlankIndex, word);
-    selectedWord = null;
-    selectedBlankIndex = null;
-    document.querySelectorAll('.word-item').forEach(w => {
-      w.style.boxShadow = '';
-      w.style.transform = '';
-    });
-    document.querySelectorAll('.blank').forEach(b => b.style.boxShadow = '');
-  }
-}
-
-function fillBlankWithWord(blankIndex, word) {
-  const sentence = gameData.sentences[gameData.currentSentence];
-  const blank = sentence.blanks[blankIndex];
-  
-  gameData.totalAttempts++;
-  
-  if (word === blank.word) {
-    // Correct!
-    blank.filled = true;
-    blank.userAnswer = word;
-    gameData.usedWords.add(word);
-    gameData.correctAttempts++;
-    
-    const blankElement = document.querySelectorAll('.blank')[blankIndex];
-    blankElement.textContent = word;
-    blankElement.classList.add('filled', 'correct');
-    
-    setTimeout(() => {
-      blankElement.classList.remove('correct');
-    }, 600);
-    
-    if (sentence.blanks.every(b => b.filled)) {
-      sentence.completed = true;
-      document.getElementById('nextBtn').disabled = false;
-    }
-  } else {
-    // Incorrect
-    const blankElement = document.querySelectorAll('.blank')[blankIndex];
-    blankElement.classList.add('incorrect');
-    
-    setTimeout(() => {
-      blankElement.classList.remove('incorrect');
-    }, 500);
-  }
-  
-  renderWordBank();
-  updateProgress();
-}
-
-function useHint() {
-  if (selectedBlankIndex === null) {
-    alert('Please select a blank first!');
-    return;
-  }
-
-  const sentence = gameData.sentences[gameData.currentSentence];
-  const blank = sentence.blanks[selectedBlankIndex];
-  
-  if (blank.filled) return;
-
-  gameData.hintsUsed++;
-  
-  const blankElement = document.querySelectorAll('.blank')[selectedBlankIndex];
-  const firstLetter = blank.word[0];
-  
-  if (!blankElement.querySelector('.first-letter-hint')) {
-    const hint = document.createElement('span');
-    hint.className = 'first-letter-hint';
-    hint.textContent = firstLetter;
-    blankElement.appendChild(hint);
-  }
-}
-
-function nextSentence() {
-  if (gameData.currentSentence < gameData.sentences.length - 1) {
-    gameData.currentSentence++;
-    selectedBlankIndex = null;
-    renderSentence();
-  } else {
-    completeGame();
-  }
-}
-
-function previousSentence() {
-  if (gameData.currentSentence > 0) {
-    gameData.currentSentence--;
-    selectedBlankIndex = null;
-    renderSentence();
-  }
-}
-
-function updateProgress() {
-  const completed = gameData.sentences.filter(s => s.completed).length;
-  const total = gameData.sentences.length;
-  const percentage = (completed / total) * 100;
-  
-  document.getElementById('progressBar').style.width = percentage + '%';
-  document.getElementById('progressText').textContent = `${completed}/${total}`;
-  
-  const accuracy = gameData.totalAttempts > 0 
-    ? Math.round((gameData.correctAttempts / gameData.totalAttempts) * 100)
-    : 100;
-  document.getElementById('accuracyText').textContent = accuracy + '%';
-}
-
-function updateNavButtons() {
-  document.getElementById('prevBtn').disabled = gameData.currentSentence === 0;
+  const container = document.getElementById('wordBank');
+  container.innerHTML = '<h3 style="color: #6366f1; margin-bottom: 15px;">📚 Word Bank</h3>';
   
   const sentence = gameData.sentences[gameData.currentSentence];
-  document.getElementById('nextBtn').disabled = !sentence.completed;
+  const seen = new Set();
   
-  // In paragraph mode, hide next/prev buttons if only one section
-  if (gameData.displayMode === 'paragraph' && gameData.sentences.length === 1) {
-    document.getElementById('prevBtn').style.display = 'none';
-    document.getElementById('nextBtn').style.display = 'none';
-  } else {
-    document.getElementById('prevBtn').style.display = '';
-    document.getElementById('nextBtn').style.display = '';
-  }
-}
-
-function startTimer() {
-  timerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - gameData.startTime) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    document.getElementById('timerText').textContent = 
-      `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  }, 1000);
-}
-
-function completeGame() {
-  clearInterval(timerInterval);
-  
-  const elapsed = Math.floor((Date.now() - gameData.startTime) / 1000);
-  const minutes = Math.floor(elapsed / 60);
-  const seconds = elapsed % 60;
-  const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  
-  const accuracy = Math.round((gameData.correctAttempts / gameData.totalAttempts) * 100);
-  
-  let stars = 1;
-  if (accuracy >= 80 && elapsed < 300) stars = 2;
-  if (accuracy >= 95 && elapsed < 180) stars = 3;
-  
-  document.getElementById('finalAccuracy').textContent = accuracy + '%';
-  document.getElementById('finalTime').textContent = timeString;
-  document.getElementById('finalAttempts').textContent = gameData.totalAttempts;
-  
-  const starContainer = document.getElementById('starRating');
-  starContainer.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const star = document.createElement('span');
-    star.className = 'star';
-    star.textContent = i < stars ? '⭐' : '☆';
-    starContainer.appendChild(star);
-  }
-  
-  document.getElementById('gameScreen').classList.remove('active');
-  document.getElementById('completionScreen').classList.add('active');
-  
-  // Check if there's a next game linked
-  if (gameData.nextGameData) {
-    showContinueButton();
-  }
-  
-  createConfetti();
-}
-
-function showContinueButton() {
-  const actionsDiv = document.querySelector('.completion-actions');
-  
-  // Add continue button
-  const continueBtn = document.createElement('button');
-  continueBtn.className = 'btn btn-primary';
-  continueBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-  continueBtn.textContent = '➡️ Continue to Next Game';
-  continueBtn.onclick = launchNextGame;
-  
-  actionsDiv.appendChild(continueBtn);
-}
-
-function launchNextGame() {
-  if (!gameData.nextGameData) {
-    alert('No next game configured.');
-    return;
-  }
-  
-  // Decode the base64 HTML
-  const decodedHTML = decodeURIComponent(escape(atob(gameData.nextGameData.html)));
-  
-  // Create a blob from the next game HTML
-  const blob = new Blob([decodedHTML], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  
-  // Open in same window
-  window.location.href = url;
-}
-
-function createConfetti() {
-  const colors = ['#667eea', '#764ba2', '#fbbf24', '#10b981', '#ef4444'];
-  for (let i = 0; i < 50; i++) {
-    setTimeout(() => {
-      const confetti = document.createElement('div');
-      confetti.className = 'confetti';
-      confetti.style.left = Math.random() * 100 + '%';
-      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.animationDelay = Math.random() * 0.5 + 's';
-      document.body.appendChild(confetti);
+  sentence.blanks.forEach(b => {
+    if (seen.has(b.key)) return;
+    seen.add(b.key);
+    
+    const item = document.createElement('div');
+    item.className = 'word-item';
+    item.dataset.key = b.key;
+    item.textContent = b.text;
+    if (gameData.usedWords.has(b.key)) item.classList.add('used');
+    
+    item.onclick = () => {
+      if (gameData.usedWords.has(b.key)) return;
       
-      setTimeout(() => confetti.remove(), 3000);
-    }, i * 50);
-  }
-}
-
-function restartGame() {
-  gameData.currentSentence = 0;
-  gameData.usedWords = new Set();
-  gameData.startTime = Date.now();
-  gameData.totalAttempts = 0;
-  gameData.correctAttempts = 0;
-  gameData.hintsUsed = 0;
-  
-  gameData.sentences.forEach(sentence => {
-    sentence.completed = false;
-    sentence.blanks.forEach(blank => {
-      blank.filled = false;
-      blank.userAnswer = null;
-    });
-  });
-
-  document.getElementById('completionScreen').classList.remove('active');
-  document.getElementById('gameScreen').classList.add('active');
-  
-  renderWordBank();
-  renderSentence();
-  startTimer();
-}
-
-function newGame() {
-  clearInterval(timerInterval);
-  gameData.selectedWordIndices = new Set();
-  document.getElementById('completionScreen').classList.remove('active');
-  document.getElementById('setupScreen').classList.add('active');
-  document.getElementById('gameText').value = '';
-}
-
-function shuffleArray(array) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-function downloadStudentGame() {
-  if (gameData.selectedWordIndices.size === 0) {
-    alert('Please select at least one word to blank out!');
-    return;
-  }
-  
-  parseSentencesFromSelection();
-  
-  // Check if next game is enabled and file is selected
-  const enableNextGame = document.getElementById('enableNextGame').checked;
-  const nextGameFile = document.getElementById('nextGameFile').files[0];
-  const nextGameType = document.getElementById('nextGameType').value;
-  
-  if (enableNextGame && nextGameFile && nextGameType) {
-    // Read the next game file
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const nextGameHTML = e.target.result;
-      const base64HTML = btoa(unescape(encodeURIComponent(nextGameHTML)));
+      // Select this word
+      document.querySelectorAll('.word-item').forEach(w => w.style.outline = '');
+      item.style.outline = '3px solid #f59e0b';
       
-      const nextGameData = {
-        type: nextGameType,
-        html: base64HTML
-      };
-      
-      generateAndDownload(nextGameData);
+      // Set up blanks to receive this word
+      document.querySelectorAll('.blank').forEach(blank => {
+        blank.style.cursor = 'pointer';
+        blank.onclick = () => {
+          const correctAnswer = blank.dataset.answer;
+          
+          if (b.text.toLowerCase() === correctAnswer.toLowerCase()) {
+            blank.textContent = b.text;
+            blank.classList.add('filled');
+            
+            const sentence = gameData.sentences[gameData.currentSentence];
+            const blankData = sentence.blanks.find(x => x.key === blank.dataset.key);
+            blankData.filled = true;
+            blankData.userAnswer = b.text;
+            
+            gameData.usedWords.add(b.key);
+            
+            // Clear selection
+            item.style.outline = '';
+            document.querySelectorAll('.blank').forEach(b => b.onclick = null);
+            
+            renderWordBank();
+            
+            // Check if sentence is complete and enable Next button
+            const allFilled = sentence.blanks.every(x => x.filled);
+            if (allFilled) {
+              const nextBtn = document.getElementById('nextBtn');
+              if (nextBtn) nextBtn.disabled = false;
+            }
+          } else {
+            alert('Try again!');
+          }
+        };
+      });
     };
-    reader.readAsText(nextGameFile);
-  } else {
-    generateAndDownload(null);
-  }
+    
+    container.appendChild(item);
+  });
 }
 
-function generateAndDownload(nextGameData) {
-  const studentHTML = generateStudentHTML(
-    gameData.title,
-    gameData.sentences,
-    gameData.comprehensiveWordList,
-    gameData.difficulty,
-    gameData.distractorMode,
-    gameData.customDistractors,
-    gameData.distractorCount,
-    gameData.displayMode,
-    nextGameData
-  );
+function backToSelection() {
+  gameData.usedWords = new Set();
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('selectionScreen').classList.add('active');
+}
+
+function downloadGame() {
+  if (gameData.blankGroups.length === 0) { 
+    alert('Select at least one word or phrase first!'); 
+    return; 
+  }
+  
+  const tokenToWordPos = new Map();
+  let wordPos = 0;
+  gameData.tokens.forEach(t => {
+    if (!t.isSpace) {
+      tokenToWordPos.set(t.index, wordPos);
+      wordPos++;
+    }
+  });
+  
+  const allWords = gameData.tokens.filter(t => !t.isSpace).map(t => t.text);
+  const allBlanks = [];
+  
+  gameData.blankGroups.forEach(g => {
+    const sortedIndices = [...g.indices].sort((a, b) => a - b);
+    const firstTokenIdx = sortedIndices[0];
+    const wordPosition = tokenToWordPos.get(firstTokenIdx);
+    allBlanks.push({
+      position: wordPosition,
+      text: g.text,
+      wordCount: g.indices.length,
+      key: g.key
+    });
+  });
+  
+  allBlanks.sort((a, b) => a.position - b.position);
+  
+  // Build sentences based on mode
+  let sentences = [];
+  if (gameData.displayMode === 'sentence') {
+    const sentenceRegex = /[^.!?]+[.!?]+/g;
+    const rawSentences = gameData.rawText.match(sentenceRegex) || [gameData.rawText];
+    
+    let globalWordPos = 0;
+    rawSentences.forEach(sentText => {
+      const sentWords = sentText.trim().split(/\s+/);
+      const sentBlanks = allBlanks.filter(b => 
+        b.position >= globalWordPos && b.position < globalWordPos + sentWords.length
+      ).map(b => ({ ...b, position: b.position - globalWordPos }));
+      
+      if (sentBlanks.length > 0) {
+        sentences.push({ words: sentWords, blanks: sentBlanks });
+      }
+      globalWordPos += sentWords.length;
+    });
+  } else {
+    sentences = [{ words: allWords, blanks: allBlanks }];
+  }
+  
+  const title = gameData.title.replace(/[<>"']/g, '');
+  const config = {
+    sentences: sentences,
+    difficulty: gameData.difficulty,
+    distractors: gameData.distractorCount,
+    mode: gameData.displayMode
+  };
+  
+  // Generate complete student HTML with all features
+  const studentHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + title + '</title>' +
+    '<style>body{font-family:Arial,sans-serif;padding:20px;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh}' +
+    '.container{background:white;padding:40px;border-radius:20px;max-width:900px;margin:0 auto}' +
+    'h1{color:#6366f1;margin-bottom:30px}' +
+    '.hint-toggle{margin-bottom:20px;padding:10px;background:#f8fafc;border-radius:8px;text-align:center}' +
+    '.hint-toggle label{font-weight:600;cursor:pointer}' +
+    '#display{font-size:1.2rem;line-height:2.5;padding:20px;background:#f8fafc;border-radius:12px;margin-bottom:20px}' +
+    '.blank{display:inline-block;min-width:100px;border-bottom:2px dashed #333;padding:4px 8px;margin:0 4px;cursor:pointer;background:white;border-radius:4px}' +
+    '.blank:hover{background:#fef3c7}' +
+    '.blank.filled{background:#d1fae5;border-bottom:2px solid #10b981;color:#059669;font-weight:600}' +
+    '.blank.correct{animation:pulse 0.6s}' +
+    '@keyframes pulse{50%{transform:scale(1.1)}}' +
+    '.word{display:inline-block;padding:10px 20px;margin:5px;background:white;border:2px solid #6366f1;border-radius:8px;cursor:pointer;transition:all 0.2s}' +
+    '.word:hover{background:#e0e7ff;transform:translateY(-2px)}' +
+    '.word.used{opacity:0.3;text-decoration:line-through;cursor:not-allowed}' +
+    '#bank{padding:20px;background:#f8fafc;border-radius:12px;margin-bottom:20px}' +
+    '.btn{padding:12px 24px;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin:5px;font-weight:600}' +
+    '.btn-primary{background:#6366f1;color:white}' +
+    '.btn-primary:hover{background:#4f46e5}' +
+    '.btn-secondary{background:#e5e7eb;color:#374151}' +
+    '.complete{text-align:center;padding:40px}' +
+    '.score{font-size:3rem;color:#6366f1;font-weight:700;margin:20px 0}' +
+    '.stars{font-size:2rem;margin:20px 0}' +
+    '</style></head><body>' +
+    '<div class="container"><h1>' + title + '</h1>' +
+    '<div class="hint-toggle">' +
+    '<label><input type="checkbox" id="showHints" onchange="toggleHints()"> Show Hints (First Letter)</label>' +
+    '</div>' +
+    '<div id="display"></div>' +
+    '<div id="bank"></div>' +
+    '<div id="nav" style="text-align:center"></div>' +
+    '<div id="complete" class="complete" style="display:none">' +
+    '<h2>🎉 Complete!</h2>' +
+    '<div class="score" id="final"></div>' +
+    '<div class="stars" id="stars"></div>' +
+    '<button class="btn btn-primary" onclick="location.reload()">Try Again</button>' +
+    '</div>' +
+    '</div>' +
+    '<script>' +
+    'var CFG=' + JSON.stringify(config) + ';' +
+    'var st={cur:0,used:new Set(),sel:null,attempts:0,correct:0,hintsEnabled:false};' +
+    'function toggleHints(){st.hintsEnabled=document.getElementById("showHints").checked;render()}' +
+    'function render(){' +
+    'var sen=CFG.sentences[st.cur],c=document.getElementById("display");' +
+    'c.innerHTML="";var i=0;' +
+    'while(i<sen.words.length){' +
+    'var b=sen.blanks.find(function(x){return x.position===i});' +
+    'if(b){' +
+    'var p=document.createElement("span");' +
+    'p.className="blank";p.dataset.k=b.key;p.dataset.a=b.text;' +
+    'if(b.filled){p.textContent=b.filled}' +
+    'else if(st.hintsEnabled){p.textContent=b.text[0]+"_".repeat(b.text.length-1)}' +
+    'else{p.innerHTML="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"}' +
+    'c.appendChild(p);i+=b.wordCount' +
+    '}else{c.appendChild(document.createTextNode(" "+sen.words[i]));i++}' +
+    '}renderBank();updateNav()}' +
+    'function renderBank(){' +
+    'var c=document.getElementById("bank"),sen=CFG.sentences[st.cur];' +
+    'c.innerHTML="<h3 style=color:#6366f1>Word Bank</h3>";' +
+    'if(CFG.difficulty==="hard"){c.innerHTML+="<p>Type your answers</p>";return}' +
+    'var items=[];' +
+    'sen.blanks.forEach(function(b){items.push({text:b.text,key:b.key,correct:true})});' +
+    'if(CFG.distractors>0){' +
+    'var all=sen.words.filter(function(w){return w.length>3});' +
+    'var cor=sen.blanks.map(function(b){return b.text.toLowerCase()});' +
+    'var dist=all.filter(function(w){return !cor.includes(w.toLowerCase())});' +
+    'for(var i=0;i<Math.min(CFG.distractors,dist.length);i++){items.push({text:dist[i],key:null,correct:false})}' +
+    '}' +
+    'items.sort(function(){return Math.random()-0.5});' +
+    'items.forEach(function(it){' +
+    'var d=document.createElement("div");d.className="word";' +
+    'if(CFG.difficulty==="medium"&&it.correct){d.textContent=it.text[0]+"_".repeat(it.text.length-1);d.dataset.full=it.text}' +
+    'else{d.textContent=it.text}' +
+    'if(it.correct&&st.used.has(it.key))d.classList.add("used");' +
+    'd.onclick=function(){' +
+    'if(it.correct&&st.used.has(it.key))return;' +
+    'document.querySelectorAll(".word").forEach(function(w){w.style.outline=""});' +
+    'd.style.outline="3px solid #f59e0b";' +
+    'var ans=this.dataset.full||this.textContent;' +
+    'document.querySelectorAll(".blank").forEach(function(bl){' +
+    'bl.onclick=function(){' +
+    'st.attempts++;' +
+    'if(ans.toLowerCase()===bl.dataset.a.toLowerCase()){' +
+    'bl.textContent=ans;bl.classList.add("filled","correct");' +
+    'bl.dataset.filled=ans;' +
+    'st.correct++;' +
+    'if(it.key)st.used.add(it.key);' +
+    'setTimeout(function(){bl.classList.remove("correct")},600);' +
+    'd.style.outline="";' +
+    'document.querySelectorAll(".blank").forEach(function(b){b.onclick=null});' +
+    'checkComplete();renderBank()' +
+    '}else{alert("Try again")}' +
+    '}})' +
+    '};' +
+    'c.appendChild(d)' +
+    '})}' +
+    'function updateNav(){' +
+    'var n=document.getElementById("nav");' +
+    'if(CFG.mode==="sentence"){' +
+    'n.innerHTML="<button class=btn-secondary onclick=prev() "+(st.cur===0?"disabled":"")+">← Prev</button>" +' +
+    '"<span style=margin:0 20px>Sentence "+(st.cur+1)+" of "+CFG.sentences.length+"</span>" +' +
+    '"<button class=btn-primary onclick=next() id=nxt disabled>Next →</button>"' +
+    '}else{n.innerHTML=""}}' +
+    'function prev(){if(st.cur>0){st.cur--;st.used=new Set();render()}}' +
+    'function next(){if(st.cur<CFG.sentences.length-1){st.cur++;st.used=new Set();render()}else{showComplete()}}' +
+    'function checkComplete(){' +
+    'var sen=CFG.sentences[st.cur];' +
+    'var filled=sen.blanks.filter(function(b){return document.querySelector("[data-k=\\""+b.key+"\\"]").classList.contains("filled")}).length;' +
+    'if(filled===sen.blanks.length){' +
+    'if(CFG.mode==="sentence")document.getElementById("nxt").disabled=false;' +
+    'else if(st.cur===CFG.sentences.length-1)showComplete()' +
+    '}}' +
+    'function showComplete(){' +
+    'var acc=Math.round(st.correct/st.attempts*100);' +
+    'document.getElementById("final").textContent=acc+"%";' +
+    'var stars="";' +
+    'if(acc===100)stars="⭐⭐⭐⭐⭐";' +
+    'else if(acc>=90)stars="⭐⭐⭐⭐";' +
+    'else if(acc>=75)stars="⭐⭐⭐";' +
+    'else if(acc>=50)stars="⭐⭐";' +
+    'else stars="⭐";' +
+    'document.getElementById("stars").textContent=stars;' +
+    'document.getElementById("display").style.display="none";' +
+    'document.getElementById("bank").style.display="none";' +
+    'document.getElementById("nav").style.display="none";' +
+    'document.getElementById("complete").style.display="block"}' +
+    'render();' +
+    '<\/script></body></html>';
   
   const blob = new Blob([studentHTML], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${gameData.title.replace(/[^a-z0-9]/gi, '_')}_game.html`;
+  a.download = title.replace(/[^a-z0-9]/gi, '_') + '_fillblank.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   
-  alert('Game downloaded! Share this file with your students.');
+  alert('Game downloaded successfully! Share the HTML file with your students.');
 }
 
-function generateStudentHTML(title, sentences, wordList, difficulty, distractorMode, customDistractors, distractorCount, displayMode, nextGameData) {
-  const escapedTitle = title.replace(/'/g, "\\'");
-  const sentencesJSON = JSON.stringify(sentences);
-  const wordListJSON = JSON.stringify(wordList);
-  const customDistractorsJSON = JSON.stringify(customDistractors);
-  const nextGameJSON = nextGameData ? JSON.stringify(nextGameData) : 'null';
+function rehydrateGame() {
+  const file = document.getElementById('rehydrateFile').files[0];
+  if (!file) return;
   
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title}</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-light: #64748b;
-  --border: #e2e8f0;
-  --accent: #fbbf24;
-  --shadow: rgba(0, 0, 0, 0.1);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Fredoka', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  color: var(--text);
-  position: relative;
-}
-
-.watermark {
-  position: fixed;
-  bottom: 15px;
-  left: 15px;
-  font-size: 14px;
-  font-weight: bold;
-  color: rgba(255, 255, 255, 0.3);
-  pointer-events: none;
-  z-index: 9999;
-}
-
-.game-container {
-  background: var(--card);
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 1200px;
-  width: 100%;
-  overflow: hidden;
-  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.start-screen {
-  display: none;
-  padding: 60px 40px;
-  text-align: center;
-}
-
-.start-screen.active {
-  display: block;
-}
-
-.start-screen h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 20px;
-}
-
-.start-screen p {
-  font-size: 1.25rem;
-  color: var(--text-light);
-  margin-bottom: 40px;
-}
-
-.btn {
-  padding: 16px 40px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: 'Fredoka', sans-serif;
-  transition: all 0.3s;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-}
-
-.game-screen {
-  display: none;
-  grid-template-columns: 300px 1fr;
-  min-height: 600px;
-}
-
-.game-screen.active {
-  display: grid;
-}
-
-.word-bank-sidebar {
-  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
-  padding: 30px 20px;
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-}
-
-.word-bank-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.word-bank-title::before {
-  content: '📚';
-  font-size: 1.5rem;
-}
-
-.word-bank-items {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.word-item {
-  background: white;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  cursor: grab;
-  transition: all 0.3s;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
-}
-
-.word-item:hover:not(.used) {
-  border-color: var(--primary);
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px var(--shadow);
-}
-
-.word-item:active:not(.used) {
-  cursor: grabbing;
-}
-
-.word-item.used {
-  opacity: 0.4;
-  text-decoration: line-through;
-  cursor: not-allowed;
-  background: var(--bg);
-}
-
-.word-item.hint-mode {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.9rem;
-}
-
-.game-main {
-  display: flex;
-  flex-direction: column;
-  padding: 40px;
-}
-
-.game-header {
-  margin-bottom: 30px;
-}
-
-.progress-bar-container {
-  background: var(--bg);
-  height: 8px;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.progress-bar {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-  height: 100%;
-  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border-radius: 10px;
-}
-
-.game-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-.stat-value {
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.game-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-
-.sentence-container {
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  padding: 40px;
-  margin-bottom: 30px;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  animation: sentenceSlide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes sentenceSlide {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.sentence-text {
-  font-size: 1.4rem;
-  line-height: 2;
-  color: var(--text);
-  text-align: center;
-}
-
-.paragraph-text {
-  text-align: left;
-  max-width: 800px;
-}
-
-.blank {
-  display: inline-block;
-  min-width: 120px;
-  padding: 4px 12px;
-  margin: 0 4px;
-  border-bottom: 3px dashed var(--primary);
-  background: linear-gradient(to bottom, transparent 0%, rgba(99, 102, 241, 0.05) 100%);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  text-align: center;
-}
-
-.blank:hover {
-  background: rgba(99, 102, 241, 0.1);
-  transform: translateY(-2px);
-}
-
-.blank.filled {
-  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.2) 100%);
-  border-bottom-color: var(--success);
-  font-weight: 600;
-  color: var(--success);
-}
-
-.blank.correct {
-  animation: correctPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.3) 100%);
-}
-
-@keyframes correctPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.blank.incorrect {
-  animation: shake 0.5s;
-  background: linear-gradient(to bottom, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.2) 100%);
-  border-bottom-color: var(--error);
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
-}
-
-.blank .first-letter-hint {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-weight: 700;
-  color: var(--primary);
-  opacity: 0.6;
-}
-
-.game-nav {
-  display: flex;
-  gap: 15px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-btn {
-  padding: 12px 24px;
-  border: 2px solid var(--border);
-  background: white;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: 'Fredoka', sans-serif;
-  font-size: 1rem;
-}
-
-.nav-btn:hover:not(:disabled) {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: white;
-  transform: translateY(-2px);
-}
-
-.nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.hint-btn {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-}
-
-.hint-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
-}
-
-.completion-screen {
-  display: none;
-  padding: 60px 40px;
-  text-align: center;
-}
-
-.completion-screen.active {
-  display: block;
-  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.completion-icon {
-  font-size: 6rem;
-  margin-bottom: 20px;
-  animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.completion-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 20px;
-}
-
-.completion-stats {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin: 40px 0;
-}
-
-.completion-stat {
-  text-align: center;
-}
-
-.completion-stat-value {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.completion-stat-label {
-  font-size: 1rem;
-  color: var(--text-light);
-  margin-top: 5px;
-}
-
-.star-rating {
-  font-size: 3rem;
-  margin: 30px 0;
-}
-
-.star {
-  display: inline-block;
-  animation: starPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-.star:nth-child(1) { animation-delay: 0.1s; }
-.star:nth-child(2) { animation-delay: 0.2s; }
-.star:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes starPop {
-  from { transform: scale(0) rotate(-180deg); opacity: 0; }
-  to { transform: scale(1) rotate(0); opacity: 1; }
-}
-
-.confetti {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background: var(--primary);
-  position: absolute;
-  animation: confettiFall 3s linear;
-}
-
-@keyframes confettiFall {
-  to {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .game-screen {
-    grid-template-columns: 1fr;
-  }
-
-  .word-bank-sidebar {
-    max-height: 200px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .word-bank-items {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .word-item {
-    flex: 0 0 calc(50% - 5px);
-  }
-
-  .sentence-container {
-    padding: 30px 20px;
-  }
-
-  .sentence-text {
-    font-size: 1.2rem;
-  }
-
-  .start-screen h1 {
-    font-size: 2rem;
-  }
-
-  .completion-stats {
-    flex-direction: column;
-    gap: 20px;
-  }
-}
-</style>
-</head>
-<body>
-
-<div class="watermark">cmarasigan</div>
-
-<div class="game-container">
-  <div class="start-screen active" id="startScreen">
-    <h1>${title}</h1>
-    <p>Ready?</p>
-    <button class="btn" onclick="startGame()">🚀 Start Game</button>
-  </div>
-
-  <div class="game-screen" id="gameScreen">
-    <div class="word-bank-sidebar">
-      <div class="word-bank-title">Word Bank</div>
-      <div class="word-bank-items" id="wordBankItems"></div>
-    </div>
-
-    <div class="game-main">
-      <div class="game-header">
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-        </div>
-        <div class="game-stats">
-          <div class="stat">
-            <span>📊 Progress:</span>
-            <span class="stat-value" id="progressText">0/0</span>
-          </div>
-          <div class="stat">
-            <span>⭐ Accuracy:</span>
-            <span class="stat-value" id="accuracyText">100%</span>
-          </div>
-          <div class="stat">
-            <span>⏱️ Time:</span>
-            <span class="stat-value" id="timerText">0:00</span>
-          </div>
-        </div>
-        <h2 class="game-title">${title}</h2>
-      </div>
-
-      <div class="sentence-container">
-        <div class="sentence-text" id="sentenceDisplay"></div>
-      </div>
-
-      <div class="game-nav">
-        <button class="nav-btn" id="prevBtn" onclick="previousSentence()">← Previous</button>
-        <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 Hint</button>
-        <button class="nav-btn" id="nextBtn" onclick="nextSentence()" disabled>Next →</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="completion-screen" id="completionScreen">
-    <div class="completion-icon">🎉</div>
-    <h2 class="completion-title">Congratulations!</h2>
-    <p style="font-size: 1.25rem; color: var(--text-light); margin-bottom: 40px;">You've completed the exercise!</p>
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const html = e.target.result;
     
-    <div class="completion-stats">
-      <div class="completion-stat">
-        <div class="completion-stat-value" id="finalAccuracy">0%</div>
-        <div class="completion-stat-label">Accuracy</div>
-      </div>
-      <div class="completion-stat">
-        <div class="completion-stat-value" id="finalTime">0:00</div>
-        <div class="completion-stat-label">Time</div>
-      </div>
-      <div class="completion-stat">
-        <div class="completion-stat-value" id="finalAttempts">0</div>
-        <div class="completion-stat-label">Attempts</div>
-      </div>
-    </div>
-
-    <div class="star-rating" id="starRating"></div>
-
-    <div class="completion-actions">
-      <button class="btn" onclick="restartGame()">🔄 Try Again</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const GAME_DATA = {
-  sentences: ${sentencesJSON},
-  wordList: ${wordListJSON},
-  difficulty: '${difficulty}',
-  distractorMode: '${distractorMode}',
-  customDistractors: ${customDistractorsJSON},
-  distractorCount: ${distractorCount},
-  displayMode: '${displayMode}'
-};
-
-const nextGameData = ${nextGameJSON};
-
-let gameState = {
-  currentSentence: 0,
-  usedWords: new Set(),
-  startTime: null,
-  totalAttempts: 0,
-  correctAttempts: 0,
-  hintsUsed: 0,
-  sentences: []
-};
-
-let timerInterval = null;
-let selectedWord = null;
-let selectedBlankIndex = null;
-
-function startGame() {
-  gameState.sentences = GAME_DATA.sentences.map(s => ({
-    ...s,
-    blanks: s.blanks.map(b => ({ ...b, filled: false, userAnswer: null })),
-    completed: false
-  }));
-  
-  gameState.currentSentence = 0;
-  gameState.usedWords = new Set();
-  gameState.startTime = Date.now();
-  gameState.totalAttempts = 0;
-  gameState.correctAttempts = 0;
-  gameState.hintsUsed = 0;
-
-  document.getElementById('startScreen').classList.remove('active');
-  document.getElementById('gameScreen').classList.add('active');
-
-  renderWordBank();
-  renderSentence();
-  startTimer();
-}
-
-function renderWordBank() {
-  const container = document.getElementById('wordBankItems');
-  container.innerHTML = '';
-
-  if (GAME_DATA.difficulty === 'hard') {
-    container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">Type your answers!</p>';
-    return;
-  }
-
-  const sentence = gameState.sentences[gameState.currentSentence];
-  const correctWords = sentence.blanks.map(b => b.word);
-  
-  let distractors = [];
-  
-  if (GAME_DATA.distractorMode === 'custom' && GAME_DATA.customDistractors.length > 0) {
-    distractors = GAME_DATA.customDistractors.filter(w => !correctWords.includes(w));
-  } else {
-    const otherWords = GAME_DATA.wordList.filter(w => !correctWords.includes(w));
-    const shuffledOthers = shuffleArray(otherWords);
-    distractors = shuffledOthers.slice(0, GAME_DATA.distractorCount);
-  }
-  
-  const currentWordBank = shuffleArray([...correctWords, ...distractors]);
-  
-  currentWordBank.forEach(word => {
-    const wordItem = document.createElement('div');
-    wordItem.className = 'word-item';
-    
-    if (GAME_DATA.difficulty === 'medium') {
-      wordItem.classList.add('hint-mode');
-      wordItem.textContent = word[0] + '_'.repeat(word.length - 1);
-      wordItem.dataset.fullWord = word;
-    } else {
-      wordItem.textContent = word;
+    // Extract the CFG object from the student game
+    const match = html.match(/var CFG=({.*?});/);
+    if (!match) {
+      alert('Could not find game data in this file. Make sure it\'s a valid student game.');
+      return;
     }
     
-    wordItem.dataset.word = word;
-    
-    if (gameState.usedWords.has(word)) {
-      wordItem.classList.add('used');
-    }
-
-    wordItem.addEventListener('click', () => selectWordFromBank(word));
-    
-    container.appendChild(wordItem);
-  });
-}
-
-function renderSentence() {
-  const sentence = gameState.sentences[gameState.currentSentence];
-  const container = document.getElementById('sentenceDisplay');
-  
-  if (GAME_DATA.displayMode === 'paragraph') {
-    container.classList.add('paragraph-text');
-  } else {
-    container.classList.remove('paragraph-text');
-  }
-  
-  gameState.usedWords = new Set();
-  container.innerHTML = '';
-  
-  sentence.words.forEach((word, index) => {
-    const blank = sentence.blanks.find(b => b.index === index);
-    
-    if (blank) {
-      const blankSpan = document.createElement('span');
-      blankSpan.className = 'blank';
-      if (blank.filled) {
-        blankSpan.classList.add('filled');
-        blankSpan.textContent = blank.userAnswer;
-        gameState.usedWords.add(blank.userAnswer);
-      } else {
-        blankSpan.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-      }
-      blankSpan.dataset.blankIndex = sentence.blanks.indexOf(blank);
-      blankSpan.addEventListener('click', () => selectBlank(sentence.blanks.indexOf(blank)));
-      container.appendChild(blankSpan);
-    } else {
-      container.appendChild(document.createTextNode(' ' + word));
-    }
-  });
-
-  renderWordBank();
-  updateProgress();
-  updateNavButtons();
-}
-
-function selectBlank(index) {
-  const sentence = gameState.sentences[gameState.currentSentence];
-  const blank = sentence.blanks[index];
-  
-  if (selectedWord !== null) {
-    fillBlankWithWord(index, selectedWord);
-    selectedWord = null;
-    document.querySelectorAll('.word-item').forEach(w => w.style.boxShadow = '');
-    return;
-  }
-  
-  selectedBlankIndex = index;
-  const blanks = document.querySelectorAll('.blank');
-  blanks.forEach(b => b.style.boxShadow = '');
-  if (blanks[index]) {
-    blanks[index].style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.3)';
-  }
-}
-
-function selectWordFromBank(word) {
-  if (gameState.usedWords.has(word)) return;
-  
-  selectedWord = word;
-  document.querySelectorAll('.word-item').forEach(w => {
-    if (w.dataset.word === word) {
-      w.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.5)';
-      w.style.transform = 'scale(1.05)';
-    } else {
-      w.style.boxShadow = '';
-      w.style.transform = '';
-    }
-  });
-  
-  if (selectedBlankIndex !== null) {
-    fillBlankWithWord(selectedBlankIndex, word);
-    selectedWord = null;
-    selectedBlankIndex = null;
-    document.querySelectorAll('.word-item').forEach(w => {
-      w.style.boxShadow = '';
-      w.style.transform = '';
-    });
-    document.querySelectorAll('.blank').forEach(b => b.style.boxShadow = '');
-  }
-}
-
-function fillBlankWithWord(blankIndex, word) {
-  const sentence = gameState.sentences[gameState.currentSentence];
-  const blank = sentence.blanks[blankIndex];
-  
-  gameState.totalAttempts++;
-  
-  if (word === blank.word) {
-    blank.filled = true;
-    blank.userAnswer = word;
-    gameState.usedWords.add(word);
-    gameState.correctAttempts++;
-    
-    const blankElement = document.querySelectorAll('.blank')[blankIndex];
-    blankElement.textContent = word;
-    blankElement.classList.add('filled', 'correct');
-    
-    setTimeout(() => {
-      blankElement.classList.remove('correct');
-    }, 600);
-    
-    if (sentence.blanks.every(b => b.filled)) {
-      sentence.completed = true;
-      document.getElementById('nextBtn').disabled = false;
-    }
-  } else {
-    const blankElement = document.querySelectorAll('.blank')[blankIndex];
-    blankElement.classList.add('incorrect');
-    
-    setTimeout(() => {
-      blankElement.classList.remove('incorrect');
-    }, 500);
-  }
-  
-  renderWordBank();
-  updateProgress();
-}
-
-function useHint() {
-  if (selectedBlankIndex === null) {
-    alert('Please select a blank first!');
-    return;
-  }
-
-  const sentence = gameState.sentences[gameState.currentSentence];
-  const blank = sentence.blanks[selectedBlankIndex];
-  
-  if (blank.filled) return;
-
-  gameState.hintsUsed++;
-  
-  const blankElement = document.querySelectorAll('.blank')[selectedBlankIndex];
-  const firstLetter = blank.word[0];
-  
-  if (!blankElement.querySelector('.first-letter-hint')) {
-    const hint = document.createElement('span');
-    hint.className = 'first-letter-hint';
-    hint.textContent = firstLetter;
-    blankElement.appendChild(hint);
-  }
-}
-
-function nextSentence() {
-  if (gameState.currentSentence < gameState.sentences.length - 1) {
-    gameState.currentSentence++;
-    selectedBlankIndex = null;
-    renderSentence();
-  } else {
-    completeGame();
-  }
-}
-
-function previousSentence() {
-  if (gameState.currentSentence > 0) {
-    gameState.currentSentence--;
-    selectedBlankIndex = null;
-    renderSentence();
-  }
-}
-
-function updateProgress() {
-  const completed = gameState.sentences.filter(s => s.completed).length;
-  const total = gameState.sentences.length;
-  const percentage = (completed / total) * 100;
-  
-  document.getElementById('progressBar').style.width = percentage + '%';
-  document.getElementById('progressText').textContent = \`\${completed}/\${total}\`;
-  
-  const accuracy = gameState.totalAttempts > 0 
-    ? Math.round((gameState.correctAttempts / gameState.totalAttempts) * 100)
-    : 100;
-  document.getElementById('accuracyText').textContent = accuracy + '%';
-}
-
-function updateNavButtons() {
-  document.getElementById('prevBtn').disabled = gameState.currentSentence === 0;
-  
-  const sentence = gameState.sentences[gameState.currentSentence];
-  document.getElementById('nextBtn').disabled = !sentence.completed;
-  
-  if (GAME_DATA.displayMode === 'paragraph' && gameState.sentences.length === 1) {
-    document.getElementById('prevBtn').style.display = 'none';
-    document.getElementById('nextBtn').style.display = 'none';
-  } else {
-    document.getElementById('prevBtn').style.display = '';
-    document.getElementById('nextBtn').style.display = '';
-  }
-}
-
-function startTimer() {
-  timerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    document.getElementById('timerText').textContent = 
-      \`\${minutes}:\${seconds.toString().padStart(2, '0')}\`;
-  }, 1000);
-}
-
-function completeGame() {
-  clearInterval(timerInterval);
-  
-  const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-  const minutes = Math.floor(elapsed / 60);
-  const seconds = elapsed % 60;
-  const timeString = \`\${minutes}:\${seconds.toString().padStart(2, '0')}\`;
-  
-  const accuracy = Math.round((gameState.correctAttempts / gameState.totalAttempts) * 100);
-  
-  let stars = 1;
-  if (accuracy >= 80 && elapsed < 300) stars = 2;
-  if (accuracy >= 95 && elapsed < 180) stars = 3;
-  
-  document.getElementById('finalAccuracy').textContent = accuracy + '%';
-  document.getElementById('finalTime').textContent = timeString;
-  document.getElementById('finalAttempts').textContent = gameState.totalAttempts;
-  
-  const starContainer = document.getElementById('starRating');
-  starContainer.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const star = document.createElement('span');
-    star.className = 'star';
-    star.textContent = i < stars ? '⭐' : '☆';
-    starContainer.appendChild(star);
-  }
-  
-  document.getElementById('gameScreen').classList.remove('active');
-  document.getElementById('completionScreen').classList.add('active');
-  
-  if (nextGameData) {
-    showContinueButton();
-  }
-  
-  createConfetti();
-}
-
-function showContinueButton() {
-  const actionsDiv = document.querySelector('.completion-actions');
-  
-  const continueBtn = document.createElement('button');
-  continueBtn.className = 'btn';
-  continueBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-  continueBtn.textContent = '➡️ Continue to Next Game';
-  continueBtn.onclick = launchNextGame;
-  
-  actionsDiv.appendChild(continueBtn);
-}
-
-function launchNextGame() {
-  if (!nextGameData) {
-    alert('No next game configured.');
-    return;
-  }
-  
-  const decodedHTML = decodeURIComponent(escape(atob(nextGameData.html)));
-  const blob = new Blob([decodedHTML], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  window.location.href = url;
-}
-
-function createConfetti() {
-  const colors = ['#667eea', '#764ba2', '#fbbf24', '#10b981', '#ef4444'];
-  for (let i = 0; i < 50; i++) {
-    setTimeout(() => {
-      const confetti = document.createElement('div');
-      confetti.className = 'confetti';
-      confetti.style.left = Math.random() * 100 + '%';
-      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.animationDelay = Math.random() * 0.5 + 's';
-      document.body.appendChild(confetti);
+    try {
+      const config = JSON.parse(match[1]);
       
-      setTimeout(() => confetti.remove(), 3000);
-    }, i * 50);
-  }
-}
-
-function restartGame() {
-  gameState.currentSentence = 0;
-  gameState.usedWords = new Set();
-  gameState.startTime = Date.now();
-  gameState.totalAttempts = 0;
-  gameState.correctAttempts = 0;
-  gameState.hintsUsed = 0;
-  
-  gameState.sentences.forEach(sentence => {
-    sentence.completed = false;
-    sentence.blanks.forEach(blank => {
-      blank.filled = false;
-      blank.userAnswer = null;
-    });
-  });
-
-  document.getElementById('completionScreen').classList.remove('active');
-  document.getElementById('gameScreen').classList.add('active');
-  
-  renderWordBank();
-  renderSentence();
-  startTimer();
-}
-
-function shuffleArray(array) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-<\/script>
-</body>
-</html>`;
+      // Reconstruct the original text from sentences
+      let reconstructedText = '';
+      config.sentences.forEach((sen, idx) => {
+        // Rebuild sentence with blanks
+        let sentenceText = '';
+        let wordIdx = 0;
+        while (wordIdx < sen.words.length) {
+          const blank = sen.blanks.find(b => b.position === wordIdx);
+          if (blank) {
+            sentenceText += blank.text;
+            wordIdx += blank.wordCount;
+          } else {
+            sentenceText += sen.words[wordIdx];
+            wordIdx++;
+          }
+          if (wordIdx < sen.words.length) sentenceText += ' ';
+        }
+        reconstructedText += sentenceText;
+        if (idx < config.sentences.length - 1) reconstructedText += ' ';
+      });
+      
+      // Extract title from HTML
+      const titleMatch = html.match(/<title>(.*?)<\/title>/);
+      const title = titleMatch ? titleMatch[1] : 'Rehydrated Game';
+      
+      // Populate form
+      document.getElementById('gameTitle').value = title;
+      document.getElementById('gameText').value = reconstructedText;
+      document.getElementById('difficulty').value = config.difficulty || 'easy';
+      document.getElementById('distractors').value = config.distractors || 2;
+      
+      // Set display mode
+      gameData.displayMode = config.mode || 'paragraph';
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === gameData.displayMode);
+      });
+      
+      // Store the blank groups to restore after tokenization
+      const blanksToRestore = [];
+      config.sentences.forEach(sen => {
+        sen.blanks.forEach(b => {
+          blanksToRestore.push({ text: b.text, wordCount: b.wordCount });
+        });
+      });
+      
+      alert('Game loaded! The text and settings have been restored. Click "Next" to review and edit the word selections.');
+      
+    } catch (err) {
+      alert('Error reading game file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 </script>
+
 </body>
 </html>
