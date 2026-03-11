@@ -105,6 +105,7 @@
             <label><input type="checkbox" id="shuffleToggle" onchange="updateWordBank()"> Shuffle Bank</label>
             <label><input type="checkbox" id="hintToggle" onchange="updateWordBank()" checked> Show Clues/Hints</label>
             <label><input type="checkbox" id="firstLetterToggle" onchange="applyFirstLetter()"> First Letter Hint</label>
+            <label><input type="checkbox" id="ignorePunctToggle"> Ignore Punctuation in Blanks</label>
             <button class="btn-secondary" onclick="togglePreview()" style="margin-left: auto;">Print Preview & Key</button>
         </div>
         <div id="wordBankDisplay"></div>
@@ -161,53 +162,28 @@ function loadText() {
     let wrapped = '';
     text.split(/\n/).forEach((line, idx) => {
         if(line.trim() === "") return;
-        let prefix = `<strong>${idx+1}. </strong>`;
-        wrapped += prefix + line.replace(/(\w+)/g, word => `<span class="clickable" onclick="wordClick(this)">${word}</span>`) + '<br><br>';
+        let prefix = mode === 'sentences' ? `<strong>${idx+1}. </strong>` : '';
+        wrapped += prefix + line.replace(/\b[\w]+(?:['''\-][\w]+)*\b/g, token =>
+            `<span class="clickable">${token}</span>`) + '<br><br>';
     });
     document.getElementById('worksheet').innerHTML = wrapped;
     wordsClicked = []; usedNumbers = []; updateWordBank();
 }
 
-function wordClick(span) {
-    if(wordsClicked.some(w => w.span===span)) return;
-    const word = span.textContent.trim();
-    const num = getNextNum();
-    usedNumbers.push(num);
 
-    const pattern = generatePattern(word, num);
-    span.innerHTML = pattern; span.className = 'blank';
-    
-    span.onclick = () => undoBlank(span, word, num);
-    wordsClicked.push({word, jp:'', span, number:num, pattern});
-    applyFirstLetter();
-    updateWordBank();
-}
-
-function generatePattern(word, num, showFirst = false) {
-    // 1.5x length logic for penmanship room
-    const spaceCount = Math.max(Math.ceil(word.length * 1.5), 6);
-    const underscores = '_'.repeat(showFirst ? spaceCount - 1 : spaceCount);
-    const firstChar = showFirst ? word[0] : "";
-    return `${num}. ${firstChar}${underscores}`;
-}
 
 function applyFirstLetter() {
     const showFirst = document.getElementById('firstLetterToggle').checked;
     wordsClicked.forEach(w => {
-        w.pattern = generatePattern(w.word, w.number, showFirst);
+        const words = w.word.split(' ');
+        w.pattern = generatePattern(words, w.number, showFirst);
         w.span.innerHTML = w.pattern;
     });
 }
 
 function getNextNum() { for(let i=1;;i++) if(!usedNumbers.includes(i)) return i; }
 
-function undoBlank(span, word, num) {
-    span.textContent = word; span.className = 'clickable';
-    span.onclick = () => wordClick(span);
-    wordsClicked = wordsClicked.filter(w => w.span !== span);
-    usedNumbers = usedNumbers.filter(n => n!==num);
-    updateWordBank();
-}
+
 
 function updateWordBank() {
     const display = document.getElementById('wordBankDisplay');
@@ -281,6 +257,129 @@ function downloadDoc() {
         <div style="line-height:250%;">${document.getElementById('answerKeyContent').innerHTML}</div></body></html>`;
     const blob = new Blob([content], {type:'application/msword'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${title}.doc`; a.click();
+}
+
+// ── Phrase drag-select ───────────────────────────────────────────
+let dragAnchor = null;
+
+document.getElementById('worksheet').addEventListener('mousedown', e => {
+    if (e.target.classList.contains('clickable')) {
+        dragAnchor = e.target;
+        e.preventDefault();
+    } else {
+        dragAnchor = null;
+    }
+});
+
+document.getElementById('worksheet').addEventListener('mouseup', e => {
+    if (!dragAnchor) return;
+    const anchor = dragAnchor;
+    dragAnchor = null;
+
+    const endEl = e.target.classList.contains('clickable') ? e.target : anchor;
+
+    // Get all clickable spans in the worksheet in DOM order
+    const allClickable = Array.from(document.querySelectorAll('#worksheet .clickable'));
+    const iA = allClickable.indexOf(anchor);
+    const iB = allClickable.indexOf(endEl);
+    if (iA === -1 || iB === -1) return;
+
+    const from = Math.min(iA, iB);
+    const to   = Math.max(iA, iB);
+    const spans = allClickable.slice(from, to + 1);
+
+    phraseClick(spans);
+});
+
+// Re-attach click for single words (replaces inline onclick removed from loadText)
+document.getElementById('worksheet').addEventListener('click', e => {
+    if (e.target.classList.contains('clickable') && !dragAnchor) {
+        phraseClick([e.target]);
+    }
+});
+
+function phraseClick(spans) {
+    // Ignore if any span is already a blank
+    if (spans.some(s => wordsClicked.some(w => w.spans.includes(s)))) return;
+
+    const words = spans.map(s => s.textContent.trim());
+    const phraseText = words.join(' ');
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const num = (mode === 'paragraphs') ? getNextNum() : null;
+    if (num !== null) usedNumbers.push(num);
+
+    const pattern = generatePattern(words, num);
+
+    // Replace all spans with a single blank span
+    const blankSpan = document.createElement('span');
+    blankSpan.className = 'blank';
+    blankSpan.innerHTML = pattern;
+    blankSpan.onclick = () => undoBlank(blankSpan, words, spans, num);
+
+    // Insert blank before first span, remove the rest
+    const parent = spans[0].parentNode;
+    parent.insertBefore(blankSpan, spans[0]);
+
+    // Collect all nodes from spans[0] to spans[last] (inclusive)
+    const nodesToRemove = [];
+    let cur = spans[0];
+    const afterLast = spans[spans.length - 1].nextSibling;
+    while (cur && cur !== afterLast) {
+        nodesToRemove.push(cur);
+        cur = cur.nextSibling;
+    }
+
+    // Pull out any punctuation sitting in text nodes between spans (e.g. period after "taste")
+    let interPunct = '';
+    nodesToRemove.forEach(n => {
+        if (n.nodeType === Node.TEXT_NODE) {
+            interPunct += n.textContent.replace(/\s+/g, '');
+        }
+    });
+
+    nodesToRemove.forEach(n => n.remove());
+
+    // Re-insert punctuation (e.g. ".") right after the blank
+    if (interPunct) {
+        blankSpan.parentNode.insertBefore(document.createTextNode(interPunct + ' '), blankSpan.nextSibling);
+    }
+
+    wordsClicked.push({ word: phraseText, jp: '', span: blankSpan, spans, number: num, pattern });
+    applyFirstLetter();
+    updateWordBank();
+}
+
+function generatePattern(words, num, showFirst = false) {
+    const ignorePunct = document.getElementById('ignorePunctToggle').checked;
+    const segments = words.map((w, i) => {
+        if (ignorePunct) {
+            // Map char-by-char: letters/digits → _, punctuation stays
+            let result = w.split('').map((ch, ci) => {
+                if (/[\w]/.test(ch)) return (showFirst && ci === 0 && w.length > 1) ? ch : '_';
+                return ch;
+            }).join('');
+            return result;
+        } else {
+            const len = Math.max(Math.ceil(w.length * 1.5), 6);
+            if (showFirst) return w[0] + '_'.repeat(len - 1);
+            return '_'.repeat(len);
+        }
+    });
+    const prefix = (num !== null) ? `${num}. ` : '';
+    return `${prefix}${segments.join('  ')}`;
+}
+
+function undoBlank(blankSpan, words, origSpans, num) {
+    // Restore original word spans in place
+    origSpans.forEach(s => {
+        s.className = 'clickable';
+        s.textContent = s.textContent; // reset any inner markup
+        blankSpan.parentNode.insertBefore(s, blankSpan);
+    });
+    blankSpan.remove();
+    wordsClicked = wordsClicked.filter(w => w.span !== blankSpan);
+    if (num !== null) usedNumbers = usedNumbers.filter(n => n !== num);
+    updateWordBank();
 }
 </script>
 </body>
