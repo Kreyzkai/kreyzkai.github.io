@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Translator - Google Translate</title>
+    <title>Formatted Translator - Google Translate</title>
     <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
     <style>
         * {
@@ -271,7 +271,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>📚 Translator <span class="google-badge">Powered by Google Translate</span></h1>
+        <h1>📚 Formatted Translator <span class="google-badge">Powered by Google Translate</span></h1>
         <div class="subtitle">English to Japanese • Natural & Accurate Translation</div>
 
         <div class="info-box">
@@ -282,7 +282,7 @@
 
         <div class="format-selector" id="formatSelector" style="display: none;">
             <h3 style="text-align: center; color: #333; margin-bottom: 15px;">✨ Choose Your Export Format:</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                 <div class="format-option" onclick="selectFormat('separated')" id="format-separated">
                     <div class="format-title">📋 Format 1: Separated</div>
                     <div class="format-preview">
@@ -293,10 +293,21 @@
                     </div>
                 </div>
                 <div class="format-option" onclick="selectFormat('paragraph')" id="format-paragraph">
-                    <div class="format-title">📄 Format 2: Paragraph Style</div>
+                    <div class="format-title">📄 Format 2: Paragraph Block</div>
                     <div class="format-preview">
                         <div style="font-weight: 500; margin-bottom: 3px;">English sentence 1. English sentence 2.</div>
                         <div style="font-size: 13px; color: #666; font-style: italic;">日本語の翻訳1。日本語の翻訳2。</div>
+                    </div>
+                </div>
+                <div class="format-option" onclick="selectFormat('inline')" id="format-inline">
+                    <div class="format-title">📝 Format 3: Inline Translation</div>
+                    <div class="format-preview">
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-weight: 500;">English sentence 1.</div>
+                            <div style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 4px;">日本語の翻訳1。</div>
+                            <div style="font-weight: 500;">English sentence 2.</div>
+                            <div style="font-size: 12px; color: #666; font-style: italic;">日本語の翻訳2。</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -353,8 +364,10 @@ Dr. Smith said &quot;The population is 5.6 million people.&quot; This is amazing
             // Update preview header
             if (format === 'separated') {
                 previewHeader.textContent = '👁️ Preview - Format 1: Separated';
+            } else if (format === 'paragraph') {
+                previewHeader.textContent = '👁️ Preview - Format 2: Paragraph Block';
             } else {
-                previewHeader.textContent = '👁️ Preview - Format 2: Paragraph Style';
+                previewHeader.textContent = '👁️ Preview - Format 3: Inline Translation';
             }
             
             // Update preview to show the selected format
@@ -446,7 +459,7 @@ Dr. Smith said &quot;The population is 5.6 million people.&quot; This is amazing
             let html = '';
             
             if (selectedFormat === 'separated') {
-                // Format 1: Show each sentence pair separately
+                // Format 1: Show each sentence pair separately with indentation
                 translatedPairs.forEach(pair => {
                     html += `
                         <div class="sentence-pair">
@@ -455,7 +468,7 @@ Dr. Smith said &quot;The population is 5.6 million people.&quot; This is amazing
                         </div>
                     `;
                 });
-            } else {
+            } else if (selectedFormat === 'paragraph') {
                 // Format 2: Show original text exactly, with Japanese paragraph underneath
                 html += '<div class="sentence-pair">';
                 html += '<div class="original" style="white-space: pre-wrap;">' + escapeHtml(originalText) + '</div>';
@@ -464,6 +477,14 @@ Dr. Smith said &quot;The population is 5.6 million people.&quot; This is amazing
                 const allTranslations = translatedPairs.map(pair => pair.translation).join(' ');
                 html += '<div class="translation">' + escapeHtml(allTranslations) + '</div>';
                 html += '</div>';
+            } else {
+                // Format 3: Each sentence with translation directly underneath (paragraph flow)
+                translatedPairs.forEach((pair, index) => {
+                    html += `<div style="margin-bottom: 16px;">`;
+                    html += `<div style="line-height: 1.6;">${escapeHtml(pair.original)}</div>`;
+                    html += `<div style="font-size: 13px; color: #666; font-style: italic; line-height: 1.5; margin-top: 4px;">${escapeHtml(pair.translation)}</div>`;
+                    html += `</div>`;
+                });
             }
             
             previewArea.innerHTML = html;
@@ -571,7 +592,7 @@ Dr. Smith said &quot;The population is 5.6 million people.&quot; This is amazing
                             spacing: { after: 300 }
                         }));
                     });
-                } else {
+                } else if (selectedFormat === 'paragraph') {
                     // Format 2: Paragraph style - Original English text EXACTLY, then Japanese underneath
                     
                     // Use ORIGINAL text exactly as entered (preserves line breaks, spacing, etc.)
@@ -598,6 +619,33 @@ Dr. Smith said &quot;The population is 5.6 million people.&quot; This is amazing
                         ],
                         spacing: { after: 400 }
                     }));
+                } else {
+                    // Format 3: Each sentence with translation directly underneath (flowing like a paragraph)
+                    translatedPairs.forEach((pair, index) => {
+                        // English sentence (standard font)
+                        children.push(new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: pair.original,
+                                    size: 24
+                                })
+                            ],
+                            spacing: { before: index === 0 ? 200 : 0, after: 60 }
+                        }));
+
+                        // Japanese translation directly underneath (smaller, gray, italic)
+                        children.push(new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: pair.translation,
+                                    size: 18,  // Smaller
+                                    color: "666666",  // Gray
+                                    italics: true
+                                })
+                            ],
+                            spacing: { after: 240 }  // Space before next sentence pair
+                        }));
+                    });
                 }
 
                 // Create document
