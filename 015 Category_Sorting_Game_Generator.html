@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>015 – Category Sorting Game Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  min-height:100vh;
+  font-family:'Segoe UI',Tahoma,sans-serif;
+  background:linear-gradient(135deg,#001a33,#003366,#0055aa,#003366,#001a33);
+  background-size:400% 400%;
+  animation:bgShift 14s ease infinite;
+  color:#fff;
+  padding-bottom:80px;
+}
+@keyframes bgShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.wrap{max-width:920px;margin:0 auto;padding:28px 18px;}
+.page-title{text-align:center;margin-bottom:28px;}
+.page-title h1{font-size:2rem;letter-spacing:-0.5px;}
+.page-title p{opacity:0.6;font-size:0.88rem;margin-top:6px;}
+.card{background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border-radius:16px;padding:22px 24px;margin-bottom:18px;border:1px solid rgba(255,255,255,0.18);}
+.card h2{font-size:1.1rem;color:#feca57;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+label{display:block;font-size:0.85rem;opacity:0.8;margin-bottom:5px;}
+input[type=text],select{width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.14);color:#fff;font-size:0.95rem;outline:none;transition:border-color .2s;}
+input[type=text]:focus,select:focus{border-color:rgba(255,255,255,0.6);}
+input[type=text]::placeholder{color:rgba(255,255,255,0.4);}
+select option{background:#003366;color:#fff;}
+.btn{padding:10px 22px;border:none;border-radius:9px;cursor:pointer;font-size:0.9rem;font-weight:600;transition:all .2s;}
+.btn-yellow{background:#feca57;color:#003366;}.btn-yellow:hover{background:#ffe082;}
+.btn-ghost{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.35);}.btn-ghost:hover{background:rgba(255,255,255,0.25);}
+.btn-red{background:#e74c3c;color:#fff;}.btn-red:hover{background:#c0392b;}
+.btn-sm{padding:5px 12px;font-size:0.78rem;}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;}
+.item-entry{background:rgba(255,255,255,0.07);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.12);}
+.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.item-header span{font-size:0.88rem;font-weight:600;color:#feca57;}
+.item-body{display:grid;grid-template-columns:110px 1fr 1fr;gap:12px;align-items:start;}
+.img-box{width:110px;height:84px;border:2px dashed rgba(255,255,255,0.35);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:rgba(255,255,255,0.06);transition:border-color .2s;font-size:0.72rem;text-align:center;color:rgba(255,255,255,.5);padding:6px;flex-direction:column;gap:4px;}
+.img-box:hover{border-color:rgba(255,255,255,0.6);}
+.img-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:6px;}
+.img-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.img-clear{position:absolute;top:3px;right:4px;background:rgba(231,76,60,0.85);color:#fff;border:none;border-radius:4px;font-size:0.65rem;padding:1px 5px;cursor:pointer;z-index:10;display:none;}
+.img-box:hover .img-clear{display:block;}
+.next-game-area{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;}
+.next-game-name{font-size:0.82rem;opacity:0.65;font-style:italic;}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;height:58px;background:rgba(0,12,30,0.92);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,0.12);z-index:100;}
+.pill{position:fixed;bottom:72px;left:15px;background:rgba(0,51,102,0.8);border-radius:50px;padding:7px 15px 7px 7px;display:flex;align-items:center;gap:9px;cursor:pointer;z-index:200;border:1px solid rgba(255,255,255,0.2);font-size:0.82rem;white-space:nowrap;transition:background .2s;}
+.pill:hover{background:rgba(0,70,140,0.9);}
+.pill img{width:30px;height:30px;border-radius:50%;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(7px);z-index:999;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:linear-gradient(135deg,#003366,#0066cc);border-radius:16px;padding:30px;max-width:580px;width:92%;max-height:82vh;overflow-y:auto;position:relative;border:1px solid rgba(255,255,255,0.2);}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;opacity:0.7;}.modal-close:hover{opacity:1;}
+.modal h2{color:#feca57;margin-bottom:14px;}
+.modal h3{color:#feca57;margin:14px 0 6px;font-size:0.95rem;}
+.modal p,.modal li{font-size:0.9rem;line-height:1.65;opacity:0.88;}
+.modal ol,.modal ul{padding-left:18px;}
+.modal li{margin-bottom:4px;}
+@media(max-width:600px){.item-body{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;}.img-box{width:100%;height:90px;grid-column:1/-1;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-title">
+    <h1>🗂️ Category Sorting Game</h1>
+    <p>Tool 015 &mdash; Generate a student drag-and-drop sorting game</p>
+  </div>
+  <div class="card">
+    <h2>⚙️ Game Settings</h2>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+      <div><label>Game Title (shown to students)</label><input type="text" id="gameTitle" placeholder="e.g. Sort the Animals!"></div>
+      <div><label>Number of Categories</label>
+        <select id="numCats" onchange="updateCats()">
+          <option value="2">2 Categories</option><option value="3">3 Categories</option>
+          <option value="4">4 Categories</option><option value="5">5 Categories</option><option value="6">6 Categories</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card"><h2>🏷️ Category Names</h2><div class="cat-grid" id="catGrid"></div></div>
+  <div class="card">
+    <h2>🖼️ Items to Sort</h2>
+    <p style="font-size:.82rem;opacity:.65;margin-bottom:14px;">Each item needs at least a label OR an image (or both). Choose which category each item belongs to.</p>
+    <div id="itemsList"></div>
+    <button class="btn btn-ghost" onclick="addItem()">+ Add Item</button>
+  </div>
+  <div class="card">
+    <h2>🔗 Link to Next Game <span style="font-size:.75rem;opacity:.5;font-weight:400;">(optional)</span></h2>
+    <p style="font-size:.82rem;opacity:.65;margin-bottom:12px;">Students will see a "Next Game" button on the congratulations screen.</p>
+    <div class="next-game-area">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('nextGameInput').click()">📂 Choose Next Game HTML</button>
+      <span class="next-game-name" id="nextGameName">No file chosen</span>
+      <button class="btn btn-red btn-sm" id="clearNextBtn" style="display:none" onclick="clearNextGame()">✕ Clear</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📤 Generate</h2>
+    <div class="actions">
+      <button class="btn btn-yellow" onclick="downloadGame()">⬇ Download Student Game</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('rehydInput').click()">📂 Load Saved Game</button>
+    </div>
+    <p id="statusMsg" style="text-align:center;margin-top:12px;font-size:.82rem;opacity:.7;"></p>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <a class="btn btn-ghost" href="index.html">⬅ Back to Main Page</a>
+</div>
+
+<div class="pill" onclick="document.getElementById('infoModal').classList.add('open')">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
+  <span>Click me for instructions</span>
+</div>
+
+<div class="overlay" id="infoModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('infoModal').classList.remove('open')">✕</button>
+    <h2>How to Use Tool 015</h2>
+    <h3>Step 1 — Game Settings</h3>
+    <p>Enter a title and choose how many categories (2–6).</p>
+    <h3>Step 2 — Category Names</h3>
+    <p>Give each category a clear name, e.g. "Mammals", "Reptiles", "Birds".</p>
+    <h3>Step 3 — Add Items</h3>
+    <ol>
+      <li>Click <strong>+ Add Item</strong> to add a slot.</li>
+      <li>Optionally upload an image by clicking the image box.</li>
+      <li>Optionally type a label. <strong>At least one of image or label is required.</strong></li>
+      <li>Choose which category this item belongs to.</li>
+      <li>Every category needs at least one item.</li>
+    </ol>
+    <h3>Step 4 — Next Game (optional)</h3>
+    <p>Choose another game HTML file. Students can jump to it from the congrats screen.</p>
+    <h3>Step 5 — Download</h3>
+    <p>Click <strong>Download Student Game</strong>. The file works offline.</p>
+    <h3>Load a Saved Game</h3>
+    <p>Click <strong>Load Saved Game</strong> to restore settings from a previously downloaded file.</p>
+    <h3>Student Gameplay</h3>
+    <ul>
+      <li><strong>Desktop:</strong> drag cards into category boxes.</li>
+      <li><strong>Touch:</strong> tap a card to select it (glows blue), then tap a category.</li>
+      <li>Wrong = red flash, snaps back. Correct = card stays, turns green.</li>
+      <li>Hover over an image card and click 🔍 to view it full-size.</li>
+      <li>🔍 button in bottom-right corner cycles through 5 text sizes.</li>
+    </ul>
+  </div>
+</div>
+
+<input type="file" id="nextGameInput" accept=".html" style="display:none" onchange="loadNextGame(this)">
+<input type="file" id="rehydInput" accept=".html" style="display:none" onchange="doRehydrate(this)">
+
+<script>
+var items = [];
+var idCtr = 0;
+var numCats = 2;
+var nextGameB64 = null;
+
+var STUDENT_CSS = "\n*{box-sizing:border-box;margin:0;padding:0;}\nbody{font-family:'Segoe UI',Tahoma,sans-serif;min-height:100vh;background:#e8edf8;padding-bottom:72px;}\nbody.scale-1{font-size:18px;}\nbody.scale-2{font-size:22px;}\nbody.scale-3{font-size:26px;}\nbody.scale-4{font-size:30px;}\nbody.scale-5{font-size:14px;}\n\n.header{background:linear-gradient(135deg,#003366 0%,#0055bb 100%);color:#fff;padding:14px 20px 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,0.25);}\n.header h1{font-size:1.15em;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}\n.header-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;}\n.progress-track{flex:1;height:7px;background:rgba(255,255,255,0.25);border-radius:4px;overflow:hidden;}\n.progress-fill{height:100%;background:#feca57;border-radius:4px;transition:width .4s ease;}\n.progress-text{font-size:0.72em;opacity:0.85;white-space:nowrap;}\n\n.game-area{padding:14px;display:flex;flex-direction:column;gap:12px;}\n\n.cats-row{display:grid;gap:10px;}\n.cat-zone{background:#fff;border:3px solid #b8c8e8;border-radius:14px;padding:10px 12px;min-height:140px;transition:background .15s,border-color .15s,box-shadow .15s;cursor:pointer;}\n.cat-zone.drag-over{background:#ddeeff;border-color:#0066cc;box-shadow:0 0 0 4px rgba(0,102,204,0.18);}\n.cat-zone.tap-target{box-shadow:0 0 0 4px rgba(0,180,100,0.35);border-color:#2ecc71;}\n.cat-label{font-weight:700;color:#003366;font-size:0.88em;text-align:center;margin-bottom:8px;padding-bottom:7px;border-bottom:2px solid #dde8f8;}\n.cat-items-inner{display:flex;flex-wrap:wrap;gap:8px;min-height:80px;padding:2px;}\n\n.pool-section{background:#fff;border-radius:14px;padding:12px;border:2px solid #ccd6f6;}\n.pool-label{font-weight:600;color:#556;font-size:0.82em;margin-bottom:10px;}\n.item-pool{display:flex;flex-wrap:wrap;gap:10px;min-height:90px;padding:2px;}\n\n.item-card{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border:2.5px solid #c8d4f0;border-radius:10px;padding:8px 8px 6px;cursor:grab;transition:transform .15s,box-shadow .15s,border-color .15s,background .15s;user-select:none;-webkit-user-select:none;min-width:90px;max-width:140px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.08);position:relative;}\n.item-card:hover{box-shadow:0 5px 14px rgba(0,0,0,.15);transform:translateY(-3px);}\n.item-card img{width:90px;height:68px;object-fit:contain;border-radius:6px;display:block;background:#f4f6fb;}\n.item-card.label-only{padding:16px 18px;font-weight:700;font-size:1em;color:#112244;text-align:center;min-height:64px;justify-content:center;min-width:100px;}\n.item-label{font-size:0.82em;text-align:center;margin-top:6px;color:#334;word-break:break-word;max-width:130px;line-height:1.35;font-weight:600;}\n.item-card.dragging{opacity:0.45;transform:scale(0.93);}\n.item-card.wrong-flash{animation:wFlash .45s ease;}\n.item-card.correct-placed{border-color:#2ecc71;background:#f0fff6;cursor:default;}\n.item-card.selected{border-color:#0066cc;background:#e6f0ff;box-shadow:0 0 0 3px rgba(0,102,204,0.28);}\n@keyframes wFlash{0%{background:#fff;border-color:#c8d4f0;}25%{background:#ffe8e8;border-color:#e74c3c;transform:translateX(-5px);}50%{background:#ffe8e8;border-color:#e74c3c;transform:translateX(5px);}75%{background:#ffe8e8;border-color:#e74c3c;transform:translateX(-3px);}100%{background:#fff;border-color:#c8d4f0;transform:translateX(0);}}\n\n.img-zoom-btn{position:absolute;bottom:5px;right:5px;background:rgba(0,51,102,0.78);color:#fff;border:none;border-radius:5px;font-size:0.75em;padding:3px 7px;cursor:pointer;opacity:0;transition:opacity .15s;z-index:5;line-height:1;}\n.item-card:hover .img-zoom-btn{opacity:1;}\n\n.lightbox-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.90);z-index:2000;align-items:center;justify-content:center;}\n.lightbox-overlay.open{display:flex;}\n.lightbox-overlay img{max-width:88vw;max-height:82vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.6);object-fit:contain;}\n.lightbox-close{position:fixed;top:14px;right:16px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:1.5rem;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}\n.lightbox-close:hover{background:rgba(255,255,255,0.38);}\n\n.congrats-overlay{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#003366,#0055bb);color:#fff;flex-direction:column;align-items:center;justify-content:center;z-index:999;text-align:center;padding:40px;}\n.congrats-overlay.show{display:flex;}\n.c-emoji{font-size:5em;animation:cBounce 0.9s ease-in-out infinite alternate;}\n.c-title{font-size:2.2em;font-weight:800;margin:18px 0 8px;}\n.c-sub{font-size:1em;opacity:0.8;margin-bottom:28px;}\n.c-buttons{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}\n.c-btn{padding:14px 38px;background:#feca57;color:#003366;border:none;border-radius:50px;font-size:1em;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:transform .15s;text-decoration:none;display:inline-block;}\n.c-btn:hover{transform:scale(1.05);}\n.c-btn-next{background:#fff;color:#003366;}\n@keyframes cBounce{from{transform:translateY(0) rotate(-5deg);}to{transform:translateY(-22px) rotate(5deg);}}\n\n.confetti-bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:998;}\n.confetto{position:absolute;top:-20px;border-radius:3px;animation:cFall linear infinite;}\n@keyframes cFall{to{transform:translateY(110vh) rotate(720deg);}}\n\n.bottom-bar{position:fixed;bottom:0;left:0;right:0;height:58px;background:rgba(0,18,45,0.96);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:flex-end;padding:0 18px;border-top:1px solid rgba(255,255,255,0.12);z-index:100;}\n.z-cycle-btn{width:44px;height:44px;border-radius:50%;background:#003366;color:#fff;border:none;cursor:pointer;font-size:1.35em;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;}\n.z-cycle-btn:hover{background:#0055bb;transform:scale(1.1);}\n\n.watermark{position:fixed;left:15px;bottom:14px;opacity:0.28;font-size:0.72em;pointer-events:none;z-index:50;color:#003;}\n";
+var STUDENT_JS  = "\nvar CATS = GAME_DATA.categories;\nvar ITEMS = GAME_DATA.items;\nvar totalItems = ITEMS.length;\nvar sortedCount = 0;\nvar scale = 1;\nvar draggedCard = null;\nvar selectedCard = null;\n\nfunction init() {\n  document.getElementById('gameTitle').textContent = GAME_DATA.title;\n  buildCategories();\n  buildPool();\n  updateProgress();\n}\n\nfunction buildCategories() {\n  var row = document.getElementById('catsRow');\n  var n = CATS.length;\n  var cols = n <= 3 ? n : 3;\n  row.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';\n  for (var i = 0; i < n; i++) {\n    (function(idx) {\n      var zone = document.createElement('div');\n      zone.className = 'cat-zone';\n      zone.id = 'catZone_' + idx;\n      zone.innerHTML = '<div class=\"cat-label\">' + escHtml(CATS[idx]) + '</div><div class=\"cat-items-inner\" id=\"catItems_' + idx + '\"></div>';\n      zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });\n      zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });\n      zone.addEventListener('drop', function(e) { e.preventDefault(); zone.classList.remove('drag-over'); handleDrop(idx); });\n      zone.addEventListener('click', function() { handleTapZone(idx); });\n      row.appendChild(zone);\n    })(i);\n  }\n}\n\nfunction buildPool() {\n  var pool = document.getElementById('itemPool');\n  pool.innerHTML = '';\n  var src = shuffleArr(ITEMS.map(function(it, i) { return {img: it.img, label: it.label, cat: it.cat, origIdx: i}; }));\n  for (var k = 0; k < src.length; k++) {\n    pool.appendChild(makeCard(src[k]));\n  }\n}\n\nfunction makeCard(item) {\n  var card = document.createElement('div');\n  card.className = 'item-card';\n  card.id = 'card_' + item.origIdx;\n  card.dataset.cat = item.cat;\n  card.dataset.idx = item.origIdx;\n  card.draggable = true;\n\n  if (item.img) {\n    var img = document.createElement('img');\n    img.src = item.img;\n    img.alt = item.label || '';\n    card.appendChild(img);\n\n    if (item.label) {\n      var lbl = document.createElement('div');\n      lbl.className = 'item-label';\n      lbl.textContent = item.label;\n      card.appendChild(lbl);\n    }\n\n    // Zoom button \u2014 uses closure over item.img, no inline onclick quoting issues\n    var zBtn = document.createElement('button');\n    zBtn.className = 'img-zoom-btn';\n    zBtn.textContent = '\ud83d\udd0d';\n    zBtn.title = 'View full image';\n    (function(src) {\n      zBtn.addEventListener('click', function(e) {\n        e.stopPropagation();\n        openLightbox(src);\n      });\n    })(item.img);\n    card.appendChild(zBtn);\n  } else {\n    card.classList.add('label-only');\n    card.textContent = item.label;\n  }\n\n  card.addEventListener('dragstart', function(e) {\n    draggedCard = card;\n    setTimeout(function() { card.classList.add('dragging'); }, 0);\n  });\n  card.addEventListener('dragend', function() { card.classList.remove('dragging'); });\n  card.addEventListener('click', function() { handleTapCard(card); });\n  return card;\n}\n\nfunction openLightbox(src) {\n  document.getElementById('lightboxImg').src = src;\n  document.getElementById('lightbox').classList.add('open');\n}\nfunction closeLightbox() {\n  document.getElementById('lightbox').classList.remove('open');\n  document.getElementById('lightboxImg').src = '';\n}\n\nfunction handleDrop(catIdx) {\n  if (!draggedCard) return;\n  if (parseInt(draggedCard.dataset.cat) === catIdx) {\n    placeCorrect(draggedCard, catIdx);\n  } else {\n    flashWrong(draggedCard);\n  }\n  draggedCard = null;\n}\n\nfunction handleTapCard(card) {\n  if (card.classList.contains('correct-placed')) return;\n  if (selectedCard === card) { clearSelection(); return; }\n  clearSelection();\n  selectedCard = card;\n  card.classList.add('selected');\n  for (var i = 0; i < CATS.length; i++) {\n    var z = document.getElementById('catZone_' + i);\n    if (z) z.classList.add('tap-target');\n  }\n}\n\nfunction handleTapZone(catIdx) {\n  if (!selectedCard) return;\n  if (parseInt(selectedCard.dataset.cat) === catIdx) {\n    placeCorrect(selectedCard, catIdx);\n    clearSelection();\n  } else {\n    flashWrong(selectedCard);\n    clearSelection();\n  }\n}\n\nfunction clearSelection() {\n  if (selectedCard) { selectedCard.classList.remove('selected'); selectedCard = null; }\n  for (var i = 0; i < CATS.length; i++) {\n    var z = document.getElementById('catZone_' + i);\n    if (z) z.classList.remove('tap-target');\n  }\n}\n\nfunction placeCorrect(card, catIdx) {\n  var wasInPool = !!card.closest('#itemPool');\n  document.getElementById('catItems_' + catIdx).appendChild(card);\n  card.classList.add('correct-placed');\n  card.classList.remove('selected');\n  card.draggable = false;\n  if (wasInPool) { sortedCount++; updateProgress(); checkWin(); }\n}\n\nfunction flashWrong(card) {\n  card.classList.remove('wrong-flash');\n  void card.offsetWidth;\n  card.classList.add('wrong-flash');\n  setTimeout(function() { card.classList.remove('wrong-flash'); }, 500);\n}\n\nfunction updateProgress() {\n  var pct = totalItems > 0 ? (sortedCount / totalItems) * 100 : 0;\n  document.getElementById('progressFill').style.width = pct + '%';\n  document.getElementById('progressText').textContent = sortedCount + ' / ' + totalItems + ' sorted';\n}\n\nfunction checkWin() {\n  if (sortedCount >= totalItems) { setTimeout(showCongrats, 500); }\n}\n\nfunction showCongrats() {\n  buildConfetti();\n  document.getElementById('congratsOverlay').classList.add('show');\n  if (GAME_DATA.nextGameB64) {\n    var btn = document.getElementById('nextGameBtn');\n    if (btn) {\n      try {\n        var decoded = decodeURIComponent(escape(atob(GAME_DATA.nextGameB64)));\n        var blob = new Blob([decoded], {type:'text/html'});\n        btn.href = URL.createObjectURL(blob);\n        btn.style.display = 'inline-block';\n      } catch(e) {}\n    }\n  }\n}\n\nfunction buildConfetti() {\n  var bg = document.getElementById('confettiBg');\n  bg.innerHTML = '';\n  var colors = ['#feca57','#ff6b6b','#54a0ff','#5f27cd','#00d2d3','#ff9ff3','#48dbfb','#ff9f43','#1dd1a1','#c8d6e5'];\n  for (var i = 0; i < 70; i++) {\n    var c = document.createElement('div');\n    c.className = 'confetto';\n    var w = 7 + Math.random() * 10;\n    c.style.left = Math.random() * 100 + '%';\n    c.style.background = colors[Math.floor(Math.random() * colors.length)];\n    c.style.width = w + 'px';\n    c.style.height = w + 'px';\n    c.style.animationDuration = (2.5 + Math.random() * 3) + 's';\n    c.style.animationDelay = (Math.random() * 2.5) + 's';\n    bg.appendChild(c);\n  }\n}\n\nfunction resetGame() {\n  sortedCount = 0;\n  selectedCard = null;\n  document.getElementById('congratsOverlay').classList.remove('show');\n  document.getElementById('confettiBg').innerHTML = '';\n  document.getElementById('catsRow').innerHTML = '';\n  buildCategories();\n  buildPool();\n  updateProgress();\n}\n\nfunction cycleZoom() {\n  scale = scale >= 5 ? 1 : scale + 1;\n  document.body.className = 'scale-' + scale;\n}\n\nfunction shuffleArr(arr) {\n  var a = arr.slice();\n  for (var i = a.length - 1; i > 0; i--) {\n    var j = Math.floor(Math.random() * (i + 1));\n    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;\n  }\n  return a;\n}\n\nfunction escHtml(s) {\n  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');\n}\n\ninit();\n";
+
+function updateCats() {
+  numCats = parseInt(document.getElementById('numCats').value);
+  var grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < numCats; i++) {
+    var div = document.createElement('div');
+    div.innerHTML = '<label>Category ' + (i+1) + '</label><input type="text" id="cat_' + i + '" placeholder="Category ' + (i+1) + ' name" oninput="refreshAllSelects()">';
+    grid.appendChild(div);
+  }
+  refreshAllSelects();
+}
+
+function getCatNames() {
+  var names = [];
+  for (var i = 0; i < numCats; i++) {
+    var el = document.getElementById('cat_' + i);
+    names.push(el && el.value.trim() ? el.value.trim() : 'Category ' + (i+1));
+  }
+  return names;
+}
+
+function refreshAllSelects() {
+  items.forEach(function(it) { refreshCatSelect(it.id); });
+}
+
+function refreshCatSelect(id) {
+  var sel = document.getElementById('itemCat_' + id);
+  if (!sel) return;
+  var cur = parseInt(sel.value);
+  var names = getCatNames();
+  sel.innerHTML = names.map(function(n, i) {
+    return '<option value="' + i + '"' + (cur === i ? ' selected' : '') + '>' + n + '</option>';
+  }).join('');
+  var item = items.find(function(it) { return it.id === id; });
+  if (item) item.catIdx = parseInt(sel.value);
+}
+
+function addItem(data) {
+  var id = idCtr++;
+  var item = { id: id, imgData: (data && data.img) || null, label: (data && data.label) || '', catIdx: (data && data.cat != null ? data.cat : 0) };
+  items.push(item);
+  var list = document.getElementById('itemsList');
+  var div = document.createElement('div');
+  div.className = 'item-entry';
+  div.id = 'entry_' + id;
+  var names = getCatNames();
+  var opts = names.map(function(n, i) { return '<option value="' + i + '"' + (i === item.catIdx ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+  div.innerHTML =
+    '<div class="item-header"><span>Item ' + (items.length) + '</span>' +
+    '<button class="btn btn-red btn-sm" onclick="removeItem(' + id + ')">✕ Remove</button></div>' +
+    '<div class="item-body">' +
+      '<div class="img-box" id="imgBox_' + id + '">' +
+        '<span>📷 Image<br><small style="opacity:.6">optional</small></span>' +
+        '<input type="file" accept="image/*" onchange="handleImg(' + id + ', this)">' +
+      '</div>' +
+      '<div><label>Label <small style="opacity:.55">(optional if image set)</small></label>' +
+        '<input type="text" id="itemLbl_' + id + '" placeholder="e.g. Dog" value="' + escHtml(item.label) + '" ' +
+        'oninput="updateItemLabel(' + id + ', this.value)"></div>' +
+      '<div><label>Category</label>' +
+        '<select id="itemCat_' + id + '" onchange="updateItemCat(' + id + ', this.value)">' + opts + '</select></div>' +
+    '</div>';
+  list.appendChild(div);
+  if (data && data.img) setTimeout(function() { showImgPreview(id, data.img); }, 30);
+}
+
+function updateItemLabel(id, val) {
+  var item = items.find(function(x) { return x.id === id; });
+  if (item) item.label = val;
+}
+function updateItemCat(id, val) {
+  var item = items.find(function(x) { return x.id === id; });
+  if (item) item.catIdx = parseInt(val);
+}
+
+function showImgPreview(id, src) {
+  var box = document.getElementById('imgBox_' + id);
+  if (!box) return;
+  box.innerHTML = '<img src="' + src + '"><button class="img-clear" onclick="clearImg(' + id + ');event.stopPropagation();">✕</button><input type="file" accept="image/*" onchange="handleImg(' + id + ', this)">';
+}
+function clearImg(id) {
+  var item = items.find(function(x) { return x.id === id; });
+  if (item) item.imgData = null;
+  var box = document.getElementById('imgBox_' + id);
+  if (box) box.innerHTML = '<span>📷 Image<br><small style="opacity:.6">optional</small></span><input type="file" accept="image/*" onchange="handleImg(' + id + ', this)">';
+}
+function removeItem(id) {
+  items = items.filter(function(it) { return it.id !== id; });
+  var el = document.getElementById('entry_' + id);
+  if (el) el.remove();
+}
+function handleImg(id, input) {
+  if (!input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var item = items.find(function(it) { return it.id === id; });
+    if (item) item.imgData = e.target.result;
+    showImgPreview(id, e.target.result);
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function loadNextGame(input) {
+  if (!input.files[0]) return;
+  var fname = input.files[0].name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    nextGameB64 = btoa(unescape(encodeURIComponent(e.target.result)));
+    document.getElementById('nextGameName').textContent = fname;
+    document.getElementById('clearNextBtn').style.display = 'inline-block';
+  };
+  reader.readAsText(input.files[0]);
+  input.value = '';
+}
+function clearNextGame() {
+  nextGameB64 = null;
+  document.getElementById('nextGameName').textContent = 'No file chosen';
+  document.getElementById('clearNextBtn').style.display = 'none';
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function validate() {
+  if (!document.getElementById('gameTitle').value.trim()) { alert('Please enter a game title.'); return false; }
+  if (items.length === 0) { alert('Please add at least one item.'); return false; }
+  var names = getCatNames();
+  for (var k = 0; k < items.length; k++) {
+    var it = items[k];
+    if (!it.imgData && !it.label.trim()) { alert('Item ' + (k+1) + ' needs at least a label or an image.'); return false; }
+  }
+  for (var i = 0; i < numCats; i++) {
+    if (!items.some(function(it) { return it.catIdx === i; })) {
+      alert('Category "' + names[i] + '" has no items.'); return false;
+    }
+  }
+  return true;
+}
+function buildStudentHTML() {
+  var title = document.getElementById('gameTitle').value.trim();
+  var gameData = {
+    title: title,
+    categories: getCatNames(),
+    items: items.map(function(it) { return { img: it.imgData || null, label: it.label, cat: it.catIdx }; }),
+    nextGameB64: nextGameB64 || null
+  };
+  var h = '<!DOCTYPE html>\n<html lang="en">\n<head>\n';
+  h += '<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+  h += '<title>' + title.replace(/</g,'&lt;') + '</title>\n';
+  h += '<style>\n' + STUDENT_CSS + '\n</style>\n</head>\n<body class="scale-1">\n';
+  h += '<div class="header"><h1 id="gameTitle"></h1>';
+  h += '<div class="header-sub"><div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>';
+  h += '<div class="progress-text" id="progressText">0 / 0 sorted</div></div></div>\n';
+  h += '<div class="game-area">\n<div class="cats-row" id="catsRow"></div>\n';
+  h += '<div class="pool-section"><div class="pool-label">📦 Items — drag or tap a card, then tap a category</div>';
+  h += '<div class="item-pool" id="itemPool" ondragover="event.preventDefault()"></div></div>\n';
+  h += '</div>\n';
+  h += '<div class="confetti-bg" id="confettiBg"></div>\n';
+  h += '<div class="congrats-overlay" id="congratsOverlay">\n';
+  h += '<div class="c-emoji">\uD83C\uDF89</div>\n';
+  h += '<div class="c-title">Excellent Work!</div>\n';
+  h += '<div class="c-sub">You sorted every item into the correct category!</div>\n';
+  h += '<div class="c-buttons">\n';
+  h += '<button class="c-btn" onclick="resetGame()">&#9658; Play Again</button>\n';
+  h += '<a class="c-btn c-btn-next" id="nextGameBtn" href="#" target="_blank" style="display:none">Next Game &#8594;</a>\n';
+  h += '</div>\n</div>\n';
+  h += '<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">';
+  h += '<img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()">';
+  h += '<button class="lightbox-close" onclick="closeLightbox()">&#10005;</button></div>\n';
+  h += '<div class="bottom-bar"><button class="z-cycle-btn" onclick="cycleZoom()" title="Change text size">&#128269;</button></div>\n';
+  h += '<div class="watermark">cmarasigan</div>\n';
+  h += '<script>\nvar GAME_DATA = ' + JSON.stringify(gameData) + ';\n' + STUDENT_JS + '\n<\/script>\n';
+  h += '</body>\n</html>';
+  return h;
+}
+function downloadGame() {
+  if (!validate()) return;
+  setStatus('Generating\u2026');
+  try {
+    var html = buildStudentHTML();
+    var blob = new Blob([html], {type:'text/html'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    var t = document.getElementById('gameTitle').value.trim().replace(/[^a-zA-Z0-9_\-\s]/g,'') || 'Category_Sorting_Game';
+    a.download = t.replace(/\s+/g,'_') + '.html';
+    a.click();
+    setStatus('\u2705 Downloaded! Share the HTML file with students.');
+  } catch(e) { setStatus('\u274c Error: ' + e.message); }
+}
+function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+function doRehydrate(input) {
+  if (!input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var html = e.target.result;
+      var match = html.match(/var GAME_DATA = (\{[\s\S]*?\});\n/);
+      if (!match) throw new Error('Game data not found.');
+      var data = JSON.parse(match[1]);
+      document.getElementById('gameTitle').value = data.title || '';
+      var n = Math.min(data.categories.length, 6);
+      document.getElementById('numCats').value = n;
+      updateCats();
+      data.categories.forEach(function(name, i) {
+        var el = document.getElementById('cat_' + i);
+        if (el) el.value = name;
+      });
+      items = []; idCtr = 0;
+      document.getElementById('itemsList').innerHTML = '';
+      data.items.forEach(function(it) { addItem({img: it.img||null, label: it.label||'', cat: it.cat}); });
+      if (data.nextGameB64) {
+        nextGameB64 = data.nextGameB64;
+        document.getElementById('nextGameName').textContent = '(next game embedded)';
+        document.getElementById('clearNextBtn').style.display = 'inline-block';
+      }
+      setStatus('\u2705 Game loaded successfully.');
+    } catch(err) { alert('Could not load: ' + err.message); }
+  };
+  reader.readAsText(input.files[0]);
+  input.value = '';
+}
+updateCats();
+addItem();
+</script>
+</body>
+</html>
