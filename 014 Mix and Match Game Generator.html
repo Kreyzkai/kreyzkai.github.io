@@ -367,6 +367,14 @@
 <div class="ws-preview-overlay" id="wsPreviewOverlay">
   <div class="ws-preview-bar">
     <span>📄 Worksheet Preview — A4</span>
+    <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:700;color:#94a3b8;">
+      Image size:
+      <select id="imgSizeSelect" style="padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:#1e293b;color:#e2e8f0;font-size:0.78rem;cursor:pointer;">
+        <option value="850">Small (1.5 cm)</option>
+        <option value="1440" selected>Medium (2.5 cm)</option>
+        <option value="2268">Large (4 cm)</option>
+      </select>
+    </label>
     <button class="ws-preview-btn word" id="wordDlBtn" onclick="downloadRTF()">⬇ Download Word (.rtf)</button>
     <button class="ws-preview-btn close" onclick="closePreview()">✕ Close</button>
   </div>
@@ -772,8 +780,36 @@ function goNext(){
   .card.matched  { opacity: 0.28; pointer-events: none; }
   .card.wrong    { border-color: #ef4444; background: #fee2e2; animation: shake 0.3s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
-  .img-card { padding: 5px; }
-  .img-card img { width: 5.5em; height: 5.5em; object-fit: cover; border-radius: 6px; display: block; }
+  .img-card { padding: 5px; position: relative; }
+  .img-card img { width: 7em; height: 7em; object-fit: cover; border-radius: 6px; display: block; }
+  .img-zoom-btn {
+    position: absolute; bottom: 8px; right: 8px;
+    width: 1.4em; height: 1.4em;
+    background: rgba(0,51,102,0.75); color: white;
+    border: none; border-radius: 50%; cursor: pointer;
+    font-size: 0.55em; display: flex; align-items: center; justify-content: center;
+    z-index: 10; line-height: 1; padding: 0;
+    transition: background 0.2s;
+  }
+  .img-zoom-btn:hover { background: rgba(0,51,102,1); }
+  /* Lightbox */
+  #lightbox {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.9); align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img {
+    max-width: 90vw; max-height: 88vh;
+    border-radius: 10px; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    object-fit: contain;
+  }
+  #lightboxClose {
+    position: fixed; top: 16px; right: 20px;
+    color: white; font-size: 2em; font-weight: bold;
+    cursor: pointer; opacity: 0.8; line-height: 1;
+    background: none; border: none;
+  }
   .no-img-label {
     display: flex; align-items: center; justify-content: center;
     width: 5.5em; height: 5.5em; font-size: 0.88em;
@@ -917,6 +953,12 @@ function goNext(){
 <!-- Zoom — gold standard -->
 <button id="zoomBtn" onclick="toggleZoom()">🔍</button>
 
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightboxClose" onclick="event.stopPropagation();closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
 <!-- Watermark — gold standard -->
 <div id="watermark">cmarasigan</div>
 
@@ -1020,7 +1062,12 @@ function renderGame(){
     if(selImg===i)c+=" selected";
     if(matched.has(v.id))c+=" matched";
     if(wrongImg===i)c+=" wrong";
-    const inner=v.img?\`<img src="\${v.img}" alt="">\`:\`<span class="no-img-label">\${chosenLang==="en"?v.jp:v.en}</span>\`;
+    let inner;
+    if(v.img){
+      inner=\`<img src="\${v.img}" alt=""><button class="img-zoom-btn" onclick="event.stopPropagation();openLightbox('\${v.img}')">🔍</button>\`;
+    } else {
+      inner=\`<span class="no-img-label">\${chosenLang==="en"?v.jp:v.en}</span>\`;
+    }
     return \`<div class="\${c}" onclick="pickImg(\${i})">\${inner}</div>\`;
   }).join("");
 }
@@ -1118,6 +1165,14 @@ function restartAll(){
 }
 
 ${nextScript}
+function openLightbox(src){
+  document.getElementById("lightboxImg").src=src;
+  document.getElementById("lightbox").classList.add("open");
+}
+function closeLightbox(){
+  document.getElementById("lightbox").classList.remove("open");
+  document.getElementById("lightboxImg").src="";
+}
 <\/script>
 </body>
 </html>`;
@@ -1196,10 +1251,11 @@ function downloadRTF(){
   const ws=window._wsData;
   if(!ws) return;
   const btn=document.getElementById("wordDlBtn");
+  const imgSize=parseInt(document.getElementById("imgSizeSelect").value)||1440;
   btn.disabled=true;
   btn.textContent="⏳ Generating…";
   try {
-    const rtf=buildRTF(ws);
+    const rtf=buildRTF(ws,imgSize);
     const blob=new Blob([rtf],{type:"application/rtf"});
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
@@ -1215,7 +1271,8 @@ function downloadRTF(){
 }
 
 // ── RTF builder ──────────────────────────────────────────────────
-function buildRTF(ws){
+function buildRTF(ws,imgSize){
+  imgSize=imgSize||1440;
   const LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   // A4 narrow margins: 11906 wide, 16838 tall, margins 720 twips (0.5 inch)
   const CW=10466; // 11906 - 720*2
@@ -1247,9 +1304,9 @@ function buildRTF(ws){
 
   // ── Cell border helpers ──
   const bN='\\brdrnone';
-  const bRow='\\brdrs\\brdrw4\\brdrcf3'; // thin bottom, gray
-  const bHdr='\\brdrs\\brdrw10\\brdrcf1'; // bold bottom, dark blue
-  const bDiv='\\brdrs\\brdrw8\\brdrcf3'; // divider, gray
+  const bRow='\\brdrs\\brdrw4\\brdrcf3';
+  const bHdr='\\brdrs\\brdrw10\\brdrcf1';
+  const bDiv='\\brdrs\\brdrw8\\brdrcf3';
   function cb(t,l,b,r){ return '\\clbrdrt'+t+'\\clbrdrl'+l+'\\clbrdrb'+b+'\\clbrdrr'+r; }
   function row5(b1,b2,b3,b4,b5){
     return '\\trowd\\trgaph108\\trleft0\n'+
@@ -1260,12 +1317,74 @@ function buildRTF(ws){
       cb(bN,bN,b5,bN)+'\\clvertalt\\cellx'+X5+'\n';
   }
 
+  // ── Helper: emit a full set table (shared by worksheet + answer key) ──
+  // isKey=true: fill in the answer letter in col2, show matched right content
+  function emitSetTable(s,shuffledLeft,rightCol,isKey){
+    const useEn=s.wsCol==='english';
+
+    // Column header row
+    o+=row5(bHdr,bHdr,bHdr,bHdr,bHdr);
+    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
+    if(isKey){
+      o+='\\pard\\intbl\\qc\\b\\fs18\\cf1 \\u10003? \\b0\\cell\n'; // ✓
+    } else {
+      o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
+    }
+    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.leftLabel||'Word')+'\\b0\\cell\n';
+    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
+    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.rightLabel||'Match')+'\\b0\\cell\n';
+    o+='\\row\n';
+
+    for(let i=0;i<shuffledLeft.length;i++){
+      const li=shuffledLeft[i];
+      const ri=rightCol[i];
+      // For answer key: find the matched item (same id as li) in rightCol
+      const matchedRi=isKey?rightCol.find(r=>r.id===li.id):ri;
+      const matchedLetter=isKey?LETTERS[rightCol.findIndex(r=>r.id===li.id)]:LETTERS[i];
+      const useImg=s.wsCol==='image';
+
+      o+=row5(bRow,bRow,bRow,bRow,bRow);
+
+      // Col 1: number
+      o+='\\pard\\intbl\\qc\\b\\fs22\\cf1 '+String(i+1)+'\\b0\\cell\n';
+
+      // Col 2: blank line (worksheet) or filled answer (key)
+      if(isKey){
+        o+='\\pard\\intbl\\qc\\b\\fs22\\cf1 '+matchedLetter+'\\b0\\cell\n';
+      } else {
+        o+='\\pard\\intbl\\ql\\ul\\fs22 '+(li?'        ':'')+'\\ulnone\\cell\n';
+      }
+
+      // Col 3: left content
+      o+='\\pard\\intbl\\ql\\f0\\fs22\\cf4 '+rt(li?li.en:'')+'\\cell\n';
+
+      // Col 4: letter label (right side)
+      if(isKey){
+        // In key mode, right side is sorted alphabetically, show letter = its position in rightCol
+        o+='\\pard\\intbl\\qc\\b\\fs22\\cf2 '+LETTERS[i]+'\\b0\\cell\n';
+      } else {
+        o+='\\pard\\intbl\\qc\\b\\fs22\\cf2 '+LETTERS[i]+'\\b0\\cell\n';
+      }
+
+      // Col 5: right content
+      const displayRi=isKey?matchedRi:ri;
+      if(displayRi&&useImg&&displayRi.img){
+        const labelTxt=useEn?displayRi.en:displayRi.jp;
+        o+='\\pard\\intbl\\qc\\f1\\fs20\\cf4 '+rt(labelTxt)+'\\par\n';
+        o+='\\pard\\intbl\\qc '+imgRtf(displayRi.img,imgSize)+'\\cell\n';
+      } else {
+        const txt=displayRi?(useEn?displayRi.en:displayRi.jp):'';
+        o+='\\pard\\intbl\\ql\\f1\\fs22\\cf4 '+rt(txt)+'\\f0\\cell\n';
+      }
+      o+='\\row\n';
+    }
+  }
+
   let o='';
 
   // ── RTF header ──
   o+='{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033\n';
   o+='{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}{\\f1\\fnil\\fcharset128 MS Gothic;}}\n';
-  // cf1=dark blue, cf2=mid gray, cf3=light gray, cf4=dark gray
   o+='{\\colortbl;\\red0\\green51\\blue102;\\red102\\green102\\blue102;\\red187\\green187\\blue187;\\red68\\green68\\blue68;}\n';
   o+='\\paperw11906\\paperh16838\\margl720\\margr720\\margt720\\margb720\n';
   o+='\\widowctrl\\hyphauto\\f0\n';
@@ -1275,10 +1394,9 @@ function buildRTF(ws){
   if(ws.subtitle) o+='\\pard\\qc\\sb0\\sa120\\fs20\\cf2 '+rt(ws.subtitle)+'\\par\n';
   o+='\\pard\\sb0\\sa120\\par\n';
 
-  // ── Student fields (3-col table, bottom border only) ──
+  // ── Student fields ──
   const fW=Math.floor(CW/3), fX1=fW, fX2=fW*2, fX3=CW;
   const fBot='\\brdrs\\brdrw12\\brdrcf4';
-  // Labels row
   o+='\\trowd\\trgaph108\\trleft0\n'+
     cb(bN,bN,bN,bN)+'\\cellx'+fX1+'\n'+
     cb(bN,bN,bN,bN)+'\\cellx'+fX2+'\n'+
@@ -1286,7 +1404,6 @@ function buildRTF(ws){
   o+='\\pard\\intbl\\ql\\b\\fs16\\cf2 NAME\\b0\\cell\n';
   o+='\\pard\\intbl\\ql\\b\\fs16\\cf2 STUDENT NO.\\b0\\cell\n';
   o+='\\pard\\intbl\\ql\\b\\fs16\\cf2 CLASS\\b0\\cell\n\\row\n';
-  // Line row (bottom border = the writing line)
   o+='\\trowd\\trgaph108\\trleft0\n'+
     cb(bN,bN,fBot,bN)+'\\cellx'+fX1+'\n'+
     cb(bN,bN,fBot,bN)+'\\cellx'+fX2+'\n'+
@@ -1294,77 +1411,31 @@ function buildRTF(ws){
   o+='\\pard\\intbl\\ql\\fs28  \\cell\n\\pard\\intbl\\ql\\fs28  \\cell\n\\pard\\intbl\\ql\\fs28  \\cell\n\\row\n';
   o+='\\pard\\sb120\\sa0\\par\n';
 
-  // ── Sets (no page breaks between them) ──
-  const answerKeys=[];
+  // ── Worksheet sets — store shuffle so key uses same order ──
+  const setShuffles=[];
 
   ws.sets.forEach((s,si)=>{
     const entries=s.entries;
     const shuffledLeft=[...entries].sort(()=>Math.random()-0.5);
     const rightCol=derange(shuffledLeft);
+    setShuffles.push({s,shuffledLeft,rightCol});
 
-    // Build answer key for this set
-    const keyMap={};
-    shuffledLeft.forEach((item,i)=>{
-      const li=rightCol.findIndex(r=>r.id===item.id);
-      keyMap[i+1]=LETTERS[li];
-    });
-    answerKeys.push({instruction:s.instruction,keyMap,count:entries.length});
-
-    // Set heading
     o+='\\pard\\sb200\\sa80\\b\\fs22\\cf1 SET '+(si+1)+'  \\b0\\fs20\\cf4 '+rt(s.instruction)+'\\par\n';
-
-    // Column header row
-    o+=row5(bHdr,bHdr,bHdr,bHdr,bHdr);
-    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
-    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
-    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.leftLabel||'Word')+'\\b0\\cell\n';
-    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
-    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.rightLabel||'Match')+'\\b0\\cell\n';
-    o+='\\row\n';
-
-    // Data rows
-    for(let i=0;i<shuffledLeft.length;i++){
-      const li=shuffledLeft[i];
-      const ri=rightCol[i];
-      const useImg=ri&&s.wsCol==='image'&&ri.img;
-      const useEn=s.wsCol==='english';
-
-      o+=row5(bRow,bRow,bRow,bRow,bRow);
-
-      // Col 1: number
-      o+='\\pard\\intbl\\qc\\b\\fs22\\cf1 '+(li?String(i+1):'')+'\\b0\\cell\n';
-      // Col 2: answer blank (underlined spaces)
-      o+='\\pard\\intbl\\ql\\ul\\fs22 '+(li?'        ':'')+'\\ulnone\\cell\n';
-      // Col 3: left content (English word)
-      o+='\\pard\\intbl\\ql\\f0\\fs22\\cf4 '+rt(li?li.en:'')+'\\cell\n';
-      // Col 4: letter
-      o+='\\pard\\intbl\\qc\\b\\fs22\\cf2 '+(ri?LETTERS[i]:'')+'\\b0\\cell\n';
-      // Col 5: right content
-      if(useImg){
-        // Text (centered) then image below
-        const labelTxt=useEn?(ri.en):(ri.jp);
-        o+='\\pard\\intbl\\qc\\f1\\fs20\\cf4 '+rt(labelTxt)+'\\par\n';
-        o+='\\pard\\intbl\\qc '+imgRtf(ri.img,1008)+'\\cell\n';
-      } else {
-        const txt=ri?(useEn?ri.en:ri.jp):'';
-        o+='\\pard\\intbl\\ql\\f1\\fs22\\cf4 '+rt(txt)+'\\f0\\cell\n';
-      }
-      o+='\\row\n';
-    }
-
-    // Score box
+    emitSetTable(s,shuffledLeft,rightCol,false);
     o+='\\pard\\qr\\sb60\\sa40\\b\\fs20\\cf4 Score: _______ / '+entries.length+'\\b0\\par\n';
   });
 
-  // ── Answer key on new page ──
+  // ── Answer key — new page, same layout, answers filled in ──
   o+='\\pard\\page\\par\n';
-  o+='\\pard\\sb0\\sa200\\b\\fs28\\cf1 Answer Key \\emdash  '+rt(ws.title)+'\\b0\\par\n';
-  o+='\\pard\\sb0\\sa0\\brdrb\\brdrs\\brdrw8\\brdrcf1 \\par\n';
+  o+='\\pard\\sb0\\sa80\\b\\fs40\\cf1 '+rt(ws.title)+'\\b0\\par\n';
+  if(ws.subtitle) o+='\\pard\\qc\\sb0\\sa80\\fs20\\cf2 '+rt(ws.subtitle)+'\\par\n';
+  o+='\\pard\\sb0\\sa80\\b\\fs24\\cf1 \\u10003? Answer Key\\b0\\par\n';
+  o+='\\pard\\sb0\\sa160\\par\n';
 
-  answerKeys.forEach((k,si)=>{
-    o+='\\pard\\sb140\\sa60\\b\\fs20\\cf4 Set '+(si+1)+': '+rt(k.instruction)+'\\b0\\par\n';
-    const pairs=Object.entries(k.keyMap).map(([n,l])=>n+'\\u8594?'+l).join('   ');
-    o+='\\pard\\sb0\\sa100\\fs20\\cf1 '+pairs+'\\par\n';
+  setShuffles.forEach(({s,shuffledLeft,rightCol},si)=>{
+    o+='\\pard\\sb200\\sa80\\b\\fs22\\cf1 SET '+(si+1)+'  \\b0\\fs20\\cf4 '+rt(s.instruction)+'\\par\n';
+    emitSetTable(s,shuffledLeft,rightCol,true);
+    o+='\\pard\\sb60\\sa40\\par\n';
   });
 
   o+='}';
@@ -1378,24 +1449,20 @@ function buildWorksheet(title, subtitle, wsData){
   let setsHTML="";
   const answerKeys=[];
 
+  function rightCellHTML(item,s){
+    if(s.wsCol==="image"&&item&&item.img){
+      const txt=s.wsCol==="english"?item.en:item.jp;
+      return `<div style="text-align:center;font-size:11px;margin-bottom:3px;">${txt}</div><img src="${item.img}" style="width:72px;height:72px;object-fit:cover;border-radius:3px;display:block;margin:0 auto;">`;
+    }
+    return s.wsCol==="english"?(item?item.en:""):(item?item.jp:"");
+  }
+
   wsData.forEach((s,si)=>{
     const entries=s.entries;
     const shuffledLeft=[...entries].sort(()=>Math.random()-0.5);
     const rightCol=derange(shuffledLeft);
-    const keyMap={};
-    shuffledLeft.forEach((item,i)=>{
-      const li=rightCol.findIndex(r=>r.id===item.id);
-      keyMap[i+1]=LETTERS[li];
-    });
-    answerKeys.push({instruction:s.instruction,keyMap,count:entries.length});
-
-    function rightCellHTML(item){
-      if(s.wsCol==="image"&&item&&item.img){
-        const txt=s.wsCol==="english"?item.en:item.jp;
-        return `<div style="text-align:center;font-size:11px;margin-bottom:3px;">${txt}</div><img src="${item.img}" style="width:56px;height:56px;object-fit:cover;border-radius:3px;display:block;margin:0 auto;">`;
-      }
-      return s.wsCol==="english"?(item?item.en:""):(item?item.jp:"");
-    }
+    // Store full shuffle for answer key
+    answerKeys.push({instruction:s.instruction,shuffledLeft,rightCol,count:entries.length});
 
     const leftRows=shuffledLeft.map((item,i)=>`
       <tr>
@@ -1407,7 +1474,7 @@ function buildWorksheet(title, subtitle, wsData){
     const rightRows=rightCol.map((item,i)=>`
       <tr>
         <td style="width:22px;text-align:center;font-weight:bold;color:#555;font-size:12px;padding:5px 2px;">${LETTERS[i]}</td>
-        <td style="font-size:12px;padding:5px 4px;">${rightCellHTML(item)}</td>
+        <td style="font-size:12px;padding:5px 4px;">${rightCellHTML(item,s)}</td>
       </tr>`).join("");
 
     setsHTML+=`
@@ -1431,13 +1498,47 @@ function buildWorksheet(title, subtitle, wsData){
     </div>`;
   });
 
-  const keyHTML=answerKeys.map((k,si)=>`
-    <div style="margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:bold;color:#444;margin-bottom:5px;">Set ${si+1}: ${k.instruction}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">
-        ${Object.entries(k.keyMap).map(([n,l])=>`<span style="background:#e8f0f8;border:1px solid #b0c4de;border-radius:4px;padding:3px 9px;font-size:12px;font-weight:bold;color:#003366;">${n} → ${l}</span>`).join("")}
+  // Build answer key HTML — mirrors worksheet layout, answers filled in
+  const keyHTML=answerKeys.map((k,si)=>{
+    const s=wsData[si];
+    const {shuffledLeft,rightCol}=k;
+
+    const leftRows=shuffledLeft.map((item,i)=>{
+      // Find which letter this item matches (its position in rightCol)
+      const answerLetterIdx=rightCol.findIndex(r=>r.id===item.id);
+      const answerLetter=LETTERS[answerLetterIdx];
+      return `<tr>
+        <td style="width:22px;text-align:center;font-weight:bold;color:#003366;font-size:12px;padding:5px 2px;">${i+1}</td>
+        <td style="width:44px;padding:5px 4px;text-align:center;font-weight:bold;color:#003366;font-size:13px;">${answerLetter}</td>
+        <td style="font-size:12px;padding:5px 4px;">${item.en}</td>
+      </tr>`;
+    }).join("");
+
+    // Right column stays in same order as worksheet (A,B,C…) but shows matched content
+    const rightRows=rightCol.map((item,i)=>`
+      <tr>
+        <td style="width:22px;text-align:center;font-weight:bold;color:#555;font-size:12px;padding:5px 2px;">${LETTERS[i]}</td>
+        <td style="font-size:12px;padding:5px 4px;">${rightCellHTML(item,s)}</td>
+      </tr>`).join("");
+
+    return `<div style="margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:bold;color:#003366;margin:14px 0 8px;padding-bottom:4px;border-bottom:2px solid #003366;display:flex;align-items:baseline;gap:8px;">
+        <span style="background:#003366;color:white;border-radius:3px;font-size:10px;padding:2px 7px;font-weight:bold;">SET ${si+1}</span>
+        ${s.instruction}
       </div>
-    </div>`).join("");
+      <div style="display:flex;gap:0;align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.leftLabel||"Word"}</div>
+          <table style="width:100%;border-collapse:collapse;">${leftRows}</table>
+        </div>
+        <div style="width:1px;background:#ccc;margin:0 16px;align-self:stretch;"></div>
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.rightLabel||"Match"}</div>
+          <table style="width:100%;border-collapse:collapse;">${rightRows}</table>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
 
   return `<!DOCTYPE html>
 <html lang="en">
