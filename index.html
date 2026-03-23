@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,13 +8,6 @@
     <title>Chris' Teaching Tools Launcher</title>
 
     <style>
-        /* Consistent Zoom Levels (5 Steps) */
-        body.scale-1 { font-size: 28px; }
-        body.scale-2 { font-size: 34px; }
-        body.scale-3 { font-size: 40px; }
-        body.scale-4 { font-size: 46px; }
-        body.scale-5 { font-size: 22px; }
-
         /* Teaching Tools Theme - Consistent with 001-006 */
         body {
             margin: 0;
@@ -41,8 +35,16 @@
             text-align: center;
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 40px;
+            margin-bottom: 10px;
             color: #003366;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 35px;
+            font-style: italic;
         }
 
         .grid {
@@ -99,8 +101,8 @@
             text-align: center;
         }
 
-        /* Floating Zoom Button */
-        #zoomBtn {
+        /* About Button */
+        #aboutBtn {
             position: fixed;
             right: 20px;
             bottom: 20px;
@@ -108,9 +110,9 @@
             height: 55px;
             border-radius: 50%;
             border: none;
-            background: #003366;
+            background: rgba(0, 51, 102, 0.7);
             color: white;
-            font-size: 26px;
+            font-size: 22px;
             cursor: pointer;
             z-index: 100;
             display: flex;
@@ -120,8 +122,8 @@
             transition: 0.2s;
         }
 
-        #zoomBtn:hover {
-            background: #002244;
+        #aboutBtn:hover {
+            background: #003366;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
         }
 
@@ -136,7 +138,104 @@
             color: #333;
         }
 
-        /* Responsive */
+        /* About Button */
+        #aboutBtn {
+            position: fixed;
+            right: 20px;
+            bottom: 90px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 51, 102, 0.7);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+
+        #aboutBtn:hover {
+            background: #003366;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        /* About Modal */
+        #aboutModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #aboutModal.open {
+            display: flex;
+        }
+
+        .modal-panel {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 520px;
+            width: 88%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .modal-panel h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.4rem;
+        }
+
+        .modal-panel .modal-sub {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 24px;
+        }
+
+        .modal-panel p {
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin: 0 0 14px 0;
+            opacity: 0.95;
+        }
+
+        .modal-panel .section-label {
+            color: #feca57;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 18px 0 6px 0;
+        }
+
+        .modal-close {
+            margin-top: 24px;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #003366;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #feca57;
+        }
         @media (max-width: 600px) {
             .container { padding: 25px 15px; }
             h1 { font-size: 1.6rem; }
@@ -145,9 +244,10 @@
     </style>
 </head>
 
-<body class="scale-1">
+<body>
     <div class="container">
         <h1>Teaching Tools</h1>
+        <p class="subtitle">A collection of classroom game &amp; worksheet generators — </p>
 
         <div class="grid">
             <a href="001 Multiple Choice Maker (Simple text).html">
@@ -259,16 +359,31 @@
         </div>
     </div>
 
-    <button id="zoomBtn" onclick="toggleZoom()"><img src="https://i.imgur.com/tvqiTv5.png" alt="Zoom" style="width: 100%; height: 100%; object-fit: contain;"></button>
+    <button id="aboutBtn" onclick="document.getElementById('aboutModal').classList.add('open')" title="About this site">?</button>
     <div id="watermark">CMarasigan for Kasai-Minami High School</div>
 
+    <!-- About Modal -->
+    <div id="aboutModal">
+        <div class="modal-panel">
+            <h2>About This Site</h2>
+            <p class="modal-sub">Teaching Tools — CMarasigan for Kasai-Minami High School</p>
+
+            <p>This is a private collection of browser-based tools for generating classroom games and worksheets. Everything runs offline in your browser — no internet connection needed once the files are loaded.</p>
+
+            <div class="section-label">What each tool does</div>
+            <p>Each numbered tool (001–014) lets a teacher enter content and generate a ready-to-use student activity — either as a game played on-screen or a printable worksheet.</p>
+
+            <div class="section-label">How to use</div>
+            <p>Click any card to open that tool. Fill in your content, preview, and download the student file. Student files are standalone HTML — just open and play.</p>
+
+            <div class="section-label">About me</div>
+            <p>First, a disclaimer: I am, by no means an expert. This entire site was Vibe coded and built using a combination of Claude, ChatGPT, Canva AI, GitHub AI and a lot of asking around.  <br>I have had the privilege of creating these generators as a JET Programme ALT assigned to Tokyo Metropolitan Kasai Minami High School.<br>Made with ☕ and a lot of trial and error simply because I couldn't afford anything else.<br> Thank you to Marcel Badua of Third Wind Stories and Coach Richard Munar for all of the advise you have provided.</p>
+
+            <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+
     <script>
-        let scale = 1;
-        
-        function toggleZoom() {
-            scale = (scale % 5) + 1;
-            document.body.className = 'scale-' + scale;
-        }
     </script>
 </body>
 </html>
