@@ -326,7 +326,7 @@
     <h3>🖨 Downloading a Worksheet</h3>
     <ul>
       <li>Click <span class="highlight">🖨 Download Worksheet</span> to get a printable A4 version.</li>
-      <li>Each set has a <span class="highlight">Worksheet right column</span> dropdown — choose Image, Japanese, or English for the right side.</li>
+      <li>Each set has a <span class="highlight">Choice display</span> dropdown — choose Text only, Image only, or Text and image for the right column.</li>
       <li>The right column is always shuffled so no pair sits directly side by side.</li>
       <li>Students write the matching letter next to each number.</li>
       <li>An <span class="highlight">Answer Key</span> is included on the final page.</li>
@@ -338,7 +338,7 @@
       <li>Fill in the <span class="highlight">Game Title</span> and <span class="highlight">Subject</span>.</li>
       <li>Click <span class="highlight">＋ Add Set</span> for each round of the game.</li>
       <li>Each set has an <span class="highlight">Instruction</span> students see before playing, plus <span class="highlight">Left</span> and <span class="highlight">Right column labels</span>.</li>
-      <li>Add at least <span class="highlight">3 entries</span> per set (English + Japanese required; images optional).</li>
+      <li>Add at least <span class="highlight">3 entries</span> per set (Prompt + Answer Choice required; images optional).</li>
       <li>Click <span class="highlight">⬇ Download Student Game</span> to save.</li>
     </ul>
 
@@ -354,7 +354,7 @@
 
     <h3>🎮 How Students Play</h3>
     <ul>
-      <li>Choose <span class="highlight">English or Japanese</span> labels, then click Start.</li>
+      <li>Open the downloaded .html file in any browser and click <span class="highlight">START GAME</span>.</li>
       <li>Match word cards to image/text cards. Wrong picks flash red.</li>
       <li>After completing a set, click <span class="highlight">Review Answers</span> to see correct pairs.</li>
       <li>Then click <span class="highlight">Next Set →</span> to continue.</li>
@@ -386,7 +386,7 @@
 //  STATE
 // ══════════════════════════════════════════════
 // sets = [{instruction, leftLabel, rightLabel, wsCol, entries:[{en,jp,img}]}]
-// wsCol: "image"|"japanese"|"english" — what the right column shows on the worksheet
+// wsCol: "text"|"image"|"both" — what the right column shows on the worksheet
 let sets        = [];
 let nextGameB64 = null;
 let nextGameName= "";
@@ -416,7 +416,7 @@ function readAsBase64(file){
 //  SET MANAGEMENT
 // ══════════════════════════════════════════════
 function addSet(){
-  sets.push({ instruction:"", leftLabel:"", rightLabel:"", wsCol:"japanese", entries:[], open:true });
+  sets.push({ instruction:"", leftLabel:"", rightLabel:"", wsCol:"text", entries:[], open:true });
   renderSets();
   // scroll to new set
   const panels=document.querySelectorAll(".set-panel");
@@ -504,12 +504,12 @@ function renderSets(){
               oninput="updateSetField(${si},'rightLabel',this.value)">
           </label>
           <label class="narrow">
-            Worksheet right column
+            Choice display
             <select onchange="updateSetField(${si},'wsCol',this.value)"
               style="padding:7px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:0.82rem;font-family:Arial,sans-serif;background:white;color:#374151;">
-              <option value="japanese"  ${s.wsCol==="japanese" ?"selected":""}>Japanese text</option>
-              <option value="english"   ${s.wsCol==="english"  ?"selected":""}>English text</option>
-              <option value="image"     ${s.wsCol==="image"    ?"selected":""}>Image thumbnail</option>
+              <option value="text"  ${s.wsCol==="text"  ?"selected":""}>Text only</option>
+              <option value="image" ${s.wsCol==="image" ?"selected":""}>Image only</option>
+              <option value="both"  ${s.wsCol==="both"  ?"selected":""}>Text and image</option>
             </select>
           </label>
         </div>
@@ -537,9 +537,9 @@ function renderSetEntries(si){
     <div class="entry-card">
       <div class="entry-num">${ei+1}</div>
       <div class="entry-fields">
-        <input type="text" placeholder="English"  value="${esc(e.en)}"
+        <input type="text" placeholder="Prompt"  value="${esc(e.en)}"
           oninput="updateEntry(${si},${ei},'en',this.value)">
-        <input type="text" placeholder="Japanese" value="${esc(e.jp)}"
+        <input type="text" placeholder="Answer Choice" value="${esc(e.jp)}"
           oninput="updateEntry(${si},${ei},'jp',this.value)">
         <div class="img-upload-wrap">
           <label class="img-upload-label">
@@ -573,7 +573,7 @@ async function rehydrate(file){
       instruction: s.instruction||"",
       leftLabel:   s.leftLabel||"",
       rightLabel:  s.rightLabel||"",
-      wsCol:       s.wsCol||"japanese",
+      wsCol:       s.wsCol||"text",
       entries:     (s.entries||[]).map(e=>({en:e.en||"",jp:e.jp||"",img:e.img||""})),
       open: true
     }));
@@ -650,19 +650,24 @@ function generate(){
   const errors=[];
   sets.forEach((s,si)=>{
     const valid=s.entries.filter(e=>e.en.trim()&&e.jp.trim());
-    if(valid.length<3) errors.push(`Set ${si+1} needs at least 3 entries with English and Japanese filled in.`);
+    if(valid.length<3) errors.push(`Set ${si+1} needs at least 3 entries with both fields filled in.`);
   });
   if(errors.length){ alert(errors.join("\n")); return; }
 
   // Build clean data
-  const gameSetData=sets.map((s,si)=>({
-    instruction: s.instruction||`Set ${si+1}`,
-    leftLabel:   s.leftLabel||"Word",
-    rightLabel:  s.rightLabel||"Match",
-    wsCol:       s.wsCol||"japanese",
-    entries: s.entries.filter(e=>e.en.trim()&&e.jp.trim())
-                      .map((e,i)=>({id:i, en:e.en.trim(), jp:e.jp.trim(), img:e.img||""}))
-  }));
+  const gameSetData=sets.map((s,si)=>{
+    const validEntries=s.entries.filter(e=>e.en.trim()&&e.jp.trim())
+                                .map((e,i)=>({id:i,en:e.en.trim(),jp:e.jp.trim(),img:e.img||""}));
+    const hasAnyImg=validEntries.some(e=>e.img);
+    const wsCol=(s.wsCol==="image"||s.wsCol==="both")&&!hasAnyImg?"text":(s.wsCol||"text");
+    return {
+      instruction: s.instruction||`Set ${si+1}`,
+      leftLabel:   s.leftLabel||"A",
+      rightLabel:  s.rightLabel||"B",
+      wsCol,
+      entries: validEntries
+    };
+  });
 
   const title=name||"Match Game";
   const html=buildGame(title, subject, gameSetData, nextGameB64);
@@ -725,15 +730,6 @@ function goNext(){
   #startScreen { background: linear-gradient(135deg, #003366, #0066cc); color: white; }
   #startScreen h1 { font-size: 1.5em; margin-bottom: 8px; }
   .game-subtitle { font-size: 0.62em; opacity: 0.8; margin-bottom: 36px; }
-  .lang-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; }
-  .lang-btn {
-    flex: 1; max-width: 150px; padding: 10px;
-    border-radius: 10px; border: 2px solid rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8);
-    font-family: Arial, sans-serif; font-size: 0.75em; font-weight: 700;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .lang-btn.active { border-color: white; background: rgba(255,255,255,0.25); color: white; }
   .btn-start {
     font-size: 0.85em; padding: 13px 48px; cursor: pointer;
     background: white; color: #003366; border: none;
@@ -862,13 +858,16 @@ function goNext(){
     position: fixed; bottom: 0; left: 0; right: 0;
     background: white; border-top: 1px solid #ccc;
     padding: 10px 15px; display: none;
-    justify-content: center; gap: 10px; z-index: 100; flex-wrap: wrap;
+    justify-content: center; align-items: center; gap: 10px; z-index: 100;
+    flex-wrap: nowrap;
+    /* Immune to body font-size zoom */
+    font-size: 0px;
   }
   .nav-btn {
-    font-size: 13px; padding: 10px 18px; cursor: pointer;
+    font-size: 13px !important; padding: 10px 18px; cursor: pointer;
     border: 1px solid #aaa; border-radius: 8px;
     background: #fff; font-weight: bold; font-family: Arial, sans-serif;
-    transition: all 0.2s;
+    transition: background 0.2s; white-space: nowrap; flex-shrink: 0;
   }
   .nav-btn:hover { background: #f3f4f6; }
   .nav-btn.primary { background: #003366; color: white; border-color: #003366; }
@@ -902,11 +901,6 @@ function goNext(){
 <div id="startScreen" class="screen active">
   <h1>${title}</h1>
   ${subtitle?`<p class="game-subtitle">${subtitle}</p>`:""}
-  <p style="font-size:0.58em;opacity:0.8;margin-bottom:14px;">Choose the label language:</p>
-  <div class="lang-group">
-    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🌐 English</button>
-    <button class="lang-btn"        id="btn-jp" onclick="setLang('jp')">🇯🇵 日本語</button>
-  </div>
   <button class="btn-start" onclick="startGame()">START GAME</button>
 </div>
 
@@ -967,7 +961,6 @@ function goNext(){
 const gameSets=${JSON.stringify(gameSetData)};
 
 // ── State ──
-let chosenLang="en";
 let currentSet=0;
 let phase="game"; // "game" | "setDone" | "reviewing" | "allDone"
 let selWord=null, selImg=null;
@@ -988,13 +981,6 @@ function showScreen(id){
   ["startScreen","introScreen","gameScreen","reviewScreen","endScreen"].forEach(s=>{
     document.getElementById(s).classList.toggle("active",s===id);
   });
-}
-
-// ── Language ──
-function setLang(l){
-  chosenLang=l;
-  document.getElementById("btn-en").classList.toggle("active",l==="en");
-  document.getElementById("btn-jp").classList.toggle("active",l==="jp");
 }
 
 // ── Start ──
@@ -1030,8 +1016,8 @@ function loadSet(si){
   const s=gameSets[si];
   selWord=null; selImg=null; matched=new Set(); score=0;
   wrongWord=null; wrongImg=null; phase="game";
-  shuffledWords=shuffle(s.entries);
-  shuffledImgs=shuffle(s.entries);
+  shuffledWords=[...s.entries];       // left column: always input order
+  shuffledImgs=shuffle(s.entries);    // right column: shuffled
   totalPossible+=s.entries.length;
   showScreen("gameScreen");
   // column labels
@@ -1054,7 +1040,7 @@ function renderGame(){
     if(selWord===i)c+=" selected";
     if(matched.has(v.id))c+=" matched";
     if(wrongWord===i)c+=" wrong";
-    return \`<div class="\${c}" onclick="pickWord(\${i})">\${chosenLang==="en"?v.en:v.jp}</div>\`;
+    return \`<div class="\${c}" onclick="pickWord(\${i})">\${v.en}</div>\`;
   }).join("");
 
   document.getElementById("imgRow").innerHTML=shuffledImgs.map((v,i)=>{
@@ -1066,7 +1052,7 @@ function renderGame(){
     if(v.img){
       inner=\`<img src="\${v.img}" alt=""><button class="img-zoom-btn" onclick="event.stopPropagation();openLightbox('\${v.img}')">🔍</button>\`;
     } else {
-      inner=\`<span class="no-img-label">\${chosenLang==="en"?v.jp:v.en}</span>\`;
+      inner=\`<span class="no-img-label">\${v.jp}</span>\`;
     }
     return \`<div class="\${c}" onclick="pickImg(\${i})">\${inner}</div>\`;
   }).join("");
@@ -1113,17 +1099,17 @@ function showReview(){
     "✅ Set "+(currentSet+1)+" — Correct Pairs";
 
   // Build grid: col headers + pairs
-  const leftLbl=s.leftLabel||"Left";
-  const rightLbl=s.rightLabel||"Right";
+  const leftLbl=s.leftLabel||"A";
+  const rightLbl=s.rightLabel||"B";
   let gridHTML=\`
     <div class="review-cell review-col-header">\${leftLbl}</div>
     <div class="review-cell review-col-header">\${rightLbl}</div>
   \`;
   s.entries.forEach(e=>{
-    const leftContent=chosenLang==="en"?e.en:e.jp;
+    const leftContent=e.en;
     const rightContent=e.img
       ?\`<img src="\${e.img}" alt="">\`
-      :(chosenLang==="en"?e.jp:e.en);
+      :(e.jp);
     gridHTML+=\`
       <div class="review-cell left">\${leftContent}</div>
       <div class="review-cell right">\${rightContent}</div>
@@ -1212,14 +1198,19 @@ function getWsData(){
   return {
     title:   name||"Match Worksheet",
     subtitle: subject,
-    sets: sets.map((s,si)=>({
-      instruction: s.instruction||`Set ${si+1}`,
-      leftLabel:   s.leftLabel||"Word",
-      rightLabel:  s.rightLabel||"Match",
-      wsCol:       s.wsCol||"japanese",
-      entries: s.entries.filter(e=>e.en.trim()&&e.jp.trim())
-                        .map((e,i)=>({id:i, en:e.en.trim(), jp:e.jp.trim(), img:e.img||""}))
-    }))
+    sets: sets.map((s,si)=>{
+      const validEntries=s.entries.filter(e=>e.en.trim()&&e.jp.trim())
+                                  .map((e,i)=>({id:i,en:e.en.trim(),jp:e.jp.trim(),img:e.img||""}));
+      const hasAnyImg=validEntries.some(e=>e.img);
+      const wsCol=(s.wsCol==="image"||s.wsCol==="both")&&!hasAnyImg?"text":(s.wsCol||"text");
+      return {
+        instruction: s.instruction||`Set ${si+1}`,
+        leftLabel:   s.leftLabel||"A",
+        rightLabel:  s.rightLabel||"B",
+        wsCol,
+        entries: validEntries
+      };
+    })
   };
 }
 
@@ -1320,7 +1311,7 @@ function buildRTF(ws,imgSize){
   // ── Helper: emit a full set table (shared by worksheet + answer key) ──
   // isKey=true: fill in the answer letter in col2, show matched right content
   function emitSetTable(s,shuffledLeft,rightCol,isKey){
-    const useEn=s.wsCol==='english';
+    // wsCol: 'text'=jp text, 'image'=img only, 'both'=text+img
 
     // Column header row
     o+=row5(bHdr,bHdr,bHdr,bHdr,bHdr);
@@ -1330,9 +1321,9 @@ function buildRTF(ws,imgSize){
     } else {
       o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
     }
-    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.leftLabel||'Word')+'\\b0\\cell\n';
+    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.leftLabel||'A')+'\\b0\\cell\n';
     o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
-    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.rightLabel||'Match')+'\\b0\\cell\n';
+    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.rightLabel||'B')+'\\b0\\cell\n';
     o+='\\row\n';
 
     for(let i=0;i<shuffledLeft.length;i++){
@@ -1341,7 +1332,8 @@ function buildRTF(ws,imgSize){
       // For answer key: find the matched item (same id as li) in rightCol
       const matchedRi=isKey?rightCol.find(r=>r.id===li.id):ri;
       const matchedLetter=isKey?LETTERS[rightCol.findIndex(r=>r.id===li.id)]:LETTERS[i];
-      const useImg=s.wsCol==='image';
+      const showImg=(s.wsCol==='image'||s.wsCol==='both');
+      const showTxt=(s.wsCol==='text'||s.wsCol==='both');
 
       o+=row5(bRow,bRow,bRow,bRow,bRow);
 
@@ -1368,12 +1360,13 @@ function buildRTF(ws,imgSize){
 
       // Col 5: right content
       const displayRi=isKey?matchedRi:ri;
-      if(displayRi&&useImg&&displayRi.img){
-        const labelTxt=useEn?displayRi.en:displayRi.jp;
-        o+='\\pard\\intbl\\qc\\f1\\fs20\\cf4 '+rt(labelTxt)+'\\par\n';
+      if(displayRi&&showImg&&displayRi.img){
+        if(showTxt){
+          o+='\\pard\\intbl\\qc\\f1\\fs20\\cf4 '+rt(displayRi.jp)+'\\par\n';
+        }
         o+='\\pard\\intbl\\qc '+imgRtf(displayRi.img,imgSize)+'\\cell\n';
       } else {
-        const txt=displayRi?(useEn?displayRi.en:displayRi.jp):'';
+        const txt=displayRi?displayRi.jp:'';
         o+='\\pard\\intbl\\ql\\f1\\fs22\\cf4 '+rt(txt)+'\\f0\\cell\n';
       }
       o+='\\row\n';
@@ -1450,11 +1443,15 @@ function buildWorksheet(title, subtitle, wsData){
   const answerKeys=[];
 
   function rightCellHTML(item,s){
-    if(s.wsCol==="image"&&item&&item.img){
-      const txt=s.wsCol==="english"?item.en:item.jp;
-      return `<div style="text-align:center;font-size:11px;margin-bottom:3px;">${txt}</div><img src="${item.img}" style="width:72px;height:72px;object-fit:cover;border-radius:3px;display:block;margin:0 auto;">`;
+    const showImg=(s.wsCol==="image"||s.wsCol==="both")&&item&&item.img;
+    const showTxt=(s.wsCol==="text"||s.wsCol==="both");
+    if(showImg&&showTxt){
+      return `<div style="text-align:center;font-size:11px;margin-bottom:3px;">${item.jp}</div><img src="${item.img}" style="width:72px;height:72px;object-fit:cover;border-radius:3px;display:block;margin:0 auto;">`;
     }
-    return s.wsCol==="english"?(item?item.en:""):(item?item.jp:"");
+    if(showImg){
+      return `<img src="${item.img}" style="width:72px;height:72px;object-fit:cover;border-radius:3px;display:block;margin:0 auto;">`;
+    }
+    return item?item.jp:"";
   }
 
   wsData.forEach((s,si)=>{
@@ -1485,12 +1482,12 @@ function buildWorksheet(title, subtitle, wsData){
       </div>
       <div style="display:flex;gap:0;align-items:flex-start;">
         <div style="flex:1;">
-          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.leftLabel||"Word"}</div>
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.leftLabel||"A"}</div>
           <table style="width:100%;border-collapse:collapse;">${leftRows}</table>
         </div>
         <div style="width:1px;background:#ccc;margin:0 16px;align-self:stretch;"></div>
         <div style="flex:1;">
-          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.rightLabel||"Match"}</div>
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.rightLabel||"B"}</div>
           <table style="width:100%;border-collapse:collapse;">${rightRows}</table>
         </div>
       </div>
@@ -1528,12 +1525,12 @@ function buildWorksheet(title, subtitle, wsData){
       </div>
       <div style="display:flex;gap:0;align-items:flex-start;">
         <div style="flex:1;">
-          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.leftLabel||"Word"}</div>
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.leftLabel||"A"}</div>
           <table style="width:100%;border-collapse:collapse;">${leftRows}</table>
         </div>
         <div style="width:1px;background:#ccc;margin:0 16px;align-self:stretch;"></div>
         <div style="flex:1;">
-          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.rightLabel||"Match"}</div>
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.rightLabel||"B"}</div>
           <table style="width:100%;border-collapse:collapse;">${rightRows}</table>
         </div>
       </div>
