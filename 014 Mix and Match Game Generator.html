@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match Game Generator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #003366 0%, #0066cc 50%, #003366 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    min-height: 100vh;
+    color: #333;
+    box-sizing: border-box;
+  }
+  @keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .card {
+    background: white;
+    padding: 36px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    margin-bottom: 0;
+  }
+
+  h1 { text-align: center; color: #003366; margin: 0 0 6px; font-size: 1.8rem; }
+  .page-sub { text-align: center; color: #6b7280; margin: 0 0 28px; font-size: 0.85rem; }
+
+  .section-title {
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: #003366; margin: 26px 0 6px;
+    padding-bottom: 5px; border-bottom: 2px solid #e8f0f8;
+  }
+  .section-sub { font-size: 0.78rem; color: #9ca3af; margin: -2px 0 12px; }
+
+  /* Form inputs */
+  .field-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .field-row label {
+    display: flex; flex-direction: column; gap: 4px;
+    flex: 1; min-width: 160px;
+    font-size: 0.78rem; font-weight: 600; color: #374151;
+  }
+  input[type="text"] {
+    width: 100%; padding: 9px 11px; border: 1px solid #d1d5db;
+    border-radius: 7px; font-size: 0.85rem; font-family: Arial, sans-serif;
+    box-sizing: border-box; transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { outline: none; border-color: #003366; }
+  input[type="text"]::placeholder { color: #9ca3af; }
+
+  /* Upload zones */
+  .upload-zone { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .file-upload-label {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #f3f4f6; border: 1px dashed #9ca3af;
+    border-radius: 7px; padding: 8px 14px;
+    font-size: 0.78rem; font-weight: 700; color: #374151;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .file-upload-label:hover { background: #e5e7eb; border-color: #003366; color: #003366; }
+  .file-upload-label input { display: none; }
+
+  .status-tag { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; display: none; }
+  .status-tag.ok  { display: inline-block; background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  .status-tag.err { display: inline-block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .clear-tag {
+    display: none; font-size: 0.72rem; font-weight: 700;
+    padding: 3px 9px; border-radius: 999px; cursor: pointer;
+    background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; transition: background 0.2s;
+  }
+  .clear-tag:hover { background: #fecaca; }
+
+  /* ── SET PANELS ── */
+  #setsContainer { display: flex; flex-direction: column; gap: 16px; margin-bottom: 4px; }
+
+  .set-panel {
+    border: 2px solid #e8f0f8; border-radius: 12px;
+    overflow: hidden; background: #f9fafb;
+  }
+  .set-header {
+    display: flex; align-items: center; gap: 10px;
+    background: #e8f0f8; padding: 10px 14px; cursor: pointer;
+    user-select: none;
+  }
+  .set-header:hover { background: #dbeafe; }
+  .set-badge {
+    background: #003366; color: white;
+    border-radius: 999px; font-size: 0.7rem; font-weight: 800;
+    padding: 3px 10px; white-space: nowrap;
+  }
+  .set-header-title {
+    flex: 1; font-size: 0.85rem; font-weight: 700; color: #003366;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .set-toggle { font-size: 0.7rem; color: #6b7280; transition: transform 0.2s; }
+  .set-toggle.open { transform: rotate(180deg); }
+  .set-del-btn {
+    background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+    border-radius: 6px; padding: 4px 9px; font-size: 0.72rem;
+    cursor: pointer; font-family: Arial, sans-serif; font-weight: 700;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .set-del-btn:hover { background: #fecaca; }
+
+  .set-body { padding: 14px 16px; display: block; }
+  .set-body.collapsed { display: none; }
+
+  .set-meta { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .set-meta label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 0.75rem; font-weight: 600; color: #374151;
+  }
+  .set-meta label.wide { flex: 2; min-width: 200px; }
+  .set-meta label.narrow { flex: 1; min-width: 100px; }
+
+  /* Entry cards inside sets */
+  .entries-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .entry-card {
+    background: white; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 10px 12px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .entry-num { font-size: 0.7rem; font-weight: 800; color: #003366; min-width: 18px; text-align: center; }
+  .entry-fields { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; align-items: center; }
+  .entry-fields input[type="text"] { flex: 1; min-width: 100px; font-size: 0.82rem; padding: 7px 10px; }
+
+  .img-upload-wrap { display: flex; align-items: center; gap: 6px; }
+  .img-upload-label {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #eff6ff; border: 1px dashed #93c5fd;
+    border-radius: 6px; padding: 5px 9px;
+    font-size: 0.72rem; font-weight: 700; color: #1d4ed8;
+    cursor: pointer; white-space: nowrap; transition: background 0.2s;
+  }
+  .img-upload-label:hover { background: #dbeafe; }
+  .img-upload-label input { display: none; }
+  .thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db; }
+  .no-thumb { width: 36px; height: 36px; border-radius: 4px; background: #f3f4f6; border: 1px dashed #d1d5db; }
+
+  .del-btn {
+    background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+    border-radius: 6px; padding: 4px 9px; font-size: 0.72rem;
+    cursor: pointer; font-family: Arial, sans-serif; font-weight: 700;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .del-btn:hover { background: #fecaca; }
+
+  /* Buttons */
+  button {
+    padding: 11px 22px; margin: 5px 3px;
+    font-size: 0.85rem; cursor: pointer; border: none;
+    border-radius: 8px; background: #003366; color: white;
+    font-weight: 600; font-family: Arial, sans-serif; transition: all 0.2s;
+  }
+  button:hover { background: #002244; transform: translateY(-1px); }
+  button.secondary { background: #e5e7eb; color: #374151; }
+  button.secondary:hover { background: #d1d5db; transform: translateY(-1px); }
+  button.success { background: #059669; color: white; }
+  button.success:hover { background: #047857; }
+
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+  .add-entry-btn {
+    background: #eff6ff; border: 1px dashed #93c5fd; color: #1d4ed8;
+    border-radius: 7px; padding: 7px 14px; font-size: 0.78rem;
+    cursor: pointer; font-family: Arial, sans-serif; font-weight: 700;
+    transition: background 0.2s; white-space: nowrap; margin: 0;
+  }
+  .add-entry-btn:hover { background: #dbeafe; transform: none; }
+
+  /* Instructions button — gold standard */
+  .instructions-btn {
+    position: fixed; bottom: 35px; left: 15px; z-index: 1000;
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; background: rgba(0,51,102,0.7);
+    border-radius: 15px; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;
+    font-size: 10px; color: white; font-weight: 600;
+    border: none; font-family: Arial, sans-serif;
+  }
+  .instructions-btn:hover {
+    background: rgba(0,51,102,0.9); transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,51,102,0.3);
+  }
+  .instructions-btn img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+
+  /* Instructions modal — gold standard */
+  .instructions-modal {
+    display: none; position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 9999; justify-content: center; align-items: center;
+    padding: 20px; box-sizing: border-box;
+  }
+  .instructions-modal.show { display: flex; }
+  .instructions-content {
+    background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+    border-radius: 20px; padding: 30px;
+    max-width: 620px; width: 100%; max-height: 90vh;
+    overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    position: relative; color: white;
+  }
+  .instructions-close {
+    position: absolute; top: 15px; right: 15px;
+    width: 35px; height: 35px; border-radius: 50%;
+    background: rgba(255,255,255,0.2); border: none;
+    color: white; font-size: 24px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; font-family: Arial, sans-serif; padding: 0; margin: 0;
+  }
+  .instructions-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg) translateY(0); }
+  .instructions-content h2 { color: white; font-size: 1.4rem; font-weight: bold; margin-bottom: 18px; text-align: center; }
+  .instructions-content h3 { color: #feca57; font-size: 0.95rem; font-weight: bold; margin: 18px 0 8px; }
+  .instructions-content p,
+  .instructions-content li { color: white; font-size: 0.88rem; line-height: 1.6; margin-bottom: 6px; }
+  .instructions-content ul,
+  .instructions-content ol { margin-left: 20px; margin-bottom: 10px; }
+  .instructions-content .highlight { background: rgba(254,202,87,0.3); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🎴 Match Game Generator</h1>
+  <p class="page-sub">Build a multi-set matching game. Each set has its own instruction, column labels, and vocabulary entries.</p>
+
+  <!-- REHYDRATE -->
+  <div class="section-title">📂 Load a Previous Game to Edit</div>
+  <div class="section-sub">Upload a previously downloaded Match Game .html file to restore all sets and entries.</div>
+  <div class="upload-zone">
+    <label class="file-upload-label">
+      📄 Upload game file (.html)
+      <input type="file" accept=".html,text/html" onchange="rehydrate(this.files[0])">
+    </label>
+    <span class="status-tag" id="rehydrateStatus"></span>
+    <span class="clear-tag"  id="rehydrateClear" onclick="clearRehydrate()">✕ Clear</span>
+  </div>
+
+  <!-- GAME INFO -->
+  <div class="section-title">Game Info</div>
+  <div class="field-row">
+    <label>
+      Game / Lesson Title
+      <input type="text" id="gameName" placeholder="e.g. Japan Unit 3">
+    </label>
+    <label>
+      Subject / Topic
+      <input type="text" id="gameSubject" placeholder="e.g. Countries and Flags">
+    </label>
+  </div>
+
+  <!-- SETS -->
+  <div class="section-title">Question Sets</div>
+  <div class="section-sub">Each set is its own round. Students complete Set 1, review their answers, then move on to Set 2, etc.</div>
+  <div id="setsContainer"></div>
+  <div class="btn-row">
+    <button class="secondary" onclick="addSet()">＋ Add Set</button>
+    <button class="success"   onclick="generate()">⬇ Download Student Game</button>
+    <button class="secondary" onclick="goBack()">⬅ Back to Main Page</button>
+  </div>
+
+  <!-- NEXT GAME LINK -->
+  <div class="section-title">🔗 Link to Next Game <span style="font-size:0.7rem;color:#9ca3af;text-transform:none;letter-spacing:0;font-weight:400;">(optional)</span></div>
+  <div class="section-sub">When students finish all sets, a "Next Game →" button will appear on the final screen.</div>
+  <div class="upload-zone">
+    <label class="file-upload-label">
+      📄 Upload next game (.html)
+      <input type="file" accept=".html,text/html" onchange="loadNextGame(this.files[0])">
+    </label>
+    <span class="status-tag" id="nextGameStatus"></span>
+    <span class="clear-tag"  id="nextGameClear" onclick="clearNextGame()">✕ Remove</span>
+  </div>
+
+</div><!-- end .card -->
+
+<!-- Instructions button — gold standard -->
+<button class="instructions-btn" id="instructions-btn">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="Instructions">
+  Click me for instructions
+</button>
+
+<!-- Instructions modal — gold standard -->
+<div class="instructions-modal" id="instructions-modal">
+  <div class="instructions-content">
+    <button class="instructions-close" id="close-instructions">×</button>
+    <h2>📖 How to Use</h2>
+
+    <h3>🆕 Building a Game</h3>
+    <ul>
+      <li>Fill in the <span class="highlight">Game Title</span> and <span class="highlight">Subject</span>.</li>
+      <li>Click <span class="highlight">＋ Add Set</span> for each round of the game.</li>
+      <li>Each set has an <span class="highlight">Instruction</span> students see before playing, plus <span class="highlight">Left</span> and <span class="highlight">Right column labels</span>.</li>
+      <li>Add at least <span class="highlight">3 entries</span> per set (English + Japanese required; images optional).</li>
+      <li>Click <span class="highlight">⬇ Download Student Game</span> to save.</li>
+    </ul>
+
+    <h3>📂 Loading a Previous Game</h3>
+    <ul>
+      <li>Upload any previously downloaded Match Game .html to restore all sets.</li>
+    </ul>
+
+    <h3>🔗 Linking a Next Game</h3>
+    <ul>
+      <li>Upload another game's .html file. A <span class="highlight">Next Game →</span> button appears on the final end screen — fully offline.</li>
+    </ul>
+
+    <h3>🎮 How Students Play</h3>
+    <ul>
+      <li>Choose <span class="highlight">English or Japanese</span> labels, then click Start.</li>
+      <li>Match word cards to image/text cards. Wrong picks flash red.</li>
+      <li>After completing a set, click <span class="highlight">Review Answers</span> to see correct pairs.</li>
+      <li>Then click <span class="highlight">Next Set →</span> to continue.</li>
+      <li>Use the <span class="highlight">🔍 zoom button</span> to adjust text size.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+// sets = [{instruction, leftLabel, rightLabel, entries:[{en,jp,img}]}]
+let sets        = [];
+let nextGameB64 = null;
+let nextGameName= "";
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function esc(s){
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function readAsText(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result); r.onerror=()=>rej(); r.readAsText(file);
+  });
+}
+function readAsBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result.split(",")[1]); r.onerror=()=>rej(); r.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  SET MANAGEMENT
+// ══════════════════════════════════════════════
+function addSet(){
+  sets.push({ instruction:"", leftLabel:"", rightLabel:"", entries:[], open:true });
+  renderSets();
+  // scroll to new set
+  const panels=document.querySelectorAll(".set-panel");
+  if(panels.length) panels[panels.length-1].scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function removeSet(si){
+  if(!confirm(`Delete Set ${si+1} and all its entries?`)) return;
+  sets.splice(si,1);
+  renderSets();
+}
+
+function toggleSet(si){
+  sets[si].open=!sets[si].open;
+  renderSets();
+}
+
+function updateSetField(si,field,val){
+  sets[si][field]=val;
+  // update header title live
+  const header=document.querySelector(`[data-set-title="${si}"]`);
+  if(header) header.textContent=val||`Set ${si+1}`;
+}
+
+// ── Entry management per set ──
+function addEntry(si){
+  sets[si].entries.push({en:"",jp:"",img:""});
+  renderSetEntries(si);
+}
+
+function updateEntry(si,ei,field,val){
+  sets[si].entries[ei][field]=val;
+}
+
+function uploadEntryImage(si,ei,file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{ sets[si].entries[ei].img=e.target.result; renderSetEntries(si); };
+  r.readAsDataURL(file);
+}
+
+function removeEntry(si,ei){
+  sets[si].entries.splice(ei,1);
+  renderSetEntries(si);
+}
+
+// ══════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════
+function renderSets(){
+  const container=document.getElementById("setsContainer");
+  if(!container) return;
+
+  if(sets.length===0){
+    container.innerHTML='<p style="color:#9ca3af;font-size:0.82rem;text-align:center;padding:16px 0;">No sets yet. Click ＋ Add Set to begin.</p>';
+    return;
+  }
+
+  container.innerHTML=sets.map((s,si)=>`
+    <div class="set-panel">
+      <div class="set-header" onclick="toggleSet(${si})">
+        <span class="set-badge">Set ${si+1}</span>
+        <span class="set-header-title" data-set-title="${si}">${esc(s.instruction)||`Set ${si+1}`}</span>
+        <span class="set-toggle ${s.open?'open':''}">▼</span>
+        <button class="set-del-btn" onclick="event.stopPropagation();removeSet(${si})">✕ Delete</button>
+      </div>
+      <div class="set-body ${s.open?'':'collapsed'}" id="setBody_${si}">
+        <div class="set-meta">
+          <label class="wide">
+            Instruction (shown to students)
+            <input type="text" placeholder="e.g. Match the flags to the countries"
+              value="${esc(s.instruction)}"
+              oninput="updateSetField(${si},'instruction',this.value)">
+          </label>
+          <label class="narrow">
+            Left column label
+            <input type="text" placeholder="e.g. Flag"
+              value="${esc(s.leftLabel)}"
+              oninput="updateSetField(${si},'leftLabel',this.value)">
+          </label>
+          <label class="narrow">
+            Right column label
+            <input type="text" placeholder="e.g. Country"
+              value="${esc(s.rightLabel)}"
+              oninput="updateSetField(${si},'rightLabel',this.value)">
+          </label>
+        </div>
+        <div class="entries-list" id="entriesList_${si}"></div>
+        <button class="add-entry-btn" onclick="addEntry(${si})">＋ Add Entry</button>
+      </div>
+    </div>
+  `).join("");
+
+  // render entries for each set
+  sets.forEach((_,si)=>renderSetEntries(si));
+}
+
+function renderSetEntries(si){
+  const el=document.getElementById(`entriesList_${si}`);
+  if(!el) return;
+  const entries=sets[si].entries;
+
+  if(entries.length===0){
+    el.innerHTML='<p style="color:#9ca3af;font-size:0.75rem;padding:8px 0;">No entries yet.</p>';
+    return;
+  }
+
+  el.innerHTML=entries.map((e,ei)=>`
+    <div class="entry-card">
+      <div class="entry-num">${ei+1}</div>
+      <div class="entry-fields">
+        <input type="text" placeholder="English"  value="${esc(e.en)}"
+          oninput="updateEntry(${si},${ei},'en',this.value)">
+        <input type="text" placeholder="Japanese" value="${esc(e.jp)}"
+          oninput="updateEntry(${si},${ei},'jp',this.value)">
+        <div class="img-upload-wrap">
+          <label class="img-upload-label">
+            📷 ${e.img?"Change":"Upload"}
+            <input type="file" accept="image/*" onchange="uploadEntryImage(${si},${ei},this.files[0])">
+          </label>
+          ${e.img?`<img class="thumb" src="${e.img}" alt="">` : `<div class="no-thumb"></div>`}
+        </div>
+      </div>
+      <button class="del-btn" onclick="removeEntry(${si},${ei})">✕</button>
+    </div>
+  `).join("");
+}
+
+// ══════════════════════════════════════════════
+//  REHYDRATE
+// ══════════════════════════════════════════════
+async function rehydrate(file){
+  if(!file) return;
+  const st=document.getElementById("rehydrateStatus");
+  const cl=document.getElementById("rehydrateClear");
+  try {
+    const text=await readAsText(file);
+    const m=text.match(/const gameSets\s*=\s*(\[[\s\S]*?\]);/);
+    if(!m) throw new Error("no gameSets");
+    const parsed=JSON.parse(m[1]);
+    if(!Array.isArray(parsed)||parsed.length===0) throw new Error("empty");
+
+    // Restore sets
+    sets=parsed.map(s=>({
+      instruction: s.instruction||"",
+      leftLabel:   s.leftLabel||"",
+      rightLabel:  s.rightLabel||"",
+      entries:     (s.entries||[]).map(e=>({en:e.en||"",jp:e.jp||"",img:e.img||""})),
+      open: true
+    }));
+
+    // Restore title / subject
+    const titleM=text.match(/<title>([^<]*)<\/title>/);
+    if(titleM) document.getElementById("gameName").value=titleM[1];
+    const subM=text.match(/<p class="game-subtitle">([^<]*)<\/p>/);
+    if(subM) document.getElementById("gameSubject").value=subM[1];
+
+    renderSets();
+    const total=sets.reduce((n,s)=>n+s.entries.length,0);
+    st.className="status-tag ok";
+    st.textContent=`✔ Loaded ${sets.length} set${sets.length===1?"":"s"}, ${total} entries from "${file.name}"`;
+    cl.style.display="inline-block";
+  } catch(e){
+    st.className="status-tag err";
+    st.textContent="✘ Could not read file — is this a Match Game .html?";
+    cl.style.display="none";
+  }
+}
+
+function clearRehydrate(){
+  sets=[]; renderSets();
+  document.getElementById("gameName").value="";
+  document.getElementById("gameSubject").value="";
+  const s=document.getElementById("rehydrateStatus");
+  s.className="status-tag"; s.textContent="";
+  document.getElementById("rehydrateClear").style.display="none";
+}
+
+// ══════════════════════════════════════════════
+//  NEXT GAME
+// ══════════════════════════════════════════════
+async function loadNextGame(file){
+  if(!file) return;
+  const st=document.getElementById("nextGameStatus");
+  const cl=document.getElementById("nextGameClear");
+  try {
+    nextGameB64=await readAsBase64(file);
+    nextGameName=file.name.replace(/\.html?$/i,"").replace(/_/g," ");
+    st.className="status-tag ok";
+    st.textContent=`✔ Linked: "${file.name}"`;
+    cl.style.display="inline-block";
+  } catch(e){
+    st.className="status-tag err"; st.textContent="✘ Could not read file";
+    cl.style.display="none"; nextGameB64=null; nextGameName="";
+  }
+}
+function clearNextGame(){
+  nextGameB64=null; nextGameName="";
+  const s=document.getElementById("nextGameStatus");
+  s.className="status-tag"; s.textContent="";
+  document.getElementById("nextGameClear").style.display="none";
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function goBack(){
+  if(confirm("This will reset your workspace. Go back to the main page?"))
+    window.location.href="index.html";
+}
+
+// ══════════════════════════════════════════════
+//  GENERATE
+// ══════════════════════════════════════════════
+function generate(){
+  const name   =document.getElementById("gameName").value.trim();
+  const subject=document.getElementById("gameSubject").value.trim();
+
+  // Validate
+  if(sets.length===0){ alert("Please add at least one set."); return; }
+  const errors=[];
+  sets.forEach((s,si)=>{
+    const valid=s.entries.filter(e=>e.en.trim()&&e.jp.trim());
+    if(valid.length<3) errors.push(`Set ${si+1} needs at least 3 entries with English and Japanese filled in.`);
+  });
+  if(errors.length){ alert(errors.join("\n")); return; }
+
+  // Build clean data
+  const gameSetData=sets.map((s,si)=>({
+    instruction: s.instruction||`Set ${si+1}`,
+    leftLabel:   s.leftLabel||"Word",
+    rightLabel:  s.rightLabel||"Match",
+    entries: s.entries.filter(e=>e.en.trim()&&e.jp.trim())
+                      .map((e,i)=>({id:i, en:e.en.trim(), jp:e.jp.trim(), img:e.img||""}))
+  }));
+
+  const title=name||"Match Game";
+  const html=buildGame(title, subject, gameSetData, nextGameB64);
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=title.replace(/\s+/g,"_")+".html";
+  a.style.display="none";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+// ══════════════════════════════════════════════
+//  BUILD STUDENT GAME
+// ══════════════════════════════════════════════
+function buildGame(title, subtitle, gameSetData, nextB64){
+  const hasNext=!!nextB64;
+
+  const nextBtnHTML=hasNext
+    ? `<button class="nav-btn primary" onclick="goNext()">Next Game ➡</button>` : "";
+  const nextScript=hasNext ? `
+function goNext(){
+  const b64="${nextB64}";
+  const bin=atob(b64);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  const blob=new Blob([bytes],{type:"text/html"});
+  window.location.href=URL.createObjectURL(blob);
+}` : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+  /* Gold Standard Zoom — 5 Steps */
+  body.scale-1 { font-size: 28px; }
+  body.scale-2 { font-size: 34px; }
+  body.scale-3 { font-size: 40px; }
+  body.scale-4 { font-size: 46px; }
+  body.scale-5 { font-size: 22px; }
+
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #f0f2f5;
+    margin: 0;
+    transition: font-size 0.2s;
+    color: #333;
+    overflow-x: hidden;
+    padding-bottom: 100px;
+  }
+
+  .screen { display: none; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ── Start screen ── */
+  #startScreen { background: linear-gradient(135deg, #003366, #0066cc); color: white; }
+  #startScreen h1 { font-size: 1.5em; margin-bottom: 8px; }
+  .game-subtitle { font-size: 0.62em; opacity: 0.8; margin-bottom: 36px; }
+  .lang-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; }
+  .lang-btn {
+    flex: 1; max-width: 150px; padding: 10px;
+    border-radius: 10px; border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8);
+    font-family: Arial, sans-serif; font-size: 0.75em; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .lang-btn.active { border-color: white; background: rgba(255,255,255,0.25); color: white; }
+  .btn-start {
+    font-size: 0.85em; padding: 13px 48px; cursor: pointer;
+    background: white; color: #003366; border: none;
+    border-radius: 50px; font-weight: bold; font-family: Arial, sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.2s;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+  /* ── Set intro screen ── */
+  #introScreen { background: linear-gradient(135deg, #003366, #0066cc); color: white; }
+  .set-badge-lg {
+    background: rgba(255,255,255,0.2); border-radius: 999px;
+    font-size: 0.55em; font-weight: 800; padding: 6px 18px;
+    letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px;
+  }
+  #introScreen h2 { font-size: 1.1em; max-width: 600px; line-height: 1.5; margin: 0 0 36px; }
+
+  /* ── Game screen ── */
+  #gameScreen { justify-content: flex-start; padding-top: 24px; }
+  .game-header {
+    font-size: 0.6em; font-weight: bold; color: #003366;
+    margin-bottom: 6px; display: flex; gap: 20px; align-items: center; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .col-label {
+    font-size: 0.52em; font-weight: 700; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 6px; width: 100%; max-width: 900px;
+    text-align: left; padding-left: 4px;
+  }
+  .match-row {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 8px; margin-bottom: 14px; width: 100%; max-width: 900px;
+  }
+  .card {
+    background: white; border: 2px solid #d1d5db;
+    border-radius: 10px; padding: 0.45em 0.75em;
+    cursor: pointer; font-size: 0.58em; font-weight: 700;
+    transition: all 0.18s; min-width: 75px; user-select: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .card:hover { background: #f0f2f5; border-color: #003366; }
+  .card.selected { border-color: #f59e0b; background: #fef3c7; transform: scale(1.05); }
+  .card.matched  { opacity: 0.28; pointer-events: none; }
+  .card.wrong    { border-color: #ef4444; background: #fee2e2; animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .img-card { padding: 5px; }
+  .img-card img { width: 5.5em; height: 5.5em; object-fit: cover; border-radius: 6px; display: block; }
+  .no-img-label {
+    display: flex; align-items: center; justify-content: center;
+    width: 5.5em; height: 5.5em; font-size: 0.88em;
+    font-weight: 700; color: #374151; word-break: break-word;
+    text-align: center; padding: 4px;
+  }
+
+  /* ── Review screen ── */
+  #reviewScreen { justify-content: flex-start; padding-top: 24px; }
+  .review-header {
+    font-size: 0.75em; font-weight: 800; color: #003366;
+    margin-bottom: 18px;
+  }
+  .review-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%; max-width: 700px;
+    margin: 0 auto 20px;
+  }
+  .review-pair {
+    display: contents;
+  }
+  .review-cell {
+    background: white; border: 2px solid #a7f3d0;
+    border-radius: 10px; padding: 0.5em 0.8em;
+    font-size: 0.58em; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 3em; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .review-cell.left  { border-color: #93c5fd; background: #eff6ff; }
+  .review-cell.right { border-color: #a7f3d0; background: #f0fdf4; }
+  .review-cell img { width: 5em; height: 5em; object-fit: cover; border-radius: 6px; }
+  .review-col-header {
+    font-size: 0.52em; font-weight: 800; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    text-align: center; padding: 4px 0;
+    background: none; border: none; box-shadow: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── End screen ── */
+  #endScreen { background: linear-gradient(135deg, #003366, #0066cc); color: white; }
+  #endScreen h1 { font-size: 1.8em; margin-bottom: 8px; }
+  .end-total { font-size: 0.7em; opacity: 0.9; margin-bottom: 30px; }
+  .end-btns { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+  /* ── Bottom bar ── */
+  #bottomBar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-top: 1px solid #ccc;
+    padding: 10px 15px; display: none;
+    justify-content: center; gap: 10px; z-index: 100; flex-wrap: wrap;
+  }
+  .nav-btn {
+    font-size: 0.52em; padding: 10px 18px; cursor: pointer;
+    border: 1px solid #aaa; border-radius: 8px;
+    background: #fff; font-weight: bold; font-family: Arial, sans-serif;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: #f3f4f6; }
+  .nav-btn.primary { background: #003366; color: white; border-color: #003366; }
+  .nav-btn.primary:hover { background: #002244; }
+  .nav-btn.review-btn { background: #0066cc; color: white; border-color: #0066cc; }
+  .nav-btn.review-btn:hover { background: #0050a0; }
+  .nav-btn.next-btn { background: #059669; color: white; border-color: #059669; }
+  .nav-btn.next-btn:hover { background: #047857; }
+
+  /* ── Zoom button — gold standard ── */
+  #zoomBtn {
+    position: fixed; right: 20px; bottom: 70px;
+    width: 55px; height: 55px; border-radius: 50%;
+    border: none; background: #003366; color: white;
+    font-size: 26px; cursor: pointer; z-index: 101;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;
+  }
+  #zoomBtn:hover { background: #002244; }
+
+  /* ── Watermark — gold standard ── */
+  #watermark {
+    position: fixed; left: 15px; bottom: 55px;
+    font-size: 14px; opacity: 0.3; pointer-events: none; z-index: 50;
+  }
+</style>
+</head>
+<body class="scale-1">
+
+<!-- START SCREEN -->
+<div id="startScreen" class="screen active">
+  <h1>${title}</h1>
+  ${subtitle?`<p class="game-subtitle">${subtitle}</p>`:""}
+  <p style="font-size:0.58em;opacity:0.8;margin-bottom:14px;">Choose the label language:</p>
+  <div class="lang-group">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🌐 English</button>
+    <button class="lang-btn"        id="btn-jp" onclick="setLang('jp')">🇯🇵 日本語</button>
+  </div>
+  <button class="btn-start" onclick="startGame()">START GAME</button>
+</div>
+
+<!-- SET INTRO SCREEN -->
+<div id="introScreen" class="screen">
+  <div class="set-badge-lg" id="introSetBadge"></div>
+  <h2 id="introInstruction"></h2>
+  <button class="btn-start" onclick="beginSet()">Let's Go ▶</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" class="screen">
+  <div class="game-header">
+    <span id="setProgressLabel"></span>
+    <span id="scoreLabel"></span>
+  </div>
+  <div class="col-label" id="leftColLabel"></div>
+  <div class="match-row" id="wordRow"></div>
+  <div class="col-label" id="rightColLabel"></div>
+  <div class="match-row" id="imgRow"></div>
+</div>
+
+<!-- REVIEW SCREEN -->
+<div id="reviewScreen" class="screen">
+  <div class="review-header" id="reviewHeader"></div>
+  <div class="review-grid" id="reviewGrid"></div>
+</div>
+
+<!-- END SCREEN -->
+<div id="endScreen" class="screen">
+  <h1>🎉 All Done!</h1>
+  <p class="end-total" id="endTotal"></p>
+  <div class="end-btns">
+    <button class="btn-start" onclick="restartAll()">↺ Play Again</button>
+    ${nextBtnHTML}
+  </div>
+</div>
+
+<!-- Bottom bar -->
+<div id="bottomBar">
+  <span id="barSlot"></span>
+</div>
+
+<!-- Zoom — gold standard -->
+<button id="zoomBtn" onclick="toggleZoom()">🔍</button>
+
+<!-- Watermark — gold standard -->
+<div id="watermark">cmarasigan</div>
+
+<script>
+// ── Data ──
+const gameSets=${JSON.stringify(gameSetData)};
+
+// ── State ──
+let chosenLang="en";
+let currentSet=0;
+let phase="game"; // "game" | "setDone" | "reviewing" | "allDone"
+let selWord=null, selImg=null;
+let matched=new Set(), score=0;
+let totalScore=0, totalPossible=0;
+let shuffledWords=[], shuffledImgs=[];
+let wrongWord=null, wrongImg=null;
+let scale=1;
+
+// ── Zoom ──
+function toggleZoom(){
+  scale=(scale%5)+1;
+  document.body.className="scale-"+scale;
+}
+
+// ── Screens ──
+function showScreen(id){
+  ["startScreen","introScreen","gameScreen","reviewScreen","endScreen"].forEach(s=>{
+    document.getElementById(s).classList.toggle("active",s===id);
+  });
+}
+
+// ── Language ──
+function setLang(l){
+  chosenLang=l;
+  document.getElementById("btn-en").classList.toggle("active",l==="en");
+  document.getElementById("btn-jp").classList.toggle("active",l==="jp");
+}
+
+// ── Start ──
+function startGame(){
+  currentSet=0; totalScore=0; totalPossible=0;
+  document.getElementById("bottomBar").style.display="flex";
+  document.getElementById("zoomBtn").style.display="flex";
+  showSetIntro();
+}
+
+// ── Set intro ──
+function showSetIntro(){
+  const s=gameSets[currentSet];
+  document.getElementById("introSetBadge").textContent="Set "+(currentSet+1)+" of "+gameSets.length;
+  document.getElementById("introInstruction").textContent=s.instruction;
+  showScreen("introScreen");
+  setBar('<button class="nav-btn" onclick="showSetIntro()"></button>'); // empty / hidden effectively
+  document.getElementById("barSlot").innerHTML="";
+}
+
+function beginSet(){
+  loadSet(currentSet);
+}
+
+// ── Load set ──
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function loadSet(si){
+  const s=gameSets[si];
+  selWord=null; selImg=null; matched=new Set(); score=0;
+  wrongWord=null; wrongImg=null; phase="game";
+  shuffledWords=shuffle(s.entries);
+  shuffledImgs=shuffle(s.entries);
+  totalPossible+=s.entries.length;
+  showScreen("gameScreen");
+  // column labels
+  document.getElementById("leftColLabel").textContent=s.leftLabel||"";
+  document.getElementById("rightColLabel").textContent=s.rightLabel||"";
+  setBar('<button class="nav-btn" onclick="loadSet('+si+')">🔄 Retry Set</button>');
+  renderGame();
+}
+
+// ── Render game ──
+function renderGame(){
+  const s=gameSets[currentSet];
+  document.getElementById("setProgressLabel").textContent=
+    "Set "+(currentSet+1)+" / "+gameSets.length;
+  document.getElementById("scoreLabel").textContent=
+    "Matched: "+score+" / "+s.entries.length;
+
+  document.getElementById("wordRow").innerHTML=shuffledWords.map((v,i)=>{
+    let c="card";
+    if(selWord===i)c+=" selected";
+    if(matched.has(v.id))c+=" matched";
+    if(wrongWord===i)c+=" wrong";
+    return \`<div class="\${c}" onclick="pickWord(\${i})">\${chosenLang==="en"?v.en:v.jp}</div>\`;
+  }).join("");
+
+  document.getElementById("imgRow").innerHTML=shuffledImgs.map((v,i)=>{
+    let c="card img-card";
+    if(selImg===i)c+=" selected";
+    if(matched.has(v.id))c+=" matched";
+    if(wrongImg===i)c+=" wrong";
+    const inner=v.img?\`<img src="\${v.img}" alt="">\`:\`<span class="no-img-label">\${chosenLang==="en"?v.jp:v.en}</span>\`;
+    return \`<div class="\${c}" onclick="pickImg(\${i})">\${inner}</div>\`;
+  }).join("");
+}
+
+// ── Pick ──
+function pickWord(i){
+  if(matched.has(shuffledWords[i].id))return;
+  selWord=i; wrongWord=null; wrongImg=null; checkMatch();
+}
+function pickImg(i){
+  if(matched.has(shuffledImgs[i].id))return;
+  selImg=i; wrongWord=null; wrongImg=null; checkMatch();
+}
+function checkMatch(){
+  if(selWord===null||selImg===null){renderGame();return;}
+  const w=shuffledWords[selWord], m=shuffledImgs[selImg];
+  if(w.id===m.id){
+    matched.add(w.id); score++; selWord=null; selImg=null; renderGame();
+    if(score===gameSets[currentSet].entries.length) setTimeout(onSetComplete,350);
+  } else {
+    wrongWord=selWord; wrongImg=selImg; renderGame();
+    setTimeout(()=>{wrongWord=null;wrongImg=null;selWord=null;selImg=null;renderGame();},500);
+  }
+}
+
+// ── Set complete ──
+function onSetComplete(){
+  totalScore+=score;
+  phase="setDone";
+  setBar('<button class="nav-btn review-btn" onclick="showReview()">📋 Review Answers</button>');
+}
+
+// ── Show bar helper ──
+function setBar(html){
+  document.getElementById("barSlot").innerHTML=html;
+}
+
+// ── Review ──
+function showReview(){
+  phase="reviewing";
+  const s=gameSets[currentSet];
+  document.getElementById("reviewHeader").textContent=
+    "✅ Set "+(currentSet+1)+" — Correct Pairs";
+
+  // Build grid: col headers + pairs
+  const leftLbl=s.leftLabel||"Left";
+  const rightLbl=s.rightLabel||"Right";
+  let gridHTML=\`
+    <div class="review-cell review-col-header">\${leftLbl}</div>
+    <div class="review-cell review-col-header">\${rightLbl}</div>
+  \`;
+  s.entries.forEach(e=>{
+    const leftContent=chosenLang==="en"?e.en:e.jp;
+    const rightContent=e.img
+      ?\`<img src="\${e.img}" alt="">\`
+      :(chosenLang==="en"?e.jp:e.en);
+    gridHTML+=\`
+      <div class="review-cell left">\${leftContent}</div>
+      <div class="review-cell right">\${rightContent}</div>
+    \`;
+  });
+  document.getElementById("reviewGrid").innerHTML=gridHTML;
+
+  showScreen("reviewScreen");
+
+  // Show next/finish button
+  const isLast=(currentSet===gameSets.length-1);
+  if(isLast){
+    setBar('<button class="nav-btn next-btn" onclick="showEnd()">🎉 Finish</button>');
+  } else {
+    setBar('<button class="nav-btn next-btn" onclick="nextSet()">Next Set ➡</button>');
+  }
+}
+
+// ── Next set ──
+function nextSet(){
+  currentSet++;
+  showSetIntro();
+}
+
+// ── End ──
+function showEnd(){
+  showScreen("endScreen");
+  document.getElementById("endTotal").textContent=
+    "Total score: "+totalScore+" / "+totalPossible+" across "+gameSets.length+" set"+(gameSets.length===1?"":"s");
+  setBar("");
+}
+
+function restartAll(){
+  currentSet=0; totalScore=0; totalPossible=0;
+  showScreen("startScreen");
+  document.getElementById("bottomBar").style.display="none";
+  document.getElementById("zoomBtn").style.display="none";
+  scale=1; document.body.className="scale-1";
+}
+
+${nextScript}
+<\/script>
+</body>
+</html>`;
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded",function(){
+  // Start with one empty set
+  addSet();
+
+  // Instructions modal
+  document.getElementById("instructions-btn").addEventListener("click",()=>
+    document.getElementById("instructions-modal").classList.add("show"));
+  document.getElementById("close-instructions").addEventListener("click",()=>
+    document.getElementById("instructions-modal").classList.remove("show"));
+  document.getElementById("instructions-modal").addEventListener("click",function(e){
+    if(e.target===this) this.classList.remove("show");
+  });
+});
+</script>
+</body>
+</html>
