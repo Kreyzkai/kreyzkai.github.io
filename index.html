@@ -1,14 +1,10 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chris' Teaching Tools Launcher</title>
-
     <style>
-        /* Teaching Tools Theme - Consistent with 001-006 */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -19,11 +15,10 @@
             justify-content: center;
             min-height: 100vh;
             color: #333;
-            transition: font-size 0.2s;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255,255,255,0.5);
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -31,21 +26,8 @@
             width: 85%;
         }
 
-        h1 {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #003366;
-        }
-
-        .subtitle {
-            text-align: center;
-            font-size: 0.85rem;
-            color: #555;
-            margin-bottom: 35px;
-            font-style: italic;
-        }
+        h1 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 10px; color: #003366; }
+        .subtitle { text-align: center; font-size: 0.85rem; color: #555; margin-bottom: 35px; font-style: italic; }
 
         .grid {
             display: grid;
@@ -53,15 +35,11 @@
             gap: 20px;
         }
 
-        a {
-            text-decoration: none;
-            display: block;
-            transition: transform 0.2s;
-        }
+        a { text-decoration: none; display: block; transition: transform 0.2s; }
+        a:hover { transform: scale(1.05); }
 
-        a:hover {
-            transform: scale(1.05);
-        }
+        /* Card wrapper — needed for ? badge positioning */
+        .card-wrap { position: relative; height: 100%; }
 
         .card {
             background: #ffffff;
@@ -101,7 +79,63 @@
             text-align: center;
         }
 
-        /* About Button */
+        /* ── ? badge ── */
+        .info-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #003366;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0.55;
+            transition: opacity 0.2s, transform 0.2s;
+            line-height: 1;
+            font-family: Arial, sans-serif;
+        }
+        .info-btn:hover, .info-btn.active { opacity: 1; transform: scale(1.15); }
+
+        /* ── Tooltip bubble ── */
+        .info-tip {
+            display: none;
+            position: absolute;
+            top: 32px;
+            right: 0;
+            width: 210px;
+            background: #003366;
+            color: white;
+            font-size: 11.5px;
+            line-height: 1.55;
+            padding: 10px 13px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            z-index: 50;
+            pointer-events: none;
+        }
+        .info-tip::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 6px;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid #003366;
+        }
+        /* Show on hover (desktop) */
+        .card-wrap:hover .info-tip { display: block; }
+        /* Show on active class (tap/mobile) */
+        .info-tip.show { display: block; pointer-events: auto; }
+
+        /* ── About / Watermark ── */
         #aboutBtn {
             position: fixed;
             right: 20px;
@@ -110,7 +144,7 @@
             height: 55px;
             border-radius: 50%;
             border: none;
-            background: rgba(0, 51, 102, 0.7);
+            background: rgba(0,51,102,0.7);
             color: white;
             font-size: 22px;
             cursor: pointer;
@@ -121,13 +155,8 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: 0.2s;
         }
+        #aboutBtn:hover { background: #003366; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
 
-        #aboutBtn:hover {
-            background: #003366;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-        }
-
-        /* Watermark */
         #watermark {
             position: fixed;
             left: 15px;
@@ -138,33 +167,7 @@
             color: #333;
         }
 
-        /* About Button */
-        #aboutBtn {
-            position: fixed;
-            right: 20px;
-            bottom: 90px;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(0, 51, 102, 0.7);
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: 0.2s;
-        }
-
-        #aboutBtn:hover {
-            background: #003366;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-        }
-
-        /* About Modal */
+        /* ── About Modal ── */
         #aboutModal {
             display: none;
             position: fixed;
@@ -175,10 +178,7 @@
             align-items: center;
             justify-content: center;
         }
-
-        #aboutModal.open {
-            display: flex;
-        }
+        #aboutModal.open { display: flex; }
 
         .modal-panel {
             background: linear-gradient(135deg, #003366, #0066cc);
@@ -189,53 +189,21 @@
             width: 88%;
             box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             position: relative;
+            max-height: 88vh;
+            overflow-y: auto;
         }
+        .modal-panel h2 { margin: 0 0 8px 0; font-size: 1.4rem; }
+        .modal-panel .modal-sub { font-size: 0.8rem; opacity: 0.7; margin-bottom: 24px; }
+        .modal-panel p { font-size: 0.88rem; line-height: 1.7; margin: 0 0 14px 0; opacity: 0.95; }
+        .modal-panel .section-label { color: #feca57; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 18px 0 6px 0; }
+        .modal-close { margin-top: 24px; display: block; width: 100%; padding: 12px; background: white; color: #003366; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { background: #feca57; }
 
-        .modal-panel h2 {
-            margin: 0 0 8px 0;
-            font-size: 1.4rem;
-        }
+        /* Tool descriptions table inside modal */
+        .tool-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 8px; }
+        .tool-table td { padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: top; }
+        .tool-table td:first-child { color: #feca57; font-weight: bold; white-space: nowrap; padding-right: 10px; }
 
-        .modal-panel .modal-sub {
-            font-size: 0.8rem;
-            opacity: 0.7;
-            margin-bottom: 24px;
-        }
-
-        .modal-panel p {
-            font-size: 0.88rem;
-            line-height: 1.7;
-            margin: 0 0 14px 0;
-            opacity: 0.95;
-        }
-
-        .modal-panel .section-label {
-            color: #feca57;
-            font-weight: bold;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 18px 0 6px 0;
-        }
-
-        .modal-close {
-            margin-top: 24px;
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background: white;
-            color: #003366;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .modal-close:hover {
-            background: #feca57;
-        }
         @media (max-width: 600px) {
             .container { padding: 25px 15px; }
             h1 { font-size: 1.6rem; }
@@ -247,112 +215,172 @@
 <body>
     <div class="container">
         <h1>Teaching Tools</h1>
-        <p class="subtitle">A collection of classroom game &amp; worksheet generators — </p>
+        <p class="subtitle">A collection of classroom game &amp; worksheet generators — CMarasigan for Kasai-Minami High School</p>
 
         <div class="grid">
+
             <a href="001 Multiple Choice Maker (Simple text).html">
-                <div class="card">
-                    <div class="number">001</div>
-                    <div class="title">Multiple Choice Maker<br>(Simple Text)</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters questions and answer choices. Generates a student-facing multiple-choice quiz game — text only, no images.</div>
+                    <div class="card">
+                        <div class="number">001</div>
+                        <div class="title">Multiple Choice Maker<br>(Simple Text)</div>
+                    </div>
                 </div>
             </a>
 
             <a href="002 Binary Choices With Image upload option.html">
-                <div class="card">
-                    <div class="number">002</div>
-                    <div class="title">Binary Choices<br>(With Image Upload)</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters two-option (A or B) questions with optional images. Generates a downloadable student game.</div>
+                    <div class="card">
+                        <div class="number">002</div>
+                        <div class="title">Binary Choices<br>(With Image Upload)</div>
+                    </div>
                 </div>
             </a>
 
             <a href="003-Word-Guesser.html">
-                <div class="card">
-                    <div class="number">003</div>
-                    <div class="title">Word Guesser<br>Hangman type game</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters words and hints. Generates a hangman-style letter-guessing game for students.</div>
+                    <div class="card">
+                        <div class="number">003</div>
+                        <div class="title">Word Guesser<br>Hangman-type game</div>
+                    </div>
                 </div>
             </a>
 
             <a href="004 Word Jumbler.html">
-                <div class="card">
-                    <div class="number">004</div>
-                    <div class="title">Sentence Jumbler <br>Jumbles the whole sentence</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters full sentences. Students drag jumbled words back into the correct order. Good for grammar and reading practice.</div>
+                    <div class="card">
+                        <div class="number">004</div>
+                        <div class="title">Sentence Jumbler<br>Jumbles the whole sentence</div>
+                    </div>
                 </div>
             </a>
 
             <a href="005 Fill in the blanks worksheet generator.html">
-                <div class="card">
-                    <div class="number">005</div>
-                    <div class="title">Fill in the Blanks<br>WorkSheet Generator Only</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters text with blanks marked. Generates a printable fill-in-the-blank worksheet — not an interactive game.</div>
+                    <div class="card">
+                        <div class="number">005</div>
+                        <div class="title">Fill in the Blanks<br>Worksheet Generator Only</div>
+                    </div>
                 </div>
             </a>
 
             <a href="006 Multiple Choices With Image upload.html">
-                <div class="card">
-                    <div class="number">006</div>
-                    <div class="title">Multiple Choice<br>(to be Used With Images)</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Like 001 but built for image-based questions. Teacher uploads images as answer choices alongside text questions.</div>
+                    <div class="card">
+                        <div class="number">006</div>
+                        <div class="title">Multiple Choice<br>(With Images)</div>
+                    </div>
                 </div>
-            
+            </a>
+
             <a href="007 Enhanced Sentence_Jumbler.html">
-                <div class="card">
-                    <div class="number">007</div>
-                    <div class="title">Enhanced Sentence Jumbler<br>(Jumble words, phrases, or complete sentences)</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Extended version of 004. Jumbles individual words within sentences, whole phrases, or entire sentences. More flexible sorting activity.</div>
+                    <div class="card">
+                        <div class="number">007</div>
+                        <div class="title">Enhanced Sentence Jumbler<br>(Words, phrases, or sentences)</div>
+                    </div>
                 </div>
             </a>
 
             <a href="008 fill_in_the_blank_game.html">
-                <div class="card">
-                    <div class="number">008</div>
-                    <div class="title">Fill in the Blanks Game Generator<br>(version 2)</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Interactive version of 005. Students type or select answers in a live game — not just a printable sheet. Includes scoring.</div>
+                    <div class="card">
+                        <div class="number">008</div>
+                        <div class="title">Fill in the Blanks Game<br>(Interactive, version 2)</div>
+                    </div>
                 </div>
             </a>
 
             <a href="009 Happy Jeopardy Game Generator.html">
-                <div class="card">
-                    <div class="number">009</div>
-                    <div class="title">Happy Jeopardy Game Generator<br></div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher builds a Jeopardy-style game board with categories and point values. Full animated game experience for classroom play.</div>
+                    <div class="card">
+                        <div class="number">009</div>
+                        <div class="title">Happy Jeopardy<br>Game Generator</div>
+                    </div>
                 </div>
             </a>
-
-            </a>
-            <a href="010 Columned translator worksheet_generator_standalone (1).html">
-                <div class="card">
-                    <div class="number">012</div>
-                    <div class="title">Translator Test<br>Beta testing</div>
-                </div>
-            </a>
-
 
             <a href="011 BASIC Jeopardy Game Generator.html">
-                <div class="card">
-                    <div class="number">010</div>
-                    <div class="title">BASIC Jeopardy Game Generator<br></div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Simpler, lighter version of the Jeopardy generator. Fewer options, faster to set up — good for quick reviews.</div>
+                    <div class="card">
+                        <div class="number">010</div>
+                        <div class="title">BASIC Jeopardy<br>Game Generator</div>
+                    </div>
                 </div>
             </a>
-            <a href="012 custom cards.html">
-                <div class="card">
-                    <div class="number">011</div>
-                    <div class="title">Custom Cards Generator<br>Game and Printout Template</div>
-                </div>
 
+            <a href="010 Columned translator worksheet_generator_standalone (1).html">
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Generates a two-column translation worksheet — English on one side, target language on the other. Still in beta testing.</div>
+                    <div class="card">
+                        <div class="number">012</div>
+                        <div class="title">Translator Worksheet<br>Beta testing</div>
+                    </div>
+                </div>
+            </a>
+
+            <a href="012 custom cards.html">
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher designs custom flashcards or game cards with text and images. Outputs a printable or on-screen card deck.</div>
+                    <div class="card">
+                        <div class="number">011</div>
+                        <div class="title">Custom Cards Generator<br>Game and Printout Template</div>
+                    </div>
+                </div>
+            </a>
 
             <a href="013 pptx_text_extractor.html">
-                <div class="card">
-                    <div class="number">013</div>
-                    <div class="title">PPTX Text and Animation Lister<br>Extracts all text from PPTX files</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Upload a .pptx file and extract all text in animation order — useful for scripting or syncing a presentation. Nothing is uploaded to any server.</div>
+                    <div class="card">
+                        <div class="number">013</div>
+                        <div class="title">PPTX Text &amp; Animation Lister<br>Extracts text in playback order</div>
+                    </div>
                 </div>
             </a>
 
             <a href="014 Mix and Match Game Generator.html">
-                <div class="card">
-                    <div class="number">014</div>
-                    <div class="title">Mix and Match Game<br>Matching type game</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters word-image or word-word pairs. Generates a drag-and-match student game with scoring and a review screen.</div>
+                    <div class="card">
+                        <div class="number">014</div>
+                        <div class="title">Mix and Match Game<br>Matching-type game</div>
+                    </div>
                 </div>
             </a>
 
-
             <a href="999 Under construction.html">
-                <div class="card">
-                    <div class="number">999</div>
-                    <div class="title">Under Construction<br>Come back soon</div>
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Something new is being built here. Check back soon.</div>
+                    <div class="card">
+                        <div class="number">999</div>
+                        <div class="title">Under Construction<br>Come back soon</div>
+                    </div>
                 </div>
             </a>
 
@@ -368,22 +396,68 @@
             <h2>About This Site</h2>
             <p class="modal-sub">Teaching Tools — CMarasigan for Kasai-Minami High School</p>
 
-            <p>This is a private collection of browser-based tools for generating classroom games and worksheets. Everything runs offline in your browser — no internet connection needed once the files are loaded.</p>
+            <p>A private collection of browser-based tools for generating classroom games and worksheets. Everything runs entirely in your browser — no internet connection needed once the files are loaded, and no data is ever sent anywhere.</p>
 
             <div class="section-label">What each tool does</div>
-            <p>Each numbered tool (001–014) lets a teacher enter content and generate a ready-to-use student activity — either as a game played on-screen or a printable worksheet.</p>
+            <table class="tool-table">
+                <tr><td>001</td><td>Multiple-choice quiz generator — text only</td></tr>
+                <tr><td>002</td><td>Two-option (A/B) quiz with optional image uploads</td></tr>
+                <tr><td>003</td><td>Hangman-style word guessing game</td></tr>
+                <tr><td>004</td><td>Sentence word-order jumbling game</td></tr>
+                <tr><td>005</td><td>Fill-in-the-blank printable worksheet</td></tr>
+                <tr><td>006</td><td>Multiple-choice quiz with image answer choices</td></tr>
+                <tr><td>007</td><td>Enhanced jumbler — words, phrases, or full sentences</td></tr>
+                <tr><td>008</td><td>Interactive fill-in-the-blank game with scoring</td></tr>
+                <tr><td>009</td><td>Full Jeopardy game generator with animations</td></tr>
+                <tr><td>010</td><td>Basic Jeopardy — simpler, faster to set up</td></tr>
+                <tr><td>011</td><td>Custom card deck — printable or on-screen</td></tr>
+                <tr><td>012</td><td>Two-column translation worksheet (beta)</td></tr>
+                <tr><td>013</td><td>PPTX text extractor — animation order, fully offline</td></tr>
+                <tr><td>014</td><td>Drag-and-match word/image pairing game</td></tr>
+            </table>
 
             <div class="section-label">How to use</div>
-            <p>Click any card to open that tool. Fill in your content, preview, and download the student file. Student files are standalone HTML — just open and play.</p>
+            <p>Click any card to open that tool. Fill in your content, preview, and download the student file. Student files are standalone HTML — just open and play, no installation needed.</p>
 
-            <div class="section-label">About me</div>
-            <p>First, a disclaimer: I am, by no means an expert. This entire site was Vibe coded and built using a combination of Claude, ChatGPT, Canva AI, GitHub AI and a lot of asking around.  <br>I have had the privilege of creating these generators as a JET Programme ALT assigned to Tokyo Metropolitan Kasai Minami High School.<br>Made with ☕ and a lot of trial and error simply because I couldn't afford anything else.<br> Thank you to Marcel Badua of Third Wind Stories and Coach Richard Munar for all of the advise you have provided.</p>
+            <div class="section-label">About</div>
+            <p>First, a disclaimer: I am by no means an expert. This entire site was vibe-coded using Claude, ChatGPT, Canva AI, GitHub AI, and a lot of asking around.</p>
+            <p>I have had the privilege of building these tools as a JET Programme ALT assigned to Tokyo Metropolitan Kasai-Minami High School. Made with ☕ and a lot of trial and error — simply because I couldn't afford anything else.</p>
+            <p>Thank you to Marcel Badua of Third Wind Stories and Coach Richard Munar for all the advice you have provided.</p>
 
             <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button>
         </div>
     </div>
 
     <script>
+    // Close about modal on backdrop click
+    document.getElementById('aboutModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+    });
+
+    // ? badge: hover works via CSS; this handles tap on touch devices
+    function toggleTip(e, btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const tip = btn.nextElementSibling; // the .info-tip div
+        const isOpen = tip.classList.contains('show');
+        // Close all others
+        document.querySelectorAll('.info-tip.show').forEach(t => {
+            t.classList.remove('show');
+            t.previousElementSibling.classList.remove('active');
+        });
+        if (!isOpen) {
+            tip.classList.add('show');
+            btn.classList.add('active');
+        }
+    }
+
+    // Tap anywhere else to close open tips
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.info-tip.show').forEach(t => {
+            t.classList.remove('show');
+            t.previousElementSibling.classList.remove('active');
+        });
+    });
     </script>
 </body>
 </html>
