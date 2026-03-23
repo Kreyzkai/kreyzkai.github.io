@@ -224,6 +224,35 @@
   .instructions-content ul,
   .instructions-content ol { margin-left: 20px; margin-bottom: 10px; }
   .instructions-content .highlight { background: rgba(254,202,87,0.3); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+
+  /* ── Worksheet preview modal ── */
+  .ws-preview-overlay {
+    display: none; position: fixed; inset: 0; z-index: 8000;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+    flex-direction: column; align-items: center;
+  }
+  .ws-preview-overlay.show { display: flex; }
+  .ws-preview-bar {
+    width: 100%; background: #1e293b; padding: 12px 20px;
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .ws-preview-bar span {
+    flex: 1; font-size: 0.85rem; font-weight: 700; color: #e2e8f0;
+  }
+  .ws-preview-btn {
+    padding: 8px 18px; border: none; border-radius: 7px;
+    font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    font-family: Arial, sans-serif; transition: all 0.2s; white-space: nowrap;
+  }
+  .ws-preview-btn.word   { background: #2563eb; color: white; }
+  .ws-preview-btn.word:hover  { background: #1d4ed8; }
+  .ws-preview-btn.close  { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+  .ws-preview-btn.close:hover { background: rgba(255,255,255,0.22); }
+  .ws-preview-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ws-preview-frame {
+    flex: 1; width: 100%; border: none; background: #e2e8f0;
+  }
 </style>
 </head>
 <body>
@@ -264,6 +293,7 @@
   <div class="btn-row">
     <button class="secondary" onclick="addSet()">＋ Add Set</button>
     <button class="success"   onclick="generate()">⬇ Download Student Game</button>
+    <button style="background:#7c3aed;" onclick="generateWorksheet()">🖨 Download Worksheet</button>
     <button class="secondary" onclick="goBack()">⬅ Back to Main Page</button>
   </div>
 
@@ -292,6 +322,16 @@
   <div class="instructions-content">
     <button class="instructions-close" id="close-instructions">×</button>
     <h2>📖 How to Use</h2>
+
+    <h3>🖨 Downloading a Worksheet</h3>
+    <ul>
+      <li>Click <span class="highlight">🖨 Download Worksheet</span> to get a printable A4 version.</li>
+      <li>Each set has a <span class="highlight">Worksheet right column</span> dropdown — choose Image, Japanese, or English for the right side.</li>
+      <li>The right column is always shuffled so no pair sits directly side by side.</li>
+      <li>Students write the matching letter next to each number.</li>
+      <li>An <span class="highlight">Answer Key</span> is included on the final page.</li>
+      <li>Open the downloaded file in a browser and click <span class="highlight">🖨 Print</span> — or just use Ctrl/Cmd+P.</li>
+    </ul>
 
     <h3>🆕 Building a Game</h3>
     <ul>
@@ -323,11 +363,22 @@
   </div>
 </div>
 
+<!-- Worksheet preview modal -->
+<div class="ws-preview-overlay" id="wsPreviewOverlay">
+  <div class="ws-preview-bar">
+    <span>📄 Worksheet Preview — A4</span>
+    <button class="ws-preview-btn word" id="wordDlBtn" onclick="downloadRTF()">⬇ Download Word (.rtf)</button>
+    <button class="ws-preview-btn close" onclick="closePreview()">✕ Close</button>
+  </div>
+  <iframe class="ws-preview-frame" id="wsPreviewFrame"></iframe>
+</div>
+
 <script>
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
-// sets = [{instruction, leftLabel, rightLabel, entries:[{en,jp,img}]}]
+// sets = [{instruction, leftLabel, rightLabel, wsCol, entries:[{en,jp,img}]}]
+// wsCol: "image"|"japanese"|"english" — what the right column shows on the worksheet
 let sets        = [];
 let nextGameB64 = null;
 let nextGameName= "";
@@ -357,7 +408,7 @@ function readAsBase64(file){
 //  SET MANAGEMENT
 // ══════════════════════════════════════════════
 function addSet(){
-  sets.push({ instruction:"", leftLabel:"", rightLabel:"", entries:[], open:true });
+  sets.push({ instruction:"", leftLabel:"", rightLabel:"", wsCol:"japanese", entries:[], open:true });
   renderSets();
   // scroll to new set
   const panels=document.querySelectorAll(".set-panel");
@@ -444,6 +495,15 @@ function renderSets(){
               value="${esc(s.rightLabel)}"
               oninput="updateSetField(${si},'rightLabel',this.value)">
           </label>
+          <label class="narrow">
+            Worksheet right column
+            <select onchange="updateSetField(${si},'wsCol',this.value)"
+              style="padding:7px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:0.82rem;font-family:Arial,sans-serif;background:white;color:#374151;">
+              <option value="japanese"  ${s.wsCol==="japanese" ?"selected":""}>Japanese text</option>
+              <option value="english"   ${s.wsCol==="english"  ?"selected":""}>English text</option>
+              <option value="image"     ${s.wsCol==="image"    ?"selected":""}>Image thumbnail</option>
+            </select>
+          </label>
         </div>
         <div class="entries-list" id="entriesList_${si}"></div>
         <button class="add-entry-btn" onclick="addEntry(${si})">＋ Add Entry</button>
@@ -505,6 +565,7 @@ async function rehydrate(file){
       instruction: s.instruction||"",
       leftLabel:   s.leftLabel||"",
       rightLabel:  s.rightLabel||"",
+      wsCol:       s.wsCol||"japanese",
       entries:     (s.entries||[]).map(e=>({en:e.en||"",jp:e.jp||"",img:e.img||""})),
       open: true
     }));
@@ -590,6 +651,7 @@ function generate(){
     instruction: s.instruction||`Set ${si+1}`,
     leftLabel:   s.leftLabel||"Word",
     rightLabel:  s.rightLabel||"Match",
+    wsCol:       s.wsCol||"japanese",
     entries: s.entries.filter(e=>e.en.trim()&&e.jp.trim())
                       .map((e,i)=>({id:i, en:e.en.trim(), jp:e.jp.trim(), img:e.img||""}))
   }));
@@ -933,7 +995,7 @@ function loadSet(si){
   // column labels
   document.getElementById("leftColLabel").textContent=s.leftLabel||"";
   document.getElementById("rightColLabel").textContent=s.rightLabel||"";
-  setBar('<button class="nav-btn" onclick="loadSet('+si+')">🔄 Reshuffle/Retry Set</button>');
+  setBar('<button class="nav-btn" onclick="loadSet('+si+')">🔄 Retry Set</button>');
   renderGame();
 }
 
@@ -1057,6 +1119,356 @@ function restartAll(){
 
 ${nextScript}
 <\/script>
+</body>
+</html>`;
+}
+
+// ══════════════════════════════════════════════
+//  WORKSHEET GENERATOR
+// ══════════════════════════════════════════════
+
+// Derangement: shuffle so no element stays at its original index
+function derange(arr){
+  if(arr.length<=1) return [...arr];
+  let result, attempts=0;
+  do {
+    result=[...arr];
+    for(let i=result.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [result[i],result[j]]=[result[j],result[i]];
+    }
+    attempts++;
+    if(result.every((item,i)=>item.id!==arr[i].id)) return result;
+  } while(attempts<200);
+  return [...arr.slice(1),...arr.slice(0,1)];
+}
+
+// Build validated wsData from current state
+function getWsData(){
+  const name   =document.getElementById("gameName").value.trim();
+  const subject=document.getElementById("gameSubject").value.trim();
+  if(sets.length===0){ alert("Please add at least one set."); return null; }
+  const errors=[];
+  sets.forEach((s,si)=>{
+    if(s.entries.filter(e=>e.en.trim()&&e.jp.trim()).length<3)
+      errors.push(`Set ${si+1} needs at least 3 complete entries.`);
+  });
+  if(errors.length){ alert(errors.join("\n")); return null; }
+  return {
+    title:   name||"Match Worksheet",
+    subtitle: subject,
+    sets: sets.map((s,si)=>({
+      instruction: s.instruction||`Set ${si+1}`,
+      leftLabel:   s.leftLabel||"Word",
+      rightLabel:  s.rightLabel||"Match",
+      wsCol:       s.wsCol||"japanese",
+      entries: s.entries.filter(e=>e.en.trim()&&e.jp.trim())
+                        .map((e,i)=>({id:i, en:e.en.trim(), jp:e.jp.trim(), img:e.img||""}))
+    }))
+  };
+}
+
+// Show preview modal
+function generateWorksheet(){
+  const ws=getWsData();
+  if(!ws) return;
+  // Store for docx download
+  window._wsData=ws;
+  const html=buildWorksheet(ws.title, ws.subtitle, ws.sets);
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const frame=document.getElementById("wsPreviewFrame");
+  frame.src=url;
+  document.getElementById("wsPreviewOverlay").classList.add("show");
+  // reset download button
+  const btn=document.getElementById("wordDlBtn");
+  btn.textContent="⬇ Download Word (.rtf)";
+  btn.disabled=false;
+}
+
+function closePreview(){
+  document.getElementById("wsPreviewOverlay").classList.remove("show");
+  document.getElementById("wsPreviewFrame").src="";
+}
+
+// ── RTF download (no external library) ──────────────────────────
+function downloadRTF(){
+  const ws=window._wsData;
+  if(!ws) return;
+  const btn=document.getElementById("wordDlBtn");
+  btn.disabled=true;
+  btn.textContent="⏳ Generating…";
+  try {
+    const rtf=buildRTF(ws);
+    const blob=new Blob([rtf],{type:"application/rtf"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=ws.title.replace(/\s+/g,"_")+"_worksheet.rtf";
+    a.style.display="none";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  } catch(e){
+    alert("Error generating file: "+e.message);
+  }
+  btn.disabled=false;
+  btn.textContent="⬇ Download Word (.rtf)";
+}
+
+// ── RTF builder ──────────────────────────────────────────────────
+function buildRTF(ws){
+  const LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  // A4 narrow margins: 11906 wide, 16838 tall, margins 720 twips (0.5 inch)
+  const CW=10466; // 11906 - 720*2
+
+  // Column layout (5 cols, sum = CW)
+  const X1=500,X2=1300,X3=5100,X4=5600,X5=10466;
+  // Col widths: num=500, blank=800, leftContent=3800, letter=500, rightContent=4866
+
+  // ── Helpers ──
+  function rt(s){
+    return String(s).split('').map(ch=>{
+      if(ch==='\\') return '\\\\';
+      if(ch==='{')  return '\\{';
+      if(ch==='}')  return '\\}';
+      const c=ch.charCodeAt(0);
+      if(c<128) return ch;
+      const n=c>32767?c-65536:c;
+      return '\\u'+n+'?';
+    }).join('');
+  }
+  function b64hex(dataUrl){
+    const b64=dataUrl.includes(',')?dataUrl.split(',')[1]:dataUrl;
+    const bin=atob(b64); let hex='';
+    for(let i=0;i<bin.length;i++) hex+=bin.charCodeAt(i).toString(16).padStart(2,'0');
+    return hex;
+  }
+  function pictType(dataUrl){ return dataUrl.toLowerCase().includes('png')?'\\pngblip':'\\jpegblip'; }
+  function imgRtf(dataUrl,sz){ try{ return '{\\pict'+pictType(dataUrl)+'\\picwgoal'+sz+'\\pichgoal'+sz+'\\picscalex100\\picscaley100\n'+b64hex(dataUrl)+'}'; } catch(e){ return ''; } }
+
+  // ── Cell border helpers ──
+  const bN='\\brdrnone';
+  const bRow='\\brdrs\\brdrw4\\brdrcf3'; // thin bottom, gray
+  const bHdr='\\brdrs\\brdrw10\\brdrcf1'; // bold bottom, dark blue
+  const bDiv='\\brdrs\\brdrw8\\brdrcf3'; // divider, gray
+  function cb(t,l,b,r){ return '\\clbrdrt'+t+'\\clbrdrl'+l+'\\clbrdrb'+b+'\\clbrdrr'+r; }
+  function row5(b1,b2,b3,b4,b5){
+    return '\\trowd\\trgaph108\\trleft0\n'+
+      cb(bN,bN,b1,bN)+'\\clvertalt\\cellx'+X1+'\n'+
+      cb(bN,bN,b2,bN)+'\\clvertalt\\cellx'+X2+'\n'+
+      cb(bN,bN,b3,bN)+'\\clvertalt\\cellx'+X3+'\n'+
+      cb(bN,bDiv,b4,bN)+'\\clvertalt\\cellx'+X4+'\n'+
+      cb(bN,bN,b5,bN)+'\\clvertalt\\cellx'+X5+'\n';
+  }
+
+  let o='';
+
+  // ── RTF header ──
+  o+='{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033\n';
+  o+='{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}{\\f1\\fnil\\fcharset128 MS Gothic;}}\n';
+  // cf1=dark blue, cf2=mid gray, cf3=light gray, cf4=dark gray
+  o+='{\\colortbl;\\red0\\green51\\blue102;\\red102\\green102\\blue102;\\red187\\green187\\blue187;\\red68\\green68\\blue68;}\n';
+  o+='\\paperw11906\\paperh16838\\margl720\\margr720\\margt720\\margb720\n';
+  o+='\\widowctrl\\hyphauto\\f0\n';
+
+  // ── Title ──
+  o+='\\pard\\qc\\sb0\\sa80\\b\\fs40\\cf1 '+rt(ws.title)+'\\b0\\par\n';
+  if(ws.subtitle) o+='\\pard\\qc\\sb0\\sa120\\fs20\\cf2 '+rt(ws.subtitle)+'\\par\n';
+  o+='\\pard\\sb0\\sa120\\par\n';
+
+  // ── Student fields (3-col table, bottom border only) ──
+  const fW=Math.floor(CW/3), fX1=fW, fX2=fW*2, fX3=CW;
+  const fBot='\\brdrs\\brdrw12\\brdrcf4';
+  // Labels row
+  o+='\\trowd\\trgaph108\\trleft0\n'+
+    cb(bN,bN,bN,bN)+'\\cellx'+fX1+'\n'+
+    cb(bN,bN,bN,bN)+'\\cellx'+fX2+'\n'+
+    cb(bN,bN,bN,bN)+'\\cellx'+fX3+'\n';
+  o+='\\pard\\intbl\\ql\\b\\fs16\\cf2 NAME\\b0\\cell\n';
+  o+='\\pard\\intbl\\ql\\b\\fs16\\cf2 STUDENT NO.\\b0\\cell\n';
+  o+='\\pard\\intbl\\ql\\b\\fs16\\cf2 CLASS\\b0\\cell\n\\row\n';
+  // Line row (bottom border = the writing line)
+  o+='\\trowd\\trgaph108\\trleft0\n'+
+    cb(bN,bN,fBot,bN)+'\\cellx'+fX1+'\n'+
+    cb(bN,bN,fBot,bN)+'\\cellx'+fX2+'\n'+
+    cb(bN,bN,fBot,bN)+'\\cellx'+fX3+'\n';
+  o+='\\pard\\intbl\\ql\\fs28  \\cell\n\\pard\\intbl\\ql\\fs28  \\cell\n\\pard\\intbl\\ql\\fs28  \\cell\n\\row\n';
+  o+='\\pard\\sb120\\sa0\\par\n';
+
+  // ── Sets (no page breaks between them) ──
+  const answerKeys=[];
+
+  ws.sets.forEach((s,si)=>{
+    const entries=s.entries;
+    const shuffledLeft=[...entries].sort(()=>Math.random()-0.5);
+    const rightCol=derange(shuffledLeft);
+
+    // Build answer key for this set
+    const keyMap={};
+    shuffledLeft.forEach((item,i)=>{
+      const li=rightCol.findIndex(r=>r.id===item.id);
+      keyMap[i+1]=LETTERS[li];
+    });
+    answerKeys.push({instruction:s.instruction,keyMap,count:entries.length});
+
+    // Set heading
+    o+='\\pard\\sb200\\sa80\\b\\fs22\\cf1 SET '+(si+1)+'  \\b0\\fs20\\cf4 '+rt(s.instruction)+'\\par\n';
+
+    // Column header row
+    o+=row5(bHdr,bHdr,bHdr,bHdr,bHdr);
+    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
+    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
+    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.leftLabel||'Word')+'\\b0\\cell\n';
+    o+='\\pard\\intbl\\qc\\b\\fs18\\cf1  \\b0\\cell\n';
+    o+='\\pard\\intbl\\ql\\b\\fs18\\cf1 '+rt(s.rightLabel||'Match')+'\\b0\\cell\n';
+    o+='\\row\n';
+
+    // Data rows
+    for(let i=0;i<shuffledLeft.length;i++){
+      const li=shuffledLeft[i];
+      const ri=rightCol[i];
+      const useImg=ri&&s.wsCol==='image'&&ri.img;
+      const useEn=s.wsCol==='english';
+
+      o+=row5(bRow,bRow,bRow,bRow,bRow);
+
+      // Col 1: number
+      o+='\\pard\\intbl\\qc\\b\\fs22\\cf1 '+(li?String(i+1):'')+'\\b0\\cell\n';
+      // Col 2: answer blank (underlined spaces)
+      o+='\\pard\\intbl\\ql\\ul\\fs22 '+(li?'        ':'')+'\\ulnone\\cell\n';
+      // Col 3: left content (English word)
+      o+='\\pard\\intbl\\ql\\f0\\fs22\\cf4 '+rt(li?li.en:'')+'\\cell\n';
+      // Col 4: letter
+      o+='\\pard\\intbl\\qc\\b\\fs22\\cf2 '+(ri?LETTERS[i]:'')+'\\b0\\cell\n';
+      // Col 5: right content
+      if(useImg){
+        // Text (centered) then image below
+        const labelTxt=useEn?(ri.en):(ri.jp);
+        o+='\\pard\\intbl\\qc\\f1\\fs20\\cf4 '+rt(labelTxt)+'\\par\n';
+        o+='\\pard\\intbl\\qc '+imgRtf(ri.img,1008)+'\\cell\n';
+      } else {
+        const txt=ri?(useEn?ri.en:ri.jp):'';
+        o+='\\pard\\intbl\\ql\\f1\\fs22\\cf4 '+rt(txt)+'\\f0\\cell\n';
+      }
+      o+='\\row\n';
+    }
+
+    // Score box
+    o+='\\pard\\qr\\sb60\\sa40\\b\\fs20\\cf4 Score: _______ / '+entries.length+'\\b0\\par\n';
+  });
+
+  // ── Answer key on new page ──
+  o+='\\pard\\page\\par\n';
+  o+='\\pard\\sb0\\sa200\\b\\fs28\\cf1 Answer Key \\emdash  '+rt(ws.title)+'\\b0\\par\n';
+  o+='\\pard\\sb0\\sa0\\brdrb\\brdrs\\brdrw8\\brdrcf1 \\par\n';
+
+  answerKeys.forEach((k,si)=>{
+    o+='\\pard\\sb140\\sa60\\b\\fs20\\cf4 Set '+(si+1)+': '+rt(k.instruction)+'\\b0\\par\n';
+    const pairs=Object.entries(k.keyMap).map(([n,l])=>n+'\\u8594?'+l).join('   ');
+    o+='\\pard\\sb0\\sa100\\fs20\\cf1 '+pairs+'\\par\n';
+  });
+
+  o+='}';
+  return o;
+}
+
+
+// ── HTML preview builder ──────────────────────────────────────────
+function buildWorksheet(title, subtitle, wsData){
+  const LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let setsHTML="";
+  const answerKeys=[];
+
+  wsData.forEach((s,si)=>{
+    const entries=s.entries;
+    const shuffledLeft=[...entries].sort(()=>Math.random()-0.5);
+    const rightCol=derange(shuffledLeft);
+    const keyMap={};
+    shuffledLeft.forEach((item,i)=>{
+      const li=rightCol.findIndex(r=>r.id===item.id);
+      keyMap[i+1]=LETTERS[li];
+    });
+    answerKeys.push({instruction:s.instruction,keyMap,count:entries.length});
+
+    function rightCellHTML(item){
+      if(s.wsCol==="image"&&item&&item.img){
+        const txt=s.wsCol==="english"?item.en:item.jp;
+        return `<div style="text-align:center;font-size:11px;margin-bottom:3px;">${txt}</div><img src="${item.img}" style="width:56px;height:56px;object-fit:cover;border-radius:3px;display:block;margin:0 auto;">`;
+      }
+      return s.wsCol==="english"?(item?item.en:""):(item?item.jp:"");
+    }
+
+    const leftRows=shuffledLeft.map((item,i)=>`
+      <tr>
+        <td style="width:22px;text-align:center;font-weight:bold;color:#003366;font-size:12px;padding:5px 2px;">${i+1}</td>
+        <td style="width:44px;padding:5px 4px;"><div style="border-bottom:1.5px solid #333;width:36px;height:18px;"></div></td>
+        <td style="font-size:12px;padding:5px 4px;">${item.en}</td>
+      </tr>`).join("");
+
+    const rightRows=rightCol.map((item,i)=>`
+      <tr>
+        <td style="width:22px;text-align:center;font-weight:bold;color:#555;font-size:12px;padding:5px 2px;">${LETTERS[i]}</td>
+        <td style="font-size:12px;padding:5px 4px;">${rightCellHTML(item)}</td>
+      </tr>`).join("");
+
+    setsHTML+=`
+    <div class="set-section">
+      <div style="font-size:13px;font-weight:bold;color:#003366;margin:18px 0 8px;padding-bottom:4px;border-bottom:2px solid #003366;display:flex;align-items:baseline;gap:8px;">
+        <span style="background:#003366;color:white;border-radius:3px;font-size:10px;padding:2px 7px;font-weight:bold;">SET ${si+1}</span>
+        ${s.instruction}
+      </div>
+      <div style="display:flex;gap:0;align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.leftLabel||"Word"}</div>
+          <table style="width:100%;border-collapse:collapse;">${leftRows}</table>
+        </div>
+        <div style="width:1px;background:#ccc;margin:0 16px;align-self:stretch;"></div>
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1.5px solid #003366;padding-bottom:3px;margin-bottom:4px;">${s.rightLabel||"Match"}</div>
+          <table style="width:100%;border-collapse:collapse;">${rightRows}</table>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:11px;font-weight:bold;color:#444;margin-top:6px;padding-top:5px;border-top:1px dashed #ccc;">Score: _______ / ${entries.length}</div>
+    </div>`;
+  });
+
+  const keyHTML=answerKeys.map((k,si)=>`
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:bold;color:#444;margin-bottom:5px;">Set ${si+1}: ${k.instruction}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${Object.entries(k.keyMap).map(([n,l])=>`<span style="background:#e8f0f8;border:1px solid #b0c4de;border-radius:4px;padding:3px 9px;font-size:12px;font-weight:bold;color:#003366;">${n} → ${l}</span>`).join("")}
+      </div>
+    </div>`).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${title} — Worksheet</title>
+<style>
+  @page { size: A4; margin: 12.7mm; }
+  @media print { .no-print{display:none!important;} }
+  body { font-family:Arial,sans-serif; font-size:13px; color:#111; background:white;
+    max-width:210mm; margin:0 auto; padding:12.7mm; box-sizing:border-box; }
+  .no-print { text-align:center; margin-bottom:16px; }
+  .print-btn { background:#003366;color:white;border:none;padding:10px 28px;
+    border-radius:7px;font-size:14px;font-weight:bold;cursor:pointer;font-family:Arial,sans-serif; }
+  .print-btn:hover { background:#002244; }
+</style>
+</head>
+<body>
+<div class="no-print">
+  <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+</div>
+<div style="font-size:20px;font-weight:bold;color:#003366;text-align:center;margin-bottom:4px;">${title}</div>
+${subtitle?`<div style="font-size:11px;color:#666;text-align:center;margin-bottom:12px;">${subtitle}</div>`:""}
+<div style="display:flex;gap:24px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;padding:8px 0;margin-bottom:16px;">
+  ${["NAME","STUDENT NO.","CLASS"].map(f=>`<div style="flex:1;"><div style="font-size:10px;font-weight:bold;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${f}</div><div style="border-bottom:1.5px solid #333;height:20px;"></div></div>`).join("")}
+</div>
+${setsHTML}
+<div style="page-break-before:always;padding-top:10px;">
+  <div style="font-size:16px;font-weight:bold;color:#003366;border-bottom:2px solid #003366;padding-bottom:5px;margin-bottom:14px;">✅ Answer Key — ${title}</div>
+  ${keyHTML}
+</div>
 </body>
 </html>`;
 }
