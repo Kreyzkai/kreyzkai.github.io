@@ -131,8 +131,9 @@ button:disabled{opacity:.4;cursor:default;}
     </div>
     <div class="card">
       <label>② Vocabulary List</label>
-      <p class="hint">word：訳語　word：訳語 format</p>
-      <textarea id="input-vocab" rows="10" placeholder="a wide range of ～：幅広い～　climate：気候　develop：発展する　cuisine：料理"></textarea>
+      <p class="hint">Any format: standard (word：訳語　), plain list, numbered list, tab-separated, or comma-separated</p>
+      <textarea id="input-vocab" rows="10" placeholder="Paste any vocab format here:&#10;• Standard:  a wide range of ～：幅広い～　climate：気候&#10;• Plain list: dumpling&#10;             steamed bread&#10;• Numbered:  1. dumpling  2. steamed bread&#10;• Comma:     dumpling, steamed bread, cuisine"></textarea>
+      <div id="format-badge" style="display:none;margin-top:6px;font-size:0.75rem;padding:3px 10px;border-radius:12px;background:rgba(254,202,87,0.15);border:1px solid rgba(254,202,87,0.3);color:#feca57;display:inline-block;"></div>
     </div>
   </div>
   <div class="options-bar">
@@ -147,6 +148,7 @@ button:disabled{opacity:.4;cursor:default;}
         <input type="checkbox" id="opt-firstonly"> First occurrence only
       </label>
     </span>
+    <label title="e.g. shows 'dumplings' instead of 'dumpling' in word bank"><input type="checkbox" id="opt-textform"> Word bank: use form from text</label>
     <div class="opt-sep"></div>
     <span style="font-size:.78rem;color:#feca57;font-weight:700;">Title:</span>
     <input type="text" id="opt-title" value="Fill in the Blanks">
@@ -191,6 +193,7 @@ button:disabled{opacity:.4;cursor:default;}
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="e-ak" checked> Answer key</label>
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="e-name" checked> Name / Date line</label>
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:#feca57;font-size:.78rem;"><input type="checkbox" id="e-firstonly" style="accent-color:#feca57;"> First occurrence only</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:#aad4f5;font-size:.78rem;" title="e.g. shows &#39;dumplings&#39; instead of &#39;dumpling&#39; in the word bank"><input type="checkbox" id="e-textform" style="accent-color:#feca57;"> Word bank: use form from text</label>
         </div>
       </div>
       <div class="btn-row" style="flex-direction:column;">
@@ -203,7 +206,10 @@ button:disabled{opacity:.4;cursor:default;}
   <div id="ws-preview-wrap" style="display:none;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;">
       <span style="font-size:.78rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Worksheet Preview</span>
-      <button class="btn-success" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-success" onclick="window.print()">🖨️ Print / Save PDF</button>
+        <button class="btn-success" style="background:linear-gradient(135deg,#2980b9,#1a5276);" onclick="exportWord()">📄 Export to Word</button>
+      </div>
     </div>
     <div class="worksheet" id="worksheet-out"></div>
   </div>
@@ -223,28 +229,42 @@ const nid=()=>++_id;
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 
-// Porter-lite stemmer — handles inflections: develop→develop, developed→develop,
-// deny→deny, denies→deny, climate→climat, climates→climat, etc.
-function stem(w){
-  w=w.toLowerCase();
-  if(w.length<=3)return w;
-  if(w.endsWith("n't")&&w.length>4)return w.slice(0,-3);
-  if(w.endsWith('ies')&&w.length>4)return w.slice(0,-3)+'y';
-  if(w.endsWith('ied')&&w.length>4)return w.slice(0,-3)+'y';
-  if(w.endsWith('ing')&&w.length>5){
-    const b=w.slice(0,-3);
-    if(b.length>=3&&b[b.length-1]===b[b.length-2]&&!'aeiou'.includes(b[b.length-1]))return b.slice(0,-1);
-    return b;
-  }
-  if(w.endsWith('ed')&&w.length>4){
-    const b=w.slice(0,-2);
-    if(b.length>=3&&b[b.length-1]===b[b.length-2]&&!'aeiou'.includes(b[b.length-1]))return b.slice(0,-1);
-    return b;
-  }
-  if(w.endsWith('es')&&w.length>4&&!w.endsWith('ss'))return w.slice(0,-2);
-  if(w.endsWith('s')&&w.length>3&&!w.endsWith('ss'))return w.slice(0,-1);
-  if(w.endsWith('e')&&w.length>3)return w.slice(0,-1);
-  return w;
+// Morphological variant generator — expands a vocab base word to all likely
+// surface forms. More reliable than stemmer-both-sides for nouns like "dumpling".
+function vocabVariants(base){
+  base=base.toLowerCase().trim();
+  const v=new Set([base]);
+  const last=base[base.length-1];
+  const prev=base[base.length-2]||'';
+  const vow='aeiou';
+  // plurals / 3rd-person -s
+  if(['s','x','z'].includes(last)||base.endsWith('ch')||base.endsWith('sh'))
+    v.add(base+'es');
+  else if(last==='y'&&!vow.includes(prev))
+    {v.add(base.slice(0,-1)+'ies');v.add(base+'s');}
+  else if(base.endsWith('fe'))
+    v.add(base.slice(0,-2)+'ves');
+  else if(last==='f'&&base.length>3)
+    {v.add(base.slice(0,-1)+'ves');v.add(base+'s');}
+  else
+    v.add(base+'s');
+  // past tense / past participle
+  if(last==='y'&&!vow.includes(prev))
+    v.add(base.slice(0,-1)+'ied');
+  else if(base.endsWith('e'))
+    v.add(base+'d');
+  else if(!vow.includes(last)&&vow.includes(prev)&&base.length>2&&!['w','x','y','h'].includes(last))
+    {v.add(base+last+'ed');v.add(base+'ed');}
+  else
+    v.add(base+'ed');
+  // -ing form
+  if(base.endsWith('e')&&!base.endsWith('ee'))
+    v.add(base.slice(0,-1)+'ing');
+  else if(!vow.includes(last)&&vow.includes(prev)&&base.length>2&&!['w','x','y','h'].includes(last))
+    {v.add(base+last+'ing');v.add(base+'ing');}
+  else
+    v.add(base+'ing');
+  return v;
 }
 
 // Split a raw token text into { leadPunct, wordPart, trailPunct }
@@ -270,13 +290,64 @@ function extractParts(text){
 
 function cleanMatch(en){return en.replace(/[～〜~]\s*$/g,'').replace(/\s*[～〜~]\s*/g,' ').trim();}
 
-function parseVocab(raw){
-  return raw.split('\u3000').map(s=>s.trim()).filter(Boolean).map(item=>{
-    const i=item.indexOf('\uff1a');
-    if(i===-1)return{en:item,jp:''};
-    return{en:item.slice(0,i).trim(),jp:item.slice(i+1).trim()};
-  }).filter(v=>v.en);
+// ── Plural-aware phrase regex ──────────────────────────────────────────────
+function lastWordPluralPat(word){
+  const w=word.toLowerCase();
+  if(w.endsWith('s'))return escRe(word)+'(?:es)?';
+  if(w.endsWith('y')&&w.length>2&&!'aeiou'.includes(w[w.length-2]))
+    return escRe(word.slice(0,-1))+'(?:y|ies)';
+  if(w.endsWith('fe'))return escRe(word.slice(0,-2))+'(?:fe|ves)';
+  if(w.endsWith('f')&&w.length>3)return escRe(word.slice(0,-1))+'(?:f|ves)';
+  return escRe(word)+'(?:e?s)?';
 }
+function phraseToPluralRegex(matchStr){
+  const words=matchStr.split(/\s+/);
+  return words.map((w,i)=>i===words.length-1?lastWordPluralPat(w):escRe(w)).join('\\s+');
+}
+
+// ── Multi-format vocab parser ──────────────────────────────────────────────
+function stripLeadMark(s){
+  return s.trim()
+    .replace(/^[\u2460-\u2473\u3251-\u325F\u32B1-\u32BF]/,'')
+    .replace(/^(\d+[\.\)\-]|[•\-\*])\s*/,'')
+    .trim();
+}
+
+function detectAndParseVocab(raw){
+  raw=raw.trim();
+  if(!raw)return{items:[],format:'empty'};
+  // Format A: standard full-width separators
+  if(raw.includes('\u3000')&&raw.includes('\uff1a')){
+    const items=raw.split('\u3000').map(s=>s.trim()).filter(Boolean).map(item=>{
+      const i=item.indexOf('\uff1a');
+      if(i===-1)return{en:item,jp:''};
+      return{en:item.slice(0,i).trim(),jp:item.slice(i+1).trim()};
+    }).filter(v=>v.en);
+    return{items,format:'Standard (word：訳語　word：訳語)'};
+  }
+  const lines=raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  // Format B: tab-separated
+  if(raw.includes('\t')){
+    const items=lines.map(l=>{const p=l.split('\t');return{en:stripLeadMark(p[0]),jp:(p[1]||'').trim()};}).filter(v=>v.en);
+    return{items,format:'Tab-separated'};
+  }
+  // Format C: line-by-line colon
+  const colonRe=/^(.+?)[：:]\s*(.*)$/;
+  const colonCount=lines.filter(l=>colonRe.test(l)).length;
+  if(colonCount>=Math.ceil(lines.length*0.5)){
+    const items=lines.map(l=>{const m=l.match(colonRe);if(!m)return{en:stripLeadMark(l),jp:''};return{en:stripLeadMark(m[1]),jp:m[2].trim()};}).filter(v=>v.en);
+    return{items,format:'Line-by-line (word: translation)'};
+  }
+  // Format D: comma-separated
+  if(lines.length<=4&&raw.includes(',')){
+    const parts=raw.split(/[,、，]/).map(s=>stripLeadMark(s)).filter(Boolean);
+    if(parts.length>1)return{items:parts.map(en=>({en,jp:''})),format:'Comma-separated'};
+  }
+  // Format E: plain list
+  return{items:lines.map(l=>({en:stripLeadMark(l),jp:''})).filter(v=>v.en),format:'Plain word list'};
+}
+
+function parseVocab(raw){return detectAndParseVocab(raw).items;}
 
 // ── Tokenise ───────────────────────────────────────────────────────────────
 function tokenise(text){
@@ -299,7 +370,7 @@ function autoBlank(passage,vocab,firstOnly){
   vocabMap={};
   const all=vocab.map(v=>({...v,matchStr:cleanMatch(v.en)})).filter(v=>v.matchStr);
   const phrases=all.filter(v=>v.matchStr.includes(' ')).sort((a,b)=>b.matchStr.length-a.matchStr.length);
-  const singles=all.filter(v=>!v.matchStr.includes(' ')).map(v=>({...v,stemmed:stem(v.matchStr)}));
+  const singles=all.filter(v=>!v.matchStr.includes(' ')).map(v=>({...v,variants:vocabVariants(v.matchStr)}));
   const matched=new Set();
 
   // ── Phase 1: phrase regex matching ──
@@ -310,8 +381,9 @@ function autoBlank(passage,vocab,firstOnly){
 
   for(const v of phrases){
     const sb=/\w/.test(v.matchStr[0])?'\\b':'';
-    const eb=/\w/.test(v.matchStr[v.matchStr.length-1])?'\\b':'';
-    const re=new RegExp(sb+escRe(v.matchStr)+eb,'gi');
+    // use plural-aware regex for last word so "steamed bread" matches "steamed breads"
+    const patBody=phraseToPluralRegex(v.matchStr);
+    const re=new RegExp(sb+patBody,'gi');
     let m;
     while((m=re.exec(plain))!==null){
       const s=m.index,e=m.index+m[0].length;
@@ -357,10 +429,9 @@ function autoBlank(passage,vocab,firstOnly){
   for(let ti=0;ti<tokens.length;ti++){
     const tok=tokens[ti];
     if(tok.type!=='word'||!tok.wordPart||tok.wordPart.length<=1)continue;
-    const ts=stem(tok.wordPart);
     for(const v of singles){
       if(firstOnly&&usedOnce.has(v.matchStr))continue;
-      if(v.stemmed===ts||v.matchStr.toLowerCase()===tok.wordPart.toLowerCase()){
+      if(v.variants.has(tok.wordPart.toLowerCase())||v.matchStr.toLowerCase()===tok.wordPart.toLowerCase()){
         tokens[ti]={...tok,type:'blank',vocabRef:v.matchStr.toLowerCase(),blankNum:0};
         vocabMap[v.matchStr.toLowerCase()]={en:v.en,jp:v.jp,matchStr:v.matchStr};
         matched.add(v.matchStr);
@@ -513,9 +584,11 @@ function buildPreview(){
   });
 
   // Word bank — built fresh from current blank tokens every time
+  const useTextForm=document.getElementById('e-textform').checked;
   let wbItems=blanks.map(b=>{
     const v=vocabMap[b.vocabRef]||{en:b.wordPart||b.text,jp:''};
-    return{num:b.blankNum,en:v.en,jp:v.jp};
+    const displayEn=useTextForm?(b.wordPart||b.text||v.en):v.en;
+    return{num:b.blankNum,en:displayEn,jp:v.jp};
   });
   if(shuffle)wbItems=wbItems.sort(()=>Math.random()-0.5);
 
@@ -547,13 +620,20 @@ function generate(){
   if(!p){showToast('Please paste a passage');return;}
   if(!v){showToast('Please paste vocabulary');return;}
   _id=0;
-  const vocab=parseVocab(v);
+  const detected=detectAndParseVocab(v);
+  const vocab=detected.items;
+  // Show format badge
+  const badge=document.getElementById('format-badge');
+  badge.textContent='Detected: '+detected.format;
+  badge.style.display='inline-block';
+  if(!vocab.length){showToast('Could not parse any vocab items');return;}
   const firstOnly=document.getElementById('opt-firstonly').checked;
   const{unmatched}=autoBlank(p,vocab,firstOnly);
   document.getElementById('e-jp').checked=document.getElementById('opt-jp').checked;
   document.getElementById('e-ak').checked=document.getElementById('opt-answerkey').checked;
   document.getElementById('e-name').checked=document.getElementById('opt-nameline').checked;
   document.getElementById('e-firstonly').checked=firstOnly;
+  document.getElementById('e-textform').checked=document.getElementById('opt-textform').checked;
   document.getElementById('s-vocab').textContent=vocab.length;
   document.getElementById('stats-bar').style.display='flex';
   const ua=document.getElementById('unmatched-area');
@@ -574,7 +654,103 @@ function goToPhase(p){
   if(p==='edit')document.getElementById('tab-edit').classList.remove('locked');
 }
 function clearAll(){document.getElementById('input-passage').value='';document.getElementById('input-vocab').value='';tokens=[];vocabMap={};}
+function exportWord(){
+  const blanks=tokens.filter(t=>t.type==='blank');
+  if(!blanks.length){showToast('No blanks yet — build preview first');return;}
+  const showJP=document.getElementById('e-jp').checked;
+  const shuffle=document.getElementById('e-shuffle').checked;
+  const showAK=document.getElementById('e-ak').checked;
+  const showName=document.getElementById('e-name').checked;
+  const title=document.getElementById('opt-title').value||'Fill in the Blanks';
+
+  // Passage text with numbered blanks
+  let passHTML='';
+  tokens.forEach(tok=>{
+    if(tok.type==='space')passHTML+=escH(tok.text);
+    else if(tok.type==='newline')passHTML+='<br>';
+    else if(tok.type==='word')passHTML+=escH(tok.text);
+    else if(tok.type==='blank'){
+      passHTML+=escH(tok.leadPunct||'');
+      passHTML+=`<span style="font-weight:bold;color:#003366;">${tok.blankNum}.&nbsp;</span><span style="display:inline-block;border-bottom:2px solid #003366;min-width:110px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
+      passHTML+=escH(tok.trailPunct||'');
+    }
+  });
+
+  const useTextFormW=document.getElementById('e-textform').checked;
+  let wbItems=blanks.map(b=>{
+    const v=vocabMap[b.vocabRef]||{en:b.wordPart||b.text,jp:''};
+    const displayEn=useTextFormW?(b.wordPart||b.text||v.en):v.en;
+    return{num:b.blankNum,en:displayEn,jp:v.jp};
+  });
+  if(shuffle)wbItems=wbItems.sort(()=>Math.random()-0.5);
+
+  const wbRows=wbItems.map(w=>`<tr><td style="width:30px;font-weight:bold;color:#003366;padding:2px 6px;">${w.num}.</td><td style="padding:2px 8px;">${escH(w.en)}</td>${showJP&&w.jp?`<td style="padding:2px 8px;color:#555;font-size:0.9em;">（${escH(w.jp)}）</td>`:'<td></td>'}</tr>`).join('');
+
+  const nameLine=showName?`<table style="width:100%;border-collapse:collapse;margin-bottom:18pt;font-size:10pt;">
+    <tr>
+      <td style="border-bottom:1px solid #999;width:40%;padding-bottom:4px;">Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td style="width:5%;"></td>
+      <td style="border-bottom:1px solid #999;width:25%;padding-bottom:4px;">Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td style="width:5%;"></td>
+      <td style="border-bottom:1px solid #999;width:25%;padding-bottom:4px;">Class:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    </tr></table>`:'';
+
+  const akSection=showAK?`<div style="margin-top:30pt;padding-top:12pt;border-top:1px dashed #aaa;">
+    <p style="font-size:9pt;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8pt;">Answer Key</p>
+    <table style="width:100%;border-collapse:collapse;font-size:9.5pt;">
+      <tr>${[...blanks].sort((a,b)=>a.blankNum-b.blankNum).map(b=>`<td style="padding:2px 10px 2px 0;"><span style="font-weight:bold;color:#003366;">${b.blankNum}.</span> ${escH((vocabMap[b.vocabRef]||{en:b.wordPart||b.text}).en)}</td>`).reduce((acc,td,i)=>{
+        if(i%4===0)acc.push([]);acc[acc.length-1].push(td);return acc;},[]).map(row=>`<tr>${row.join('')}</tr>`).join('')}
+    </table></div>`:'';
+
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<style>
+  @page { margin: 2cm 2.5cm; size: A4; }
+  body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #111; }
+  p { margin: 0 0 10pt 0; line-height: 1.9; text-align: justify; }
+</style>
+</head>
+<body>
+  <h2 style="text-align:center;font-size:14pt;letter-spacing:1px;margin-bottom:4pt;">${escH(title)}</h2>
+  <p style="text-align:center;font-size:9pt;color:#666;border-bottom:2pt solid #003366;padding-bottom:6pt;margin-bottom:14pt;">Fill in the blanks using the word bank below.</p>
+  ${nameLine}
+  <p>${passHTML}</p>
+  <div style="border:1px solid #ccc;border-radius:4px;padding:10pt 14pt;margin-top:14pt;">
+    <p style="font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#003366;margin-bottom:8pt;">Word Bank</p>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;">${
+      wbRows.match(/<tr>.*?<\/tr>/gs)?wbRows.match(/<tr>.*?<\/tr>/gs).reduce((acc,r,i)=>{
+        if(i%2===0)acc.push([]);acc[acc.length-1].push(r);return acc;},[]).map(pair=>
+        `<tr><td style="width:50%"><table>${pair[0]||''}</table></td><td style="width:50%"><table>${pair[1]||''}</table></td></tr>`
+      ).join(''):wbRows}
+    </table>
+  </div>
+  ${akSection}
+</body></html>`;
+
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(title.replace(/[^a-z0-9]/gi,'_')||'worksheet')+'.doc';
+  a.click();
+  showToast('Word document downloaded!');
+}
+
 function goBack(){if(confirm('Go back to the main menu?'))window.location.href='index.html';}
+
+// Live format detection as user types
+document.addEventListener('DOMContentLoaded',()=>{
+  const tv=document.getElementById('input-vocab');
+  const badge=document.getElementById('format-badge');
+  tv.addEventListener('input',()=>{
+    const raw=tv.value.trim();
+    if(!raw){badge.style.display='none';return;}
+    const{format}=detectAndParseVocab(raw);
+    badge.textContent='Detected: '+format;
+    badge.style.display='inline-block';
+  });
+});
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 </script>
 </body>
