@@ -104,7 +104,7 @@ button:disabled{opacity:.4;cursor:default;}
   body{background:#fff!important;padding:0!important;}
   .phase-tabs,#phase-input,.editor-layout,.stats-bar,.btn-row,
   .bottom-bar,.watermark,#toast,h1,.subtitle,
-  .editor-passage-title,.editor-hint{display:none!important;}
+  .editor-passage-title,.editor-hint,.no-print{display:none!important;}
   #phase-edit{display:block!important;}
   #ws-preview-wrap{margin:0!important;}
   .worksheet{box-shadow:none!important;border-radius:0!important;}
@@ -204,7 +204,7 @@ button:disabled{opacity:.4;cursor:default;}
   </div>
 
   <div id="ws-preview-wrap" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;">
+    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;">
       <span style="font-size:.78rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Worksheet Preview</span>
       <div style="display:flex;gap:8px;">
         <button class="btn-success" onclick="window.print()">🖨️ Print / Save PDF</button>
@@ -671,7 +671,7 @@ function exportWord(){
     else if(tok.type==='word')passHTML+=escH(tok.text);
     else if(tok.type==='blank'){
       passHTML+=escH(tok.leadPunct||'');
-      passHTML+=`<span style="font-weight:bold;color:#003366;">${tok.blankNum}.&nbsp;</span><span style="display:inline-block;border-bottom:2px solid #003366;min-width:110px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
+      passHTML+=`<span class="blank-num">${tok.blankNum}.&nbsp;</span><span class="blank-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
       passHTML+=escH(tok.trailPunct||'');
     }
   });
@@ -686,54 +686,90 @@ function exportWord(){
 
   const wbRows=wbItems.map(w=>`<tr><td style="width:30px;font-weight:bold;color:#003366;padding:2px 6px;">${w.num}.</td><td style="padding:2px 8px;">${escH(w.en)}</td>${showJP&&w.jp?`<td style="padding:2px 8px;color:#555;font-size:0.9em;">（${escH(w.jp)}）</td>`:'<td></td>'}</tr>`).join('');
 
-  const nameLine=showName?`<table style="width:100%;border-collapse:collapse;margin-bottom:18pt;font-size:10pt;">
-    <tr>
-      <td style="border-bottom:1px solid #999;width:40%;padding-bottom:4px;">Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-      <td style="width:5%;"></td>
-      <td style="border-bottom:1px solid #999;width:25%;padding-bottom:4px;">Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-      <td style="width:5%;"></td>
-      <td style="border-bottom:1px solid #999;width:25%;padding-bottom:4px;">Class:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    </tr></table>`:'';
+  const nameLine=showName?`<table class="name-line"><tr>
+    <td style="border-bottom:1pt solid #999;width:42%;padding-bottom:4pt;">Name:</td>
+    <td style="width:4%;"></td>
+    <td style="border-bottom:1pt solid #999;width:26%;padding-bottom:4pt;">Date:</td>
+    <td style="width:4%;"></td>
+    <td style="border-bottom:1pt solid #999;width:24%;padding-bottom:4pt;">Class:</td>
+  </tr></table>`:'';
 
-  const akSection=showAK?`<div style="margin-top:30pt;padding-top:12pt;border-top:1px dashed #aaa;">
-    <p style="font-size:9pt;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8pt;">Answer Key</p>
-    <table style="width:100%;border-collapse:collapse;font-size:9.5pt;">
-      <tr>${[...blanks].sort((a,b)=>a.blankNum-b.blankNum).map(b=>`<td style="padding:2px 10px 2px 0;"><span style="font-weight:bold;color:#003366;">${b.blankNum}.</span> ${escH((vocabMap[b.vocabRef]||{en:b.wordPart||b.text}).en)}</td>`).reduce((acc,td,i)=>{
-        if(i%4===0)acc.push([]);acc[acc.length-1].push(td);return acc;},[]).map(row=>`<tr>${row.join('')}</tr>`).join('')}
-    </table></div>`:'';
+  const akSection=showAK?`<div class="answerkey">
+    <p class="ak-title">Answer Key</p>
+    <table class="ak-table"><tbody>${(()=>{
+      const sorted=[...blanks].sort((a,b)=>a.blankNum-b.blankNum);
+      const cols=4,rows=Math.ceil(sorted.length/cols);let out='';
+      for(let r=0;r<rows;r++){
+        out+='<tr>';
+        for(let col=0;col<cols;col++){
+          const b=sorted[r+rows*col];
+          if(b)out+=`<td class="ak-num">${b.blankNum}.</td><td style="padding:2pt 14pt 2pt 0;">${escH((vocabMap[b.vocabRef]||{en:b.wordPart||b.text}).en)}</td>`;
+          else out+=`<td></td><td></td>`;
+        }
+        out+='</tr>';
+      }
+      return out;
+    })()}</tbody></table></div>`:'';
 
-  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office"
-    xmlns:w="urn:schemas-microsoft-com:office:word"
-    xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="UTF-8">
+  const html=`<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
 <style>
   @page { margin: 2cm 2.5cm; size: A4; }
   body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #111; }
-  p { margin: 0 0 10pt 0; line-height: 1.9; text-align: justify; }
+  p.passage { margin: 0 0 14pt 0; line-height: 2.2; text-align: justify; font-size: 11pt; }
+  h2.ws-title { text-align:center; font-size:14pt; letter-spacing:1pt; margin-bottom:4pt; font-family:'Times New Roman',serif; }
+  p.ws-sub { text-align:center; font-size:9pt; color:#666; border-bottom:2pt solid #003366; padding-bottom:6pt; margin-bottom:14pt; }
+  table.name-line { width:100%; border-collapse:collapse; margin-bottom:16pt; font-size:10pt; }
+  .blank-num { font-weight:bold; color:#003366; }
+  .blank-line { display:inline-block; border-bottom:2pt solid #003366; width:100pt; }
+  div.wordbank { border:1pt solid #ccc; padding:10pt 14pt; margin-top:14pt; }
+  p.wb-title { font-size:9pt; font-weight:bold; text-transform:uppercase; letter-spacing:1pt; color:#003366; margin:0 0 8pt 0; }
+  table.wb-table { width:100%; border-collapse:collapse; font-size:10pt; }
+  td.wb-num { font-weight:bold; color:#003366; width:22pt; padding:2pt 4pt 2pt 0; vertical-align:top; }
+  td.wb-en { padding:2pt 8pt 2pt 0; vertical-align:top; }
+  td.wb-jp { padding:2pt 0; color:#555; font-size:9pt; vertical-align:top; }
+  div.answerkey { margin-top:20pt; padding-top:12pt; border-top:1pt dashed #bbb; }
+  p.ak-title { font-size:9pt; font-weight:bold; color:#888; text-transform:uppercase; letter-spacing:1pt; margin:0 0 8pt 0; }
+  table.ak-table { width:100%; border-collapse:collapse; font-size:9.5pt; }
+  td.ak-num { font-weight:bold; color:#003366; width:18pt; padding:2pt 4pt 2pt 0; }
 </style>
 </head>
 <body>
-  <h2 style="text-align:center;font-size:14pt;letter-spacing:1px;margin-bottom:4pt;">${escH(title)}</h2>
-  <p style="text-align:center;font-size:9pt;color:#666;border-bottom:2pt solid #003366;padding-bottom:6pt;margin-bottom:14pt;"></p>
-  ${nameLine}
-  <p>${passHTML}</p>
-  <div style="border:1px solid #ccc;border-radius:4px;padding:10pt 14pt;margin-top:14pt;">
-    <p style="font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#003366;margin-bottom:8pt;">Word Bank</p>
-    <table style="width:100%;border-collapse:collapse;font-size:10pt;">${
-      wbRows.match(/<tr>.*?<\/tr>/gs)?wbRows.match(/<tr>.*?<\/tr>/gs).reduce((acc,r,i)=>{
-        if(i%2===0)acc.push([]);acc[acc.length-1].push(r);return acc;},[]).map(pair=>
-        `<tr><td style="width:50%"><table>${pair[0]||''}</table></td><td style="width:50%"><table>${pair[1]||''}</table></td></tr>`
-      ).join(''):wbRows}
-    </table>
-  </div>
-  ${akSection}
+<h2 class="ws-title">${escH(title)}</h2>
+${nameLine}
+<p class="passage">${passHTML}</p>
+<div class="wordbank">
+  <p class="wb-title">Word Bank</p>
+  <table class="wb-table"><tbody>${(()=>{
+    const cols=2;
+    const rows=Math.ceil(wbItems.length/cols);
+    let out='';
+    for(let r=0;r<rows;r++){
+      out+='<tr>';
+      for(let col=0;col<cols;col++){
+        const w=wbItems[r+rows*col];
+        if(w) out+=`<td class="wb-num">${w.num}.</td><td class="wb-en">${escH(w.en)}</td><td class="wb-jp">${showJP&&w.jp?'（'+escH(w.jp)+'）':''}</td>`;
+        else out+=`<td></td><td></td><td></td>`;
+      }
+      out+='</tr>';
+    }
+    return out;
+  })()}</tbody></table>
+</div>
+${akSection}
 </body></html>`;
 
-  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const blob=new Blob(['﻿'+html],{type:'application/msword'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download=(title.replace(/[^a-z0-9]/gi,'_')||'worksheet')+'.doc';
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   showToast('Word document downloaded!');
 }
 
