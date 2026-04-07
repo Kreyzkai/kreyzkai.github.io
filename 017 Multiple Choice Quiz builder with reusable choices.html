@@ -359,7 +359,7 @@ function exportGame() {
     return;
   }
 
-  const title = document.getElementById('quiz-title').value.trim() || 'My Quiz';
+  const title = document.getElementById('quiz-title').value.trim() || 'Your title here';
   const data = { title, choiceBank, questions: questions.map(q => ({ text: q.text, choices: q.choices, correctIndex: q.correctIndex })) };
 
   const html = generateStudentHTML(data);
