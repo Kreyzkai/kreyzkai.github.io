@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Builder</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+* { font-family: 'DM Sans', sans-serif; }
+.mono { font-family: 'Space Mono', monospace; }
+html, body { height: 100%; margin: 0; }
+
+.card-shadow { box-shadow: 4px 4px 0 #1a1a2e; }
+.card-shadow-sm { box-shadow: 3px 3px 0 #1a1a2e; }
+.btn-pop { transition: all 0.15s; }
+.btn-pop:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 #1a1a2e; }
+.btn-pop:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #1a1a2e; }
+
+.choice-chip { transition: all 0.2s; cursor: pointer; }
+.choice-chip:hover { transform: scale(1.03); }
+.choice-chip.selected { ring: 2px solid #f72585; }
+
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.toast-slide { animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s; }
+@keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideOut { from { opacity: 1; } to { opacity: 0; } }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #b5179e44; border-radius: 3px; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-[#0f0e17] text-[#fffffe] overflow-auto">
+  <div id="app" class="w-full min-h-full flex flex-col"><!-- Toast container -->
+   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Header -->
+   <header class="w-full border-b-2 border-[#1a1a2e] bg-[#0f0e17] sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-[#f72585] card-shadow-sm flex items-center justify-center"><i data-lucide="brain" class="w-5 h-5 text-white"></i>
+      </div>
+      <h1 id="app-title" class="text-lg font-bold mono tracking-tight">Quiz Builder</h1>
+     </div><a href="index.html" class="flex items-center gap-1.5 text-sm text-[#b5179e] hover:text-[#f72585] transition-colors font-medium"> <i data-lucide="home" class="w-4 h-4"></i> Home </a>
+    </div>
+   </header><!-- Main content -->
+   <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-6"><!-- Top actions bar -->
+    <div class="flex flex-wrap gap-3 mb-6"><button onclick="exportGame()" class="btn-pop bg-[#f72585] text-white px-4 py-2 rounded-lg border-2 border-[#1a1a2e] card-shadow-sm font-semibold text-sm flex items-center gap-2"> <i data-lucide="download" class="w-4 h-4"></i> Export Student Game </button> <label class="btn-pop bg-[#7209b7] text-white px-4 py-2 rounded-lg border-2 border-[#1a1a2e] card-shadow-sm font-semibold text-sm flex items-center gap-2 cursor-pointer"> <i data-lucide="upload" class="w-4 h-4"></i> Import Game <input type="file" accept=".html" class="hidden" onchange="importGame(event)"> </label>
+     <div class="flex-1"></div>
+     <div class="text-sm text-[#a7a9be] self-center mono" id="question-count">
+      0 questions
+     </div>
+    </div><!-- Quiz title -->
+    <div class="mb-6"><label class="block text-xs font-semibold text-[#a7a9be] uppercase tracking-wider mb-1.5">Quiz Title</label> <input id="quiz-title" type="text" placeholder="Enter your quiz title..." value="My Quiz" class="w-full bg-[#1a1a2e] border-2 border-[#2e2e4a] rounded-lg px-4 py-2.5 text-[#fffffe] placeholder-[#4a4a6a] focus:border-[#f72585] focus:outline-none transition-colors text-sm">
+    </div><!-- Choice Bank -->
+    <div class="mb-6 bg-[#1a1a2e] border-2 border-[#2e2e4a] rounded-xl p-4 card-shadow">
+     <div class="flex items-center justify-between mb-3">
+      <h2 class="font-bold text-sm flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-[#b5179e]"></i> Choice Bank</h2><span class="text-xs text-[#a7a9be] mono" id="bank-count">0 choices</span>
+     </div>
+     <div class="flex gap-2 mb-3"><input id="new-choice-input" type="text" placeholder="Add a reusable choice..." class="flex-1 bg-[#0f0e17] border-2 border-[#2e2e4a] rounded-lg px-3 py-2 text-sm text-[#fffffe] placeholder-[#4a4a6a] focus:border-[#b5179e] focus:outline-none transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addChoice()}"> <button onclick="addChoice()" class="btn-pop bg-[#b5179e] text-white px-3 py-2 rounded-lg border-2 border-[#1a1a2e] font-semibold text-sm flex items-center gap-1"> <i data-lucide="plus" class="w-4 h-4"></i> </button>
+     </div>
+     <div id="choice-bank" class="flex flex-wrap gap-2 min-h-[32px]"><span class="text-xs text-[#4a4a6a] italic">No choices yet — add some above</span>
+     </div>
+    </div><!-- Questions -->
+    <div class="flex items-center justify-between mb-4">
+     <h2 class="font-bold flex items-center gap-2"><i data-lucide="list-ordered" class="w-5 h-5 text-[#f72585]"></i> Questions</h2><button onclick="addQuestion()" class="btn-pop bg-[#3a0ca3] text-white px-4 py-2 rounded-lg border-2 border-[#1a1a2e] card-shadow-sm font-semibold text-sm flex items-center gap-2"> <i data-lucide="plus" class="w-4 h-4"></i> Add Question </button>
+    </div>
+    <div id="questions-container" class="flex flex-col gap-4 pb-8">
+     <div class="text-center py-12 text-[#4a4a6a]"><i data-lucide="file-question" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+      <p class="text-sm">No questions yet. Click "Add Question" to start building!</p>
+     </div>
+    </div>
+   </main>
+  </div><!-- Inline confirm modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background:rgba(0,0,0,0.6)">
+   <div class="bg-[#1a1a2e] border-2 border-[#2e2e4a] rounded-xl p-6 card-shadow max-w-sm mx-4">
+    <p id="confirm-msg" class="text-sm mb-4"></p>
+    <div class="flex gap-3 justify-end"><button onclick="closeConfirm(false)" class="px-4 py-2 rounded-lg border-2 border-[#2e2e4a] text-sm font-semibold text-[#a7a9be] hover:bg-[#2e2e4a] transition-colors">Cancel</button> <button onclick="closeConfirm(true)" class="px-4 py-2 rounded-lg bg-[#f72585] border-2 border-[#1a1a2e] text-sm font-semibold text-white btn-pop">Confirm</button>
+    </div>
+   </div>
+  </div>
+  <script>
+// ─── State ───
+let choiceBank = []; // Array of strings
+let questions = [];  // Array of { id, text, choices: string[], correctIndex: number }
+let nextQId = 1;
+let confirmResolve = null;
+
+// ─── Element SDK ───
+const defaultConfig = {
+  app_title: 'Quiz Builder',
+  background_color: '#0f0e17',
+  surface_color: '#1a1a2e',
+  text_color: '#fffffe',
+  primary_action_color: '#f72585',
+  secondary_action_color: '#b5179e'
+};
+
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => {
+    const c = { ...defaultConfig, ...config };
+    document.getElementById('app-title').textContent = c.app_title;
+    document.body.style.background = c.background_color;
+    document.querySelectorAll('.bg-\\[\\#0f0e17\\]').forEach(el => el.style.backgroundColor = c.background_color);
+  },
+  mapToCapabilities: (config) => {
+    const c = { ...defaultConfig, ...config };
+    const mkColor = (key) => ({
+      get: () => c[key] || defaultConfig[key],
+      set: (v) => { c[key] = v; window.elementSdk.setConfig({ [key]: v }); }
+    });
+    return {
+      recolorables: [
+        mkColor('background_color'),
+        mkColor('surface_color'),
+        mkColor('text_color'),
+        mkColor('primary_action_color'),
+        mkColor('secondary_action_color')
+      ],
+      borderables: [],
+      fontEditable: {
+        get: () => c.font_family || 'DM Sans',
+        set: (v) => { c.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+      },
+      fontSizeable: undefined
+    };
+  },
+  mapToEditPanelValues: (config) => {
+    const c = { ...defaultConfig, ...config };
+    return new Map([['app_title', c.app_title]]);
+  }
+});
+
+// ─── Toast ───
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const colors = { success: 'bg-[#2dc653] text-[#0f0e17]', error: 'bg-[#f72585] text-white', info: 'bg-[#3a0ca3] text-white' };
+  const div = document.createElement('div');
+  div.className = `toast-slide ${colors[type] || colors.info} px-4 py-2.5 rounded-lg border-2 border-[#1a1a2e] card-shadow-sm text-sm font-semibold`;
+  div.textContent = msg;
+  container.appendChild(div);
+  setTimeout(() => div.remove(), 3000);
+}
+
+// ─── Confirm ───
+function showConfirm(msg) {
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+    document.getElementById('confirm-msg').textContent = msg;
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  });
+}
+function closeConfirm(val) {
+  const modal = document.getElementById('confirm-modal');
+  modal.classList.add('hidden');
+  modal.style.display = '';
+  if (confirmResolve) { confirmResolve(val); confirmResolve = null; }
+}
+
+// ─── Choice Bank ───
+function addChoice() {
+  const input = document.getElementById('new-choice-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (choiceBank.includes(text)) { showToast('Choice already exists', 'error'); return; }
+  choiceBank.push(text);
+  input.value = '';
+  renderChoiceBank();
+  renderAllQuestions();
+}
+
+async function removeChoice(idx) {
+  const text = choiceBank[idx];
+  // Check if used in any question
+  const usedIn = questions.filter(q => q.choices.includes(text));
+  if (usedIn.length > 0) {
+    const ok = await showConfirm(`"${text}" is used in ${usedIn.length} question(s). Remove it from those too?`);
+    if (!ok) return;
+    usedIn.forEach(q => {
+      const ci = q.choices.indexOf(text);
+      if (ci !== -1) {
+        q.choices.splice(ci, 1);
+        if (q.correctIndex === ci) q.correctIndex = -1;
+        else if (q.correctIndex > ci) q.correctIndex--;
+      }
+    });
+  }
+  choiceBank.splice(idx, 1);
+  renderChoiceBank();
+  renderAllQuestions();
+}
+
+function renderChoiceBank() {
+  const container = document.getElementById('choice-bank');
+  document.getElementById('bank-count').textContent = `${choiceBank.length} choice${choiceBank.length !== 1 ? 's' : ''}`;
+  if (choiceBank.length === 0) {
+    container.innerHTML = '<span class="text-xs text-[#4a4a6a] italic">No choices yet — add some above</span>';
+    return;
+  }
+  container.innerHTML = choiceBank.map((c, i) => `
+    <span class="inline-flex items-center gap-1.5 bg-[#2e2e4a] border border-[#4a4a6a] rounded-full px-3 py-1 text-xs font-medium text-[#fffffe] choice-chip">
+      ${esc(c)}
+      <button onclick="removeChoice(${i})" class="ml-0.5 hover:text-[#f72585] transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button>
+    </span>
+  `).join('');
+  lucide.createIcons();
+}
+
+// ─── Questions ───
+function addQuestion() {
+  questions.push({ id: nextQId++, text: '', choices: [], correctIndex: -1 });
+  renderAllQuestions();
+  // Scroll to bottom
+  setTimeout(() => {
+    const container = document.getElementById('questions-container');
+    container.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
+}
+
+async function removeQuestion(id) {
+  const ok = await showConfirm('Delete this question?');
+  if (!ok) return;
+  questions = questions.filter(q => q.id !== id);
+  renderAllQuestions();
+}
+
+function toggleChoiceInQuestion(qId, choiceText) {
+  const q = questions.find(x => x.id === qId);
+  if (!q) return;
+  const idx = q.choices.indexOf(choiceText);
+  if (idx !== -1) {
+    q.choices.splice(idx, 1);
+    if (q.correctIndex === idx) q.correctIndex = -1;
+    else if (q.correctIndex > idx) q.correctIndex--;
+  } else {
+    q.choices.push(choiceText);
+  }
+  renderAllQuestions();
+}
+
+function addCustomChoiceToQuestion(qId) {
+  const input = document.getElementById(`custom-choice-${qId}`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const q = questions.find(x => x.id === qId);
+  if (!q) return;
+  if (q.choices.includes(text)) { showToast('Already added', 'error'); return; }
+  // Also add to bank if not there
+  if (!choiceBank.includes(text)) {
+    choiceBank.push(text);
+    renderChoiceBank();
+  }
+  q.choices.push(text);
+  input.value = '';
+  renderAllQuestions();
+}
+
+function setCorrectAnswer(qId, choiceIdx) {
+  const q = questions.find(x => x.id === qId);
+  if (!q) return;
+  q.correctIndex = choiceIdx;
+  renderAllQuestions();
+}
+
+function updateQuestionText(qId, text) {
+  const q = questions.find(x => x.id === qId);
+  if (q) q.text = text;
+}
+
+function renderAllQuestions() {
+  const container = document.getElementById('questions-container');
+  document.getElementById('question-count').textContent = `${questions.length} question${questions.length !== 1 ? 's' : ''}`;
+
+  if (questions.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12 text-[#4a4a6a]">
+        <i data-lucide="file-question" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+        <p class="text-sm">No questions yet. Click "Add Question" to start building!</p>
+      </div>`;
+    lucide.createIcons();
+    return;
+  }
+
+  container.innerHTML = questions.map((q, qi) => `
+    <div class="fade-in bg-[#1a1a2e] border-2 border-[#2e2e4a] rounded-xl p-4 card-shadow">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <span class="mono text-xs font-bold text-[#b5179e] bg-[#b5179e22] px-2 py-1 rounded-md shrink-0">Q${qi + 1}</span>
+        <input type="text" value="${escAttr(q.text)}" placeholder="Enter question or sentence..."
+          oninput="updateQuestionText(${q.id}, this.value)"
+          class="flex-1 bg-[#0f0e17] border-2 border-[#2e2e4a] rounded-lg px-3 py-2 text-sm text-[#fffffe] placeholder-[#4a4a6a] focus:border-[#f72585] focus:outline-none transition-colors">
+        <button onclick="removeQuestion(${q.id})" class="text-[#4a4a6a] hover:text-[#f72585] transition-colors p-1">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Pick from bank -->
+      <div class="mb-2">
+        <span class="text-xs text-[#a7a9be] font-semibold uppercase tracking-wider">Pick from Choice Bank:</span>
+      </div>
+      <div class="flex flex-wrap gap-1.5 mb-3">
+        ${choiceBank.length === 0 ? '<span class="text-xs text-[#4a4a6a] italic">Add choices to the bank first</span>' :
+          choiceBank.map(c => {
+            const isIn = q.choices.includes(c);
+            return `<button onclick="toggleChoiceInQuestion(${q.id}, '${escJs(c)}')"
+              class="text-xs px-2.5 py-1 rounded-full border-2 transition-all font-medium ${isIn
+                ? 'bg-[#b5179e33] border-[#b5179e] text-[#f72585]'
+                : 'bg-[#0f0e17] border-[#2e2e4a] text-[#a7a9be] hover:border-[#4a4a6a]'}">${esc(c)}</button>`;
+          }).join('')}
+      </div>
+
+      <!-- Or add a new one inline -->
+      <div class="flex gap-2 mb-3">
+        <input id="custom-choice-${q.id}" type="text" placeholder="Or type a new choice..."
+          class="flex-1 bg-[#0f0e17] border-2 border-[#2e2e4a] rounded-lg px-3 py-1.5 text-xs text-[#fffffe] placeholder-[#4a4a6a] focus:border-[#b5179e] focus:outline-none transition-colors"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomChoiceToQuestion(${q.id})}">
+        <button onclick="addCustomChoiceToQuestion(${q.id})" class="bg-[#2e2e4a] text-[#a7a9be] hover:text-white px-2 py-1 rounded-lg border border-[#4a4a6a] text-xs transition-colors">
+          <i data-lucide="plus" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Selected choices with correct answer selector -->
+      ${q.choices.length > 0 ? `
+        <div class="mb-1"><span class="text-xs text-[#a7a9be] font-semibold uppercase tracking-wider">Select correct answer:</span></div>
+        <div class="flex flex-col gap-1.5">
+          ${q.choices.map((c, ci) => `
+            <label class="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-all text-sm ${q.correctIndex === ci
+              ? 'bg-[#2dc65322] border-2 border-[#2dc653]'
+              : 'bg-[#0f0e17] border-2 border-[#2e2e4a] hover:border-[#4a4a6a]'}">
+              <input type="radio" name="correct-${q.id}" ${q.correctIndex === ci ? 'checked' : ''}
+                onchange="setCorrectAnswer(${q.id}, ${ci})"
+                class="accent-[#2dc653]">
+              <span class="flex-1">${esc(c)}</span>
+              ${q.correctIndex === ci ? '<span class="text-[#2dc653] text-xs font-bold mono">✓ CORRECT</span>' : ''}
+            </label>
+          `).join('')}
+        </div>
+      ` : '<p class="text-xs text-[#4a4a6a] italic">Pick or add choices above</p>'}
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+// ─── Export ───
+function exportGame() {
+  // Validate
+  if (questions.length === 0) { showToast('Add at least one question', 'error'); return; }
+  const invalid = questions.filter(q => !q.text.trim() || q.choices.length < 2 || q.correctIndex < 0);
+  if (invalid.length > 0) {
+    showToast('Each question needs text, 2+ choices, and a correct answer', 'error');
+    return;
+  }
+
+  const title = document.getElementById('quiz-title').value.trim() || 'My Quiz';
+  const data = { title, choiceBank, questions: questions.map(q => ({ text: q.text, choices: q.choices, correctIndex: q.correctIndex })) };
+
+  const html = generateStudentHTML(data);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title.replace(/[^a-z0-9]/gi, '_')}_quiz.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Game exported!');
+}
+
+function generateStudentHTML(data) {
+  const encoded = JSON.stringify(data);
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(data.title)}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;font-family:'DM Sans',sans-serif}
+body{background:#0f0e17;color:#fffffe;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px}
+.mono{font-family:'Space Mono',monospace}
+.container{max-width:640px;width:100%}
+h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;text-align:center}
+.subtitle{text-align:center;color:#a7a9be;font-size:0.875rem;margin-bottom:24px}
+.progress-bar{width:100%;height:6px;background:#1a1a2e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#f72585,#b5179e);border-radius:3px;transition:width 0.4s}
+.card{background:#1a1a2e;border:2px solid #2e2e4a;border-radius:16px;padding:24px;box-shadow:4px 4px 0 #1a1a2e;margin-bottom:16px}
+.q-label{font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;color:#b5179e;background:#b5179e22;padding:4px 8px;border-radius:6px;display:inline-block;margin-bottom:12px}
+.q-text{font-size:1.1rem;font-weight:600;margin-bottom:20px;line-height:1.5}
+.choice-btn{width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;border-radius:12px;border:2px solid #2e2e4a;background:#0f0e17;color:#fffffe;font-size:0.95rem;cursor:pointer;transition:all 0.2s}
+.choice-btn:hover:not(.picked){border-color:#4a4a6a;transform:translateX(2px)}
+.choice-btn.correct{background:#2dc65322;border-color:#2dc653;color:#2dc653}
+.choice-btn.wrong{background:#f7258522;border-color:#f72585;color:#f72585}
+.choice-btn.picked{cursor:default}
+.next-btn{display:none;margin-top:16px;background:#f72585;color:white;border:2px solid #1a1a2e;padding:10px 24px;border-radius:12px;font-weight:700;font-size:0.9rem;cursor:pointer;box-shadow:3px 3px 0 #1a1a2e;transition:all 0.15s}
+.next-btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #1a1a2e}
+.next-btn.show{display:inline-block}
+.result{text-align:center;padding:40px 20px}
+.result h2{font-size:1.8rem;margin-bottom:8px}
+.result .score{font-family:'Space Mono',monospace;font-size:3rem;font-weight:700;color:#f72585;margin:16px 0}
+.result .msg{color:#a7a9be;font-size:1rem;margin-bottom:24px}
+.restart-btn{background:#3a0ca3;color:white;border:2px solid #1a1a2e;padding:12px 32px;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 #1a1a2e;transition:all 0.15s}
+.restart-btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #1a1a2e}
+@keyframes pop{0%{transform:scale(0.95);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop 0.3s ease}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>${esc(data.title)}</h1>
+<p class="subtitle">Answer each question to test your knowledge</p>
+<div class="progress-bar"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+<div id="game"></div>
+</div>
+<!--QUIZDATA:${btoa(unescape(encodeURIComponent(encoded)))}:QUIZDATA-->
+<script>
+const quizData = JSON.parse(decodeURIComponent(escape(atob(document.documentElement.innerHTML.match(/<!--QUIZDATA:(.*?):QUIZDATA-->/)[1]))));
+const qs = quizData.questions;
+let cur = 0, score = 0;
+
+function render() {
+  if (cur >= qs.length) { showResult(); return; }
+  const q = qs[cur];
+  document.getElementById('pbar').style.width = ((cur/qs.length)*100)+'%';
+  let h = '<div class="card pop"><span class="q-label">Q'+(cur+1)+' / '+qs.length+'</span>';
+  h += '<div class="q-text">'+esc(q.text)+'</div>';
+  q.choices.forEach((c,i) => { h += '<button class="choice-btn" onclick="pick('+i+')">'+esc(c)+'</button>'; });
+  h += '<button class="next-btn" id="nbtn" onclick="next()">Next →</button></div>';
+  document.getElementById('game').innerHTML = h;
+}
+
+function pick(i) {
+  const q = qs[cur];
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach((b,j) => {
+    b.classList.add('picked');
+    if (j === q.correctIndex) b.classList.add('correct');
+    else if (j === i) b.classList.add('wrong');
+  });
+  if (i === q.correctIndex) score++;
+  document.getElementById('nbtn').classList.add('show');
+}
+
+function next() { cur++; render(); }
+
+function showResult() {
+  document.getElementById('pbar').style.width = '100%';
+  const pct = Math.round((score/qs.length)*100);
+  const msg = pct === 100 ? 'Perfect score! 🎉' : pct >= 70 ? 'Great job! 🌟' : pct >= 50 ? 'Not bad! Keep practicing 💪' : 'Keep studying! You\\'ll get there 📚';
+  document.getElementById('game').innerHTML = '<div class="card result pop"><h2>Quiz Complete!</h2><div class="score">'+score+' / '+qs.length+'</div><p class="msg">'+msg+'</p><button class="restart-btn" onclick="restart()">Try Again</button></div>';
+}
+
+function restart() { cur = 0; score = 0; render(); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+render();
+<\/script>
+</body>
+</html>`;
+}
+
+// ─── Import ───
+function importGame(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const html = e.target.result;
+      const match = html.match(/<!--QUIZDATA:(.*?):QUIZDATA-->/);
+      if (!match) { showToast('Not a valid quiz file', 'error'); return; }
+      const data = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+      // Rehydrate
+      document.getElementById('quiz-title').value = data.title || 'My Quiz';
+      choiceBank = data.choiceBank || [];
+      questions = (data.questions || []).map(q => ({ id: nextQId++, text: q.text, choices: q.choices, correctIndex: q.correctIndex }));
+      renderChoiceBank();
+      renderAllQuestions();
+      showToast(`Imported "${data.title}" — ${questions.length} questions`);
+    } catch (err) {
+      showToast('Failed to parse quiz file', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ─── Helpers ───
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escJs(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+// ─── Init ───
+renderChoiceBank();
+renderAllQuestions();
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e866693d62180ef',t:'MTc3NTUzNzMxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
