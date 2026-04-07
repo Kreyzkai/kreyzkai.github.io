@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Fill-in-the-Blanks Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#001f3f 0%,#003366 50%,#0055a5 100%);min-height:100vh;padding:30px 20px 110px;color:#fff;}
+h1{text-align:center;font-size:1.8rem;color:#feca57;margin-bottom:6px;letter-spacing:1px;}
+.subtitle{text-align:center;font-size:0.85rem;color:#aad4f5;margin-bottom:28px;}
+.phase-tabs{display:flex;max-width:980px;margin:0 auto 20px;background:rgba(0,0,0,0.25);border-radius:10px;padding:4px;gap:4px;}
+.phase-tab{flex:1;padding:9px;text-align:center;border-radius:7px;font-size:0.82rem;font-weight:600;cursor:pointer;color:rgba(255,255,255,0.5);transition:all .2s;user-select:none;}
+.phase-tab.active{background:rgba(254,202,87,0.15);color:#feca57;border:1px solid rgba(254,202,87,0.3);}
+.phase-tab.locked{opacity:.3;cursor:default;}
+.phase{display:none;max-width:980px;margin:0 auto;}
+.phase.active{display:block;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr;}}
+.card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:18px;}
+.card>label{display:block;font-size:0.78rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.hint{font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:8px;font-style:italic;}
+textarea{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:0.88rem;padding:11px;resize:vertical;font-family:inherit;line-height:1.6;}
+textarea::placeholder{color:rgba(255,255,255,0.3);}
+textarea:focus{outline:none;border-color:#feca57;}
+.options-bar{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:0.84rem;color:#aad4f5;}
+.options-bar label{display:flex;align-items:center;gap:7px;cursor:pointer;}
+.options-bar input[type=checkbox]{accent-color:#feca57;width:14px;height:14px;}
+.options-bar input[type=text]{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;padding:4px 9px;font-size:0.82rem;width:160px;}
+.opt-sep{width:1px;height:20px;background:rgba(255,255,255,0.15);}
+.opt-new{background:rgba(254,202,87,0.1);border:1px solid rgba(254,202,87,0.25);border-radius:6px;padding:4px 10px;font-size:0.78rem;color:#feca57;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0;}
+button{padding:11px 22px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;}
+button:hover:not(:disabled){transform:translateY(-1px);}
+button:disabled{opacity:.4;cursor:default;}
+.btn-primary{background:linear-gradient(135deg,#feca57,#f9a825);color:#003366;}
+.btn-success{background:linear-gradient(135deg,#27ae60,#1e8449);color:#fff;}
+.btn-ghost{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);}
+.stats-bar{background:rgba(254,202,87,0.1);border:1px solid rgba(254,202,87,0.25);border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:.83rem;}
+.stat{display:flex;flex-direction:column;align-items:center;}
+.stat-num{font-size:1.2rem;font-weight:700;color:#feca57;}
+.stat-lbl{font-size:.72rem;color:#aad4f5;}
+.unmatched-area{display:flex;flex-wrap:wrap;gap:6px;flex:1;align-items:center;}
+.um-label{font-size:.75rem;color:#ff7675;font-weight:700;}
+.um-chip{background:rgba(255,100,70,0.2);border:1px solid rgba(255,100,70,0.35);border-radius:20px;padding:2px 9px;font-size:.78rem;color:#ffb3b3;cursor:pointer;}
+.um-chip:hover{background:rgba(255,100,70,0.4);}
+.editor-layout{display:grid;grid-template-columns:1fr 285px;gap:14px;}
+@media(max-width:700px){.editor-layout{grid-template-columns:1fr;}}
+.editor-passage{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:18px;}
+.editor-passage-title{font-size:.75rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.editor-hint{font-size:.75rem;color:rgba(255,255,255,0.4);margin-bottom:12px;font-style:italic;}
+#passage-editor{line-height:2.3;font-size:.95rem;color:#eef;word-spacing:2px;}
+.w-token{cursor:pointer;border-radius:3px;padding:1px 2px;transition:background .12s;user-select:none;}
+.w-token:hover{background:rgba(254,202,87,0.25);}
+.blank-token{display:inline-flex;align-items:baseline;gap:2px;cursor:pointer;background:#fffde0;border:1px solid #feca57;border-radius:4px;padding:1px 5px;color:#003366;font-weight:700;font-size:.85rem;margin:0 2px;vertical-align:baseline;user-select:none;transition:all .12s;}
+.blank-token:hover,.blank-token.selected{background:#fff0d0;border-color:#ff7675;color:#cc0000;}
+.blank-num{font-weight:800;margin-right:1px;}
+.blank-word{font-style:italic;}
+.editor-sidebar{display:flex;flex-direction:column;gap:12px;}
+.sidebar-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:10px;padding:14px;}
+.sidebar-title{font-size:.75rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+#blank-list{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;}
+.blank-list-item{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border-radius:6px;padding:5px 8px;font-size:.82rem;cursor:pointer;}
+.blank-list-item:hover{background:rgba(255,255,255,0.1);}
+.blank-list-item.selected{background:rgba(255,100,70,0.15);border:1px solid rgba(255,100,70,0.3);}
+.bli-num{font-weight:700;color:#feca57;min-width:20px;}
+.bli-word{flex:1;color:#eef;}
+.bli-jp{color:#aad4f5;font-size:.75rem;}
+.bli-del{background:none;border:none;color:rgba(255,255,255,0.3);font-size:1.1rem;padding:0 4px;cursor:pointer;line-height:1;border-radius:4px;min-width:auto;}
+.bli-del:hover{color:#ff7675;background:rgba(255,100,70,0.15);transform:none;}
+.add-blank-row{display:flex;gap:6px;margin-top:10px;}
+.add-blank-input{flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;padding:6px 9px;font-size:.82rem;font-family:inherit;}
+.add-blank-input:focus{outline:none;border-color:#feca57;}
+.add-blank-btn{padding:6px 12px;font-size:.82rem;background:rgba(254,202,87,0.2);color:#feca57;border:1px solid rgba(254,202,87,0.35);border-radius:6px;cursor:pointer;white-space:nowrap;min-width:auto;}
+.add-blank-btn:hover{background:rgba(254,202,87,0.35);transform:none;}
+.worksheet{background:#fff;color:#111;border-radius:10px;padding:32px 36px;font-family:'Times New Roman',serif;line-height:1.9;box-shadow:0 8px 30px rgba(0,0,0,0.4);}
+.ws-title{text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:4px;letter-spacing:1px;}
+.ws-sub{text-align:center;font-size:.8rem;color:#666;margin-bottom:16px;border-bottom:2px solid #003366;padding-bottom:8px;}
+.ws-name-line{display:flex;gap:24px;margin-bottom:18px;font-size:.85rem;}
+.ws-name-line span{flex:1;border-bottom:1px solid #aaa;padding-bottom:2px;}
+.ws-passage{font-size:.96rem;margin-bottom:22px;text-align:justify;}
+.ws-blank{display:inline-block;vertical-align:bottom;white-space:nowrap;margin:0 1px;font-family:'Segoe UI',sans-serif;}
+.ws-blank-num{font-weight:700;font-size:.85rem;color:#003366;}
+.ws-blank-line{display:inline-block;border-bottom:2px solid #003366;width:110px;vertical-align:bottom;margin-left:2px;}
+.ws-wordbank{border:1px solid #ccc;border-radius:6px;padding:12px 16px;margin-bottom:18px;}
+.ws-wordbank-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#003366;margin-bottom:8px;}
+.wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 16px;font-size:.85rem;}
+.wb-item{display:flex;gap:6px;}
+.wb-num{font-weight:700;color:#003366;min-width:22px;}
+.wb-jp{color:#555;font-size:.8rem;}
+.ws-answerkey{margin-top:20px;padding-top:14px;border-top:1px dashed #bbb;}
+.ws-ak-title{font-size:.75rem;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.ak-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:3px 14px;font-size:.78rem;color:#444;}
+.ak-item{display:flex;gap:5px;}
+.ak-num{font-weight:700;color:#003366;min-width:20px;}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;height:56px;background:rgba(0,20,50,0.92);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;gap:16px;z-index:100;}
+.bottom-bar button{padding:8px 20px;font-size:.82rem;border-radius:20px;}
+#btn-back{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);}
+#btn-back:hover{background:rgba(255,255,255,0.2);transform:none;}
+.watermark{position:fixed;bottom:65px;left:15px;font-size:.72rem;color:rgba(255,255,255,0.3);pointer-events:none;z-index:50;}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#27ae60;color:#fff;padding:10px 22px;border-radius:20px;font-size:.85rem;opacity:0;transition:all .3s;pointer-events:none;z-index:999;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media print{
+  body{background:#fff!important;padding:0!important;}
+  .phase-tabs,#phase-input,.editor-layout,.stats-bar,.btn-row,
+  .bottom-bar,.watermark,#toast,h1,.subtitle,
+  .editor-passage-title,.editor-hint{display:none!important;}
+  #phase-edit{display:block!important;}
+  #ws-preview-wrap{margin:0!important;}
+  .worksheet{box-shadow:none!important;border-radius:0!important;}
+  .ws-answerkey{page-break-before:always;}
+}
+</style>
+</head>
+<body>
+<h1>📝 Vocab Fill-in-the-Blanks Generator</h1>
+<p class="subtitle">Paste passage + vocabulary → auto-blank → click to edit → print</p>
+
+<div class="phase-tabs">
+  <div class="phase-tab active" id="tab-input" onclick="goToPhase('input')">① Input</div>
+  <div class="phase-tab locked" id="tab-edit" onclick="goToPhase('edit')">② Edit Blanks</div>
+</div>
+
+<!-- PHASE 1: INPUT -->
+<div class="phase active" id="phase-input">
+  <div class="grid-2">
+    <div class="card">
+      <label>① Passage Text</label>
+      <p class="hint">Paste the full English paragraph(s)</p>
+      <textarea id="input-passage" rows="10" placeholder="China is a large country with a wide range of climates…"></textarea>
+    </div>
+    <div class="card">
+      <label>② Vocabulary List</label>
+      <p class="hint">word：訳語　word：訳語 format</p>
+      <textarea id="input-vocab" rows="10" placeholder="a wide range of ～：幅広い～　climate：気候　develop：発展する　cuisine：料理"></textarea>
+    </div>
+  </div>
+  <div class="options-bar">
+    <label><input type="checkbox" id="opt-jp" checked> Japanese in word bank</label>
+    <label><input type="checkbox" id="opt-shuffle"> Shuffle word bank</label>
+    <div class="opt-sep"></div>
+    <label><input type="checkbox" id="opt-answerkey" checked> Answer key</label>
+    <label><input type="checkbox" id="opt-nameline" checked> Name / Date line</label>
+    <div class="opt-sep"></div>
+    <span class="opt-new">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" id="opt-firstonly"> First occurrence only
+      </label>
+    </span>
+    <div class="opt-sep"></div>
+    <span style="font-size:.78rem;color:#feca57;font-weight:700;">Title:</span>
+    <input type="text" id="opt-title" value="Fill in the Blanks">
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="generate()">⚡ Auto-Generate Blanks →</button>
+    <button class="btn-ghost" onclick="clearAll()">✕ Clear</button>
+  </div>
+</div>
+
+<!-- PHASE 2: EDIT -->
+<div class="phase" id="phase-edit">
+  <div class="stats-bar" id="stats-bar" style="display:none;">
+    <div class="stat"><span class="stat-num" id="s-blanked">0</span><span class="stat-lbl">blanked</span></div>
+    <div class="stat"><span class="stat-num" id="s-vocab">0</span><span class="stat-lbl">vocab items</span></div>
+    <div class="unmatched-area" id="unmatched-area" style="display:none;">
+      <span class="um-label">Not found — click to add:</span>
+      <span id="unmatched-chips"></span>
+    </div>
+  </div>
+
+  <div class="editor-layout">
+    <div class="editor-passage">
+      <div class="editor-passage-title">✏️ Click words to blank / un-blank</div>
+      <div class="editor-hint">Click any word → blank. Click a highlighted blank → remove it. Use sidebar to add a word/phrase manually.</div>
+      <div id="passage-editor"></div>
+    </div>
+    <div class="editor-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">📋 Blanked Words</div>
+        <div id="blank-list"></div>
+        <div class="add-blank-row">
+          <input class="add-blank-input" id="manual-word-input" placeholder="Add word / phrase…" onkeydown="if(event.key==='Enter')addManualBlank()">
+          <button class="add-blank-btn" onclick="addManualBlank()">+ Add</button>
+        </div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">⚙️ Options</div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:.83rem;color:#aad4f5;">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="e-jp" style="accent-color:#feca57;"> Japanese in word bank</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="e-shuffle"> Shuffle word bank</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="e-ak" checked> Answer key</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="e-name" checked> Name / Date line</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:#feca57;font-size:.78rem;"><input type="checkbox" id="e-firstonly" style="accent-color:#feca57;"> First occurrence only</label>
+        </div>
+      </div>
+      <div class="btn-row" style="flex-direction:column;">
+        <button class="btn-primary" onclick="buildPreview()">👁 Preview &amp; Print →</button>
+        <button class="btn-ghost" style="font-size:.82rem;" onclick="goToPhase('input')">← Back to Input</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ws-preview-wrap" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;">
+      <span style="font-size:.78rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Worksheet Preview</span>
+      <button class="btn-success" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>
+    <div class="worksheet" id="worksheet-out"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div class="watermark">© CMarasigan</div>
+<div class="bottom-bar">
+  <button id="btn-back" onclick="goBack()">← Back to Main</button>
+</div>
+
+<script>
+let tokens=[], vocabMap={}, selectedBlankId=null, _id=0;
+const nid=()=>++_id;
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+// Porter-lite stemmer — handles inflections: develop→develop, developed→develop,
+// deny→deny, denies→deny, climate→climat, climates→climat, etc.
+function stem(w){
+  w=w.toLowerCase();
+  if(w.length<=3)return w;
+  if(w.endsWith("n't")&&w.length>4)return w.slice(0,-3);
+  if(w.endsWith('ies')&&w.length>4)return w.slice(0,-3)+'y';
+  if(w.endsWith('ied')&&w.length>4)return w.slice(0,-3)+'y';
+  if(w.endsWith('ing')&&w.length>5){
+    const b=w.slice(0,-3);
+    if(b.length>=3&&b[b.length-1]===b[b.length-2]&&!'aeiou'.includes(b[b.length-1]))return b.slice(0,-1);
+    return b;
+  }
+  if(w.endsWith('ed')&&w.length>4){
+    const b=w.slice(0,-2);
+    if(b.length>=3&&b[b.length-1]===b[b.length-2]&&!'aeiou'.includes(b[b.length-1]))return b.slice(0,-1);
+    return b;
+  }
+  if(w.endsWith('es')&&w.length>4&&!w.endsWith('ss'))return w.slice(0,-2);
+  if(w.endsWith('s')&&w.length>3&&!w.endsWith('ss'))return w.slice(0,-1);
+  if(w.endsWith('e')&&w.length>3)return w.slice(0,-1);
+  return w;
+}
+
+// Split a raw token text into { leadPunct, wordPart, trailPunct }
+// Handles contractions like she's → she + 's, don't → don + 't
+function extractParts(text){
+  const contractions=["n't","'s","'ve","'re","'ll","'d","'m"];
+  let lead='',word=text,trail='';
+  for(const c of contractions){
+    if(text.toLowerCase().endsWith(c)){
+      trail=text.slice(-c.length);
+      word=text.slice(0,-c.length);
+      break;
+    }
+  }
+  // leading non-word chars
+  const lm=word.match(/^([^\w\u3040-\u9fff]*)/);
+  if(lm&&lm[1]){lead+=lm[1];word=word.slice(lm[1].length);}
+  // trailing non-word chars
+  const tm=word.match(/([^\w\u3040-\u9fff]*)$/);
+  if(tm&&tm[1]){trail=tm[1]+trail;word=word.slice(0,word.length-tm[1].length);}
+  return{leadPunct:lead,wordPart:word,trailPunct:trail};
+}
+
+function cleanMatch(en){return en.replace(/[～〜~]\s*$/g,'').replace(/\s*[～〜~]\s*/g,' ').trim();}
+
+function parseVocab(raw){
+  return raw.split('\u3000').map(s=>s.trim()).filter(Boolean).map(item=>{
+    const i=item.indexOf('\uff1a');
+    if(i===-1)return{en:item,jp:''};
+    return{en:item.slice(0,i).trim(),jp:item.slice(i+1).trim()};
+  }).filter(v=>v.en);
+}
+
+// ── Tokenise ───────────────────────────────────────────────────────────────
+function tokenise(text){
+  const parts=text.split(/(\s+)/);
+  const r=[];
+  for(const p of parts){
+    if(!p)continue;
+    if(/^\n/.test(p))r.push({id:nid(),type:'newline',text:p,wordPart:'',leadPunct:'',trailPunct:''});
+    else if(/^\s+$/.test(p))r.push({id:nid(),type:'space',text:p,wordPart:'',leadPunct:'',trailPunct:''});
+    else{const pts=extractParts(p);r.push({id:nid(),type:'word',text:p,...pts});}
+  }
+  return r;
+}
+
+function renumber(){let n=0;tokens.forEach(t=>{if(t.type==='blank')t.blankNum=++n;});}
+
+// ── Auto-blank ─────────────────────────────────────────────────────────────
+function autoBlank(passage,vocab,firstOnly){
+  tokens=tokenise(passage);
+  vocabMap={};
+  const all=vocab.map(v=>({...v,matchStr:cleanMatch(v.en)})).filter(v=>v.matchStr);
+  const phrases=all.filter(v=>v.matchStr.includes(' ')).sort((a,b)=>b.matchStr.length-a.matchStr.length);
+  const singles=all.filter(v=>!v.matchStr.includes(' ')).map(v=>({...v,stemmed:stem(v.matchStr)}));
+  const matched=new Set();
+
+  // ── Phase 1: phrase regex matching ──
+  const tokStarts=[];let cc=0;
+  tokens.forEach(t=>{tokStarts.push(cc);cc+=t.text.length;});
+  const plain=tokens.map(t=>t.text).join('');
+  const phraseRanges=[];
+
+  for(const v of phrases){
+    const sb=/\w/.test(v.matchStr[0])?'\\b':'';
+    const eb=/\w/.test(v.matchStr[v.matchStr.length-1])?'\\b':'';
+    const re=new RegExp(sb+escRe(v.matchStr)+eb,'gi');
+    let m;
+    while((m=re.exec(plain))!==null){
+      const s=m.index,e=m.index+m[0].length;
+      if(phraseRanges.some(r=>s<r.end&&e>r.start))continue;
+      phraseRanges.push({start:s,end:e,vocabRef:v.matchStr.toLowerCase(),vocab:v});
+      vocabMap[v.matchStr.toLowerCase()]={en:v.en,jp:v.jp,matchStr:v.matchStr};
+      matched.add(v.matchStr);
+      if(firstOnly)break;
+    }
+  }
+
+  // Apply phrase ranges to tokens
+  if(phraseRanges.length){
+    phraseRanges.sort((a,b)=>a.start-b.start);
+    let rI=0,ti=0;const nt=[];
+    while(ti<tokens.length){
+      if(rI>=phraseRanges.length){nt.push({...tokens[ti]});ti++;continue;}
+      const r=phraseRanges[rI];
+      const ts=tokStarts[ti],te=ts+tokens[ti].text.length;
+      if(te<=r.start){nt.push({...tokens[ti]});ti++;}
+      else if(ts>=r.start&&ts<r.end){
+        let sp='',si=ti,trailPunct='';
+        while(si<tokens.length&&tokStarts[si]<r.end){
+          const tokEnd=tokStarts[si]+tokens[si].text.length;
+          if(tokEnd>r.end){
+            // token extends past match end — keep only the matched chars; remainder is punct
+            const cut=r.end-tokStarts[si];
+            sp+=tokens[si].text.slice(0,cut);
+            trailPunct=tokens[si].text.slice(cut);
+            si++;break;
+          }
+          sp+=tokens[si].text;si++;
+        }
+        nt.push({id:nid(),type:'blank',text:sp,wordPart:sp.trim(),leadPunct:'',trailPunct,vocabRef:r.vocabRef,blankNum:0});
+        ti=si;rI++;
+      } else {nt.push({...tokens[ti]});ti++;}
+    }
+    tokens=nt;
+  }
+
+  // ── Phase 2: single-word stem matching ──
+  const usedOnce=new Set();
+  for(let ti=0;ti<tokens.length;ti++){
+    const tok=tokens[ti];
+    if(tok.type!=='word'||!tok.wordPart||tok.wordPart.length<=1)continue;
+    const ts=stem(tok.wordPart);
+    for(const v of singles){
+      if(firstOnly&&usedOnce.has(v.matchStr))continue;
+      if(v.stemmed===ts||v.matchStr.toLowerCase()===tok.wordPart.toLowerCase()){
+        tokens[ti]={...tok,type:'blank',vocabRef:v.matchStr.toLowerCase(),blankNum:0};
+        vocabMap[v.matchStr.toLowerCase()]={en:v.en,jp:v.jp,matchStr:v.matchStr};
+        matched.add(v.matchStr);
+        usedOnce.add(v.matchStr);
+        break;
+      }
+    }
+  }
+
+  const unmatched=all.filter(v=>!matched.has(v.matchStr));
+  renumber();
+  return{unmatched};
+}
+
+// ── Render editor ──────────────────────────────────────────────────────────
+function renderEditor(){
+  let html='';
+  tokens.forEach(tok=>{
+    if(tok.type==='space')html+=`<span style="white-space:pre">${escH(tok.text)}</span>`;
+    else if(tok.type==='newline')html+='<br>';
+    else if(tok.type==='word'){
+      if(tok.leadPunct)html+=escH(tok.leadPunct);
+      if(tok.wordPart)html+=`<span class="w-token" onclick="blankWord(${tok.id})">${escH(tok.wordPart)}</span>`;
+      else html+=escH(tok.text);
+      if(tok.trailPunct)html+=escH(tok.trailPunct);
+    }
+    else if(tok.type==='blank'){
+      const sel=selectedBlankId===tok.id?' selected':'';
+      html+=escH(tok.leadPunct||'');
+      html+=`<span class="blank-token${sel}" onclick="selectBlank(${tok.id})"><span class="blank-num">${tok.blankNum}.</span> <span class="blank-word">${escH(tok.wordPart||tok.text)}</span></span>`;
+      html+=escH(tok.trailPunct||'');
+    }
+  });
+  document.getElementById('passage-editor').innerHTML=html;
+  renderBlankList();
+  document.getElementById('s-blanked').textContent=tokens.filter(t=>t.type==='blank').length;
+}
+
+function renderBlankList(){
+  const bl=document.getElementById('blank-list');
+  const blanks=tokens.filter(t=>t.type==='blank');
+  if(!blanks.length){bl.innerHTML='<div style="font-size:.78rem;color:rgba(255,255,255,.35);font-style:italic;">No blanks yet.</div>';return;}
+  bl.innerHTML=blanks.map(b=>{
+    const v=vocabMap[b.vocabRef]||{en:b.wordPart||b.text,jp:''};
+    const sel=selectedBlankId===b.id?' selected':'';
+    return`<div class="blank-list-item${sel}" onclick="selectBlank(${b.id})">
+      <span class="bli-num">${b.blankNum}.</span>
+      <span class="bli-word">${escH(v.en)}</span>
+      ${v.jp?`<span class="bli-jp">（${escH(v.jp)}）</span>`:''}
+      <button class="bli-del" onclick="event.stopPropagation();unblank(${b.id})">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ── User interactions ──────────────────────────────────────────────────────
+function blankWord(id){
+  const i=tokens.findIndex(x=>x.id===id);if(i===-1)return;
+  const tok=tokens[i];if(tok.type!=='word')return;
+  const wp=tok.wordPart||tok.text;
+  const ref=wp.toLowerCase();
+  if(!vocabMap[ref])vocabMap[ref]={en:wp,jp:'',matchStr:wp};
+  tokens[i]={...tok,type:'blank',vocabRef:ref,blankNum:0};
+  renumber();renderEditor();showToast(`"${wp}" blanked`);
+}
+
+function selectBlank(id){
+  if(selectedBlankId===id){unblank(id);return;}
+  selectedBlankId=id;renderEditor();
+}
+
+function unblank(id){
+  const i=tokens.findIndex(x=>x.id===id);if(i===-1)return;
+  tokens[i]={...tokens[i],type:'word'};delete tokens[i].blankNum;
+  if(selectedBlankId===id)selectedBlankId=null;
+  renumber();renderEditor();
+}
+
+function addManualBlank(){
+  const inp=document.getElementById('manual-word-input');
+  const phrase=inp.value.trim();if(!phrase)return;
+  const isMulti=phrase.includes(' ');
+  let count=0;
+
+  if(isMulti){
+    const plain=tokens.map(t=>t.text).join('');
+    const re=new RegExp(escRe(phrase),'gi');let m;
+    const ranges=[];
+    while((m=re.exec(plain))!==null)ranges.push({start:m.index,end:m.index+m[0].length,found:m[0]});
+    if(!ranges.length){showToast(`"${phrase}" not found`);return;}
+    const tokStarts=[];let cc=0;tokens.forEach(t=>{tokStarts.push(cc);cc+=t.text.length;});
+    let rI=0,ti=0;const nt=[];
+    while(ti<tokens.length){
+      if(rI>=ranges.length){nt.push({...tokens[ti]});ti++;continue;}
+      const r=ranges[rI];const ts=tokStarts[ti],te=ts+tokens[ti].text.length;
+      if(te<=r.start||tokens[ti].type==='blank'){nt.push({...tokens[ti]});ti++;}
+      else if(ts>=r.start&&ts<r.end){
+        let sp='',si=ti,tp='';
+        while(si<tokens.length&&tokStarts[si]<r.end){
+          const tokEnd=tokStarts[si]+tokens[si].text.length;
+          if(tokEnd>r.end){sp+=tokens[si].text.slice(0,r.end-tokStarts[si]);tp=tokens[si].text.slice(r.end-tokStarts[si]);si++;break;}
+          sp+=tokens[si].text;si++;
+        }
+        const ref=phrase.toLowerCase();
+        if(!vocabMap[ref])vocabMap[ref]={en:phrase,jp:'',matchStr:phrase};
+        nt.push({id:nid(),type:'blank',text:sp,wordPart:sp.trim(),leadPunct:'',trailPunct:tp,vocabRef:ref,blankNum:0});
+        ti=si;rI++;count++;
+      }else{nt.push({...tokens[ti]});ti++;}
+    }
+    tokens=nt;
+  }else{
+    // Single word: stem match
+    const s=stem(phrase);const ref=phrase.toLowerCase();
+    if(!vocabMap[ref])vocabMap[ref]={en:phrase,jp:'',matchStr:phrase};
+    tokens.forEach((tok,i)=>{
+      if(tok.type!=='word'||!tok.wordPart||tok.wordPart.length<=1)return;
+      if(stem(tok.wordPart)===s||tok.wordPart.toLowerCase()===ref){
+        tokens[i]={...tok,type:'blank',vocabRef:ref,blankNum:0};count++;
+      }
+    });
+  }
+
+  if(!count){showToast(`"${phrase}" not found`);return;}
+  renumber();renderEditor();inp.value='';
+  showToast(`"${phrase}" → ${count} blank${count>1?'s':''} added`);
+}
+
+function addFromChip(ms){document.getElementById('manual-word-input').value=ms;addManualBlank();}
+
+// ── Build preview (word bank ALWAYS reads live token state) ───────────────
+function buildPreview(){
+  const showJP=document.getElementById('e-jp').checked;
+  const shuffle=document.getElementById('e-shuffle').checked;
+  const showAK=document.getElementById('e-ak').checked;
+  const showName=document.getElementById('e-name').checked;
+  const title=document.getElementById('opt-title').value||'Fill in the Blanks';
+  const blanks=tokens.filter(t=>t.type==='blank');
+  if(!blanks.length){showToast('No blanks yet');return;}
+
+  // Passage HTML
+  let passHTML='';
+  tokens.forEach(tok=>{
+    if(tok.type==='space')passHTML+=escH(tok.text);
+    else if(tok.type==='newline')passHTML+='</p><p class="ws-passage">';
+    else if(tok.type==='word')passHTML+=escH(tok.text);
+    else if(tok.type==='blank'){
+      passHTML+=escH(tok.leadPunct||'');
+      passHTML+=`<span class="ws-blank"><span class="ws-blank-num">${tok.blankNum}.</span><span class="ws-blank-line"></span></span>`;
+      passHTML+=escH(tok.trailPunct||'');
+    }
+  });
+
+  // Word bank — built fresh from current blank tokens every time
+  let wbItems=blanks.map(b=>{
+    const v=vocabMap[b.vocabRef]||{en:b.wordPart||b.text,jp:''};
+    return{num:b.blankNum,en:v.en,jp:v.jp};
+  });
+  if(shuffle)wbItems=wbItems.sort(()=>Math.random()-0.5);
+
+  const wbHTML=`<div class="ws-wordbank"><div class="ws-wordbank-title">Word Bank</div><div class="wb-grid">${
+    wbItems.map(w=>`<div class="wb-item"><span class="wb-num">${w.num}.</span><span>${escH(w.en)}</span>${showJP&&w.jp?`<span class="wb-jp">（${escH(w.jp)}）</span>`:''}</div>`).join('')
+  }</div></div>`;
+
+  // Answer key uses wordPart (actual inflected form from text, no punct)
+  const akHTML=showAK?`<div class="ws-answerkey"><div class="ws-ak-title">Answer Key</div><div class="ak-grid">${
+    [...blanks].sort((a,b)=>a.blankNum-b.blankNum).map(b=>`<div class="ak-item"><span class="ak-num">${b.blankNum}.</span><span>${escH(b.wordPart||b.text)}</span></div>`).join('')
+  }</div></div>`:'';
+
+  const nameLine=showName?`<div class="ws-name-line"><span>Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span>Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span>Class:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>`:'';
+
+  document.getElementById('worksheet-out').innerHTML=`
+    <div class="ws-title">${escH(title)}</div>
+    <div class="ws-sub">Fill in the blanks using the word bank below.</div>
+    ${nameLine}<p class="ws-passage">${passHTML}</p>${wbHTML}${akHTML}`;
+  const pw=document.getElementById('ws-preview-wrap');
+  pw.style.display='block';
+  pw.scrollIntoView({behavior:'smooth',block:'start'});
+  showToast('Preview updated!');
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+function generate(){
+  const p=document.getElementById('input-passage').value.trim();
+  const v=document.getElementById('input-vocab').value.trim();
+  if(!p){showToast('Please paste a passage');return;}
+  if(!v){showToast('Please paste vocabulary');return;}
+  _id=0;
+  const vocab=parseVocab(v);
+  const firstOnly=document.getElementById('opt-firstonly').checked;
+  const{unmatched}=autoBlank(p,vocab,firstOnly);
+  document.getElementById('e-jp').checked=document.getElementById('opt-jp').checked;
+  document.getElementById('e-ak').checked=document.getElementById('opt-answerkey').checked;
+  document.getElementById('e-name').checked=document.getElementById('opt-nameline').checked;
+  document.getElementById('e-firstonly').checked=firstOnly;
+  document.getElementById('s-vocab').textContent=vocab.length;
+  document.getElementById('stats-bar').style.display='flex';
+  const ua=document.getElementById('unmatched-area');
+  if(unmatched.length){
+    document.getElementById('unmatched-chips').innerHTML=unmatched.map(u=>`<span class="um-chip" onclick="addFromChip('${escH(cleanMatch(u.en))}')">${escH(u.en)}</span>`).join(' ');
+    ua.style.display='flex';
+  }else ua.style.display='none';
+  renderEditor();
+  goToPhase('edit');
+  showToast(`${tokens.filter(t=>t.type==='blank').length} words auto-blanked`);
+}
+
+function goToPhase(p){
+  document.querySelectorAll('.phase').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.phase-tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('phase-'+p).classList.add('active');
+  document.getElementById('tab-'+p).classList.add('active');
+  if(p==='edit')document.getElementById('tab-edit').classList.remove('locked');
+}
+function clearAll(){document.getElementById('input-passage').value='';document.getElementById('input-vocab').value='';tokens=[];vocabMap={};}
+function goBack(){if(confirm('Go back to the main menu?'))window.location.href='index.html';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+</script>
+</body>
+</html>
