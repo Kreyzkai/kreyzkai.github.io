@@ -206,9 +206,15 @@ button:disabled{opacity:.4;cursor:default;}
   <div id="ws-preview-wrap" style="display:none;">
     <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;">
       <span style="font-size:.78rem;color:#feca57;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Worksheet Preview</span>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
         <button class="btn-success" onclick="window.print()">🖨️ Print / Save PDF</button>
         <button class="btn-success" style="background:linear-gradient(135deg,#2980b9,#1a5276);" onclick="exportWord()">📄 Export to Word</button>
+        <span style="font-size:.78rem;color:#aad4f5;margin-left:4px;">Paper:</span>
+        <label style="font-size:.78rem;color:#eef;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="paper-size" id="paper-a4" value="a4" checked style="accent-color:#feca57;"> A4</label>
+        <label style="font-size:.78rem;color:#eef;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="paper-size" id="paper-a3" value="a3" style="accent-color:#feca57;"> A3 (2-col)</label>
+        <span style="font-size:.78rem;color:#aad4f5;margin-left:4px;">Spacing:</span>
+        <label style="font-size:.78rem;color:#eef;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="line-spacing" id="ls-15" value="1.5" checked style="accent-color:#feca57;"> 1.5×</label>
+        <label style="font-size:.78rem;color:#eef;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="line-spacing" id="ls-2" value="2" style="accent-color:#feca57;"> 2×</label>
       </div>
     </div>
     <div class="worksheet" id="worksheet-out"></div>
@@ -605,7 +611,7 @@ function buildPreview(){
 
   document.getElementById('worksheet-out').innerHTML=`
     <div class="ws-title">${escH(title)}</div>
-
+    <div class="ws-sub">Fill in the blanks using the word bank below.</div>
     ${nameLine}<p class="ws-passage">${passHTML}</p>${wbHTML}${akHTML}`;
   const pw=document.getElementById('ws-preview-wrap');
   pw.style.display='block';
@@ -657,36 +663,100 @@ function clearAll(){document.getElementById('input-passage').value='';document.g
 function exportWord(){
   const blanks=tokens.filter(t=>t.type==='blank');
   if(!blanks.length){showToast('No blanks yet — build preview first');return;}
-  const showJP=document.getElementById('e-jp').checked;
-  const shuffle=document.getElementById('e-shuffle').checked;
-  const showAK=document.getElementById('e-ak').checked;
-  const showName=document.getElementById('e-name').checked;
-  const title=document.getElementById('opt-title').value||'Fill in the Blanks';
 
-  // Passage text with numbered blanks
-  let passHTML='';
+  const showJP      = document.getElementById('e-jp').checked;
+  const shuffle     = document.getElementById('e-shuffle').checked;
+  const showAK      = document.getElementById('e-ak').checked;
+  const showName    = document.getElementById('e-name').checked;
+  const title       = document.getElementById('opt-title').value||'Fill in the Blanks';
+  const useTextFormW= document.getElementById('e-textform').checked;
+  const isA3        = document.querySelector('input[name="paper-size"]:checked').value==='a3';
+  const lsVal       = document.querySelector('input[name="line-spacing"]:checked').value;
+  const lineHeight  = lsVal==='2'?'2.4':'1.8'; // pt-friendly approximation
+
+  // ── Page geometry ──────────────────────────────────────────────
+  // Narrow margins on both sizes. A3 landscape = 420×297mm
+  const pageCSS = isA3
+    ? `@page { size: A3 landscape; margin: 1.2cm 1.5cm; }`
+    : `@page { size: A4 portrait;  margin: 1.2cm 1.5cm; }`;
+
+  // ── Build passage paragraphs ───────────────────────────────────
+  // Split tokens into paragraph chunks (split on newline tokens)
+  const paragraphs = [[]];
   tokens.forEach(tok=>{
-    if(tok.type==='space')passHTML+=escH(tok.text);
-    else if(tok.type==='newline')passHTML+='<br>';
-    else if(tok.type==='word')passHTML+=escH(tok.text);
-    else if(tok.type==='blank'){
-      passHTML+=escH(tok.leadPunct||'');
-      passHTML+=`<span class="blank-num">${tok.blankNum}.&nbsp;</span><span class="blank-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
-      passHTML+=escH(tok.trailPunct||'');
-    }
+    if(tok.type==='newline') paragraphs.push([]);
+    else paragraphs[paragraphs.length-1].push(tok);
   });
 
-  const useTextFormW=document.getElementById('e-textform').checked;
+  function renderParaTokens(toks){
+    let h='';
+    toks.forEach(tok=>{
+      if(tok.type==='space') h+=escH(tok.text);
+      else if(tok.type==='word') h+=escH(tok.text);
+      else if(tok.type==='blank'){
+        h+=escH(tok.leadPunct||'');
+        // Use <u> — the only underline that reliably renders in Word HTML
+        h+=`<b style="color:#003366">${tok.blankNum}.&thinsp;</b><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>`;
+        h+=escH(tok.trailPunct||'');
+      }
+    });
+    return h;
+  }
+
+  // Detect indentation: para starts with spaces/tab → preserve as em-indent
+  function paraIndent(toks){
+    if(!toks.length) return '';
+    if(toks[0].type==='space'&&toks[0].text.length>1) return 'text-indent:2em;';
+    return '';
+  }
+
+  const passParas = paragraphs
+    .filter(p=>p.some(t=>t.type==='word'||t.type==='blank'))
+    .map(p=>`<p class="passage" style="${paraIndent(p)}">${renderParaTokens(p)}</p>`)
+    .join('\n');
+
+  // ── Word bank ──────────────────────────────────────────────────
   let wbItems=blanks.map(b=>{
     const v=vocabMap[b.vocabRef]||{en:b.wordPart||b.text,jp:''};
-    const displayEn=useTextFormW?(b.wordPart||b.text||v.en):v.en;
-    return{num:b.blankNum,en:displayEn,jp:v.jp};
+    return{num:b.blankNum,en:useTextFormW?(b.wordPart||b.text||v.en):v.en,jp:v.jp};
   });
-  if(shuffle)wbItems=wbItems.sort(()=>Math.random()-0.5);
+  if(shuffle) wbItems=wbItems.sort(()=>Math.random()-0.5);
 
-  const wbRows=wbItems.map(w=>`<tr><td style="width:30px;font-weight:bold;color:#003366;padding:2px 6px;">${w.num}.</td><td style="padding:2px 8px;">${escH(w.en)}</td>${showJP&&w.jp?`<td style="padding:2px 8px;color:#555;font-size:0.9em;">（${escH(w.jp)}）</td>`:'<td></td>'}</tr>`).join('');
+  // A4=2 cols, A3 landscape=4 cols in word bank
+  const wbCols = isA3 ? 4 : 2;
+  const wbRows = Math.ceil(wbItems.length/wbCols);
+  let wbBody='';
+  for(let r=0;r<wbRows;r++){
+    wbBody+='<tr>';
+    for(let col=0;col<wbCols;col++){
+      const w=wbItems[r+wbRows*col];
+      if(w) wbBody+=`<td class="wb-num">${w.num}.</td><td class="wb-en">${escH(w.en)}${showJP&&w.jp?` <span class="wb-jp">（${escH(w.jp)}）</span>`:''}</td>`;
+      else  wbBody+=`<td></td><td></td>`;
+    }
+    wbBody+='</tr>';
+  }
 
-  const nameLine=showName?`<table class="name-line"><tr>
+  // ── Answer key ─────────────────────────────────────────────────
+  const akCols = isA3 ? 6 : 4;
+  const sorted = [...blanks].sort((a,b)=>a.blankNum-b.blankNum);
+  const akRows = Math.ceil(sorted.length/akCols);
+  let akBody='';
+  for(let r=0;r<akRows;r++){
+    akBody+='<tr>';
+    for(let col=0;col<akCols;col++){
+      const b=sorted[r+akRows*col];
+      if(b) akBody+=`<td class="ak-num">${b.blankNum}.</td><td class="ak-en">${escH((vocabMap[b.vocabRef]||{en:b.wordPart||b.text}).en)}</td>`;
+      else  akBody+=`<td></td><td></td>`;
+    }
+    akBody+='</tr>';
+  }
+  const akSection = showAK?`<div class="answerkey">
+    <p class="ak-title">Answer Key</p>
+    <table class="ak-table"><tbody>${akBody}</tbody></table>
+  </div>`:'';
+
+  // ── Name line ──────────────────────────────────────────────────
+  const nameLine = showName?`<table class="name-line"><tr>
     <td style="border-bottom:1pt solid #999;width:42%;padding-bottom:4pt;">Name:</td>
     <td style="width:4%;"></td>
     <td style="border-bottom:1pt solid #999;width:26%;padding-bottom:4pt;">Date:</td>
@@ -694,23 +764,33 @@ function exportWord(){
     <td style="border-bottom:1pt solid #999;width:24%;padding-bottom:4pt;">Class:</td>
   </tr></table>`:'';
 
-  const akSection=showAK?`<div class="answerkey">
-    <p class="ak-title">Answer Key</p>
-    <table class="ak-table"><tbody>${(()=>{
-      const sorted=[...blanks].sort((a,b)=>a.blankNum-b.blankNum);
-      const cols=4,rows=Math.ceil(sorted.length/cols);let out='';
-      for(let r=0;r<rows;r++){
-        out+='<tr>';
-        for(let col=0;col<cols;col++){
-          const b=sorted[r+rows*col];
-          if(b)out+=`<td class="ak-num">${b.blankNum}.</td><td style="padding:2pt 14pt 2pt 0;">${escH((vocabMap[b.vocabRef]||{en:b.wordPart||b.text}).en)}</td>`;
-          else out+=`<td></td><td></td>`;
-        }
-        out+='</tr>';
-      }
-      return out;
-    })()}</tbody></table></div>`:'';
+  // ── A3 two-column layout wrapper ───────────────────────────────
+  // Wrap passage + wordbank in a 2-col table for A3
+  function wrapA3(passageHTML, wordbankHTML){
+    // Rough split: put first half of paras in col 1, rest in col 2
+    const paraEls = passageHTML.match(/<p [^>]*>[\s\S]*?<\/p>/g)||[passageHTML];
+    const mid = Math.ceil(paraEls.length/2);
+    const col1 = paraEls.slice(0,mid).join('\n');
+    const col2 = paraEls.slice(mid).join('\n');
+    return `<table style="width:100%;border-collapse:collapse;border:none;">
+  <tr>
+    <td style="width:49%;vertical-align:top;padding-right:1em;border-right:1pt solid #ccc;">${col1}</td>
+    <td style="width:2%;"></td>
+    <td style="width:49%;vertical-align:top;padding-left:1em;">${col2}${wordbankHTML}</td>
+  </tr>
+</table>`;
+  }
 
+  const wordbankHTML = `<div class="wordbank">
+  <p class="wb-title">Word Bank</p>
+  <table class="wb-table"><tbody>${wbBody}</tbody></table>
+</div>`;
+
+  const bodyContent = isA3
+    ? `${nameLine}${wrapA3(passParas, wordbankHTML)}${akSection}`
+    : `${nameLine}${passParas}${wordbankHTML}${akSection}`;
+
+  // ── Full document ──────────────────────────────────────────────
   const html=`<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -718,59 +798,39 @@ function exportWord(){
 <head>
 <meta charset="UTF-8">
 <style>
-  @page { margin: 2cm 2.5cm; size: A4; }
-  body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #111; }
-  p.passage { margin: 0 0 14pt 0; line-height: 2.2; text-align: justify; font-size: 11pt; }
-  h2.ws-title { text-align:center; font-size:14pt; letter-spacing:1pt; margin-bottom:4pt; font-family:'Times New Roman',serif; }
-  p.ws-sub { text-align:center; font-size:9pt; color:#666; border-bottom:2pt solid #003366; padding-bottom:6pt; margin-bottom:14pt; }
-  table.name-line { width:100%; border-collapse:collapse; margin-bottom:16pt; font-size:10pt; }
-  .blank-num { font-weight:bold; color:#003366; }
-  .blank-line { display:inline-block; border-bottom:2pt solid #003366; width:100pt; }
-  div.wordbank { border:1pt solid #ccc; padding:10pt 14pt; margin-top:14pt; }
-  p.wb-title { font-size:9pt; font-weight:bold; text-transform:uppercase; letter-spacing:1pt; color:#003366; margin:0 0 8pt 0; }
+  ${pageCSS}
+  body           { font-family:'Times New Roman',serif; font-size:11pt; color:#111; margin:0; }
+  p.passage      { margin:0 0 8pt 0; line-height:${lineHeight}; text-align:left; font-size:11pt; }
+  h2.ws-title    { text-align:center; font-size:14pt; letter-spacing:1pt; margin:0 0 4pt 0; }
+  p.ws-sub       { text-align:center; font-size:9pt; color:#666; border-bottom:2pt solid #003366; padding-bottom:5pt; margin:0 0 12pt 0; }
+  table.name-line{ width:100%; border-collapse:collapse; margin-bottom:14pt; font-size:10pt; }
+  div.wordbank   { border:1pt solid #ccc; padding:8pt 12pt; margin-top:12pt; }
+  p.wb-title     { font-size:9pt; font-weight:bold; text-transform:uppercase; letter-spacing:1pt; color:#003366; margin:0 0 6pt 0; }
   table.wb-table { width:100%; border-collapse:collapse; font-size:10pt; }
-  td.wb-num { font-weight:bold; color:#003366; width:22pt; padding:2pt 4pt 2pt 0; vertical-align:top; }
-  td.wb-en { padding:2pt 8pt 2pt 0; vertical-align:top; }
-  td.wb-jp { padding:2pt 0; color:#555; font-size:9pt; vertical-align:top; }
-  div.answerkey { margin-top:20pt; padding-top:12pt; border-top:1pt dashed #bbb; }
-  p.ak-title { font-size:9pt; font-weight:bold; color:#888; text-transform:uppercase; letter-spacing:1pt; margin:0 0 8pt 0; }
-  table.ak-table { width:100%; border-collapse:collapse; font-size:9.5pt; }
-  td.ak-num { font-weight:bold; color:#003366; width:18pt; padding:2pt 4pt 2pt 0; }
+  td.wb-num      { font-weight:bold; color:#003366; width:18pt; padding:2pt 3pt 2pt 0; vertical-align:top; white-space:nowrap; }
+  td.wb-en       { padding:2pt 10pt 2pt 0; vertical-align:top; }
+  span.wb-jp     { color:#555; font-size:9pt; }
+  div.answerkey  { margin-top:16pt; padding-top:10pt; border-top:1pt dashed #bbb; }
+  p.ak-title     { font-size:9pt; font-weight:bold; color:#888; text-transform:uppercase; letter-spacing:1pt; margin:0 0 6pt 0; }
+  table.ak-table { width:100%; border-collapse:collapse; font-size:9pt; }
+  td.ak-num      { font-weight:bold; color:#003366; width:16pt; padding:2pt 3pt 2pt 0; white-space:nowrap; }
+  td.ak-en       { padding:2pt 12pt 2pt 0; }
 </style>
 </head>
 <body>
 <h2 class="ws-title">${escH(title)}</h2>
-${nameLine}
-<p class="passage">${passHTML}</p>
-<div class="wordbank">
-  <p class="wb-title">Word Bank</p>
-  <table class="wb-table"><tbody>${(()=>{
-    const cols=2;
-    const rows=Math.ceil(wbItems.length/cols);
-    let out='';
-    for(let r=0;r<rows;r++){
-      out+='<tr>';
-      for(let col=0;col<cols;col++){
-        const w=wbItems[r+rows*col];
-        if(w) out+=`<td class="wb-num">${w.num}.</td><td class="wb-en">${escH(w.en)}</td><td class="wb-jp">${showJP&&w.jp?'（'+escH(w.jp)+'）':''}</td>`;
-        else out+=`<td></td><td></td><td></td>`;
-      }
-      out+='</tr>';
-    }
-    return out;
-  })()}</tbody></table>
-</div>
-${akSection}
+<p class="ws-sub">Fill in the blanks using the word bank below.</p>
+${bodyContent}
 </body></html>`;
 
-  const blob=new Blob(['﻿'+html],{type:'application/msword'});
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=(title.replace(/[^a-z0-9]/gi,'_')||'worksheet')+'.doc';
+  a.download=(title.replace(/[^a-z0-9]/gi,'_')||'worksheet')+'_'+(isA3?'A3':'A4')+'.doc';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast('Word document downloaded!');
+  showToast('Word document downloaded ('+(isA3?'A3 landscape':'A4')+', '+lsVal+'× spacing)!');
 }
 
 function goBack(){if(confirm('Go back to the main menu?'))window.location.href='index.html';}
