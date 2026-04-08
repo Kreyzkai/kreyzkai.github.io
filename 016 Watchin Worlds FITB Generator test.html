@@ -611,7 +611,7 @@ function buildPreview(){
 
   document.getElementById('worksheet-out').innerHTML=`
     <div class="ws-title">${escH(title)}</div>
-    <div class="ws-sub">Fill in the blanks using the word bank below.</div>
+    <div class="ws-sub"></div>
     ${nameLine}<p class="ws-passage">${passHTML}</p>${wbHTML}${akHTML}`;
   const pw=document.getElementById('ws-preview-wrap');
   pw.style.display='block';
@@ -819,7 +819,7 @@ function exportWord(){
 </head>
 <body>
 <h2 class="ws-title">${escH(title)}</h2>
-<p class="ws-sub">Fill in the blanks using the word bank below.</p>
+<p class="ws-sub"></p>
 ${bodyContent}
 </body></html>`;
 
