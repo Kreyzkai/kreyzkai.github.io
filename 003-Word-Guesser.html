@@ -49,6 +49,10 @@
     .instructions-content .highlight { background: rgba(254,202,87,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600; }
     .back-to-editor-btn { margin-top: 20px; padding: 12px 24px; background: linear-gradient(135deg,#11998e 0%,#38ef7d 100%); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: all 0.3s ease; }
     .back-to-editor-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(17,153,142,0.4); }
+    .cap-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 2px solid #003366; }
+    .cap-btn { padding: 8px 14px; border: none; background: white; color: #003366; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+    .cap-btn:not(:last-child) { border-right: 1px solid #cce; }
+    .cap-btn.active { background: #003366; color: white; }
 </style>
 </head>
 <body>
@@ -61,6 +65,13 @@
         <input type="text" id="titleInput" placeholder="e.g. Grammar & Numbers" style="flex-grow:1">
         <label>Mistakes Allowed:</label>
         <input type="number" id="livesInput" value="6" min="1" max="10" style="width:60px">
+        <label>Display Case:</label>
+        <div class="cap-toggle" id="capToggle">
+            <button class="cap-btn active" data-value="uppercase" onclick="setCapMode(this)">ABC</button>
+            <button class="cap-btn" data-value="lowercase" onclick="setCapMode(this)">abc</button>
+            <button class="cap-btn" data-value="proper" onclick="setCapMode(this)">Abc</button>
+        </div>
+        <input type="hidden" id="capModeInput" value="uppercase">
     </div>
 
     <div class="next-game-panel">
@@ -110,6 +121,7 @@
         <ul>
             <li>Enter a <span class="highlight">Game Title</span> for your word game</li>
             <li>Set <span class="highlight">Mistakes Allowed</span> (1-10) - how many wrong guesses before game over</li>
+            <li><span class="highlight">Display Case</span>: Choose how the revealed letters appear — <strong>ABC</strong> (all uppercase), <strong>abc</strong> (all lowercase), or <strong>Abc</strong> (proper/title case). The keyboard always shows A–Z regardless.</li>
         </ul>
 
         <h3>❓ Adding Words</h3>
@@ -231,6 +243,12 @@ function goBack() {
     }
 }
 
+function setCapMode(btn) {
+    document.querySelectorAll('.cap-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('capModeInput').value = btn.dataset.value;
+}
+
 function toggleNextGameSection() {
     const enabled = document.getElementById('enableNextGame').checked;
     document.getElementById('nextGameSection').style.display = enabled ? 'block' : 'none';
@@ -265,6 +283,14 @@ function uploadGame() {
                 // Load settings
                 if (titleMatch) document.getElementById('titleInput').value = titleMatch[1];
                 if (livesMatch) document.getElementById('livesInput').value = livesMatch[1];
+                
+                // Load cap mode
+                const capModeMatch = htmlContent.match(/const capMode = "([^"]*)";/);
+                const capMode = (capModeMatch && capModeMatch[1]) ? capModeMatch[1] : 'uppercase';
+                document.getElementById('capModeInput').value = capMode;
+                document.querySelectorAll('.cap-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.value === capMode);
+                });
                 
                 // Clear existing rows
                 container.innerHTML = "";
@@ -324,6 +350,7 @@ function extractGameData() {
 function previewGame() {
     const title = document.getElementById('titleInput').value || "Word Guesser";
     const lives = parseInt(document.getElementById('livesInput').value);
+    const capMode = document.getElementById('capModeInput').value;
     const data = extractGameData();
     
     if(!data.length) return alert("Add some words first!");
@@ -336,16 +363,16 @@ function previewGame() {
         const nextGameReader = new FileReader();
         nextGameReader.onload = function(e) {
             const nextGameHTML = e.target.result;
-            buildAndPreview(title, lives, data, nextGameHTML, nextGameType);
+            buildAndPreview(title, lives, capMode, data, nextGameHTML, nextGameType);
         };
         nextGameReader.readAsText(nextGameFile);
     } else {
-        buildAndPreview(title, lives, data, null, null);
+        buildAndPreview(title, lives, capMode, data, null, null);
     }
 }
 
-function buildAndPreview(title, lives, data, nextGameHTML, nextGameType) {
-    let finalHTML = buildStudentTemplate(title, lives, data);
+function buildAndPreview(title, lives, capMode, data, nextGameHTML, nextGameType) {
+    let finalHTML = buildStudentTemplate(title, lives, capMode, data);
     
     if (nextGameHTML && nextGameType) {
         const base64HTML = btoa(unescape(encodeURIComponent(nextGameHTML)));
@@ -363,6 +390,7 @@ function buildAndPreview(title, lives, data, nextGameHTML, nextGameType) {
 function generate() {
     const title = document.getElementById('titleInput').value || "Word Guesser";
     const lives = parseInt(document.getElementById('livesInput').value);
+    const capMode = document.getElementById('capModeInput').value;
     const data = extractGameData();
     
     if(!data.length) return alert("Add some words first!");
@@ -375,16 +403,16 @@ function generate() {
         const nextGameReader = new FileReader();
         nextGameReader.onload = function(e) {
             const nextGameHTML = e.target.result;
-            buildAndDownload(title, lives, data, nextGameHTML, nextGameType);
+            buildAndDownload(title, lives, capMode, data, nextGameHTML, nextGameType);
         };
         nextGameReader.readAsText(nextGameFile);
     } else {
-        buildAndDownload(title, lives, data, null, null);
+        buildAndDownload(title, lives, capMode, data, null, null);
     }
 }
 
-function buildAndDownload(title, lives, data, nextGameHTML, nextGameType) {
-    let finalHTML = buildStudentTemplate(title, lives, data);
+function buildAndDownload(title, lives, capMode, data, nextGameHTML, nextGameType) {
+    let finalHTML = buildStudentTemplate(title, lives, capMode, data);
     
     if (nextGameHTML && nextGameType) {
         const base64HTML = btoa(unescape(encodeURIComponent(nextGameHTML)));
@@ -401,7 +429,7 @@ function buildAndDownload(title, lives, data, nextGameHTML, nextGameType) {
     a.click();
 }
 
-function buildStudentTemplate(title, lives, data) {
+function buildStudentTemplate(title, lives, capMode, data) {
 return `
 <!DOCTYPE html>
 <html>
@@ -678,11 +706,18 @@ h1 {
 <script>
 const gameTitle = "${title}";
 const maxLives = ${lives};
+const capMode = "${capMode}";
 const gameData = ${JSON.stringify(data)};
 //%%NEXTGAME%%
 
-let index = 0, scale = 0, lives, currentWord, guessedLetters, currentLang = 'en';
+let index = 0, scale = 0, lives, currentWord, currentWordDisplay, guessedLetters, currentLang = 'en';
 const scales = ["scale-1", "scale-2", "scale-3", "scale-4", "scale-5"];
+
+function applyCapMode(word) {
+    if (capMode === 'lowercase') return word.toLowerCase();
+    if (capMode === 'proper') return word.toLowerCase().replace(/(?:^|\s)\S/g, c => c.toUpperCase());
+    return word.toUpperCase();
+}
 
 function formatText(t) {
     if (!t) return '';
@@ -714,6 +749,7 @@ function updateClue() {
 function loadWord() {
     lives = maxLives;
     currentWord = gameData[index].w.toUpperCase();
+    currentWordDisplay = applyCapMode(gameData[index].w);
     guessedLetters = new Set();
     updateClue();
     renderKeyboard();
@@ -737,12 +773,14 @@ function updateDisplay() {
     document.getElementById('livesDisplay').innerHTML = '❤️'.repeat(lives);
     
     let display = '';
-    for(let c of currentWord) {
+    for(let i = 0; i < currentWord.length; i++) {
+        const c = currentWord[i];      // uppercase — used for logic
+        const dc = currentWordDisplay[i]; // display version
         if(c === ' ') display += ' &nbsp; ';
         else if(/[A-Z0-9]/.test(c)) {
-            display += guessedLetters.has(c) ? c + ' ' : '_ ';
+            display += guessedLetters.has(c) ? dc + ' ' : '_ ';
         } else {
-            display += c + ' ';
+            display += dc + ' ';
         }
     }
     document.getElementById('wordDisplay').innerHTML = display;
@@ -762,7 +800,7 @@ function guess(letter, btn) {
         lives--;
         updateDisplay();
         if(lives === 0) {
-            document.getElementById('status').textContent = '❌ Game Over! The word was: ' + currentWord;
+            document.getElementById('status').textContent = '❌ Game Over! The word was: ' + currentWordDisplay;
             disableAllKeys();
         }
     }
