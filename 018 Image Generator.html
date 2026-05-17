@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FLUX Image Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0b09;--bg2:#131210;--bg3:#1a1815;
+  --border:#2a2824;--border2:#3a3630;
+  --amber:#e8a838;--amber-dim:#a87820;--amber-glow:#e8a83822;
+  --text:#e8e2d8;--text-dim:#8a8278;--text-muted:#4a4642;
+  --radius:6px;--radius-lg:12px;
+  --serif:"DM Serif Display",Georgia,serif;
+  --mono:"DM Mono","Courier New",monospace;
+  --sans:"DM Sans",system-ui,sans-serif;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body::before{content:"";position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6}
+
+/* LOCK SCREEN */
+#lock-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px}
+#lock-screen.hidden{display:none}
+.lock-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px 36px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:22px}
+.lock-logo{font-family:var(--serif);font-size:1.8rem;font-weight:400}.lock-logo em{font-style:italic;color:var(--amber)}
+.lock-sub{font-size:12.5px;color:var(--text-dim);font-weight:300;line-height:1.6;margin-top:6px}
+.lock-fields{display:flex;flex-direction:column;gap:14px}
+.lock-div{border:none;border-top:1px solid var(--border)}
+.lock-err{font-family:var(--mono);font-size:11.5px;color:#e07070;background:#1a0f0e;border:1px solid #5c2020;border-radius:var(--radius);padding:9px 12px;display:none}
+.lock-err.vis{display:block}
+.lock-foot{font-family:var(--mono);font-size:10.5px;color:var(--text-muted);text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+
+/* APP SHELL */
+.app{position:relative;z-index:1;width:100%;max-width:900px;padding:44px 24px 80px;display:flex;flex-direction:column;gap:28px}
+header{border-bottom:1px solid var(--border);padding-bottom:24px}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.badge{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);display:inline-block}
+h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.8rem);font-weight:400;line-height:1.1}
+h1 em{font-style:italic;color:var(--amber)}
+.subtitle{font-size:13px;color:var(--text-dim);font-weight:300;margin-top:6px}
+
+/* SAFETY BAR */
+.safety-bar{display:flex;align-items:center;gap:10px;background:#0e1a0f;border:1px solid #1e4025;border-radius:var(--radius);padding:9px 14px;font-family:var(--mono);font-size:11px;color:#60c080}
+.sdot{width:7px;height:7px;border-radius:50%;background:#27ae60;box-shadow:0 0 6px #27ae60;flex-shrink:0}
+.slbl{flex:1}
+.gsub{font-size:10px;color:var(--text-muted)}
+.gsub.on{color:var(--amber)}
+
+/* KEYS CARD */
+.keys-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;display:flex;align-items:center;gap:14px}
+.ki{font-size:18px;opacity:.6}
+.kinfo{flex:1}
+.kt{font-size:13px;font-weight:500}
+.kd{font-family:var(--mono);font-size:10.5px;color:var(--text-muted);margin-top:2px}
+
+/* SECTION */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.sec-title{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--text-muted);text-transform:uppercase}
+.sec-body{padding:18px;display:flex;flex-direction:column;gap:18px}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:6px}
+.flabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.opt-tag{font-size:9px;background:var(--bg3);border:1px solid var(--border2);color:var(--text-muted);padding:1px 6px;border-radius:99px;letter-spacing:.06em}
+.fhint{font-size:11px;color:var(--text-muted);font-style:italic}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* INPUTS */
+input[type=text],input[type=password],textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--mono);font-size:12.5px;padding:9px 12px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4642' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
+input:focus,textarea:focus,select:focus{border-color:var(--amber-dim);box-shadow:0 0 0 3px var(--amber-glow)}
+input::placeholder,textarea::placeholder{color:var(--text-muted)}
+textarea{resize:vertical;line-height:1.6;font-family:var(--sans);font-size:13px}
+.frow{display:flex;gap:8px}
+.frow input,.frow select{flex:1}
+
+/* BUTTONS */
+button{border:none;cursor:pointer;font-family:var(--sans);border-radius:var(--radius);transition:all .18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:500;white-space:nowrap}
+.btn-primary{background:var(--amber);color:#0c0b09;padding:12px 24px;font-size:13.5px}
+.btn-primary:hover:not(:disabled){background:#f0b848;transform:translateY(-1px);box-shadow:0 4px 20px #e8a83840}
+.btn-primary:active:not(:disabled){transform:translateY(0)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-sec{background:var(--bg3);color:var(--text-dim);border:1px solid var(--border);padding:9px 14px;font-size:12px}
+.btn-sec:hover:not(:disabled){border-color:var(--border2);color:var(--text);background:#222018}
+.btn-sec:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--text-muted);padding:6px 10px;font-size:11.5px;border:1px solid transparent}
+.btn-ghost:hover{color:var(--text-dim);border-color:var(--border)}
+.btn-danger{background:transparent;color:#e07070;padding:6px 10px;font-size:11px;border:1px solid #5c2020;border-radius:var(--radius)}
+.btn-danger:hover{background:#1a0f0e}
+
+/* DROP ZONE */
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden;text-align:center;padding:20px}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--amber-dim);background:var(--amber-glow)}
+.drop-zone .dz-icon{font-size:24px;opacity:.5}
+.drop-zone .dz-label{font-size:12.5px;color:var(--text-dim)}
+.drop-zone .dz-hint{font-family:var(--mono);font-size:10px;color:var(--text-muted)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-preview{position:relative;display:inline-block;width:100%}
+.drop-preview img{width:100%;max-height:200px;object-fit:contain;border-radius:var(--radius);display:block}
+.drop-preview .clr-img{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border:1px solid var(--border2);color:var(--text-dim);width:26px;height:26px;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center}
+.drop-preview .clr-img:hover{color:var(--text)}
+.analyzing-bar{font-family:var(--mono);font-size:11px;color:var(--amber);background:#1a1610;border:1px solid var(--amber-dim);border-radius:var(--radius);padding:8px 12px;display:none;align-items:center;gap:8px}
+.analyzing-bar.vis{display:flex}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{display:inline-flex;align-items:center;gap:5px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-size:11.5px;color:var(--text-dim);transition:all .15s;user-select:none}
+.chip input[type=checkbox]{accent-color:var(--amber);width:12px;height:12px}
+.chip.on{border-color:var(--amber-dim);color:var(--amber);background:var(--amber-glow)}
+
+/* PROMPT PREVIEW */
+.prompt-preview{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--text-muted);line-height:1.7;min-height:70px;white-space:pre-wrap;word-break:break-word}
+.prompt-preview.has-content{color:var(--text)}
+
+/* NEG PROMPT */
+.neg-toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.neg-toggle-row input[type=checkbox]{accent-color:var(--amber);width:14px;height:14px;cursor:pointer}
+.neg-toggle-row span{font-size:12.5px;color:var(--text-dim)}
+.neg-warn{font-size:11px;color:var(--amber);font-style:italic}
+
+/* CONTROLS */
+.gen-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.timer-box{font-family:var(--mono);font-size:12px;color:var(--text-muted);padding:6px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);min-width:72px;text-align:center}
+
+/* STATUS */
+.status{font-size:12px;font-family:var(--mono);padding:10px 14px;border-radius:var(--radius);border:1px solid transparent;display:none;line-height:1.6;white-space:pre-wrap}
+.status.vis{display:block}
+.status.loading{background:#1a1610;border-color:var(--amber-dim);color:var(--amber)}
+.status.error{background:#1a0f0e;border-color:#5c2020;color:#e07070}
+.status.success{background:#0e1a12;border-color:#1e5030;color:#60c080}
+.status.blocked{background:#1a1205;border-color:#7a4a10;color:#e0a040}
+
+/* IMAGE */
+.image-frame{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;min-height:380px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.img-ph{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px;text-align:center;color:var(--text-muted);pointer-events:none}
+.img-ph .ico{width:48px;height:48px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+.img-ph p{font-size:13px;line-height:1.6;max-width:220px;font-weight:300}
+.img-ph .hint{font-family:var(--mono);font-size:10px;letter-spacing:.1em;opacity:.5}
+#gen-img{display:none;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .6s}
+#gen-img.vis{display:block;opacity:1}
+.image-frame.loading-state::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,#e8a83808 0%,transparent 70%);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.img-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+/* HISTORY */
+.hist-wrap{display:none;flex-direction:column;gap:8px}
+.hist-wrap.vis{display:flex}
+.h-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s,background .15s}
+.h-item:hover{border-color:var(--border2);background:var(--bg3)}
+.h-num{font-family:var(--mono);font-size:10px;color:var(--text-muted);min-width:20px}
+.h-text{font-size:12px;color:var(--text-dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h-time{font-family:var(--mono);font-size:10px;color:var(--text-muted)}
+
+/* MODAL */
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center;padding:24px;cursor:zoom-out;backdrop-filter:blur(4px)}
+#modal.vis{display:flex}
+#modal img{max-width:100%;max-height:90vh;object-fit:contain;border-radius:var(--radius-lg)}
+.modal-close{position:fixed;top:20px;right:20px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:var(--text)}
+
+/* FOOTER */
+footer{font-size:11px;color:var(--text-muted);font-family:var(--mono);text-align:center;border-top:1px solid var(--border);padding-top:20px;letter-spacing:.04em}
+
+/* SPINNER */
+.spin{width:13px;height:13px;border:2px solid rgba(0,0,0,.3);border-top-color:#0c0b09;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* SECTION LABEL */
+.sec-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px}
+
+@media(max-width:600px){
+  .two-col{grid-template-columns:1fr!important}
+  .gen-controls{flex-direction:column;align-items:stretch}
+  .btn-primary{width:100%}
+  .img-controls{flex-direction:column}
+  .lock-card{padding:28px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOCK SCREEN
+═══════════════════════════════════════ -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div>
+      <div class="lock-logo">Image <em>Lab</em></div>
+      <div class="lock-sub" id="lock-sub">Enter your password to unlock.</div>
+    </div>
+    <div class="lock-fields">
+      <div id="ul-block">
+        <div class="field">
+          <div class="flabel">Password</div>
+          <div class="frow">
+            <input type="password" id="ul-pw" placeholder="Enter password…" autocomplete="current-password"/>
+            <button class="btn-sec" id="ul-pw-t" style="flex-shrink:0">Show</button>
+          </div>
+        </div>
+      </div>
+      <div id="su-block" style="display:none;flex-direction:column;gap:14px">
+        <div class="field">
+          <div class="flabel">Hugging Face API Token</div>
+          <div class="frow">
+            <input type="password" id="su-hf" placeholder="hf_…" autocomplete="off" spellcheck="false"/>
+            <button class="btn-sec" id="su-hf-t" style="flex-shrink:0">Show</button>
+          </div>
+          <div class="fhint">huggingface.co/settings/tokens</div>
+        </div>
+        <div class="field">
+          <div class="flabel">Gemini API Key <span class="opt-tag">optional · free</span></div>
+          <div class="frow">
+            <input type="password" id="su-g" placeholder="AIza…" autocomplete="off" spellcheck="false"/>
+            <button class="btn-sec" id="su-g-t" style="flex-shrink:0">Show</button>
+          </div>
+          <div class="fhint">aistudio.google.com/apikey — enables AI safety screening + image analysis</div>
+        </div>
+        <hr class="lock-div"/>
+        <div class="field">
+          <div class="flabel">Set Password</div>
+          <input type="password" id="su-pw" placeholder="Choose a password…" autocomplete="new-password"/>
+        </div>
+        <div class="field">
+          <div class="flabel">Confirm Password</div>
+          <input type="password" id="su-pw2" placeholder="Repeat password…" autocomplete="new-password"/>
+        </div>
+      </div>
+    </div>
+    <div class="lock-err" id="lock-err"></div>
+    <button class="btn-primary" id="lock-submit" style="width:100%">Unlock</button>
+    <div class="lock-foot" id="lock-foot">
+      No saved keys? <button class="btn-ghost" id="mode-sw" style="font-size:11px">Set up keys</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════ -->
+<div class="app" id="app" style="display:none">
+
+  <header>
+    <div class="badge">FLUX.1 Schnell · Hugging Face · Safe Mode</div>
+    <div class="hdr-top">
+      <div>
+        <h1>Image <em>Lab</em></h1>
+        <div class="subtitle">Structured prompt builder · School-safe · AI screening</div>
+      </div>
+      <button class="btn-ghost" id="lock-btn">🔒 Lock</button>
+    </div>
+  </header>
+
+  <div class="safety-bar">
+    <div class="sdot"></div>
+    <span class="slbl">Safe Mode ON — all prompts screened before generation</span>
+    <span class="gsub" id="g-lbl">Gemini: –</span>
+  </div>
+
+  <div class="keys-card">
+    <div class="ki">🔑</div>
+    <div class="kinfo">
+      <div class="kt">API keys loaded from encrypted storage</div>
+      <div class="kd" id="k-desc">Keys live in memory only — not visible in the page</div>
+    </div>
+    <button class="btn-danger" id="reset-btn">Reset keys</button>
+  </div>
+
+
+  <!-- ═══ BASIS IMAGE ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="sec-title">Basis Image <span class="opt-tag">optional</span></span>
+      <span style="font-size:11px;color:var(--text-muted);font-family:var(--mono)">Drop an image → Gemini auto-fills prompt fields</span>
+    </div>
+    <div class="sec-body">
+      <div id="dz" class="drop-zone">
+        <div class="dz-icon">🖼</div>
+        <div class="dz-label">Drop image here or click to browse</div>
+        <div class="dz-hint">JPG · PNG · WEBP · max 10MB</div>
+        <input type="file" id="basis-file" accept="image/*"/>
+      </div>
+      <div id="dz-prev" style="display:none">
+        <div class="drop-preview">
+          <img id="basis-thumb" alt="Basis image"/>
+          <button class="clr-img" id="clr-basis">✕</button>
+        </div>
+      </div>
+      <div class="analyzing-bar" id="analyze-bar">
+        <span class="spin" style="border-top-color:var(--amber)"></span>
+        Analyzing image with Gemini…
+      </div>
+      <div id="basis-note" style="display:none;font-size:11.5px;font-style:italic;color:var(--text-muted)"></div>
+    </div>
+  </div>
+
+
+  <!-- ═══ PROMPT BUILDER ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="sec-title">Prompt Builder</span>
+      <button class="btn-ghost" id="clr-all" style="font-size:11px">✕ Clear all</button>
+    </div>
+    <div class="sec-body">
+
+      <!-- Subject + Action -->
+      <div class="two-col">
+        <div class="field">
+          <div class="flabel">Subject / Character</div>
+          <textarea id="f-subject" rows="3" placeholder="Who or what is in the image — clothing, pose, expression, age, ethnicity-inspired features, accessories…"></textarea>
+        </div>
+        <div class="field">
+          <div class="flabel">Action / Pose</div>
+          <select id="f-action-sel">
+            <option value="">— select —</option>
+            <option>Arms stretched outward in an energetic dance pose</option>
+            <option>Running forward with motion blur</option>
+            <option>Jumping mid-air with arms raised</option>
+            <option>Looking directly at camera, neutral expression</option>
+            <option>Side profile, chin raised</option>
+            <option>Fighting stance, fists raised</option>
+            <option>Sitting cross-legged</option>
+            <option>Walking mid-stride</option>
+            <option>Floating, limbs relaxed</option>
+            <option>Dynamic diagonal arm positioning</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-action" placeholder="Or describe pose / action…" style="margin-top:6px"/>
+        </div>
+      </div>
+
+      <!-- Setting + Background -->
+      <div class="two-col">
+        <div class="field">
+          <div class="flabel">Setting / Environment</div>
+          <select id="f-setting-sel">
+            <option value="">— select —</option>
+            <option>Crowded outdoor street parade, tropical trees, blurred spectators</option>
+            <option>Dense jungle at sunrise with volumetric mist</option>
+            <option>Busy urban street at night, neon signs</option>
+            <option>Open countryside meadow at golden hour</option>
+            <option>Fantasy forest with glowing flora</option>
+            <option>Ancient temple ruins, overgrown</option>
+            <option>Modern minimalist studio</option>
+            <option>Snowy mountain peak, overcast sky</option>
+            <option>Underwater coral reef</option>
+            <option>Desert dunes at midday</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-setting" placeholder="Or describe setting…" style="margin-top:6px"/>
+        </div>
+        <div class="field">
+          <div class="flabel">Background</div>
+          <select id="f-bg-sel">
+            <option value="">— select —</option>
+            <option>Blurred crowd of spectators (bokeh)</option>
+            <option>Clear blue sky with light clouds</option>
+            <option>Abstract gradient, warm tones</option>
+            <option>Dark stormy sky, dramatic clouds</option>
+            <option>City skyline at dusk</option>
+            <option>Dense forest, shallow depth of field</option>
+            <option>Plain white, high-key studio</option>
+            <option>Plain black, low-key studio</option>
+            <option>Bokeh city lights, night scene</option>
+            <option>Textured paper or canvas</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-bg" placeholder="Or describe background…" style="margin-top:6px"/>
+        </div>
+      </div>
+
+      <!-- Art Style + Lighting -->
+      <div class="two-col">
+        <div class="field">
+          <div class="flabel">Photography / Drawing Style</div>
+          <select id="f-style-sel">
+            <option value="">— select —</option>
+            <option>Ultra realistic documentary photography</option>
+            <option>Fashion editorial photography</option>
+            <option>Cinematic film still</option>
+            <option>Oil painting, classical technique</option>
+            <option>Watercolor illustration</option>
+            <option>Anime / manga style</option>
+            <option>Pixar 3D render style</option>
+            <option>Comic book art, bold lines</option>
+            <option>Retro 70s poster design</option>
+            <option>Cyberpunk digital art</option>
+            <option>Studio Ghibli inspired</option>
+            <option>Ink sketch, black and white</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-style" placeholder="Or describe art style…" style="margin-top:6px"/>
+        </div>
+        <div class="field">
+          <div class="flabel">Lighting</div>
+          <select id="f-light-sel">
+            <option value="">— select —</option>
+            <option>Bright natural daylight with cinematic contrast</option>
+            <option>Golden hour, warm directional light</option>
+            <option>Soft overcast daylight, diffused shadows</option>
+            <option>Neon lighting, vibrant color cast</option>
+            <option>Dramatic rim lighting, dark background</option>
+            <option>Volumetric light rays through fog</option>
+            <option>Candlelight, warm flickering glow</option>
+            <option>High contrast, deep dramatic shadows</option>
+            <option>Studio three-point lighting</option>
+            <option>Blue hour, cool twilight tones</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-light" placeholder="Or describe lighting…" style="margin-top:6px"/>
+        </div>
+      </div>
+
+      <!-- Composition + Camera -->
+      <div class="two-col">
+        <div class="field">
+          <div class="flabel">Composition</div>
+          <select id="f-comp-sel">
+            <option value="">— select —</option>
+            <option>Subject slightly left of center, rule of thirds</option>
+            <option>Centered subject, symmetrical framing</option>
+            <option>Close-up portrait, tight crop</option>
+            <option>Medium shot, waist up</option>
+            <option>Full body shot</option>
+            <option>Wide establishing shot</option>
+            <option>Overhead bird's-eye view</option>
+            <option>Low angle, looking up at subject</option>
+            <option>Dutch angle, tilted frame</option>
+            <option>Cinematic widescreen framing</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-comp" placeholder="Or describe composition…" style="margin-top:6px"/>
+        </div>
+        <div class="field">
+          <div class="flabel">Camera / Lens</div>
+          <select id="f-cam-sel">
+            <option value="">— select —</option>
+            <option>85mm portrait lens, shallow depth of field</option>
+            <option>50mm natural human-eye perspective</option>
+            <option>35mm cinematic natural look</option>
+            <option>24mm wide-angle, dramatic distortion</option>
+            <option>200mm telephoto compression</option>
+            <option>Macro photography, extreme close-up</option>
+            <option>Drone aerial shot</option>
+            <option>Fisheye lens, 180° distortion</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-cam" placeholder="Or describe camera / lens…" style="margin-top:6px"/>
+        </div>
+      </div>
+
+      <!-- Color + Mood -->
+      <div class="two-col">
+        <div class="field">
+          <div class="flabel">Color Palette</div>
+          <select id="f-color-sel">
+            <option value="">— select —</option>
+            <option>Vibrant neon colors with gold accents</option>
+            <option>Warm earthy tones, ochre and terracotta</option>
+            <option>Cool muted cinematic palette</option>
+            <option>Pastel soft tones</option>
+            <option>Monochrome black and white</option>
+            <option>High saturation, vivid primary colors</option>
+            <option>Teal and orange cinematic grade</option>
+            <option>Deep jewel tones, emerald and sapphire</option>
+            <option>Desaturated film look</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-color" placeholder="Or describe color palette…" style="margin-top:6px"/>
+        </div>
+        <div class="field">
+          <div class="flabel">Mood / Emotion</div>
+          <select id="f-mood-sel">
+            <option value="">— select —</option>
+            <option>Energetic and celebratory atmosphere</option>
+            <option>Joyful, light-hearted</option>
+            <option>Mysterious and dramatic</option>
+            <option>Melancholic and introspective</option>
+            <option>Epic and powerful</option>
+            <option>Dreamlike and surreal</option>
+            <option>Tense and suspenseful</option>
+            <option>Peaceful and serene</option>
+            <option>Chaotic and intense</option>
+            <option>Romantic and warm</option>
+            <option value="__c">✏ Custom…</option>
+          </select>
+          <input type="text" id="f-mood" placeholder="Or describe mood…" style="margin-top:6px"/>
+        </div>
+      </div>
+
+      <!-- Quality + Tech chips -->
+      <div class="two-col">
+        <div class="field">
+          <div class="flabel">Rendering Quality</div>
+          <div class="chips" id="q-chips"></div>
+        </div>
+        <div class="field">
+          <div class="flabel">Technical Modifiers</div>
+          <div class="chips" id="t-chips"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ NEGATIVE PROMPT ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="sec-title">Negative Prompt <span class="opt-tag">optional</span></span>
+    </div>
+    <div class="sec-body">
+      <label class="neg-toggle-row">
+        <input type="checkbox" id="neg-on"/>
+        <span>Enable negative prompt</span>
+      </label>
+      <div id="neg-body" style="display:none;flex-direction:column;gap:8px">
+        <textarea id="f-neg" rows="3">low detail, blurry subject, cropped arms, duplicate limbs, dull colors, modern casual clothing, empty background, dark lighting, studio setting, CGI look, deformed anatomy, text, watermark, logo</textarea>
+        <div class="neg-warn">⚠ The generated image may be more creatively restricted with a negative prompt active.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ ASSEMBLED PROMPT ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="sec-title">Assembled Prompt</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" id="copy-btn" style="font-size:11px">⊕ Copy</button>
+        <button class="btn-ghost" id="edit-btn" style="font-size:11px">✏ Edit</button>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="prompt-preview" id="pp">Fill in fields above — assembled prompt appears here.</div>
+      <textarea id="pe" rows="4" style="display:none;margin-top:0" placeholder="Edit assembled prompt…"></textarea>
+    </div>
+  </div>
+
+
+  <!-- ═══ GENERATE ═══ -->
+  <div class="gen-controls">
+    <button class="btn-primary" id="gen-btn">
+      <span id="btn-icon">◆</span>
+      <span id="btn-text">Generate Image</span>
+    </button>
+    <div class="timer-box" id="timer">0.0s</div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div>
+    <div class="sec-lbl">Output</div>
+    <div class="image-frame" id="image-frame">
+      <div class="img-ph" id="ph">
+        <div class="ico">◈</div>
+        <p>Generated image will appear here</p>
+        <span class="hint">FLUX.1 SCHNELL · 4 STEPS</span>
+      </div>
+      <img id="gen-img" alt="Generated image"/>
+    </div>
+    <div class="img-controls">
+      <button class="btn-sec" id="dl-btn" disabled>↓ Download</button>
+      <button class="btn-ghost" id="fs-btn" disabled>⤢ Fullscreen</button>
+    </div>
+  </div>
+
+  <div class="hist-wrap" id="hist-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="sec-lbl" style="margin-bottom:0">Recent Prompts</span>
+      <button class="btn-ghost" id="clr-hist" style="font-size:11px">Clear</button>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+
+  <footer>FLUX.1 Schnell · Hugging Face · 4 steps · AES-256-GCM encrypted key storage</footer>
+
+</div>
+
+<!-- Fullscreen Modal -->
+<div id="modal">
+  <button class="modal-close" id="modal-close">✕</button>
+  <img id="modal-img" alt=""/>
+</div>
+
+
+<script>
+/* ══════════════════════════════
+   WEB CRYPTO
+══════════════════════════════ */
+const SKEY = "flux_lab_v2";
+const enc_ = s => new TextEncoder().encode(s);
+const dec_ = b => new TextDecoder().decode(b);
+const toB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const frB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function deriveKey(pw, salt) {
+  const raw = await crypto.subtle.importKey("raw", enc_(pw), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt, iterations:200000, hash:"SHA-256" },
+    raw, { name:"AES-GCM", length:256 }, false, ["encrypt","decrypt"]
+  );
+}
+async function encryptData(payload, pw) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveKey(pw, salt);
+  const ct   = await crypto.subtle.encrypt({name:"AES-GCM",iv}, key, enc_(JSON.stringify(payload)));
+  return JSON.stringify({salt:toB64(salt),iv:toB64(iv),data:toB64(ct)});
+}
+async function decryptData(stored, pw) {
+  const {salt,iv,data} = JSON.parse(stored);
+  const key = await deriveKey(pw, frB64(salt));
+  const pt  = await crypto.subtle.decrypt({name:"AES-GCM",iv:frB64(iv)}, key, frB64(data));
+  return JSON.parse(dec_(pt));
+}
+
+/* ══════════════════════════════
+   IN-MEMORY KEYS
+══════════════════════════════ */
+let MEM = {hfKey:"", geminiKey:""};
+
+/* ══════════════════════════════
+   LOCK SCREEN
+══════════════════════════════ */
+const lockScr   = document.getElementById("lock-screen");
+const lockSub   = document.getElementById("lock-sub");
+const ulBlock   = document.getElementById("ul-block");
+const suBlock   = document.getElementById("su-block");
+const lockSubmit= document.getElementById("lock-submit");
+const lockErr   = document.getElementById("lock-err");
+
+let isSetup = !localStorage.getItem(SKEY);
+applyLockMode();
+
+function applyLockMode() {
+  ulBlock.style.display    = isSetup ? "none" : "block";
+  suBlock.style.display    = isSetup ? "flex"  : "none";
+  lockSubmit.textContent   = isSetup ? "Save & Unlock" : "Unlock";
+  lockSub.textContent      = isSetup
+    ? "Enter your API keys and set a password. Keys are AES-256 encrypted in localStorage."
+    : "Enter your password to unlock.";
+  document.getElementById("lock-foot").innerHTML = isSetup
+    ? 'Have saved keys? <button class="btn-ghost" id="mode-sw" style="font-size:11px">Back to unlock</button>'
+    : 'No saved keys? <button class="btn-ghost" id="mode-sw" style="font-size:11px">Set up keys</button>';
+  document.getElementById("mode-sw").addEventListener("click", () => { isSetup = !isSetup; lockErr.classList.remove("vis"); applyLockMode(); });
+}
+
+function showErr(m) { lockErr.textContent = m; lockErr.classList.add("vis"); }
+
+[["ul-pw","ul-pw-t"],["su-hf","su-hf-t"],["su-g","su-g-t"]].forEach(([i,b]) => {
+  document.getElementById(b).addEventListener("click", () => {
+    const el = document.getElementById(i);
+    const pw = el.type === "password";
+    el.type = pw ? "text" : "password";
+    document.getElementById(b).textContent = pw ? "Hide" : "Show";
+  });
+});
+
+lockSubmit.addEventListener("click", handleSubmit);
+document.addEventListener("keydown", e => { if (e.key==="Enter" && !lockScr.classList.contains("hidden")) handleSubmit(); });
+
+async function handleSubmit() {
+  lockErr.classList.remove("vis");
+  lockSubmit.disabled = true;
+  lockSubmit.textContent = isSetup ? "Encrypting…" : "Decrypting…";
+  try {
+    if (isSetup) {
+      const hf  = document.getElementById("su-hf").value.trim();
+      const gem = document.getElementById("su-g").value.trim();
+      const pw  = document.getElementById("su-pw").value;
+      const pw2 = document.getElementById("su-pw2").value;
+      if (!hf)         { showErr("Please enter your Hugging Face API token."); return; }
+      if (!pw)         { showErr("Please set a password."); return; }
+      if (pw.length<4) { showErr("Password must be at least 4 characters."); return; }
+      if (pw !== pw2)  { showErr("Passwords don't match."); return; }
+      localStorage.setItem(SKEY, await encryptData({hfKey:hf, geminiKey:gem}, pw));
+      MEM = {hfKey:hf, geminiKey:gem};
+      ["su-hf","su-g","su-pw","su-pw2"].forEach(id => { document.getElementById(id).value=""; });
+      unlockApp();
+    } else {
+      const pw = document.getElementById("ul-pw").value;
+      if (!pw) { showErr("Please enter your password."); return; }
+      const stored = localStorage.getItem(SKEY);
+      if (!stored) { showErr("No saved keys. Click 'Set up keys'."); return; }
+      try { MEM = await decryptData(stored, pw); }
+      catch(_) { showErr("Incorrect password."); return; }
+      document.getElementById("ul-pw").value = "";
+      unlockApp();
+    }
+  } finally {
+    lockSubmit.disabled = false;
+    lockSubmit.textContent = isSetup ? "Save & Unlock" : "Unlock";
+  }
+}
+
+function unlockApp() {
+  lockScr.classList.add("hidden");
+  const app = document.getElementById("app");
+  app.style.display = "flex"; app.style.flexDirection = "column";
+  const gl = document.getElementById("g-lbl");
+  if (MEM.geminiKey) { gl.textContent="Gemini: active ✓"; gl.classList.add("on"); }
+  else gl.textContent = "Gemini: blocklist only";
+  document.getElementById("k-desc").textContent = MEM.geminiKey
+    ? "HF token + Gemini key · AI safety screening + basis image analysis active"
+    : "HF token loaded · Keyword blocklist active (add Gemini key for AI screening)";
+}
+
+function lockApp() {
+  MEM = {hfKey:"", geminiKey:""};
+  document.getElementById("app").style.display = "none";
+  lockScr.classList.remove("hidden");
+  isSetup = !localStorage.getItem(SKEY);
+  applyLockMode();
+}
+
+document.getElementById("lock-btn").addEventListener("click", () => { if (confirm("Lock the app and clear keys from memory?")) lockApp(); });
+document.getElementById("reset-btn").addEventListener("click", () => {
+  if (confirm("Delete saved keys? You will need to re-enter them.\nContinue?")) {
+    localStorage.removeItem(SKEY); lockApp(); isSetup=true; applyLockMode();
+  }
+});
+
+/* ══════════════════════════════
+   CHIPS
+══════════════════════════════ */
+const QOPTS = ["Ultra detailed","Highly detailed","Sharp focus","Realistic textures","HDR","Cinematic quality","Professional photography"];
+const TOPTS = ["Bokeh","Film grain","Chromatic aberration","Depth of field","Motion blur","Volumetric fog"];
+
+function buildChips(cid, opts) {
+  const c = document.getElementById(cid);
+  opts.forEach(opt => {
+    const lbl = document.createElement("label");
+    lbl.className = "chip";
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.value = opt;
+    cb.addEventListener("change", () => {
+      lbl.classList.toggle("on", cb.checked);
+      assemblePrompt();
+    });
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(opt));
+    c.appendChild(lbl);
+  });
+}
+buildChips("q-chips", QOPTS);
+buildChips("t-chips", TOPTS);
+
+function getChecked(cid) {
+  return [...document.getElementById(cid).querySelectorAll("input:checked")].map(cb => cb.value);
+}
+
+/* ══════════════════════════════
+   DROPDOWN ↔ TEXT SYNC
+══════════════════════════════ */
+const SEL_MAP = {
+  action:  ["f-action-sel",  "f-action"],
+  setting: ["f-setting-sel", "f-setting"],
+  bg:      ["f-bg-sel",      "f-bg"],
+  style:   ["f-style-sel",   "f-style"],
+  light:   ["f-light-sel",   "f-light"],
+  comp:    ["f-comp-sel",    "f-comp"],
+  cam:     ["f-cam-sel",     "f-cam"],
+  color:   ["f-color-sel",   "f-color"],
+  mood:    ["f-mood-sel",    "f-mood"],
+};
+
+Object.entries(SEL_MAP).forEach(([key, [selId, inpId]]) => {
+  document.getElementById(selId).addEventListener("change", function() {
+    const inp = document.getElementById(inpId);
+    if (this.value && this.value !== "__c") { inp.value = this.value; }
+    else if (this.value === "__c") { inp.value = ""; inp.focus(); }
+    assemblePrompt();
+  });
+});
+
+const TEXT_IDS = ["f-subject","f-action","f-setting","f-bg","f-style","f-light","f-comp","f-cam","f-color","f-mood"];
+TEXT_IDS.forEach(id => document.getElementById(id).addEventListener("input", assemblePrompt));
+
+document.getElementById("neg-on").addEventListener("change", function() {
+  document.getElementById("neg-body").style.display = this.checked ? "flex" : "none";
+});
+
+document.getElementById("clr-all").addEventListener("click", () => {
+  if (!confirm("Clear all prompt fields?")) return;
+  TEXT_IDS.forEach(id => { document.getElementById(id).value=""; });
+  Object.values(SEL_MAP).forEach(([selId]) => { document.getElementById(selId).value=""; });
+  document.querySelectorAll("#q-chips input, #t-chips input").forEach(cb => {
+    cb.checked = false;
+    cb.closest(".chip").classList.remove("on");
+  });
+  assemblePrompt();
+});
+
+/* ══════════════════════════════
+   PROMPT ASSEMBLY
+══════════════════════════════ */
+let editMode = false;
+
+function gv(id) { return (document.getElementById(id).value||"").trim(); }
+
+function assemblePrompt() {
+  const parts = [];
+  const vals = ["f-subject","f-action","f-setting","f-bg","f-comp","f-style","f-light","f-cam","f-color","f-mood"];
+  vals.forEach(id => { const v = gv(id); if (v) parts.push(v); });
+  const q = getChecked("q-chips");
+  const t = getChecked("t-chips");
+  if (q.length) parts.push(q.join(", "));
+  if (t.length) parts.push(t.join(", "));
+  const assembled = parts.join(", ");
+  const pp = document.getElementById("pp");
+  if (assembled) { pp.textContent = assembled; pp.classList.add("has-content"); }
+  else { pp.textContent = "Fill in fields above — assembled prompt appears here."; pp.classList.remove("has-content"); }
+  if (editMode) document.getElementById("pe").value = assembled;
+  return assembled;
+}
+
+function getFinalPrompt() {
+  if (editMode) return gv("pe");
+  return assemblePrompt();
+}
+
+document.getElementById("edit-btn").addEventListener("click", () => {
+  editMode = !editMode;
+  const pe = document.getElementById("pe");
+  const pp = document.getElementById("pp");
+  const btn = document.getElementById("edit-btn");
+  if (editMode) {
+    pe.value = pp.classList.contains("has-content") ? pp.textContent : "";
+    pe.style.display = "block"; pp.style.display = "none"; btn.textContent = "✓ Done";
+  } else {
+    pe.style.display = "none"; pp.style.display = "block"; btn.textContent = "✏ Edit";
+  }
+});
+
+document.getElementById("copy-btn").addEventListener("click", async () => {
+  const t = getFinalPrompt(); if (!t) return;
+  try { await navigator.clipboard.writeText(t); const b=document.getElementById("copy-btn"); b.textContent="✓ Copied"; setTimeout(()=>b.textContent="⊕ Copy",1500); } catch(_){}
+});
+
+/* ══════════════════════════════
+   BASIS IMAGE
+══════════════════════════════ */
+let basisB64 = null, basisMime = "image/jpeg";
+
+const dzEl      = document.getElementById("dz");
+const dzPrev    = document.getElementById("dz-prev");
+const basisThumb= document.getElementById("basis-thumb");
+const basisFile = document.getElementById("basis-file");
+const analyzeBar= document.getElementById("analyze-bar");
+const basisNote = document.getElementById("basis-note");
+
+dzEl.addEventListener("dragover", e => { e.preventDefault(); dzEl.classList.add("drag-over"); });
+dzEl.addEventListener("dragleave", () => dzEl.classList.remove("drag-over"));
+dzEl.addEventListener("drop", e => {
+  e.preventDefault(); dzEl.classList.remove("drag-over");
+  const f = e.dataTransfer.files[0]; if(f) handleBasisFile(f);
+});
+basisFile.addEventListener("change", () => { if(basisFile.files[0]) handleBasisFile(basisFile.files[0]); });
+
+document.getElementById("clr-basis").addEventListener("click", () => {
+  basisB64 = null; dzEl.style.display="flex"; dzPrev.style.display="none";
+  basisNote.style.display="none"; basisFile.value="";
+});
+
+function handleBasisFile(file) {
+  if (!file.type.startsWith("image/")) { alert("Please drop an image file."); return; }
+  if (file.size > 10*1024*1024) { alert("Image must be under 10MB."); return; }
+  basisMime = file.type || "image/jpeg";
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const url = e.target.result;
+    basisB64 = url.split(",")[1];
+    basisThumb.src = url;
+    dzEl.style.display="none"; dzPrev.style.display="block";
+    if (MEM.geminiKey) { await analyzeImage(); }
+    else { basisNote.textContent="ℹ Add a Gemini API key to auto-fill fields from this image."; basisNote.style.color="var(--text-muted)"; basisNote.style.display="block"; }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeImage() {
+  analyzeBar.classList.add("vis"); basisNote.style.display="none";
+  const sys = `You are an expert image analyst for an AI image generator.
+Analyze this image and return ONLY a JSON object with these keys (use "" if not applicable):
+{"subject":"","action":"","setting":"","background":"","style":"","lighting":"","composition":"","camera":"","colorPalette":"","mood":""}
+No other text. No markdown. Pure JSON only.`;
+  try {
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+MEM.geminiKey;
+    const resp = await fetch(url, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        contents:[{ parts:[
+          {inline_data:{mime_type:basisMime, data:basisB64}},
+          {text:sys}
+        ]}],
+        generationConfig:{maxOutputTokens:600,temperature:0}
+      })
+    });
+    if (!resp.ok) throw new Error("Gemini API error "+resp.status);
+    const data = await resp.json();
+    let text = "";
+    try { text = data.candidates[0].content.parts[0].text.trim().replace(/```json|```/g,"").trim(); } catch(_){throw new Error("No response");}
+    const parsed = JSON.parse(text);
+    const MAP = {subject:"f-subject",action:"f-action",setting:"f-setting",background:"f-bg",style:"f-style",lighting:"f-light",composition:"f-comp",camera:"f-cam",colorPalette:"f-color",mood:"f-mood"};
+    Object.entries(MAP).forEach(([k,fid]) => { if(parsed[k]) document.getElementById(fid).value=parsed[k]; });
+    assemblePrompt();
+    basisNote.textContent="✓ Fields auto-filled from image. Adjust as needed.";
+    basisNote.style.color="#60c080";
+  } catch(err) {
+    basisNote.textContent="⚠ Analysis failed: "+err.message;
+    basisNote.style.color="var(--amber)";
+  } finally {
+    analyzeBar.classList.remove("vis"); basisNote.style.display="block";
+  }
+}
+
+/* ══════════════════════════════
+   SAFETY
+══════════════════════════════ */
+const SAFE_SFX = ", school-appropriate, safe for all ages, clean, tasteful, non-violent, non-sexual, professional illustration";
+const BLOCKED = [
+  /\bnude\b/,/\bnudes\b/,/\bnaked\b/,/\bnudity\b/,/\btopless\b/,/\bbottomless\b/,
+  /\bnsfw\b/,/\bexplicit\b/,/\berotic\b/,/\bporn\b/,/\bporno\b/,/\bpornography\b/,
+  /\bhentai\b/,/\bsexual\b/,/\bseductive\b/,/\blingerie\b/,/\bupskirt\b/,
+  /\bgenitals?\b/,/\bpenis\b/,/\bvagina\b/,/\bnipple\b/,/\baroused\b/,/\borgasm\b/,
+  /\bbdsm\b/,/\bfetish\b/,/\bstriptease\b/,/\bonlyfans\b/,
+  /\bgore\b/,/\bgory\b/,/\bdecapitat\w*/,/\bdismember\w*/,/\bmutilat\w*/,
+  /\btortur\w*/,/\bbrutali[sz]\w*/,/\bbeheading\b/,/\bblood(?:bath|soaked|splatter)\b/,
+  /\bself.?harm\b/,/\bsuicide\b/,/\bsuicidal\b/,
+  /\bcocaine\b/,/\bmeth\b/,/\bheroin\b/,/\blsd\b/,/\becstasy\b/,/\bmdma\b/,
+  /\bweed\b/,/\bmarijuana\b/,/\bcannabis\b/,
+  /\bwhite\s+suprem\w*/,/\bneo.?nazi\b/,/\bswastika\b/,/\bkkk\b/,/\bterrorist?\b/,
+  /\bloli\b/,/\bshota\b/,
+  /\bchild\s+(?:nude|naked|sexual|porn)\b/,/\bunderage\s+(?:nude|sexual)\b/,
+];
+
+function blocklist(p) { const l=p.toLowerCase(); for(const r of BLOCKED) if(r.test(l)) return true; return false; }
+
+async function geminiSafety(prompt) {
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+MEM.geminiKey;
+  const sys = "You are a strict safety reviewer for a Japanese high school classroom. UNSAFE = sexual, violent, disturbing, hateful, inappropriate for minors. Respond ONLY with JSON: {\"safe\":true} or {\"safe\":false,\"reason\":\"brief reason\"}";
+  const resp = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{parts:[{text:"Evaluate: "+prompt}]}],generationConfig:{maxOutputTokens:80,temperature:0}})});
+  if(!resp.ok) return {safe:true};
+  const data=await resp.json();
+  let text="";
+  try{text=data.candidates[0].content.parts[0].text.trim().replace(/```json|```/g,"").trim();}catch(_){return{safe:true};}
+  try{return JSON.parse(text);}catch(_){return{safe:true};}
+}
+
+async function screenPrompt(prompt) {
+  if (blocklist(prompt)) return {allowed:false, reason:"🚫 Blocked by content filter: prompt contains a restricted term."};
+  if (MEM.geminiKey) {
+    setStatus("Screening with Gemini…","loading");
+    try { const r=await geminiSafety(prompt); if(r.safe===false) return {allowed:false, reason:"🚫 Blocked by AI review: "+(r.reason||"Flagged as inappropriate for school/workplace.")}; }
+    catch(_){}
+  }
+  return {allowed:true, safePrompt:prompt+SAFE_SFX};
+}
+
+/* ══════════════════════════════
+   GENERATION
+══════════════════════════════ */
+const HF1 = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell";
+const HF2 = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell";
+
+let isGen=false, blobUrl=null, tInt=null, tStart=null, history=[];
+
+const statusEl   = document.getElementById("status");
+const imageFrame = document.getElementById("image-frame");
+const ph         = document.getElementById("ph");
+const genImg     = document.getElementById("gen-img");
+const dlBtn      = document.getElementById("dl-btn");
+const fsBtn      = document.getElementById("fs-btn");
+const timerEl    = document.getElementById("timer");
+const histWrap   = document.getElementById("hist-wrap");
+const histList   = document.getElementById("hist-list");
+
+function setStatus(m,t){ statusEl.textContent=m; statusEl.className="status vis "+t; }
+function clearStatus(){ statusEl.className="status"; }
+function startTimer(){ tStart=Date.now(); timerEl.textContent="0.0s"; tInt=setInterval(()=>{timerEl.textContent=((Date.now()-tStart)/1000).toFixed(1)+"s";},100); }
+function stopTimer(){ clearInterval(tInt); }
+
+function setLoading(on) {
+  isGen=on; document.getElementById("gen-btn").disabled=on;
+  if(on){
+    const s=document.createElement("span"); s.className="spin";
+    document.getElementById("btn-icon").style.display="none";
+    document.getElementById("btn-text").textContent="Generating…";
+    document.getElementById("gen-btn").insertBefore(s,document.getElementById("gen-btn").firstChild);
+    imageFrame.classList.add("loading-state");
+  } else {
+    const s=document.getElementById("gen-btn").querySelector(".spin"); if(s)s.remove();
+    document.getElementById("btn-icon").style.display="";
+    document.getElementById("btn-text").textContent="Generate Image";
+    imageFrame.classList.remove("loading-state");
+  }
+}
+
+document.getElementById("gen-btn").addEventListener("click", ()=>{ if(!isGen) generate(); });
+
+async function generate() {
+  const prompt = getFinalPrompt();
+  if (!prompt) { setStatus("⚠ Fill in at least one prompt field.","error"); return; }
+  if (!MEM.hfKey) { setStatus("⚠ No key in memory — lock and re-enter password.","error"); return; }
+
+  setLoading(true); clearStatus(); startTimer();
+  setStatus("Checking prompt safety…","loading");
+
+  genImg.classList.remove("vis"); genImg.style.display="none";
+  ph.style.display=""; dlBtn.disabled=true; fsBtn.disabled=true;
+  if(blobUrl){ URL.revokeObjectURL(blobUrl); blobUrl=null; }
+
+  try {
+    const safety = await screenPrompt(prompt);
+    if (!safety.allowed) {
+      stopTimer(); setLoading(false);
+      statusEl.className="status vis blocked";
+      statusEl.textContent=safety.reason+"\n\nPlease revise your prompt.";
+      return;
+    }
+
+    setStatus("Connecting to FLUX.1 Schnell…","loading");
+
+    // Append negative prompt hint if enabled
+    const negText = document.getElementById("neg-on").checked ? gv("f-neg") : "";
+    const finalInput = safety.safePrompt + (negText ? " | avoid: "+negText : "");
+
+    const opts = {
+      method:"POST",
+      headers:{"Authorization":"Bearer "+MEM.hfKey,"Content-Type":"application/json","x-wait-for-model":"true"},
+      body: JSON.stringify({inputs:finalInput, parameters:{num_inference_steps:4,guidance_scale:0}})
+    };
+
+    let response;
+    try { response = await fetch(HF1, opts); }
+    catch(_) {
+      setStatus("Trying fallback endpoint…","loading");
+      try { response = await fetch(HF2, opts); }
+      catch(e){ throw new Error("Network failed.\n• Check your internet connection\n• Try Chrome or Firefox\n• If using file://, serve via VS Code Live Server"); }
+    }
+
+    setStatus("Model processing…","loading");
+
+    if (!response.ok) {
+      let msg="Error "+response.status;
+      try{const e=await response.json();msg=e.error||e.message||msg;}catch(_){}
+      if(response.status===401) throw new Error("Invalid HF token — lock and re-enter password.");
+      if(response.status===429) throw new Error("Rate limited. Wait and try again.");
+      if(response.status===503) throw new Error("Model loading — try again in 20–30 seconds.");
+      throw new Error(msg);
+    }
+
+    const ct = response.headers.get("content-type")||"";
+    if (!ct.startsWith("image/")) {
+      const t=await response.text(); let p; try{p=JSON.parse(t);}catch(_){}
+      throw new Error(p?.error||"Unexpected response (not an image).");
+    }
+
+    setStatus("Receiving image…","loading");
+    const blob=await response.blob();
+    blobUrl=URL.createObjectURL(blob);
+    stopTimer();
+    const elapsed=((Date.now()-tStart)/1000).toFixed(1);
+
+    genImg.src=blobUrl;
+    genImg.onload=()=>{ ph.style.display="none"; genImg.style.display="block"; requestAnimationFrame(()=>genImg.classList.add("vis")); };
+    document.getElementById("modal-img").src=blobUrl;
+    dlBtn.disabled=false; fsBtn.disabled=false;
+    setStatus("✓ Generated in "+elapsed+"s.","success");
+    addHistory(prompt);
+
+  } catch(err) {
+    stopTimer(); setStatus("✕ "+(err?.message||"Unknown error."),"error");
+  } finally { setLoading(false); }
+}
+
+/* ── History ── */
+function addHistory(p){ history.unshift({prompt:p,time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}); if(history.length>10)history.pop(); renderHistory(); }
+function renderHistory(){
+  if(!history.length){histWrap.classList.remove("vis");return;}
+  histWrap.classList.add("vis"); histList.innerHTML="";
+  history.forEach((e,i)=>{
+    const d=document.createElement("div"); d.className="h-item";
+    d.innerHTML='<span class="h-num">#'+(i+1)+'</span><span class="h-text">'+esc(e.prompt)+'</span><span class="h-time">'+e.time+'</span>';
+    d.addEventListener("click",()=>{
+      editMode=true;
+      document.getElementById("pe").value=e.prompt;
+      document.getElementById("pe").style.display="block";
+      document.getElementById("pp").style.display="none";
+      document.getElementById("edit-btn").textContent="✓ Done";
+    });
+    histList.appendChild(d);
+  });
+}
+document.getElementById("clr-hist").addEventListener("click",()=>{history=[];renderHistory();});
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+/* ── Download ── */
+dlBtn.addEventListener("click",()=>{
+  if(!blobUrl)return;
+  const slug=getFinalPrompt().toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,40);
+  const a=document.createElement("a"); a.href=blobUrl; a.download="flux-"+slug+"-"+Date.now()+".png"; a.click();
+});
+
+/* ── Fullscreen ── */
+const modal=document.getElementById("modal");
+function openModal(){if(!blobUrl)return;modal.classList.add("vis");document.body.style.overflow="hidden";}
+function closeModal(){modal.classList.remove("vis");document.body.style.overflow="";}
+fsBtn.addEventListener("click",openModal);
+imageFrame.addEventListener("click",()=>{if(blobUrl)openModal();});
+document.getElementById("modal-close").addEventListener("click",e=>{e.stopPropagation();closeModal();});
+modal.addEventListener("click",closeModal);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+</script>
+</body>
+</html>
