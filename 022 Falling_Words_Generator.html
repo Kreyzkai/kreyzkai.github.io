@@ -1,189 +1,110 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>022 — Falling Words Generator</title>
+  <title>018 — Falling Words Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      min-height: 100vh;
-      padding: 30px 20px 70px;
-    }
-
-    .container { max-width: 820px; margin: 0 auto; }
-
-    header {
-      text-align: center;
-      margin-bottom: 36px;
-      padding-bottom: 22px;
-      border-bottom: 1px solid #21262d;
-    }
-
-    header .badge {
-      display: inline-block;
-      background: #003366;
-      color: #58a6ff;
-      font-size: 0.78em;
-      font-weight: 700;
-      letter-spacing: 1px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
-
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; padding: 30px 20px 80px; }
+    .container { max-width: 860px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 32px; padding-bottom: 22px; border-bottom: 1px solid #21262d; }
+    .badge { display: inline-block; background: #003366; color: #58a6ff; font-size: .78em; font-weight: 700; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; text-transform: uppercase; }
     header h1 { font-size: 1.9em; color: #e6edf3; margin-bottom: 6px; }
-    header p  { color: #8b949e; font-size: 0.93em; }
+    header p  { color: #8b949e; font-size: .93em; }
+    .card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 22px 26px; margin-bottom: 18px; }
+    .card-title { font-size: .78em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #f0883e; margin-bottom: 14px; }
 
-    .card {
-      background: #161b22;
-      border: 1px solid #21262d;
-      border-radius: 12px;
-      padding: 22px 26px;
-      margin-bottom: 18px;
-    }
-
-    .card-title {
-      font-size: 0.78em;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: #f0883e;
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.83em;
-      color: #8b949e;
-      margin-bottom: 5px;
-    }
-
-    textarea, input[type="text"], select {
-      width: 100%;
-      background: #0d1117;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      color: #c9d1d9;
-      padding: 10px 13px;
-      font-size: 0.95em;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    textarea:focus, input:focus, select:focus {
-      border-color: #58a6ff;
-      box-shadow: 0 0 0 3px rgba(88,166,255,0.12);
-    }
-
-    textarea {
-      min-height: 220px;
-      resize: vertical;
-      font-family: 'Courier New', monospace;
-      font-size: 0.9em;
-      line-height: 1.7;
-    }
-
-    .hint { font-size: 0.77em; color: #8b949e; margin-top: 5px; }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
-
-    .field { display: flex; flex-direction: column; gap: 5px; }
-
-    .word-count {
-      font-size: 0.8em;
-      color: #8b949e;
-      margin-top: 7px;
-    }
+    /* Word rows */
+    .word-table-header { display: grid; grid-template-columns: 36px 1fr 1fr 36px; gap: 8px; margin-bottom: 6px; padding: 0 2px; }
+    .word-table-header span { font-size: .75em; color: #8b949e; text-transform: uppercase; letter-spacing: .8px; }
+    .word-table-header span:nth-child(3)::after { content: ' (optional)'; color: #484f58; }
+    #wordRows { display: flex; flex-direction: column; gap: 6px; }
+    .word-row { display: grid; grid-template-columns: 36px 1fr 1fr 36px; gap: 8px; align-items: center; }
+    .row-num { font-size: .75em; color: #484f58; text-align: right; padding-right: 4px; font-variant-numeric: tabular-nums; }
+    .word-row input { background: #0d1117; border: 1px solid #30363d; border-radius: 7px; color: #c9d1d9; padding: 8px 11px; font-size: .93em; font-family: inherit; outline: none; width: 100%; transition: border-color .18s, box-shadow .18s; }
+    .word-row input:focus { border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(88,166,255,.1); }
+    .word-row input.jp-input { font-size: 1.05em; }
+    .word-row input.en-input { color: #adbac7; }
+    .del-btn { background: none; border: none; color: #484f58; font-size: 1.1em; cursor: pointer; padding: 4px; border-radius: 5px; line-height: 1; transition: color .15s, background .15s; }
+    .del-btn:hover { color: #f85149; background: rgba(248,81,73,.1); }
+    .row-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .btn-small { padding: 7px 14px; border: 1px solid #30363d; background: #161b22; color: #8b949e; border-radius: 7px; font-size: .83em; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+    .btn-small:hover { background: #21262d; color: #c9d1d9; border-color: #58a6ff; }
+    .word-count { font-size: .8em; color: #8b949e; margin-top: 10px; }
     .word-count strong { color: #58a6ff; }
+    .skip-note { color: #484f58; margin-left: 8px; }
 
-    .error-msg {
-      color: #f85149;
-      font-size: 0.82em;
-      margin-top: 6px;
-      display: none;
-    }
+    /* Import drop zone */
+    #dropZone { border: 2px dashed #30363d; border-radius: 10px; padding: 18px; text-align: center; color: #8b949e; font-size: .85em; cursor: pointer; transition: border-color .2s, background .2s; margin-bottom: 10px; }
+    #dropZone:hover, #dropZone.dragover { border-color: #58a6ff; background: rgba(88,166,255,.05); color: #c9d1d9; }
+    #dropZone .dz-icon { font-size: 1.6em; margin-bottom: 4px; display: block; }
+    #importFile { display: none; }
 
-    .actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .btn {
-      padding: 11px 26px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
-      letter-spacing: 0.3px;
-    }
-
-    .btn-primary { background: #1f6feb; color: #fff; }
-    .btn-primary:hover { background: #388bfd; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(56,139,253,0.35); }
-
-    .btn-secondary {
-      background: #21262d;
-      color: #c9d1d9;
-      border: 1px solid #30363d;
-    }
-    .btn-secondary:hover { background: #30363d; }
-
-    .btn-export { background: #238636; color: #fff; font-size: 1.05em; padding: 13px 32px; }
-    .btn-export:hover { background: #2ea043; transform: translateY(-2px); box-shadow: 0 5px 18px rgba(46,160,67,0.4); }
-
-    footer {
-      text-align: center;
-      color: #21262d;
-      font-size: 0.77em;
-      margin-top: 40px;
-    }
-
+    /* Settings */
+    label { display: block; font-size: .83em; color: #8b949e; margin-bottom: 5px; }
+    input[type="text"], select { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9; padding: 10px 13px; font-size: .95em; font-family: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
+    input[type="text"]:focus, select:focus { border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
     select option { background: #161b22; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .mode-desc { font-size: .78em; color: #8b949e; margin-top: 5px; min-height: 2.4em; }
+    .sub-options { margin-top: 14px; padding-top: 14px; border-top: 1px solid #21262d; }
+
+    /* Actions */
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+    .btn { padding: 11px 26px; border: none; border-radius: 8px; font-size: .95em; font-weight: 600; cursor: pointer; transition: transform .15s, box-shadow .15s, background .2s; letter-spacing: .3px; }
+    .btn-secondary { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+    .btn-secondary:hover { background: #30363d; }
+    .btn-export { background: #238636; color: #fff; font-size: 1.05em; padding: 13px 32px; }
+    .btn-export:hover { background: #2ea043; transform: translateY(-2px); box-shadow: 0 5px 18px rgba(46,160,67,.4); }
+    .error-msg { color: #f85149; font-size: .82em; margin-top: 8px; display: none; text-align: center; }
+    footer { text-align: center; color: #21262d; font-size: .77em; margin-top: 40px; }
   </style>
 </head>
 <body>
 <div class="container">
-
   <header>
     <div class="badge">Tool 018</div>
     <h1>🌧 Falling Words Generator</h1>
-    <p>Students type the English translation of falling Japanese words before they hit the ground.</p>
+    <p>Students type (or tap) the English translation of falling Japanese words before they hit the ground.</p>
   </header>
 
   <div class="card">
+    <div class="card-title">📥 Import from Excel / CSV</div>
+    <div id="dropZone">
+      <span class="dz-icon">📊</span>
+      Drag &amp; drop an <strong>.xlsx</strong>, <strong>.xls</strong>, or <strong>.csv</strong> file here<br>
+      <small style="color:#484f58">Two columns: Japanese in A, English in B — header row skipped automatically</small>
+    </div>
+    <input type="file" id="importFile" accept=".xlsx,.xls,.csv">
+    <button class="btn-small" onclick="document.getElementById('importFile').click()">📂 Browse file…</button>
+  </div>
+
+  <div class="card">
     <div class="card-title">📝 Word Pairs</div>
-    <label>One pair per line — Japanese space/tab/| English</label>
-    <textarea id="wordInput" placeholder="猫 cat&#10;犬 dog&#10;学校 school&#10;先生 teacher&#10;友達 friend&#10;食べる eat&#10;飲む drink&#10;大きい big&#10;小さい small&#10;楽しい fun&#10;難しい difficult&#10;新しい new"></textarea>
-    <div class="word-count" id="wordCount">Words detected: <strong>0</strong></div>
-    <div class="error-msg" id="errorMsg"></div>
+    <div class="word-table-header">
+      <span></span><span>Japanese</span><span>English answer</span><span></span>
+    </div>
+    <div id="wordRows"></div>
+    <div class="row-actions">
+      <button class="btn-small" id="addRowBtn">＋ Add row</button>
+      <button class="btn-small" id="add5Btn">＋ Add 5 rows</button>
+      <button class="btn-small" id="clearBtn">🗑 Clear all</button>
+    </div>
+    <div class="word-count" id="wordCount">Valid pairs: <strong>0</strong><span class="skip-note" id="skipNote"></span></div>
   </div>
 
   <div class="card">
     <div class="card-title">⚙️ Settings</div>
-    <div class="grid-2">
+    <div class="grid-2" style="margin-bottom:16px">
       <div class="field">
         <label>Game Title</label>
         <input type="text" id="gameTitle" value="Falling Words">
-      </div>
-      <div class="field">
-        <label>Starting Lives</label>
-        <select id="livesSelect">
-          <option value="5">5 ❤️</option>
-          <option value="3" selected>3 ❤️</option>
-          <option value="1">1 ❤️ (Hardcore)</option>
-        </select>
       </div>
       <div class="field">
         <label>Fall Speed</label>
@@ -192,6 +113,17 @@
           <option value="0.85" selected>🚶 Normal</option>
           <option value="1.5">🏃 Fast</option>
           <option value="2.5">⚡ Insane</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label>Lives</label>
+        <select id="livesSelect">
+          <option value="0">∞ Unlimited</option>
+          <option value="5">5 ❤️</option>
+          <option value="3" selected>3 ❤️</option>
+          <option value="1">1 ❤️ (Hardcore)</option>
         </select>
       </div>
       <div class="field">
@@ -203,23 +135,60 @@
           <option value="4">4 — Expert</option>
         </select>
       </div>
+      <div class="field">
+        <label>Game Mode</label>
+        <select id="modeSelect" onchange="updateModeUI()">
+          <option value="classic">🎯 Classic</option>
+          <option value="multiple_choice">🔘 Multiple Choice</option>
+          <option value="speedrun">⏱ Speed Run</option>
+          <option value="sudden">💀 Sudden Death</option>
+          <option value="endless">🔁 Endless Loop</option>
+        </select>
+        <div class="mode-desc" id="modeDesc">All words fall once. Survive to the end.</div>
+      </div>
+    </div>
+
+    <!-- Mode sub-options -->
+    <div id="speedRunOptions" style="display:none" class="sub-options">
+      <div class="field" style="max-width:220px">
+        <label>Time Limit</label>
+        <select id="timeLimitSelect">
+          <option value="60">60 seconds</option>
+          <option value="90" selected>90 seconds</option>
+          <option value="120">120 seconds</option>
+          <option value="180">3 minutes</option>
+        </select>
+      </div>
+    </div>
+    <div id="mcOptions" style="display:none" class="sub-options">
+      <div class="grid-2" style="max-width:440px">
+        <div class="field">
+          <label>Number of answer choices</label>
+          <select id="mcCountSelect">
+            <option value="2">2 choices</option>
+            <option value="3" selected>3 choices</option>
+            <option value="4">4 choices</option>
+          </select>
+        </div>
+        <div class="field" style="justify-content:flex-end;padding-bottom:2px">
+          <small style="color:#484f58;font-size:.77em;line-height:1.5">Max on screen is forced to 1 in Multiple Choice mode. Needs at least as many words as choices.</small>
+        </div>
+      </div>
     </div>
   </div>
 
+  <div class="error-msg" id="errorMsg"></div>
   <div class="actions">
     <button class="btn btn-secondary" id="rehydrateBtn">📂 Load from Exported Game</button>
     <button class="btn btn-export" id="exportBtn">⬇ Export Game</button>
   </div>
-
   <footer>CMarasigan for Kasai-Minami High School · Tool 018</footer>
 </div>
-
-<!-- Hidden file input for rehydrate -->
 <input type="file" id="rehydrateFile" accept=".html" style="display:none">
 
-<!-- =====================================================================
-     GAME TEMPLATE — stored in textarea to avoid </script> parsing issues
-     ===================================================================== -->
+<!-- =========================================================
+     GAME TEMPLATE
+     ========================================================= -->
 <textarea id="gameTpl" style="display:none;position:absolute;left:-99999px" aria-hidden="true"><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -228,955 +197,846 @@
   <title>__TITLE__</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root { --jp-size: 32px; }
+    body { background: #06081a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; height: 100vh; width: 100vw; user-select: none; -webkit-user-select: none; }
+    #starsBg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-    body {
-      background: #06081a;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    /* ---- Stars ---- */
-    #starsBg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* ---- HUD ---- */
-    #hud {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 18px;
-      background: rgba(6, 8, 26, 0.88);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      z-index: 10;
-    }
-    #livesDisplay { font-size: 1.2em; letter-spacing: 2px; }
+    /* HUD */
+    #hud { position: fixed; top: 0; left: 0; right: 0; height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; background: rgba(6,8,26,.88); border-bottom: 1px solid rgba(255,255,255,.07); z-index: 10; }
+    #livesDisplay { font-size: 1.15em; letter-spacing: 2px; min-width: 90px; }
     #scoreDisplay { font-size: 1.1em; font-weight: 700; color: #feca57; }
-    #levelDisplay { font-size: 0.82em; color: #6e7681; }
+    #timerDisplay { font-size: 1em; color: #58a6ff; font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; display: none; }
+    #timerBar { position: fixed; top: 52px; left: 0; right: 0; height: 3px; background: rgba(88,166,255,.18); z-index: 11; display: none; }
+    #timerBarFill { height: 100%; background: #58a6ff; transition: width .25s linear, background .5s; }
 
-    /* ---- Game area ---- */
-    #gameArea {
-      position: fixed;
-      top: 52px;
-      left: 0; right: 0;
-      bottom: 88px;
-      overflow: hidden;
-      z-index: 1;
-    }
+    /* Game area */
+    #gameArea { position: fixed; top: 52px; left: 0; right: 0; bottom: 88px; overflow: hidden; z-index: 1; }
 
-    /* ---- Input bar ---- */
-    #inputBar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 86px;
-      background: rgba(6, 8, 26, 0.93);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      padding: 0 20px;
-    }
-    #gameInput {
-      background: rgba(255,255,255,0.05);
-      border: 2px solid rgba(88,166,255,0.4);
-      border-radius: 32px;
-      color: #fff;
-      font-size: 1.3em;
-      padding: 10px 26px;
-      width: min(420px, 82vw);
-      outline: none;
-      text-align: center;
-      letter-spacing: 2px;
-      font-family: 'Courier New', monospace;
-      caret-color: #feca57;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    #gameInput:focus {
-      border-color: rgba(88,166,255,0.75);
-      box-shadow: 0 0 22px rgba(88,166,255,0.18);
-    }
-    #gameInput.shake {
-      border-color: #ff4444 !important;
-      box-shadow: 0 0 18px rgba(255,68,68,0.4) !important;
-      animation: shake 0.32s ease;
-    }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20%      { transform: translateX(-9px); }
-      60%      { transform: translateX(9px); }
-    }
-    #inputHint {
-      position: absolute;
-      bottom: 7px;
-      font-size: 0.68em;
-      color: rgba(255,255,255,0.2);
-      text-align: center;
-      width: 100%;
-      pointer-events: none;
-    }
+    /* ---- Typing input bar (classic / speedrun / sudden / endless) ---- */
+    #inputBar { position: fixed; bottom: 0; left: 0; right: 0; height: 86px; background: rgba(6,8,26,.93); border-top: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; z-index: 10; padding: 0 20px; }
+    #gameInput { background: rgba(255,255,255,.05); border: 2px solid rgba(88,166,255,.4); border-radius: 32px; color: #fff; font-size: 1.3em; padding: 10px 26px; width: min(420px,82vw); outline: none; text-align: center; letter-spacing: 2px; font-family: 'Courier New', monospace; caret-color: #feca57; transition: border-color .15s, box-shadow .15s; }
+    #gameInput:focus { border-color: rgba(88,166,255,.75); box-shadow: 0 0 22px rgba(88,166,255,.18); }
+    #gameInput.shake { border-color: #ff4444 !important; box-shadow: 0 0 18px rgba(255,68,68,.4) !important; animation: shake .32s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px)} 60%{transform:translateX(9px)} }
+    #inputHint { position: absolute; bottom: 7px; font-size: .68em; color: rgba(255,255,255,.2); text-align: center; width: 100%; pointer-events: none; }
 
-    /* ---- Falling word cards ---- */
-    .fw-card {
-      position: absolute;
-      background: rgba(8,18,55,0.88);
-      border: 2px solid rgba(88,166,255,0.4);
+    /* ---- Multiple Choice button bar ---- */
+    #mcBar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(6,8,26,.93); border-top: 1px solid rgba(255,255,255,.08); z-index: 10; padding: 10px 16px 14px; display: none; }
+    #mcButtons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .mc-btn {
+      flex: 1 1 auto;
+      min-width: 100px; max-width: 260px;
+      padding: 13px 14px;
       border-radius: 14px;
-      padding: 10px 18px 9px;
-      text-align: center;
-      min-width: 120px;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 4px 22px rgba(0,60,200,0.22);
-      z-index: 5;
-      transition: border-color 0.1s, box-shadow 0.1s;
-    }
-    .fw-card.targeted {
-      border-color: rgba(254,202,87,0.9) !important;
-      box-shadow: 0 4px 22px rgba(254,202,87,0.28), 0 0 28px rgba(254,202,87,0.12) !important;
-    }
-    .fw-card.correct {
-      border-color: #00ff99 !important;
-      box-shadow: 0 0 40px rgba(0,255,153,0.65) !important;
-      animation: cardPop 0.36s ease-out forwards;
-    }
-    .fw-card.missed {
-      border-color: rgba(255,68,68,0.8) !important;
-      box-shadow: 0 0 20px rgba(255,68,68,0.4) !important;
-      animation: cardMiss 0.4s ease-in forwards;
-    }
-    @keyframes cardPop {
-      0%   { transform: scale(1);   opacity: 1; }
-      40%  { transform: scale(1.5); opacity: 1; }
-      100% { transform: scale(2);   opacity: 0; }
-    }
-    @keyframes cardMiss {
-      0%   { opacity: 1; transform: translateY(0)   scale(1);   }
-      100% { opacity: 0; transform: translateY(40px) scale(0.7); }
-    }
-    .fw-jp {
-      font-size: var(--jp-size);
-      font-weight: 700;
+      border: 2px solid rgba(88,166,255,.35);
+      background: rgba(8,18,55,.75);
       color: #e6edf3;
-      line-height: 1.2;
-      text-shadow: 0 0 12px rgba(88,166,255,0.35);
+      font-size: 1em;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .12s, background .12s, transform .1s;
+      letter-spacing: .5px;
     }
-    .fw-progress {
-      font-family: 'Courier New', monospace;
-      font-size: 0.78em;
-      min-height: 1.3em;
-      margin-top: 4px;
-      letter-spacing: 3px;
-    }
+    .mc-btn:hover { border-color: rgba(254,202,87,.7); background: rgba(30,50,100,.8); transform: translateY(-2px); }
+    .mc-btn.correct-flash { border-color: #00ff99 !important; background: rgba(0,80,50,.7) !important; color: #00ff99; animation: mcCorrect .4s ease; }
+    .mc-btn.wrong-flash   { border-color: #ff4444 !important; background: rgba(80,0,0,.7) !important; color: #ff8888; animation: mcWrong .35s ease; }
+    @keyframes mcCorrect { 0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    @keyframes mcWrong   { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+    #mcHint { text-align: center; font-size: .68em; color: rgba(255,255,255,.2); margin-top: 6px; }
 
-    /* ---- Flash effects ---- */
-    #groundLine {
-      position: fixed;
-      bottom: 88px; left: 0; right: 0;
-      height: 3px;
-      background: #ff4444;
-      opacity: 0;
-      z-index: 8;
-      pointer-events: none;
-      transition: opacity 0.06s;
-    }
-    #screenFlash {
-      position: fixed;
-      inset: 0;
-      background: rgba(255,0,0,0.14);
-      opacity: 0;
-      z-index: 20;
-      pointer-events: none;
-      transition: opacity 0.08s;
-    }
+    /* Falling cards */
+    .fw-card { position: absolute; background: rgba(8,18,55,.88); border: 2px solid rgba(88,166,255,.4); border-radius: 14px; padding: 10px 18px 9px; text-align: center; min-width: 120px; backdrop-filter: blur(5px); box-shadow: 0 4px 22px rgba(0,60,200,.22); z-index: 5; }
+    .fw-card.targeted { border-color: rgba(254,202,87,.9) !important; box-shadow: 0 4px 22px rgba(254,202,87,.28), 0 0 28px rgba(254,202,87,.12) !important; }
+    .fw-card.correct { border-color: #00ff99 !important; box-shadow: 0 0 40px rgba(0,255,153,.65) !important; animation: cardPop .36s ease-out forwards; }
+    .fw-card.missed  { border-color: rgba(255,68,68,.8) !important; box-shadow: 0 0 20px rgba(255,68,68,.4) !important; animation: cardMiss .4s ease-in forwards; }
+    @keyframes cardPop  { 0%{transform:scale(1);opacity:1} 40%{transform:scale(1.5);opacity:1} 100%{transform:scale(2);opacity:0} }
+    @keyframes cardMiss { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(40px) scale(.7)} }
+    .fw-jp { font-size: var(--jp-size); font-weight: 700; color: #e6edf3; line-height: 1.2; text-shadow: 0 0 12px rgba(88,166,255,.35); }
+    .fw-progress { font-family: 'Courier New', monospace; font-size: .78em; min-height: 1.3em; margin-top: 4px; letter-spacing: 3px; }
 
-    /* ---- Level-up toast ---- */
-    #lvlToast {
-      position: fixed;
-      top: 58px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(254,202,87,0.95);
-      color: #1a1000;
-      font-weight: 800;
-      font-size: 0.9em;
-      padding: 5px 20px;
-      border-radius: 20px;
-      z-index: 12;
-      opacity: 0;
-      pointer-events: none;
-      white-space: nowrap;
-    }
+    /* Flash layers */
+    #groundLine { position: fixed; bottom: 88px; left: 0; right: 0; height: 3px; background: #ff4444; opacity: 0; z-index: 8; pointer-events: none; transition: opacity .06s; }
+    #screenFlash { position: fixed; inset: 0; background: rgba(255,0,0,.14); opacity: 0; z-index: 20; pointer-events: none; transition: opacity .08s; }
+
+    /* Toast */
+    #lvlToast { position: fixed; top: 58px; left: 50%; transform: translateX(-50%); background: rgba(254,202,87,.95); color: #1a1000; font-weight: 800; font-size: .9em; padding: 5px 20px; border-radius: 20px; z-index: 12; opacity: 0; pointer-events: none; white-space: nowrap; }
     #lvlToast.show { animation: toastFade 1.6s ease forwards; }
-    @keyframes toastFade {
-      0%,15% { opacity: 1; }
-      70%     { opacity: 1; }
-      100%    { opacity: 0; }
-    }
+    @keyframes toastFade { 0%,15%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
 
-    /* ---- Overlays ---- */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.72);
-      backdrop-filter: blur(7px);
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .ov-panel {
-      background: linear-gradient(145deg, #002a55, #0a1a40);
-      border: 1px solid rgba(88,166,255,0.28);
-      border-radius: 20px;
-      padding: 38px 46px;
-      text-align: center;
-      max-width: 430px;
-      width: 92%;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.55);
-    }
-    .ov-panel h2        { font-size: 2em;   color: #feca57;  margin-bottom: 8px; }
-    .ov-panel .sub      { font-size: 0.92em; color: #8b949e;  margin-bottom: 6px; }
-    .ov-panel .big-num  { font-size: 3em;   font-weight: 800; color: #fff; margin: 14px 0; }
-    .ov-panel .stats    { font-size: 0.87em; color: #58a6ff;  margin-bottom: 24px; }
-    .ov-btn {
-      display: inline-block;
-      padding: 11px 26px;
-      border-radius: 30px;
-      border: none;
-      font-size: 0.95em;
-      font-weight: 700;
-      cursor: pointer;
-      margin: 5px;
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-    .ov-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
+    /* Overlays */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(7px); z-index: 50; display: flex; align-items: center; justify-content: center; }
+    .ov-panel { background: linear-gradient(145deg,#002a55,#0a1a40); border: 1px solid rgba(88,166,255,.28); border-radius: 20px; padding: 38px 46px; text-align: center; max-width: 430px; width: 92%; box-shadow: 0 24px 64px rgba(0,0,0,.55); }
+    .ov-panel h2 { font-size: 2em; color: #feca57; margin-bottom: 8px; }
+    .ov-panel .sub { font-size: .92em; color: #8b949e; margin-bottom: 6px; }
+    .ov-panel .big-num { font-size: 3em; font-weight: 800; color: #fff; margin: 14px 0; }
+    .ov-panel .stats { font-size: .87em; color: #58a6ff; margin-bottom: 24px; }
+    .ov-btn { display: inline-block; padding: 11px 26px; border-radius: 30px; border: none; font-size: .95em; font-weight: 700; cursor: pointer; margin: 5px; transition: transform .15s, box-shadow .15s; }
+    .ov-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.3); }
     .ov-btn-play { background: #feca57; color: #1a1000; }
-    .ov-btn-back { background: rgba(255,255,255,0.09); color: #c9d1d9; border: 1px solid rgba(255,255,255,0.18); }
+    .ov-btn-back { background: rgba(255,255,255,.09); color: #c9d1d9; border: 1px solid rgba(255,255,255,.18); }
 
-    /* ---- Gold standard: watermark ---- */
-    #watermark {
-      position: fixed;
-      left: 15px;
-      top: 57px;
-      font-size: 0.68em;
-      color: rgba(255,255,255,0.3);
-      opacity: 0.3;
-      z-index: 9;
-      pointer-events: none;
-      letter-spacing: 1px;
-    }
-
-    /* ---- Gold standard: zoom button ---- */
-    #zoomBtn {
-      position: fixed;
-      right: 20px;
-      bottom: 98px;
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      background: #003366;
-      border: none;
-      color: white;
-      font-size: 1.2em;
-      cursor: pointer;
-      z-index: 15;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.45);
-      transition: background 0.2s, transform 0.15s;
-    }
+    /* Gold standard */
+    #watermark { position: fixed; left: 15px; top: 57px; font-size: .68em; color: rgba(255,255,255,.3); opacity: .3; z-index: 9; pointer-events: none; letter-spacing: 1px; }
+    #zoomBtn { position: fixed; right: 20px; bottom: 98px; width: 55px; height: 55px; border-radius: 50%; background: #003366; border: none; color: white; font-size: 1.2em; cursor: pointer; z-index: 15; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,.45); transition: background .2s, transform .15s; }
     #zoomBtn:hover { background: #004488; transform: scale(1.08); }
-
-    /* ---- Gold standard: instructions pill ---- */
-    #instrPill {
-      position: fixed;
-      bottom: 97px;
-      left: 15px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      background: rgba(0,0,0,0.48);
-      border: 1px solid rgba(255,255,255,0.13);
-      border-radius: 30px;
-      padding: 5px 12px 5px 5px;
-      cursor: pointer;
-      z-index: 15;
-      transition: background 0.2s;
-    }
-    #instrPill:hover { background: rgba(0,51,102,0.65); }
-    #instrPill img  { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
-    #instrPill span { font-size: 0.77em; color: rgba(255,255,255,0.65); }
-
-    /* ---- Instructions modal ---- */
-    #instrModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(7px);
-      z-index: 60;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
+    #instrPill { position: fixed; bottom: 97px; left: 15px; display: flex; align-items: center; gap: 7px; background: rgba(0,0,0,.48); border: 1px solid rgba(255,255,255,.13); border-radius: 30px; padding: 5px 12px 5px 5px; cursor: pointer; z-index: 15; transition: background .2s; }
+    #instrPill:hover { background: rgba(0,51,102,.65); }
+    #instrPill img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+    #instrPill span { font-size: .77em; color: rgba(255,255,255,.65); }
+    #instrModal { position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(7px); z-index: 60; display: none; align-items: center; justify-content: center; }
     #instrModal.open { display: flex; }
-    #instrBox {
-      background: linear-gradient(145deg, #003366, #0066cc);
-      border-radius: 18px;
-      padding: 32px 38px;
-      max-width: 450px;
-      width: 92%;
-      position: relative;
-    }
-    #instrBox h3  { color: #feca57; font-size: 1.15em; margin-bottom: 14px; }
-    #instrBox p, #instrBox li { color: #e6edf3; font-size: 0.91em; line-height: 1.75; }
-    #instrBox ul  { padding-left: 20px; margin-bottom: 10px; }
-    #instrBox .tip { color: #feca57; font-size: 0.82em; margin-top: 10px; }
-    #instrClose {
-      position: absolute;
-      top: 12px; right: 16px;
-      background: none; border: none;
-      color: rgba(255,255,255,0.65);
-      font-size: 1.35em;
-      cursor: pointer;
-      line-height: 1;
-    }
+    #instrBox { background: linear-gradient(145deg,#003366,#0066cc); border-radius: 18px; padding: 32px 38px; max-width: 450px; width: 92%; position: relative; }
+    #instrBox h3 { color: #feca57; font-size: 1.15em; margin-bottom: 14px; }
+    #instrBox li { color: #e6edf3; font-size: .91em; line-height: 1.8; }
+    #instrBox ul { padding-left: 20px; margin-bottom: 10px; }
+    #instrBox .tip { color: #feca57; font-size: .82em; margin-top: 10px; }
+    #instrClose { position: absolute; top: 12px; right: 16px; background: none; border: none; color: rgba(255,255,255,.65); font-size: 1.35em; cursor: pointer; }
     #instrClose:hover { color: #fff; }
   </style>
 </head>
 <body>
-
-<script>
-var GAME_CONFIG = __CONFIG_JSON__;
-</script>
-
-<!-- Stars background -->
+<script>var GAME_CONFIG = __CONFIG_JSON__;</script>
 <canvas id="starsBg"></canvas>
-
-<!-- Flash layers -->
 <div id="groundLine"></div>
 <div id="screenFlash"></div>
-
-<!-- HUD -->
 <div id="hud">
   <div id="livesDisplay"></div>
-  <div id="levelDisplay">Level 1</div>
-  <div id="scoreDisplay">0 pts</div>
+  <div style="font-size:.7em;color:#484f58;letter-spacing:.5px" id="modeBadge"></div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div id="timerDisplay"></div>
+    <div id="scoreDisplay">0 pts</div>
+  </div>
 </div>
-
-<!-- Game area -->
+<div id="timerBar"><div id="timerBarFill"></div></div>
 <div id="gameArea"></div>
-
-<!-- Level-up toast -->
 <div id="lvlToast"></div>
-
-<!-- Watermark -->
 <div id="watermark">cmarasigan</div>
 
-<!-- Input bar -->
+<!-- Typing bar -->
 <div id="inputBar">
-  <input type="text" id="gameInput"
-    autocomplete="off" autocorrect="off"
-    autocapitalize="none" spellcheck="false"
-    placeholder="type here…">
+  <input type="text" id="gameInput" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="type here…">
   <div id="inputHint">Type the English word for the Japanese above</div>
 </div>
 
-<!-- Zoom button -->
+<!-- Multiple Choice bar -->
+<div id="mcBar">
+  <div id="mcButtons"></div>
+  <div id="mcHint">Tap the correct English translation</div>
+</div>
+
 <button id="zoomBtn" title="Change text size">🔍</button>
+<div id="instrPill"><img src="https://i.imgur.com/sPiDZQ9.png" alt="avatar"><span>How to Play</span></div>
+<div id="instrModal"><div id="instrBox">
+  <button id="instrClose">✕</button>
+  <h3>How to Play</h3>
+  <ul id="instrList"></ul>
+  <p class="tip" id="instrTip"></p>
+</div></div>
 
-<!-- Instructions pill -->
-<div id="instrPill">
-  <img src="https://i.imgur.com/sPiDZQ9.png" alt="avatar">
-  <span>How to Play</span>
-</div>
-
-<!-- Instructions modal -->
-<div id="instrModal">
-  <div id="instrBox">
-    <button id="instrClose">✕</button>
-    <h3>How to Play</h3>
-    <ul>
-      <li>Japanese words are <strong>falling from the sky</strong></li>
-      <li>Type the <strong>English translation</strong> of a falling word</li>
-      <li>The matching card glows yellow as you type</li>
-      <li>Finish typing before the word hits the bottom!</li>
-      <li>You lose a ❤️ each time a word reaches the ground</li>
-      <li>Speed increases as you level up</li>
-    </ul>
-    <p class="tip">🔍 Zoom button changes text size &nbsp;|&nbsp; ✘ Wrong letter clears input — try again!</p>
-  </div>
-</div>
-
-<!-- Start overlay -->
 <div class="overlay" id="startOverlay">
   <div class="ov-panel">
-    <h2 style="color:#58a6ff">⬇ __TITLE__</h2>
-    <p class="sub" style="margin-bottom:14px">Type the English for each falling Japanese word</p>
-    <p class="sub">❤️ Lives: __LIVES__ &nbsp;|&nbsp; 📋 Words: __WORD_COUNT__</p>
+    <h2 style="color:#58a6ff" id="startTitle"></h2>
+    <p class="sub" id="startModeDesc" style="margin-bottom:14px"></p>
+    <p class="sub" id="startMeta"></p>
     <div style="margin-top:26px">
       <button class="ov-btn ov-btn-play" onclick="startGame()">▶ Start</button>
       <button class="ov-btn ov-btn-back" onclick="goBack()">⬅ Back</button>
     </div>
   </div>
 </div>
-
-<!-- End overlay (game over / win) -->
 <div class="overlay" id="endOverlay" style="display:none">
   <div class="ov-panel">
     <h2 id="endTitle"></h2>
     <p class="sub" id="endSub"></p>
     <div class="big-num" id="endScore"></div>
-    <div class="stats"  id="endStats"></div>
+    <div class="stats" id="endStats"></div>
     <button class="ov-btn ov-btn-play" onclick="restartGame()">▶ Play Again</button>
     <button class="ov-btn ov-btn-back" onclick="goBack()">⬅ Main Menu</button>
   </div>
 </div>
 
 <script>
-// ======================================================================
-//  STAR BACKGROUND
-// ======================================================================
-(function() {
-  var c  = document.getElementById('starsBg');
-  var cx = c.getContext('2d');
-  c.width  = window.innerWidth;
-  c.height = window.innerHeight;
-  cx.fillStyle = '#06081a';
-  cx.fillRect(0, 0, c.width, c.height);
-  for (var i = 0; i < 280; i++) {
-    var x = Math.random() * c.width;
-    var y = Math.random() * c.height;
-    var r = Math.random() * 1.4 + 0.2;
-    var a = 0.2 + Math.random() * 0.8;
-    cx.beginPath();
-    cx.arc(x, y, r, 0, Math.PI * 2);
-    cx.fillStyle = 'rgba(200,220,255,' + a + ')';
-    cx.fill();
+// ---- Stars ----
+(function(){
+  var c=document.getElementById('starsBg'),cx=c.getContext('2d');
+  c.width=window.innerWidth; c.height=window.innerHeight;
+  cx.fillStyle='#06081a'; cx.fillRect(0,0,c.width,c.height);
+  for(var i=0;i<280;i++){
+    var x=Math.random()*c.width,y=Math.random()*c.height,r=Math.random()*1.4+.2,a=.2+Math.random()*.8;
+    cx.beginPath(); cx.arc(x,y,r,0,Math.PI*2); cx.fillStyle='rgba(200,220,255,'+a+')'; cx.fill();
   }
 })();
 
-// ======================================================================
-//  GAME ENGINE
-// ======================================================================
-var CFG = GAME_CONFIG;
+var CFG      = GAME_CONFIG;
+var MODE     = CFG.mode || 'classic';
+var IS_MC    = MODE === 'multiple_choice';
+var ZOOM_IDX = 0;
+var ZOOM_SIZES = [32,38,44,50,26];
+var state, lastTime=0, gameEnded=false, timerRAF, timerStart;
+var mcLocked = false; // prevent double-tap during MC flash
 
-var ZOOM_SIZES = [32, 38, 44, 50, 26];
-var zoomIdx    = 0;
+var MODES = {
+  classic:         { label:'Classic',         desc:'All words fall once. Survive to the end.' },
+  multiple_choice: { label:'Multiple Choice', desc:'Tap the correct English answer — no typing needed!' },
+  speedrun:        { label:'Speed Run',       desc:'Score as many as you can before time runs out!' },
+  sudden:          { label:'Sudden Death',    desc:'One word hits the bottom — game over.' },
+  endless:         { label:'Endless Loop',    desc:'Words cycle forever. How long can you last?' }
+};
 
-var state;
-var lastTime  = 0;
-var gameEnded = false;
+// ---- Init UI ----
+(function(){
+  var m = MODES[MODE] || MODES.classic;
+  document.getElementById('startTitle').textContent    = '⬇ ' + CFG.title;
+  document.getElementById('startModeDesc').textContent = m.desc;
+  document.getElementById('modeBadge').textContent     = m.label.toUpperCase();
+  var meta = [];
+  if(CFG.lives===0) meta.push('∞ Lives'); else meta.push('❤️ '+CFG.lives);
+  if(MODE==='speedrun') meta.push('⏱ '+CFG.timeLimit+'s');
+  if(IS_MC) meta.push('🔘 '+CFG.mcCount+' choices');
+  if(MODE!=='speedrun') meta.push('📋 '+CFG.words.length+' words');
+  document.getElementById('startMeta').textContent = meta.join('  |  ');
 
-function makeState() {
-  return {
-    words:         shuffle(CFG.words.slice()),
-    active:        [],
-    wordIdx:       0,
-    lives:         CFG.lives,
-    score:         0,
-    level:         1,
-    typed:         0,
-    running:       false,
-    rafId:         null,
-    lastSpawn:     -99999,
-    spawnInterval: 2600,
-    idCtr:         0
-  };
-}
-
-// ---- Utilities ----
-function shuffle(arr) {
-  for (var i = arr.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  var lines = ['Japanese words <strong>fall from the sky</strong>'];
+  if(IS_MC){
+    lines.push('Tap the <strong>correct English translation</strong> from the buttons');
+    lines.push('Wrong answer flashes red — try again, no penalty!');
+  } else {
+    lines.push('Type the <strong>English translation</strong> of a falling word');
+    lines.push('The matching card glows yellow as you type');
+    lines.push('Finish typing before the word hits the bottom!');
   }
-  return arr;
-}
+  if(CFG.lives===0) lines.push('You have <strong>unlimited lives</strong> — just keep going!');
+  else lines.push('You lose a ❤️ each time a word reaches the ground');
+  if(MODE==='speedrun') lines.push('Score as many as you can in <strong>'+CFG.timeLimit+' seconds!</strong>');
+  if(MODE==='sudden')   lines.push('<strong>One miss = game over!</strong>');
+  if(MODE==='endless')  lines.push('Words loop forever — see how high you can score!');
+  var ul=document.getElementById('instrList');
+  lines.forEach(function(l){ var li=document.createElement('li'); li.innerHTML=l; ul.appendChild(li); });
+  document.getElementById('instrTip').textContent = IS_MC
+    ? '🔍 Zoom changes text size  |  Wrong tap has no penalty!'
+    : '🔍 Zoom changes text size  |  Wrong letter clears input — try again!';
+
+  // Show correct bottom bar
+  if(IS_MC){
+    document.getElementById('inputBar').style.display='none';
+    document.getElementById('mcBar').style.display='block';
+    document.getElementById('groundLine').style.bottom='0'; // MC bar has different height
+  }
+})();
 
 // ---- Zoom ----
-document.getElementById('zoomBtn').addEventListener('click', function() {
-  zoomIdx = (zoomIdx + 1) % ZOOM_SIZES.length;
-  document.documentElement.style.setProperty('--jp-size', ZOOM_SIZES[zoomIdx] + 'px');
+document.getElementById('zoomBtn').addEventListener('click',function(){
+  ZOOM_IDX=(ZOOM_IDX+1)%ZOOM_SIZES.length;
+  document.documentElement.style.setProperty('--jp-size',ZOOM_SIZES[ZOOM_IDX]+'px');
 });
 
 // ---- Instructions ----
-document.getElementById('instrPill').addEventListener('click', function() {
+document.getElementById('instrPill').addEventListener('click',function(){
   document.getElementById('instrModal').classList.add('open');
-  if (state && state.running) pauseGame();
+  if(state&&state.running) pauseGame();
 });
-document.getElementById('instrClose').addEventListener('click', function() {
+document.getElementById('instrClose').addEventListener('click',function(){
   document.getElementById('instrModal').classList.remove('open');
-  if (state && state.running) resumeGame();
+  if(state&&state.running) resumeGame();
 });
 
-// ---- goBack ----
-function goBack() {
-  if (confirm('Leave this game and return to the main menu?')) {
-    window.location.href = 'index.html';
-  }
-}
+function goBack(){ if(confirm('Leave and return to the main menu?')) window.location.href='index.html'; }
 
-// ---- Start ----
-function startGame() {
-  document.getElementById('startOverlay').style.display = 'none';
-  document.getElementById('endOverlay').style.display   = 'none';
-  gameEnded = false;
-  lastTime  = 0;
-  state     = makeState();
-  state.running = true;
+// ---- State ----
+function makeState(){
+  var words=CFG.words.slice(); shuffle(words);
+  return { words:words, active:[], wordIdx:0, lives:CFG.lives, score:0, level:1, typed:0,
+           running:false, rafId:null, lastSpawn:-99999, spawnInterval:2600, idCtr:0 };
+}
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t; } return a; }
+
+// ---- Start / restart ----
+function startGame(){
+  document.getElementById('startOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  gameEnded=false; lastTime=0; mcLocked=false;
+  state=makeState(); state.running=true;
   updateHUD();
-  document.getElementById('gameInput').focus();
-  state.rafId = requestAnimationFrame(gameLoop);
-}
-
-function restartGame() {
-  for (var i = 0; i < state.active.length; i++) {
-    var w = state.active[i];
-    if (w.el && w.el.parentNode) w.el.parentNode.removeChild(w.el);
+  if(MODE==='speedrun'){
+    document.getElementById('timerDisplay').style.display='block';
+    document.getElementById('timerBar').style.display='block';
+    startTimer(CFG.timeLimit);
   }
-  document.getElementById('endOverlay').style.display = 'none';
-  document.getElementById('gameInput').value = '';
-  gameEnded = false;
-  lastTime  = 0;
-  state     = makeState();
-  state.running = true;
-  updateHUD();
-  document.getElementById('gameInput').focus();
-  state.rafId = requestAnimationFrame(gameLoop);
+  if(!IS_MC) document.getElementById('gameInput').focus();
+  state.rafId=requestAnimationFrame(gameLoop);
 }
+function restartGame(){
+  clearTimer();
+  state.active.forEach(function(w){ if(w.el&&w.el.parentNode) w.el.parentNode.removeChild(w.el); });
+  document.getElementById('endOverlay').style.display='none';
+  if(!IS_MC) document.getElementById('gameInput').value='';
+  clearMCButtons();
+  startGame();
+}
+function pauseGame(){ state.running=false; if(state.rafId) cancelAnimationFrame(state.rafId); }
+function resumeGame(){ state.running=true; lastTime=0; state.rafId=requestAnimationFrame(gameLoop); }
 
-function pauseGame() {
-  state.running = false;
-  if (state.rafId) cancelAnimationFrame(state.rafId);
+// ---- Timer ----
+function startTimer(secs){ timerStart=performance.now(); tickTimer(); }
+function tickTimer(){
+  var elapsed=(performance.now()-timerStart)/1000;
+  var left=Math.max(0,CFG.timeLimit-elapsed);
+  var pct=(left/CFG.timeLimit)*100;
+  document.getElementById('timerDisplay').textContent=formatTime(left);
+  document.getElementById('timerBarFill').style.width=pct+'%';
+  if(pct<20) document.getElementById('timerBarFill').style.background='#ff4444';
+  if(left<=0){ endGame(true); return; }
+  timerRAF=requestAnimationFrame(tickTimer);
 }
-
-function resumeGame() {
-  state.running = true;
-  lastTime = 0;
-  state.rafId = requestAnimationFrame(gameLoop);
-}
+function clearTimer(){ if(timerRAF) cancelAnimationFrame(timerRAF); }
+function formatTime(s){ var m=Math.floor(s/60),sec=Math.floor(s%60); return m+':'+(sec<10?'0':'')+sec; }
 
 // ---- Game loop ----
-function gameLoop(ts) {
-  if (!state.running) return;
-  if (lastTime === 0) lastTime = ts;
-  var dt = Math.min(ts - lastTime, 50);
-  lastTime = ts;
-
-  var ga = document.getElementById('gameArea');
-  var areaH = ga.clientHeight;
-  var areaW = ga.clientWidth;
-
-  // Move cards
-  var alive = [];
-  for (var i = 0; i < state.active.length; i++) {
-    var w = state.active[i];
-    if (w.dying) { alive.push(w); continue; }
-    w.y += w.speed * (dt / 16);
-    w.el.style.top = w.y + 'px';
-    var cardH = w.el.offsetHeight || 72;
-    if (w.y + cardH >= areaH) {
-      missWord(w);
-    }
+function gameLoop(ts){
+  if(!state.running) return;
+  if(lastTime===0) lastTime=ts;
+  var dt=Math.min(ts-lastTime,50); lastTime=ts;
+  var ga=document.getElementById('gameArea');
+  var areaH=ga.clientHeight, areaW=ga.clientWidth;
+  var alive=[];
+  for(var i=0;i<state.active.length;i++){
+    var w=state.active[i];
+    if(w.dying){ alive.push(w); continue; }
+    w.y+=w.speed*(dt/16); w.el.style.top=w.y+'px';
+    if(w.y+(w.el.offsetHeight||72)>=areaH) missWord(w);
     alive.push(w);
   }
-  state.active = alive;
+  state.active=alive;
 
-  // Spawn
-  var onScreen = 0;
-  for (var j = 0; j < state.active.length; j++) {
-    if (!state.active[j].dying) onScreen++;
-  }
-  if (onScreen < CFG.maxWords
-      && ts - state.lastSpawn > state.spawnInterval
-      && state.wordIdx < state.words.length) {
-    spawnWord(areaW);
-    state.lastSpawn = ts;
-  }
+  var onScreen=state.active.filter(function(w){ return !w.dying; }).length;
 
-  // Win: all words used and none falling
-  if (state.wordIdx >= state.words.length && onScreen === 0) {
-    endGame(true);
-    return;
+  if(MODE==='endless' && state.wordIdx>=state.words.length){
+    state.words=CFG.words.slice(); shuffle(state.words); state.wordIdx=0;
+  }
+  var canSpawn=(MODE==='endless')||(state.wordIdx<state.words.length);
+  var maxW=IS_MC?1:CFG.maxWords;
+  if(canSpawn && onScreen<maxW && ts-state.lastSpawn>state.spawnInterval){
+    spawnWord(areaW); state.lastSpawn=ts;
   }
 
-  state.rafId = requestAnimationFrame(gameLoop);
+  if(MODE!=='endless'&&MODE!=='speedrun'){
+    if(state.wordIdx>=state.words.length && onScreen===0 && !gameEnded) endGame(true);
+  }
+  state.rafId=requestAnimationFrame(gameLoop);
 }
 
-function currentSpeed() {
-  return CFG.baseSpeed * (1 + (state.level - 1) * 0.2);
-}
+function currentSpeed(){ return CFG.baseSpeed*(1+(state.level-1)*.2); }
 
 // ---- Spawn ----
-function spawnWord(areaW) {
-  var pair = state.words[state.wordIdx++];
-  var id   = ++state.idCtr;
-  var minX = 20;
-  var maxX = Math.max(minX + 10, areaW - 180);
-  var x    = minX + Math.random() * (maxX - minX);
-
-  var el = document.createElement('div');
-  el.className = 'fw-card';
-  el.id = 'fw-' + id;
-
-  var jpDiv = document.createElement('div');
-  jpDiv.className = 'fw-jp';
-  jpDiv.textContent = pair.jp;
-
-  var pgDiv = document.createElement('div');
-  pgDiv.className = 'fw-progress';
-
-  el.appendChild(jpDiv);
-  el.appendChild(pgDiv);
-  el.style.left = x + 'px';
-  el.style.top  = '-90px';
-
+function spawnWord(areaW){
+  var pair=state.words[state.wordIdx++];
+  var id=++state.idCtr;
+  var x=20+Math.random()*Math.max(10,areaW-180);
+  var el=document.createElement('div'); el.className='fw-card'; el.id='fw-'+id;
+  var jpDiv=document.createElement('div'); jpDiv.className='fw-jp'; jpDiv.textContent=pair.jp;
+  var pgDiv=document.createElement('div'); pgDiv.className='fw-progress';
+  el.appendChild(jpDiv); el.appendChild(pgDiv);
+  el.style.left=x+'px'; el.style.top='-90px';
   document.getElementById('gameArea').appendChild(el);
+  var wordObj={ id:id, jp:pair.jp, en:pair.en, x:x, y:-90, speed:currentSpeed(), el:el, dying:false };
+  state.active.push(wordObj);
+  if(IS_MC) buildMCButtons(wordObj);
+}
 
-  state.active.push({
-    id: id,
-    jp: pair.jp,
-    en: pair.en,
-    x:  x,
-    y:  -90,
-    speed: currentSpeed(),
-    el:   el,
-    dying: false
+// ---- Multiple Choice buttons ----
+function buildMCButtons(wordObj){
+  clearMCButtons();
+  mcLocked=false;
+  // Gather distractors: other words' EN answers, excluding correct
+  var pool=CFG.words.filter(function(w){ return w.en!==wordObj.en; });
+  shuffle(pool);
+  var count=Math.min(CFG.mcCount, 1+pool.length); // need at least count-1 distractors
+  var options=[wordObj.en];
+  for(var i=0;i<count-1&&i<pool.length;i++) options.push(pool[i].en);
+  shuffle(options);
+
+  var container=document.getElementById('mcButtons');
+  options.forEach(function(opt){
+    var btn=document.createElement('button');
+    btn.className='mc-btn';
+    btn.textContent=opt;
+    btn.addEventListener('click', function(){ onMCClick(btn, opt, wordObj); });
+    container.appendChild(btn);
   });
 }
 
-// ---- Input ----
-var gameInput = document.getElementById('gameInput');
-gameInput.addEventListener('input', handleInput);
+function onMCClick(btn, answer, wordObj){
+  if(mcLocked||wordObj.dying) return;
+  if(answer===wordObj.en){
+    mcLocked=true;
+    btn.classList.add('correct-flash');
+    setTimeout(function(){ scoreWord(wordObj); clearMCButtons(); },320);
+  } else {
+    btn.classList.add('wrong-flash');
+    setTimeout(function(){ btn.classList.remove('wrong-flash'); },380);
+  }
+}
 
-document.addEventListener('click', function() {
-  if (state && state.running) gameInput.focus();
-});
-gameInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') gameInput.value = '';
-});
+function clearMCButtons(){
+  document.getElementById('mcButtons').innerHTML='';
+}
 
-function handleInput() {
-  var val = gameInput.value.toLowerCase().trim();
+// ---- Typing input ----
+var gameInput=document.getElementById('gameInput');
+if(!IS_MC){
+  gameInput.addEventListener('input',handleInput);
+  document.addEventListener('click',function(){ if(state&&state.running) gameInput.focus(); });
+  gameInput.addEventListener('keydown',function(e){ if(e.key==='Escape') gameInput.value=''; });
+}
 
-  // Clear all highlights
-  for (var i = 0; i < state.active.length; i++) {
-    var w = state.active[i];
-    if (w.dying) continue;
+function handleInput(){
+  var val=gameInput.value.toLowerCase().trim();
+  state.active.forEach(function(w){
+    if(w.dying) return;
     w.el.classList.remove('targeted');
-    w.el.querySelector('.fw-progress').innerHTML = '';
-  }
-
-  if (!val) return;
-
-  // Find matches
-  var alive = state.active.filter(function(w) { return !w.dying; });
-  var matches = alive.filter(function(w) { return w.en.indexOf(val) === 0; });
-
-  if (matches.length === 0) {
-    flashInputError();
-    gameInput.value = '';
-    return;
-  }
-
-  // Target: lowest on screen (most urgent)
-  var target = matches.sort(function(a, b) { return b.y - a.y; })[0];
-
-  // Highlight
+    w.el.querySelector('.fw-progress').innerHTML='';
+  });
+  if(!val) return;
+  var alive=state.active.filter(function(w){ return !w.dying; });
+  var matches=alive.filter(function(w){ return w.en.indexOf(val)===0; });
+  if(matches.length===0){ flashInputError(); gameInput.value=''; return; }
+  var target=matches.sort(function(a,b){ return b.y-a.y; })[0];
   target.el.classList.add('targeted');
-  var typed     = val;
-  var remaining = target.en.slice(val.length);
-  var pg = target.el.querySelector('.fw-progress');
-  var spTyped = document.createElement('span');
-  spTyped.style.color = '#feca57';
-  spTyped.textContent = typed;
-  var spRem = document.createElement('span');
-  spRem.style.color = 'rgba(255,255,255,0.22)';
-  spRem.textContent = remaining;
-  pg.innerHTML = '';
-  pg.appendChild(spTyped);
-  pg.appendChild(spRem);
+  var pg=target.el.querySelector('.fw-progress');
+  var s1=document.createElement('span'); s1.style.color='#feca57'; s1.textContent=val;
+  var s2=document.createElement('span'); s2.style.color='rgba(255,255,255,.22)'; s2.textContent=target.en.slice(val.length);
+  pg.appendChild(s1); pg.appendChild(s2);
+  if(val===target.en){ scoreWord(target); gameInput.value=''; }
+}
 
-  // Full match
-  if (val === target.en) {
-    scoreWord(target);
-    gameInput.value = '';
+function flashInputError(){
+  gameInput.classList.remove('shake'); void gameInput.offsetWidth; gameInput.classList.add('shake');
+  setTimeout(function(){ gameInput.classList.remove('shake'); },400);
+}
+
+// ---- Score ----
+function scoreWord(w){
+  w.dying=true; w.el.classList.remove('targeted'); w.el.classList.add('correct');
+  var ga=document.getElementById('gameArea');
+  var bonus=Math.round(Math.max(0,1-(w.y/ga.clientHeight))*6);
+  var pts=10+bonus; state.score+=pts; state.typed++;
+  floatScore('+'+pts,w.el);
+  var wEl=w.el,wId=w.id;
+  setTimeout(function(){
+    if(wEl.parentNode) wEl.parentNode.removeChild(wEl);
+    state.active=state.active.filter(function(a){ return a.id!==wId; });
+  },380);
+  if(state.typed%5===0) levelUp();
+  updateHUD();
+}
+
+// ---- Miss ----
+function missWord(w){
+  if(w.dying) return;
+  w.dying=true; w.el.classList.remove('targeted'); w.el.classList.add('missed');
+  if(!IS_MC) gameInput.value='';
+  if(IS_MC){ clearMCButtons(); mcLocked=false; }
+
+  if(MODE==='sudden'){
+    flashMiss();
+    var wEl=w.el,wId=w.id;
+    setTimeout(function(){
+      if(wEl.parentNode) wEl.parentNode.removeChild(wEl);
+      state.active=state.active.filter(function(a){ return a.id!==wId; });
+      endGame(false);
+    },430); return;
   }
+  if(CFG.lives!==0) state.lives--;
+  updateHUD(); flashMiss();
+  var wEl=w.el,wId=w.id;
+  setTimeout(function(){
+    if(wEl.parentNode) wEl.parentNode.removeChild(wEl);
+    state.active=state.active.filter(function(a){ return a.id!==wId; });
+    if(CFG.lives!==0&&state.lives<=0&&!gameEnded) endGame(false);
+  },430);
 }
 
-function flashInputError() {
-  gameInput.classList.remove('shake');
-  void gameInput.offsetWidth; // reflow
-  gameInput.classList.add('shake');
-  setTimeout(function() { gameInput.classList.remove('shake'); }, 400);
-}
-
-// ---- Score a word ----
-function scoreWord(w) {
-  w.dying = true;
-  w.el.classList.remove('targeted');
-  w.el.classList.add('correct');
-
-  var ga = document.getElementById('gameArea');
-  var ratio = Math.max(0, 1 - (w.y / ga.clientHeight));
-  var bonus  = Math.round(ratio * 6);
-  var pts    = 10 + bonus;
-  state.score += pts;
-  state.typed++;
-
-  floatScore('+' + pts, w.el);
-
-  var wEl = w.el;
-  var wId = w.id;
-  setTimeout(function() {
-    if (wEl.parentNode) wEl.parentNode.removeChild(wEl);
-    state.active = state.active.filter(function(a) { return a.id !== wId; });
-  }, 380);
-
-  if (state.typed > 0 && state.typed % 5 === 0) levelUp();
-  updateHUD();
-}
-
-// ---- Miss a word ----
-function missWord(w) {
-  if (w.dying) return;
-  w.dying = true;
-  w.el.classList.remove('targeted');
-  w.el.classList.add('missed');
-  gameInput.value = '';
-
-  state.lives--;
-  updateHUD();
-
-  var sf = document.getElementById('screenFlash');
-  sf.style.opacity = '1';
-  setTimeout(function() { sf.style.opacity = '0'; }, 260);
-
-  var gl = document.getElementById('groundLine');
-  gl.style.opacity = '1';
-  setTimeout(function() { gl.style.opacity = '0'; }, 260);
-
-  var wEl = w.el;
-  var wId = w.id;
-  setTimeout(function() {
-    if (wEl.parentNode) wEl.parentNode.removeChild(wEl);
-    state.active = state.active.filter(function(a) { return a.id !== wId; });
-    if (state.lives <= 0 && !gameEnded) endGame(false);
-  }, 430);
+function flashMiss(){
+  var sf=document.getElementById('screenFlash'); sf.style.opacity='1'; setTimeout(function(){ sf.style.opacity='0'; },260);
+  var gl=document.getElementById('groundLine');  gl.style.opacity='1'; setTimeout(function(){ gl.style.opacity='0'; },260);
 }
 
 // ---- Level up ----
-function levelUp() {
-  state.level++;
-  state.spawnInterval = Math.max(900, 2600 - (state.level - 1) * 260);
-
-  var t = document.getElementById('lvlToast');
-  t.textContent = 'Level ' + state.level + '!  Speed up!';
-  t.classList.remove('show');
-  void t.offsetWidth;
-  t.classList.add('show');
-  updateHUD();
+function levelUp(){
+  state.level++; state.spawnInterval=Math.max(900,2600-(state.level-1)*260);
+  var t=document.getElementById('lvlToast'); t.textContent='Level '+state.level+'!  Speed up!';
+  t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
 }
 
 // ---- HUD ----
-function updateHUD() {
-  var hearts = '';
-  for (var i = 0; i < state.lives; i++) hearts += '❤️';
-  for (var j = state.lives; j < CFG.lives; j++) hearts += '🖤';
-  document.getElementById('livesDisplay').textContent = hearts;
-  document.getElementById('scoreDisplay').textContent = state.score + ' pts';
-  document.getElementById('levelDisplay').textContent = 'Level ' + state.level;
+function updateHUD(){
+  var ld=document.getElementById('livesDisplay');
+  if(CFG.lives===0) ld.textContent='∞ Lives';
+  else { var h=''; for(var i=0;i<state.lives;i++) h+='❤️'; for(var j=state.lives;j<CFG.lives;j++) h+='🖤'; ld.textContent=h; }
+  document.getElementById('scoreDisplay').textContent=state.score+' pts';
 }
 
-// ---- Floating score ----
-function floatScore(text, refEl) {
-  var div = document.createElement('div');
-  div.textContent = text;
-  div.style.position  = 'absolute';
-  div.style.color     = '#00ff99';
-  div.style.fontWeight= '800';
-  div.style.fontSize  = '1em';
-  div.style.pointerEvents = 'none';
-  div.style.zIndex    = '20';
-  div.style.left      = (refEl.offsetLeft + refEl.offsetWidth / 2) + 'px';
-  div.style.top       = (refEl.offsetTop - 8) + 'px';
-  div.style.transform = 'translateX(-50%)';
-  div.style.animation = 'floatUp 0.9s ease-out forwards';
+// ---- Float score ----
+function floatScore(text,refEl){
+  var div=document.createElement('div');
+  div.textContent=text;
+  Object.assign(div.style,{position:'absolute',color:'#00ff99',fontWeight:'800',fontSize:'1em',
+    pointerEvents:'none',zIndex:'20',left:(refEl.offsetLeft+refEl.offsetWidth/2)+'px',
+    top:(refEl.offsetTop-8)+'px',transform:'translateX(-50%)',animation:'floatUp .9s ease-out forwards'});
   document.getElementById('gameArea').appendChild(div);
-  setTimeout(function() { if (div.parentNode) div.parentNode.removeChild(div); }, 900);
+  setTimeout(function(){ if(div.parentNode) div.parentNode.removeChild(div); },900);
 }
-
-var _fs = document.createElement('style');
-_fs.textContent = '@keyframes floatUp{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-52px)}}';
+var _fs=document.createElement('style');
+_fs.textContent='@keyframes floatUp{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-52px)}}';
 document.head.appendChild(_fs);
 
-// ---- End game ----
-function endGame(won) {
-  if (gameEnded) return;
-  gameEnded = true;
-  state.running = false;
-  if (state.rafId) cancelAnimationFrame(state.rafId);
-
-  document.getElementById('endTitle').textContent = won ? '🎉 Complete!' : '💀 Game Over';
-  document.getElementById('endSub').textContent   = won
-    ? 'You typed every word!'
-    : 'A word slipped through...';
-  document.getElementById('endScore').textContent = state.score + ' pts';
-  document.getElementById('endStats').textContent =
-    'Words: ' + state.typed + ' / ' + CFG.words.length + '  ·  Level reached: ' + state.level;
-
-  document.getElementById('endOverlay').style.display = 'flex';
-  gameInput.blur();
+// ---- End ----
+function endGame(won){
+  if(gameEnded) return; gameEnded=true;
+  state.running=false; if(state.rafId) cancelAnimationFrame(state.rafId); clearTimer();
+  var title,sub;
+  if(MODE==='speedrun'){ title='⏱ Time\'s Up!'; sub='Speed Run complete!'; }
+  else if(won){ title='🎉 Complete!'; sub='You got every word!'; }
+  else { title='💀 Game Over'; sub=MODE==='sudden'?'One word got away!':'A word slipped through...'; }
+  document.getElementById('endTitle').textContent=title;
+  document.getElementById('endSub').textContent=sub;
+  document.getElementById('endScore').textContent=state.score+' pts';
+  var s='Words: '+state.typed; if(MODE!=='endless'&&MODE!=='speedrun') s+=' / '+CFG.words.length;
+  s+='  ·  Level: '+state.level;
+  if(CFG.lives!==0&&MODE!=='sudden') s+='  ·  Lives left: '+state.lives;
+  document.getElementById('endStats').textContent=s;
+  document.getElementById('endOverlay').style.display='flex';
+  if(!IS_MC) gameInput.blur();
 }
 
 // ---- Focus guard ----
-gameInput.addEventListener('blur', function() {
-  if (state && state.running) {
-    setTimeout(function() {
-      if (state && state.running) gameInput.focus();
-    }, 100);
-  }
+if(!IS_MC) gameInput.addEventListener('blur',function(){
+  if(state&&state.running) setTimeout(function(){ if(state&&state.running) gameInput.focus(); },100);
 });
 
 updateHUD();
 </script>
-
 </body>
 </html></textarea>
-<!-- END GAME TEMPLATE -->
 
 <script>
-  // =====================================================================
-  //  GENERATOR LOGIC
-  // =====================================================================
+// =====================================================================
+//  GENERATOR LOGIC
+// =====================================================================
 
-  var wordInput   = document.getElementById('wordInput');
-  var wordCountEl = document.getElementById('wordCount');
-  var errorMsg    = document.getElementById('errorMsg');
+var rows = [];
+var rowContainer = document.getElementById('wordRows');
 
-  wordInput.addEventListener('input', refreshCount);
+// ---- Dynamic row creation ----
+function makeRow(jp, en) {
+  jp = jp || ''; en = en || '';
+  var id = Date.now() + '_' + Math.random();
+  var row = { id: id, jp: jp, en: en };
+  rows.push(row);
+  renderRow(row);
   refreshCount();
+  return row;
+}
 
-  function refreshCount() {
-    var n = parseWordPairs(wordInput.value).length;
-    wordCountEl.innerHTML = 'Words detected: <strong>' + n + '</strong>';
+function renderRow(row) {
+  var div = document.createElement('div');
+  div.className = 'word-row';
+  div.dataset.id = row.id;
+
+  var numSpan = document.createElement('span');
+  numSpan.className = 'row-num';
+
+  var jpInput = document.createElement('input');
+  jpInput.type = 'text'; jpInput.className = 'jp-input';
+  jpInput.placeholder = '日本語'; jpInput.value = row.jp;
+
+  jpInput.addEventListener('input', function() {
+    row.jp = jpInput.value.trim();
+    refreshCount();
+    // If this is the last row and now has content, add a new empty row
+    if (row.jp && rows[rows.length - 1].id === row.id) {
+      makeRow();
+    }
+  });
+
+  jpInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault();
+      div.querySelector('.en-input').focus();
+    }
+  });
+
+  // Paste: auto-split tab/newline content
+  jpInput.addEventListener('paste', function(e) {
+    var text = (e.clipboardData || window.clipboardData).getData('text');
+    if (text.indexOf('\t') > -1 || text.indexOf('\n') > -1) {
+      e.preventDefault();
+      importPastedText(text, row);
+    }
+  });
+
+  var enInput = document.createElement('input');
+  enInput.type = 'text'; enInput.className = 'en-input';
+  enInput.placeholder = 'English (optional)'; enInput.value = row.en;
+
+  enInput.addEventListener('input', function() {
+    row.en = enInput.value.trim();
+    refreshCount();
+  });
+
+  enInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      // Jump to next row's JP, or create one
+      var idx = rows.indexOf(row);
+      var nextRow = rows[idx + 1];
+      if (nextRow) {
+        var nextDiv = rowContainer.querySelector('[data-id="' + nextRow.id + '"]');
+        if (nextDiv) { nextDiv.querySelector('.jp-input').focus(); return; }
+      }
+      // No next row — make one and jump
+      var newRow = makeRow();
+      setTimeout(function() {
+        var d = rowContainer.querySelector('[data-id="' + newRow.id + '"]');
+        if (d) d.querySelector('.jp-input').focus();
+      }, 20);
+    }
+  });
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'del-btn'; delBtn.textContent = '✕'; delBtn.title = 'Delete row';
+  delBtn.addEventListener('click', function() {
+    // Don't delete if it's the only row
+    if (rows.length <= 1) { jpInput.value=''; enInput.value=''; row.jp=''; row.en=''; refreshCount(); return; }
+    rows = rows.filter(function(r) { return r.id !== row.id; });
+    div.parentNode.removeChild(div);
+    // Ensure there's always at least one empty row at the end
+    var last = rows[rows.length - 1];
+    if (last && (last.jp || last.en)) makeRow();
+    refreshNumbers(); refreshCount();
+  });
+
+  div.appendChild(numSpan);
+  div.appendChild(jpInput);
+  div.appendChild(enInput);
+  div.appendChild(delBtn);
+  rowContainer.appendChild(div);
+  refreshNumbers();
+}
+
+function refreshNumbers() {
+  var divs = rowContainer.querySelectorAll('.word-row');
+  divs.forEach(function(d, i) { d.querySelector('.row-num').textContent = (i+1)+'.'; });
+}
+
+function refreshCount() {
+  var valid = 0, incomplete = 0;
+  rows.forEach(function(r) {
+    if (r.jp && r.en) valid++;
+    else if (r.jp && !r.en) incomplete++;
+  });
+  document.querySelector('#wordCount strong').textContent = valid;
+  var note = document.getElementById('skipNote');
+  note.textContent = incomplete > 0
+    ? '  (' + incomplete + ' row' + (incomplete > 1 ? 's' : '') + ' missing English — will be skipped)'
+    : '';
+}
+
+// Start with ONE empty row
+makeRow();
+
+// ---- Add / Clear buttons ----
+document.getElementById('addRowBtn').addEventListener('click', function() {
+  // If last row already empty, just focus it
+  var last = rows[rows.length - 1];
+  if (last && !last.jp && !last.en) {
+    var d = rowContainer.querySelector('[data-id="' + last.id + '"]');
+    if (d) { d.querySelector('.jp-input').focus(); return; }
   }
+  var r = makeRow();
+  setTimeout(function() {
+    var d = rowContainer.querySelector('[data-id="' + r.id + '"]');
+    if (d) d.querySelector('.jp-input').focus();
+  }, 20);
+});
 
-  function parseWordPairs(text) {
-    var lines = text.trim().split('\n');
-    var pairs = [];
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) continue;
-      var jp, en;
-      if (line.indexOf('|') > -1) {
-        var parts = line.split('|');
-        jp = parts[0].trim();
-        en = parts[1] ? parts[1].trim() : '';
-      } else if (line.indexOf('\t') > -1) {
-        var parts2 = line.split('\t');
-        jp = parts2[0].trim();
-        en = parts2[1] ? parts2[1].trim() : '';
+document.getElementById('add5Btn').addEventListener('click', function() {
+  // Remove the trailing empty row first if it exists, then add 5 empty ones
+  var last = rows[rows.length - 1];
+  if (last && !last.jp && !last.en) {
+    rows = rows.filter(function(r) { return r.id !== last.id; });
+    var d = rowContainer.querySelector('[data-id="' + last.id + '"]');
+    if (d) d.parentNode.removeChild(d);
+  }
+  for (var i = 0; i < 5; i++) makeRow();
+  refreshNumbers();
+});
+
+document.getElementById('clearBtn').addEventListener('click', function() {
+  if (!confirm('Clear all word pairs?')) return;
+  rows = []; rowContainer.innerHTML = '';
+  makeRow();
+});
+
+// ---- Paste import ----
+function importPastedText(text, startRow) {
+  var lines = text.split('\n');
+  var pairs = [];
+  lines.forEach(function(line) {
+    var parts = line.trim().split('\t');
+    if (parts.length >= 2 && parts[0].trim()) {
+      pairs.push({ jp: parts[0].trim(), en: parts[1].trim() });
+    }
+  });
+  if (!pairs.length) return;
+  // Fill startRow first, then fill/create remaining
+  pairs.forEach(function(p, i) {
+    if (i === 0 && startRow) {
+      startRow.jp = p.jp; startRow.en = p.en;
+      var d = rowContainer.querySelector('[data-id="' + startRow.id + '"]');
+      if (d) { d.querySelector('.jp-input').value = p.jp; d.querySelector('.en-input').value = p.en; }
+    } else {
+      // Find next empty row or make one
+      var emptyRows = rows.filter(function(r) { return !r.jp && !r.en && r.id !== (startRow ? startRow.id : ''); });
+      if (emptyRows.length > 0) {
+        var r = emptyRows[0];
+        r.jp = p.jp; r.en = p.en;
+        var d = rowContainer.querySelector('[data-id="' + r.id + '"]');
+        if (d) { d.querySelector('.jp-input').value = p.jp; d.querySelector('.en-input').value = p.en; }
       } else {
-        // Split on first whitespace (including ideographic space U+3000)
-        var idx = line.search(/[\s\u3000]/);
-        if (idx > 0) {
-          jp = line.slice(0, idx).trim();
-          en = line.slice(idx).trim();
-        } else {
-          continue;
-        }
+        makeRow(p.jp, p.en);
       }
-      if (jp && en) pairs.push({ jp: jp, en: en.toLowerCase() });
     }
-    return pairs;
-  }
-
-  // ---- Rehydrate ----
-  document.getElementById('rehydrateBtn').addEventListener('click', function() {
-    document.getElementById('rehydrateFile').click();
   });
+  // Ensure trailing empty row
+  var last = rows[rows.length - 1];
+  if (!last || last.jp || last.en) makeRow();
+  refreshNumbers(); refreshCount();
+}
 
-  document.getElementById('rehydrateFile').addEventListener('change', function() {
-    var file = this.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var html = e.target.result;
-      try {
-        var match = html.match(/var GAME_CONFIG\s*=\s*(\{[\s\S]*?\});/);
-        if (!match) throw new Error('No config');
-        var cfg = JSON.parse(match[1]);
-        document.getElementById('gameTitle').value   = cfg.title    || 'Falling Words';
-        document.getElementById('livesSelect').value = cfg.lives    || 3;
-        document.getElementById('speedSelect').value = cfg.baseSpeed|| 0.85;
-        document.getElementById('maxWordsSelect').value = cfg.maxWords || 2;
-        var pairText = cfg.words.map(function(w) { return w.jp + ' ' + w.en; }).join('\n');
-        wordInput.value = pairText;
-        refreshCount();
-      } catch(err) {
-        alert('Could not read game config from that file.');
-      }
-    };
-    reader.readAsText(file);
-    this.value = '';
-  });
+// ---- Excel / CSV import ----
+function handleImportFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, { type: 'array' });
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      var pairs = [];
+      data.forEach(function(row, idx) {
+        var jp = String(row[0]||'').trim(), en = String(row[1]||'').trim();
+        if (!jp && !en) return;
+        if (idx === 0 && !/[\u3000-\u9fff\uff00-\uffef]/.test(jp)) return; // skip header
+        if (jp) pairs.push({ jp: jp, en: en });
+      });
+      if (!pairs.length) { alert('No valid pairs found. Column A = Japanese, Column B = English.'); return; }
+      rows = []; rowContainer.innerHTML = '';
+      pairs.forEach(function(p) { makeRow(p.jp, p.en); });
+      makeRow(); // trailing empty row
+      refreshNumbers(); refreshCount();
+    } catch(err) { alert('Could not read file: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
 
-  // ---- Export ----
-  document.getElementById('exportBtn').addEventListener('click', function() {
-    var pairs = parseWordPairs(wordInput.value);
-    if (pairs.length < 3) {
-      errorMsg.textContent = 'Please enter at least 3 word pairs.';
-      errorMsg.style.display = 'block';
-      return;
-    }
-    errorMsg.style.display = 'none';
+var dropZone = document.getElementById('dropZone');
+var importFileInput = document.getElementById('importFile');
+dropZone.addEventListener('click', function() { importFileInput.click(); });
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleImportFile(e.dataTransfer.files[0]);
+});
+importFileInput.addEventListener('change', function() {
+  if (this.files[0]) handleImportFile(this.files[0]);
+  this.value = '';
+});
 
-    var cfg = {
-      title:     document.getElementById('gameTitle').value.trim() || 'Falling Words',
-      words:     pairs,
-      lives:     parseInt(document.getElementById('livesSelect').value),
-      baseSpeed: parseFloat(document.getElementById('speedSelect').value),
-      maxWords:  parseInt(document.getElementById('maxWordsSelect').value)
-    };
+// ---- Mode UI ----
+var MODE_DESCS = {
+  classic:         'All words fall once. Survive to the end.',
+  multiple_choice: 'Tap the correct English answer — no typing needed!',
+  speedrun:        'Score as many as you can before time runs out!',
+  sudden:          'One miss = instant game over. Stay sharp.',
+  endless:         'Words loop forever. See how high you can score!'
+};
+function updateModeUI() {
+  var m = document.getElementById('modeSelect').value;
+  document.getElementById('modeDesc').textContent = MODE_DESCS[m] || '';
+  document.getElementById('speedRunOptions').style.display = (m === 'speedrun') ? 'block' : 'none';
+  document.getElementById('mcOptions').style.display       = (m === 'multiple_choice') ? 'block' : 'none';
+  // MC forces 1 word — grey out max words selector
+  var mwSel = document.getElementById('maxWordsSelect');
+  mwSel.disabled = (m === 'multiple_choice');
+  mwSel.style.opacity = (m === 'multiple_choice') ? '.4' : '1';
+}
 
-    var html = buildGameHTML(cfg);
-    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    var a    = document.createElement('a');
-    a.href   = URL.createObjectURL(blob);
-    a.download = cfg.title.replace(/\s+/g, '_') + '.html';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
+// ---- Rehydrate ----
+document.getElementById('rehydrateBtn').addEventListener('click', function() { document.getElementById('rehydrateFile').click(); });
+document.getElementById('rehydrateFile').addEventListener('change', function() {
+  var file = this.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var match = e.target.result.match(/var GAME_CONFIG\s*=\s*(\{[\s\S]*?\});/);
+      if (!match) throw new Error('No config');
+      var cfg = JSON.parse(match[1]);
+      document.getElementById('gameTitle').value      = cfg.title     || 'Falling Words';
+      document.getElementById('livesSelect').value    = cfg.lives     !== undefined ? cfg.lives : 3;
+      document.getElementById('speedSelect').value    = cfg.baseSpeed || 0.85;
+      document.getElementById('maxWordsSelect').value = cfg.maxWords  || 2;
+      document.getElementById('modeSelect').value     = cfg.mode      || 'classic';
+      if (cfg.timeLimit) document.getElementById('timeLimitSelect').value = cfg.timeLimit;
+      if (cfg.mcCount)   document.getElementById('mcCountSelect').value   = cfg.mcCount;
+      updateModeUI();
+      rows = []; rowContainer.innerHTML = '';
+      cfg.words.forEach(function(w) { makeRow(w.jp, w.en); });
+      makeRow();
+      refreshNumbers(); refreshCount();
+    } catch(err) { alert('Could not read game config from that file.'); }
+  };
+  reader.readAsText(file);
+  this.value = '';
+});
 
-  function buildGameHTML(cfg) {
-    var template = document.getElementById('gameTpl').value;
-    var cfgJSON  = JSON.stringify(cfg, null, 2);
+// ---- Export ----
+document.getElementById('exportBtn').addEventListener('click', function() {
+  var mode = document.getElementById('modeSelect').value;
+  var mcCount = parseInt(document.getElementById('mcCountSelect').value);
+  var validPairs = rows.filter(function(r) { return r.jp && r.en; });
+  var minWords = (mode === 'multiple_choice') ? mcCount : 3;
 
-    template = template.split('__CONFIG_JSON__').join(cfgJSON);
-    template = template.split('__TITLE__').join(escapeHTML(cfg.title));
-    template = template.split('__LIVES__').join(cfg.lives);
-    template = template.split('__WORD_COUNT__').join(cfg.words.length);
-    return template;
+  if (validPairs.length < minWords) {
+    var em = document.getElementById('errorMsg');
+    em.textContent = mode === 'multiple_choice'
+      ? 'Multiple Choice needs at least ' + mcCount + ' complete pairs (one per answer choice).'
+      : 'Please enter at least 3 complete word pairs.';
+    em.style.display = 'block'; return;
   }
+  document.getElementById('errorMsg').style.display = 'none';
 
-  function escapeHTML(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  var cfg = {
+    title:     document.getElementById('gameTitle').value.trim() || 'Falling Words',
+    words:     validPairs.map(function(r) { return { jp: r.jp, en: r.en.toLowerCase() }; }),
+    lives:     parseInt(document.getElementById('livesSelect').value),
+    baseSpeed: parseFloat(document.getElementById('speedSelect').value),
+    maxWords:  parseInt(document.getElementById('maxWordsSelect').value),
+    mode:      mode,
+    timeLimit: parseInt(document.getElementById('timeLimitSelect').value),
+    mcCount:   mcCount
+  };
+
+  var html = document.getElementById('gameTpl').value
+    .split('__CONFIG_JSON__').join(JSON.stringify(cfg, null, 2))
+    .split('__TITLE__').join(cfg.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+
+  var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = cfg.title.replace(/\s+/g,'_') + '.html';
+  a.click(); URL.revokeObjectURL(a.href);
+});
 </script>
 </body>
 </html>
