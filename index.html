@@ -38,7 +38,6 @@
         a { text-decoration: none; display: block; transition: transform 0.2s; }
         a:hover { transform: scale(1.05); }
 
-        /* Card wrapper — needed for ? badge positioning */
         .card-wrap { position: relative; height: 100%; }
 
         .card {
@@ -79,7 +78,6 @@
             text-align: center;
         }
 
-        /* ── ? badge ── */
         .info-btn {
             position: absolute;
             top: 8px;
@@ -104,7 +102,6 @@
         }
         .info-btn:hover, .info-btn.active { opacity: 1; transform: scale(1.15); }
 
-        /* ── Tooltip bubble ── */
         .info-tip {
             display: none;
             position: absolute;
@@ -130,12 +127,9 @@
             border-right: 6px solid transparent;
             border-bottom: 6px solid #003366;
         }
-        /* Show on hover (desktop) */
         .card-wrap:hover .info-tip { display: block; }
-        /* Show on active class (tap/mobile) */
         .info-tip.show { display: block; pointer-events: auto; }
 
-        /* ── About / Watermark ── */
         #aboutBtn {
             position: fixed;
             right: 20px;
@@ -167,7 +161,6 @@
             color: #333;
         }
 
-        /* ── About Modal ── */
         #aboutModal {
             display: none;
             position: fixed;
@@ -199,7 +192,6 @@
         .modal-close { margin-top: 24px; display: block; width: 100%; padding: 12px; background: white; color: #003366; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .modal-close:hover { background: #feca57; }
 
-        /* Tool descriptions table inside modal */
         .tool-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 8px; }
         .tool-table td { padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: top; }
         .tool-table td:first-child { color: #feca57; font-weight: bold; white-space: nowrap; padding-right: 10px; }
@@ -341,7 +333,6 @@
                 </div>
             </a>
 
-
             <a href="012 custom cards.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
@@ -374,6 +365,7 @@
                     </div>
                 </div>
             </a>
+
             <a href="015 Category_Sorting_Game_Generator.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
@@ -384,6 +376,7 @@
                     </div>
                 </div>
             </a>
+
             <a href="016 Watchin Worlds FITB Generator test.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
@@ -394,16 +387,18 @@
                     </div>
                 </div>
             </a>
+
             <a href="017 Multiple Choice Quiz builder with reusable choices.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
-                    <div class="info-tip">A Fill in the Blanks Worksheet Generator specific to the Watching Worlds TextBook.</div>
+                    <div class="info-tip">Build multiple-choice quizzes with reusable answer choices. Save and reuse questions and options across multiple quizzes.</div>
                     <div class="card">
                         <div class="number">017</div>
                         <div class="title">017 Multiple Choice Quiz builder with reusable choices<br>Beta Test</div>
                     </div>
                 </div>
             </a>
+
             <a href="018 Image Generator.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
@@ -413,7 +408,8 @@
                         <div class="title">018 Image Generator<br>Beta Test</div>
                     </div>
                 </div>
-            </a>   
+            </a>
+
             <a href="019 Media Format Converter.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
@@ -423,48 +419,52 @@
                         <div class="title">019 Media Format Converter<br>Beta Test</div>
                     </div>
                 </div>
-            </a>  
- <a href="020 Text To Speech Beta.html">
+            </a>
+
+            <a href="020 Text To Speech Beta.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
-                    <div class="info-tip">Something new is being built here. Check back soon.</div>
+                    <div class="info-tip">Text-to-speech tool powered by ElevenLabs. Choose from a selection of preloaded voices and generate natural-sounding audio from any text.</div>
                     <div class="card">
                         <div class="number">020</div>
-                        <div class="title">020 Text To Speech PRELOADED VOICES Beta<br>Beta Test</div>
+                        <div class="title">020 Text To Speech<br>Preloaded Voices</div>
                     </div>
                 </div>
-            </a>       
-            </a>  
- <a href="021 TTS Voice Clone.html">
+            </a>
+
+            <a href="021 TTS Voice Clone.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
-                    <div class="info-tip">Something new is being built here. Check back soon.</div>
+                    <div class="info-tip">Record your own voice to create a personal voice clone using Fish Audio, then generate speech from any text in your cloned voice. Free tier — no subscription needed.</div>
                     <div class="card">
                         <div class="number">021</div>
                         <div class="title">021 TTS Voice Clone<br>Beta Test</div>
                     </div>
                 </div>
-            </a>      
- <a href="022 Falling_Words_Generator.html">
+            </a>
+
+            <a href="022 Falling_Words_Generator.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
-                    <div class="info-tip">Something new is being built here. Check back soon.</div>
+                    <div class="info-tip">Teacher enters Japanese–English word pairs and configures game settings. Generates a student game where Japanese words fall from the screen and students must type the English translation before they hit the ground.</div>
                     <div class="card">
                         <div class="number">022</div>
-                        <div class="title">022 Falling words<br>Beta Test</div>
+                        <div class="title">022 Falling Words Generator<br>Vocabulary arcade game</div>
                     </div>
                 </div>
-            </a>         
- <a href="023 OCR text from image Extractor.html">
+            </a>
+
+            <a href="023 OCR text from image Extractor.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
-                    <div class="info-tip">Something new is being built here. Check back soon.</div>
+                    <div class="info-tip">Upload or paste an image and extract all readable text from it using optical character recognition. Supports Japanese and English text.</div>
                     <div class="card">
                         <div class="number">023</div>
-                        <div class="title">023 OCR text from image Extractor<br>Best effort</div>
+                        <div class="title">023 OCR Text Extractor<br>Text from images</div>
                     </div>
                 </div>
-            </a>   
+            </a>
+
             <a href="999 Under construction.html">
                 <div class="card-wrap">
                     <button class="info-btn" onclick="toggleTip(event,this)">?</button>
@@ -507,10 +507,14 @@
                 <tr><td>013</td><td>PPTX text extractor — animation order, fully offline</td></tr>
                 <tr><td>014</td><td>Multi-set drag-and-match game with text/image support, review screen, and built-in A4 worksheet + RTF export</td></tr>
                 <tr><td>015</td><td>Category sorting game — create categories and sortable entries</td></tr>
-                <tr><td>016</td><td>Watching Worlds FITB- Fill in the blanks generator specific to the Watching Worlds Text Book</td></tr>
-                <tr><td>017</td><td>Multiple Choice Quiz builder with reusable choices- A quiz builder that allows teachers to save and reuse questions and answer choices across multiple quizzes.</td></tr>
-                <tr><td>018</td><td>Image Generator - AI Shnell based text to image generator<br>Beta Test</td></tr>
-                <tr><td>019</td><td>Media Format Converter - Common media format converter<br>Beta Test</td></tr>
+                <tr><td>016</td><td>Watching Worlds FITB — fill-in-the-blank generator specific to the Watching Worlds textbook</td></tr>
+                <tr><td>017</td><td>Multiple-choice quiz builder with reusable answer choices across quizzes</td></tr>
+                <tr><td>018</td><td>AI image generator powered by Flux — text-to-image (beta)</td></tr>
+                <tr><td>019</td><td>Media format converter — converts common audio and video formats (beta)</td></tr>
+                <tr><td>020</td><td>Text-to-speech with preloaded ElevenLabs voices (beta)</td></tr>
+                <tr><td>021</td><td>Voice clone TTS — record your voice to create a clone via Fish Audio, then generate speech in it. Free tier (beta)</td></tr>
+                <tr><td>022</td><td>Falling Words Generator — teacher enters JP/EN pairs, exports an arcade-style student vocabulary game</td></tr>
+                <tr><td>023</td><td>OCR text extractor — pulls readable text from uploaded or pasted images, supports Japanese and English</td></tr>
             </table>
 
             <div class="section-label">How to use</div>
@@ -527,18 +531,15 @@
     </div>
 
     <script>
-    // Close about modal on backdrop click
     document.getElementById('aboutModal').addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('open');
     });
 
-    // ? badge: hover works via CSS; this handles tap on touch devices
     function toggleTip(e, btn) {
         e.preventDefault();
         e.stopPropagation();
-        const tip = btn.nextElementSibling; // the .info-tip div
+        const tip = btn.nextElementSibling;
         const isOpen = tip.classList.contains('show');
-        // Close all others
         document.querySelectorAll('.info-tip.show').forEach(t => {
             t.classList.remove('show');
             t.previousElementSibling.classList.remove('active');
@@ -549,7 +550,6 @@
         }
     }
 
-    // Tap anywhere else to close open tips
     document.addEventListener('click', function() {
         document.querySelectorAll('.info-tip.show').forEach(t => {
             t.classList.remove('show');
