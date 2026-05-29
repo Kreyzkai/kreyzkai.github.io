@@ -778,7 +778,7 @@ function renderRow(row) {
 
   var enInput = document.createElement('input');
   enInput.type = 'text'; enInput.className = 'en-input';
-  enInput.placeholder = 'English (optional)'; enInput.value = row.en;
+  enInput.placeholder = 'English (target words)'; enInput.value = row.en;
 
   enInput.addEventListener('input', function() {
     row.en = enInput.value.trim();
