@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click-to-Reveal Vocab v2 · Generator</title>
+<style>
+:root{
+  --navy:#003366;--blue:#0066cc;--gold:#feca57;
+  --gray:#f0f4fa;--text:#1a1a2e;--muted:#6b7a99;
+  --blank-bg:#fff3cd;--blank-border:#ffc107;--blank-text:#856404;
+  --radius:10px;--shadow:0 4px 20px rgba(0,51,102,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#e8f0fb,#f5f0ff);min-height:100vh;color:var(--text);}
+
+/* HEADER */
+.hdr{background:linear-gradient(90deg,var(--navy),var(--blue));color:#fff;padding:13px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.hdr img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+.hdr h1{font-size:1rem;font-weight:700;}
+.hdr .sub{font-size:.72rem;opacity:.8;}
+
+/* LAYOUT */
+.wrap{max-width:900px;margin:0 auto;padding:24px 14px 60px;display:flex;flex-direction:column;gap:18px;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;}
+.card h2{color:var(--navy);font-size:.9rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+
+/* INPUTS */
+input[type=text],textarea,select{width:100%;padding:9px 12px;border:2px solid #d0daf0;border-radius:8px;font-size:.875rem;font-family:inherit;transition:border-color .2s;}
+input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue);}
+textarea{resize:vertical;line-height:1.7;font-family:inherit;}
+.hint{font-size:.75rem;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:5px;}
+.btn:disabled{opacity:.4;cursor:default;}
+.btn-primary{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;box-shadow:0 3px 10px rgba(0,51,102,.22);}
+.btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(0,51,102,.3);}
+.btn-sec{background:var(--gray);color:var(--navy);border:2px solid #c8d8f0;}
+.btn-sec:hover{background:#dce8ff;}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:700;}
+.btn-gold:hover{background:#f0bc30;}
+.btn-danger{background:#fff0f0;color:#c0392b;border:2px solid #f5c6c6;}
+.btn-danger:hover{background:#fde8e8;}
+.btn-sm{padding:5px 11px;font-size:.76rem;}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;}
+
+/* ROW */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:580px){.row2{grid-template-columns:1fr;}}
+
+/* RENDERED TEXT AREA */
+#text-render-wrap{display:none;}
+#text-render{
+  background:#fafcff;border:2px solid #d0daf0;border-radius:8px;
+  padding:16px;line-height:2.0;font-size:.95rem;cursor:text;
+  min-height:80px;user-select:text;
+}
+#text-render:focus{outline:none;}
+.r-blank{
+  display:inline-flex;align-items:center;gap:2px;
+  padding:2px 9px;border-radius:16px;
+  border:2px solid var(--blank-border);background:var(--blank-bg);
+  color:var(--blank-text);font-size:.82rem;font-weight:700;
+  cursor:pointer;user-select:none;white-space:nowrap;vertical-align:middle;
+}
+.r-blank:hover{filter:brightness(.93);}
+.r-blank .bnum{font-size:.7rem;opacity:.65;margin-right:1px;}
+.sel-highlight{background:#cce5ff;border-radius:3px;}
+
+/* POPOVER */
+#popover{
+  position:fixed;z-index:2000;
+  background:#fff;border-radius:10px;
+  box-shadow:0 6px 30px rgba(0,0,0,.25);
+  padding:16px;width:280px;display:none;
+  border-top:4px solid var(--blue);
+}
+#popover h3{font-size:.82rem;color:var(--navy);font-weight:700;margin-bottom:4px;}
+#popover .sel-preview{
+  font-size:.78rem;background:var(--blank-bg);border:1px solid var(--blank-border);
+  border-radius:6px;padding:4px 8px;color:var(--blank-text);font-weight:600;
+  margin-bottom:10px;word-break:break-word;max-height:48px;overflow:hidden;
+}
+#popover label{font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;}
+#replace-input{width:100%;padding:7px 10px;border:2px solid #d0daf0;border-radius:7px;font-size:.85rem;margin-bottom:10px;}
+#replace-input:focus{outline:none;border-color:var(--blue);}
+#popover .pop-actions{display:flex;gap:7px;}
+
+/* WORD BANK TABLE */
+#wb-section{display:none;}
+.wb-table{width:100%;border-collapse:collapse;font-size:.83rem;}
+.wb-table th{background:var(--navy);color:#fff;padding:7px 10px;text-align:left;font-weight:600;}
+.wb-table td{padding:7px 10px;border-bottom:1px solid #e8edf5;vertical-align:middle;}
+.wb-table tr:last-child td{border-bottom:none;}
+.wb-table tr:hover td{background:#f7f9ff;}
+.wb-num-cell{color:var(--blue);font-weight:700;width:36px;}
+.wb-del{background:none;border:none;color:#c0392b;cursor:pointer;font-size:1rem;padding:0 4px;}
+.wb-del:hover{color:#e74c3c;}
+
+/* STATUS / ERROR */
+.status{font-size:.78rem;padding:8px 12px;border-radius:7px;margin-top:8px;display:none;}
+.status.info{background:#e8f4ff;color:#0055aa;border:1px solid #b8d8ff;display:block;}
+.status.success{background:#e8f8ee;color:#1a5c35;border:1px solid #a8dbb8;display:block;}
+.status.error{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;display:block;}
+
+/* PREVIEW MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box-lg{background:#fff;border-radius:12px;width:96vw;max-width:940px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.4);}
+.modal-hdr{background:linear-gradient(90deg,var(--navy),var(--blue));color:#fff;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
+.modal-hdr span{font-weight:700;font-size:.92rem;}
+.modal-close-btn{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.83rem;}
+
+#rehydrate-input{display:none;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
+  <div>
+    <h1>Click-to-Reveal Vocab · Generator v2</h1>
+    <div class="sub">CMarasigan · Kasai-Minami High School</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- TITLE + SETUP -->
+  <div class="card">
+    <h2>⚙️ Setup</h2>
+    <div class="row2">
+      <div>
+        <label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px;">Lesson Title</label>
+        <input type="text" id="lesson-title" placeholder="e.g. 3　Unique Australian English">
+      </div>
+      <div>
+        <label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px;">Base Language (the text you will paste)</label>
+        <select id="base-lang">
+          <option value="en">English → blanks show Japanese hint</option>
+          <option value="jp">Japanese → blanks show English hint</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXT INPUT -->
+  <div class="card">
+    <h2>📝 Paste Full Text</h2>
+    <textarea id="raw-text" style="height:160px;" placeholder="Paste the complete paragraph here — no blanks needed. You will click or drag to select words to replace."></textarea>
+    <p class="hint">Paste the full, unmodified text. You'll mark blanks by clicking or selecting words in the next step.</p>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="loadText()">▶ Load Text</button>
+      <button class="btn btn-sec" onclick="document.getElementById('rehydrate-input').click()">📂 Rehydrate from HTML</button>
+      <input type="file" id="rehydrate-input" accept=".html" onchange="rehydrateGame(event)">
+    </div>
+    <div class="status" id="load-status"></div>
+  </div>
+
+  <!-- INTERACTIVE TEXT -->
+  <div class="card" id="text-render-wrap">
+    <h2>✏️ Select Words to Blank Out</h2>
+    <p class="hint" style="margin-bottom:10px;">Click a single word, or click-and-drag to select a phrase. A prompt will appear to enter the replacement hint.</p>
+    <div id="text-render" tabindex="0"></div>
+    <div class="actions" style="margin-top:12px;">
+      <button class="btn btn-danger btn-sm" onclick="clearAllBlanks()">🗑 Clear All Blanks</button>
+    </div>
+  </div>
+
+  <!-- WORD BANK -->
+  <div class="card" id="wb-section">
+    <h2>🗂 Word Bank <span id="wb-count" style="font-size:.78rem;color:var(--muted);font-weight:400;margin-left:6px;"></span></h2>
+    <table class="wb-table">
+      <thead><tr><th>#</th><th id="wb-col-hint">Hint (shown on chip)</th><th id="wb-col-answer">Answer (revealed)</th><th></th></tr></thead>
+      <tbody id="wb-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="card" id="export-section" style="display:none;">
+    <div class="status success" id="export-status" style="display:block;"></div>
+    <div class="actions" style="margin-top:12px;">
+      <button class="btn btn-primary" onclick="openPreview()">🎮 Preview Game</button>
+      <button class="btn btn-gold" onclick="exportGame()">⬇ Export Standalone Game</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- POPOVER -->
+<div id="popover">
+  <h3>Mark as blank</h3>
+  <div class="sel-preview" id="pop-preview"></div>
+  <label>Replace with (hint shown to students):</label>
+  <input type="text" id="replace-input" placeholder="e.g. 移民" autocomplete="off">
+  <div class="pop-actions">
+    <button class="btn btn-primary btn-sm" onclick="confirmBlank()">✔ Confirm</button>
+    <button class="btn btn-sec btn-sm" onclick="cancelBlank()">✕ Cancel</button>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="modal-overlay" id="preview-modal">
+  <div class="modal-box-lg">
+    <div class="modal-hdr">
+      <span>🎮 Preview</span>
+      <button class="modal-close-btn" onclick="closePreview()">✕ Close</button>
+    </div>
+    <iframe id="preview-frame" style="flex:1;border:none;width:100%;min-height:520px;"></iframe>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let segments = [];   // array of {type:'text'|'blank', content, id?, hint?, answer?, num?}
+let blankCounter = 0;
+let pendingSel = null;  // {range, text, anchorNode}
+
+// ════════════════════════════════════════
+// LOAD TEXT
+// ════════════════════════════════════════
+function loadText() {
+  const raw = document.getElementById('raw-text').value.trim();
+  if (!raw) { showStatus('load-status','error','Please paste some text first.'); return; }
+  blankCounter = 0;
+  segments = [{ type:'text', content: raw }];
+  renderText();
+  document.getElementById('text-render-wrap').style.display = 'block';
+  document.getElementById('wb-section').style.display = 'none';
+  document.getElementById('export-section').style.display = 'none';
+  showStatus('load-status','success','Text loaded! Select words below to mark blanks.');
+  updateWBColumns();
+}
+
+// ════════════════════════════════════════
+// RENDER SEGMENTS → DOM
+// ════════════════════════════════════════
+function renderText() {
+  const el = document.getElementById('text-render');
+  el.innerHTML = '';
+
+  // Re-number blanks in order
+  let n = 0;
+  segments.forEach(s => { if (s.type==='blank') s.num = ++n; });
+  blankCounter = n;
+
+  segments.forEach((seg, idx) => {
+    if (seg.type === 'text') {
+      // Split text by newlines → keep paragraph breaks
+      const parts = seg.content.split('\n');
+      parts.forEach((part, pi) => {
+        if (part) {
+          const span = document.createElement('span');
+          span.dataset.segIdx = idx;
+          span.className = 'text-seg';
+          span.textContent = part;
+          el.appendChild(span);
+        }
+        if (pi < parts.length - 1) el.appendChild(document.createElement('br'));
+      });
+    } else {
+      const chip = document.createElement('span');
+      chip.className = 'r-blank';
+      chip.dataset.segIdx = idx;
+      chip.innerHTML = `<span class="bnum">${seg.num}.</span>${escHtml(seg.hint)}`;
+      chip.title = `Answer: ${seg.answer}\nClick to remove`;
+      chip.onclick = () => removeBlank(idx);
+      el.appendChild(chip);
+    }
+  });
+
+  updateWordBank();
+}
+
+// ════════════════════════════════════════
+// SELECTION → POPOVER
+// ════════════════════════════════════════
+document.addEventListener('mouseup', handleMouseUp);
+
+function handleMouseUp(e) {
+  // Ignore if clicking popover or a blank chip
+  if (e.target.closest('#popover') || e.target.closest('.r-blank')) return;
+
+  const container = document.getElementById('text-render');
+  if (!container || !container.contains(e.target)) return;
+
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) {
+    // Single click — select whole word under cursor
+    selectWordAtCaret(sel, e);
+    return;
+  }
+
+  const selText = sel.toString().trim();
+  if (!selText) return;
+
+  // Check selection is within container
+  const range = sel.getRangeAt(0);
+  if (!container.contains(range.commonAncestorContainer)) { sel.removeAllRanges(); return; }
+
+  openPopover(selText, range, e.clientX, e.clientY);
+}
+
+function selectWordAtCaret(sel, e) {
+  // Use document.caretRangeFromPoint for click-to-select-word
+  let range;
+  if (document.caretRangeFromPoint) {
+    range = document.caretRangeFromPoint(e.clientX, e.clientY);
+  } else if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+    if (!pos) return;
+    range = document.createRange();
+    range.setStart(pos.offsetNode, pos.offset);
+    range.setEnd(pos.offsetNode, pos.offset);
+  }
+  if (!range) return;
+
+  const container = document.getElementById('text-render');
+  if (!container.contains(range.startContainer)) return;
+
+  // Expand range to word boundaries
+  const node = range.startContainer;
+  if (node.nodeType !== Node.TEXT_NODE) return;
+  const text = node.textContent;
+  let start = range.startOffset;
+  let end = range.startOffset;
+  while (start > 0 && /\S/.test(text[start-1])) start--;
+  while (end < text.length && /\S/.test(text[end])) end++;
+  if (start === end) return;
+
+  range.setStart(node, start);
+  range.setEnd(node, end);
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  const word = text.slice(start, end).trim();
+  if (word) openPopover(word, range, e.clientX, e.clientY);
+}
+
+function openPopover(selText, range, cx, cy) {
+  // Strip leading/trailing punctuation from display but keep range
+  const cleanText = selText.replace(/^[\s\.,;:!?"'（）]+|[\s\.,;:!?"'（）]+$/g,'');
+  if (!cleanText) return;
+
+  pendingSel = { range, text: cleanText };
+
+  document.getElementById('pop-preview').textContent = cleanText;
+  document.getElementById('replace-input').value = '';
+
+  const pop = document.getElementById('popover');
+  pop.style.display = 'block';
+
+  // Position near click, keep within viewport
+  const pw = 280, ph = 180;
+  let left = cx + 10;
+  let top = cy + 10;
+  if (left + pw > window.innerWidth - 10) left = cx - pw - 10;
+  if (top + ph > window.innerHeight - 10) top = cy - ph - 10;
+  pop.style.left = Math.max(6, left) + 'px';
+  pop.style.top  = Math.max(6, top)  + 'px';
+
+  setTimeout(() => document.getElementById('replace-input').focus(), 50);
+}
+
+// Enter key confirms
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('popover').style.display === 'block') {
+    e.preventDefault();
+    confirmBlank();
+  }
+  if (e.key === 'Escape') cancelBlank();
+});
+
+function confirmBlank() {
+  const hint = document.getElementById('replace-input').value.trim();
+  if (!hint || !pendingSel) { cancelBlank(); return; }
+
+  const { range, text: answer } = pendingSel;
+
+  // Find which segment(s) this range touches and split accordingly
+  const ok = applyBlankFromRange(range, answer, hint);
+  if (!ok) { showStatus('load-status','error','Could not apply blank — try selecting again.'); cancelBlank(); return; }
+
+  window.getSelection().removeAllRanges();
+  closePopover();
+  renderText();
+
+  document.getElementById('wb-section').style.display = 'block';
+  document.getElementById('export-section').style.display = 'block';
+  updateExportStatus();
+}
+
+function cancelBlank() {
+  window.getSelection().removeAllRanges();
+  closePopover();
+}
+
+function closePopover() {
+  document.getElementById('popover').style.display = 'none';
+  pendingSel = null;
+}
+
+// ════════════════════════════════════════
+// APPLY BLANK — segment surgery
+// ════════════════════════════════════════
+function applyBlankFromRange(range, answer, hint) {
+  // We need to find the text node(s) involved and map them back to segments
+  const container = document.getElementById('text-render');
+
+  // Collect all text nodes in container in order, mapped to segment index
+  const textNodes = [];
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const segIdx = findSegIdxForNode(node);
+    if (segIdx !== null) textNodes.push({ node, segIdx });
+  }
+
+  // Find start and end nodes
+  const startNode = range.startContainer;
+  const endNode   = range.endContainer;
+  const startOff  = range.startOffset;
+  const endOff    = range.endOffset;
+
+  if (startNode.nodeType !== Node.TEXT_NODE) return false;
+
+  // Simple case: same text node
+  if (startNode === endNode) {
+    const segIdx = findSegIdxForNode(startNode);
+    if (segIdx === null) return false;
+    const seg = segments[segIdx];
+    if (seg.type !== 'text') return false;
+
+    // Find offset within segment's full content
+    // The text node may be a partial render (after \n split), so find offset within segment
+    const nodeOffsetInSeg = getNodeOffsetInSegment(startNode, seg, container);
+    if (nodeOffsetInSeg === -1) return false;
+
+    const absStart = nodeOffsetInSeg + startOff;
+    const absEnd   = nodeOffsetInSeg + endOff;
+    const selText  = seg.content.slice(absStart, absEnd);
+    if (!selText.trim()) return false;
+
+    // Split segment into [before, blank, after]
+    const before = seg.content.slice(0, absStart);
+    const after  = seg.content.slice(absEnd);
+    const newSegs = [];
+    if (before) newSegs.push({ type:'text', content: before });
+    newSegs.push({ type:'blank', content: selText, answer: answer || selText, hint, num: 0 });
+    if (after)  newSegs.push({ type:'text', content: after });
+
+    segments.splice(segIdx, 1, ...newSegs);
+    return true;
+  }
+
+  // Multi-node case (drag across rendered text nodes within same segment or across)
+  // Find all nodes between start and end
+  let collecting = false;
+  let startSegIdx = null, endSegIdx = null;
+  let startAbsOff = 0, endAbsOff = 0;
+
+  for (const tn of textNodes) {
+    if (tn.node === startNode) {
+      collecting = true;
+      startSegIdx = tn.segIdx;
+      const off = getNodeOffsetInSegment(tn.node, segments[tn.segIdx], container);
+      startAbsOff = off + startOff;
+    }
+    if (tn.node === endNode) {
+      endSegIdx = tn.segIdx;
+      const off = getNodeOffsetInSegment(tn.node, segments[tn.segIdx], container);
+      endAbsOff = off + endOff;
+      break;
+    }
+  }
+
+  if (startSegIdx === null || endSegIdx === null) return false;
+  if (startSegIdx !== endSegIdx) {
+    // Cross-segment: only allow if all segments between are text segments
+    // Merge content, create one blank
+    let merged = '';
+    for (let i = startSegIdx; i <= endSegIdx; i++) {
+      if (segments[i].type === 'blank') return false; // can't merge across existing blanks
+      if (i === startSegIdx) merged += segments[i].content.slice(startAbsOff);
+      else if (i === endSegIdx) merged += segments[i].content.slice(0, endAbsOff);
+      else merged += segments[i].content;
+    }
+    const beforeContent = segments[startSegIdx].content.slice(0, startAbsOff);
+    const afterContent  = segments[endSegIdx].content.slice(endAbsOff);
+    const newSegs = [];
+    if (beforeContent) newSegs.push({ type:'text', content: beforeContent });
+    newSegs.push({ type:'blank', content: merged, answer: answer || merged, hint, num: 0 });
+    if (afterContent)  newSegs.push({ type:'text', content: afterContent });
+    segments.splice(startSegIdx, endSegIdx - startSegIdx + 1, ...newSegs);
+    return true;
+  }
+
+  // Same segment, different text node (line-break split)
+  const seg = segments[startSegIdx];
+  if (seg.type !== 'text') return false;
+  const before = seg.content.slice(0, startAbsOff);
+  const after  = seg.content.slice(endAbsOff);
+  const selContent = seg.content.slice(startAbsOff, endAbsOff);
+  const newSegs2 = [];
+  if (before) newSegs2.push({ type:'text', content: before });
+  newSegs2.push({ type:'blank', content: selContent, answer: answer || selContent, hint, num: 0 });
+  if (after)  newSegs2.push({ type:'text', content: after });
+  segments.splice(startSegIdx, 1, ...newSegs2);
+  return true;
+}
+
+function findSegIdxForNode(node) {
+  // Walk up to find data-seg-idx
+  let el = node.parentElement;
+  while (el) {
+    if (el.dataset && el.dataset.segIdx !== undefined) return parseInt(el.dataset.segIdx);
+    el = el.parentElement;
+  }
+  return null;
+}
+
+function getNodeOffsetInSegment(textNode, seg, container) {
+  // The segment's text may be split across multiple DOM text nodes (by \n splits).
+  // Find this textNode's character offset within the full segment content.
+  const parts = seg.content.split('\n');
+  let offset = 0;
+  // Walk text nodes in container that belong to this segment
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  let node;
+  let partIdx = 0;
+  while ((node = walker.nextNode())) {
+    const sIdx = findSegIdxForNode(node);
+    if (sIdx !== parseInt(Object.keys({[Object.keys(segments.reduce((a,s,i)=>{a[i]=s;return a},{}))[segments.indexOf(seg)]]:''})[0] ?? segments.indexOf(seg))) {
+      // simpler: check if node text matches seg part
+    }
+    if (node === textNode) return offset;
+    // Check if this node belongs to same segment
+    const parentSeg = findSegIdxForNode(node);
+    if (parentSeg === segments.indexOf(seg)) {
+      offset += node.textContent.length;
+      // Account for \n between parts
+      if (partIdx < parts.length - 1) { offset += 1; partIdx++; }
+    }
+  }
+  return -1;
+}
+
+// Simpler, more reliable offset finder
+function getNodeOffsetInSegment(textNode, seg, container) {
+  const parts = seg.content.split('\n');
+  const segIdx = segments.indexOf(seg);
+  let offset = 0;
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  let n, partI = 0;
+  while ((n = walker.nextNode())) {
+    if (n === textNode) return offset;
+    if (findSegIdxForNode(n) === segIdx) {
+      offset += n.textContent.length;
+      // If there are more parts, account for the \n
+      if (partI < parts.length - 1) { offset += 1; partI++; }
+    }
+  }
+  return -1;
+}
+
+// ════════════════════════════════════════
+// REMOVE BLANK
+// ════════════════════════════════════════
+function removeBlank(segIdx) {
+  if (!confirm('Remove this blank and restore the original text?')) return;
+  const seg = segments[segIdx];
+  // Merge with adjacent text segments
+  const before = segIdx > 0 && segments[segIdx-1].type==='text' ? segments[segIdx-1].content : null;
+  const after  = segIdx < segments.length-1 && segments[segIdx+1].type==='text' ? segments[segIdx+1].content : null;
+  const restored = (before||'') + seg.answer + (after||'');
+  const start = before !== null ? segIdx-1 : segIdx;
+  const count = 1 + (before!==null?1:0) + (after!==null?1:0);
+  segments.splice(start, count, { type:'text', content: restored });
+  renderText();
+  if (!segments.some(s=>s.type==='blank')) {
+    document.getElementById('wb-section').style.display = 'none';
+    document.getElementById('export-section').style.display = 'none';
+  }
+}
+
+function clearAllBlanks() {
+  if (!confirm('Remove all blanks and restore the full original text?')) return;
+  const fullText = segments.map(s => s.type==='text' ? s.content : s.answer).join('');
+  segments = [{ type:'text', content: fullText }];
+  renderText();
+  document.getElementById('wb-section').style.display = 'none';
+  document.getElementById('export-section').style.display = 'none';
+}
+
+// ════════════════════════════════════════
+// WORD BANK
+// ════════════════════════════════════════
+function updateWBColumns() {
+  const lang = document.getElementById('base-lang').value;
+  document.getElementById('wb-col-hint').textContent    = lang==='en' ? 'Hint — Japanese (shown on chip)' : 'Hint — English (shown on chip)';
+  document.getElementById('wb-col-answer').textContent  = lang==='en' ? 'Answer — English (revealed)' : 'Answer — Japanese (revealed)';
+}
+
+document.getElementById('base-lang').addEventListener('change', updateWBColumns);
+
+function updateWordBank() {
+  const blanks = segments.filter(s=>s.type==='blank');
+  const tbody = document.getElementById('wb-tbody');
+  tbody.innerHTML = '';
+  blanks.forEach((seg, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="wb-num-cell">${seg.num}</td>
+      <td>${escHtml(seg.hint)}</td>
+      <td>${escHtml(seg.answer)}</td>
+      <td><button class="wb-del" title="Remove blank" onclick="removeBlank(${segments.indexOf(seg)})">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('wb-count').textContent = `(${blanks.length} item${blanks.length!==1?'s':''})`;
+}
+
+// ════════════════════════════════════════
+// EXPORT STATUS
+// ════════════════════════════════════════
+function updateExportStatus() {
+  const blanks = segments.filter(s=>s.type==='blank');
+  const title = document.getElementById('lesson-title').value.trim() || '(no title)';
+  document.getElementById('export-status').textContent =
+    `✔ "${title}" · ${blanks.length} blank${blanks.length!==1?'s':''} · Ready to preview or export.`;
+}
+
+// ════════════════════════════════════════
+// BUILD GAME DATA
+// ════════════════════════════════════════
+function buildGameData() {
+  const title = document.getElementById('lesson-title').value.trim() || 'Vocabulary Game';
+  const lang  = document.getElementById('base-lang').value;
+
+  // Reconstruct full text with blank markers like "1.   " for sentence splitting
+  // We'll use a different approach: split segments into sentences, keeping blanks in place
+  const wordBank = {};
+  segments.filter(s=>s.type==='blank').forEach(s => {
+    wordBank[s.num] = { hint: s.hint, answer: s.answer };
+  });
+
+  // Build sentence-based slides
+  // Flatten segments into a mixed array, then split on sentence boundaries
+  const slides = buildSlides(segments, wordBank);
+
+  return { title, lang, slides, wordBank, segments: segments.map(s=>({...s})) };
+}
+
+function buildSlides(segs, wordBank) {
+  // Group segments into sentences by splitting text segments on sentence endings
+  const slides = [];
+  let currentSlide = [];
+
+  function pushSlide() {
+    if (currentSlide.length > 0) {
+      const hasContent = currentSlide.some(s => (s.type==='text' && s.content.trim()) || s.type==='blank');
+      if (hasContent) slides.push([...currentSlide]);
+      currentSlide = [];
+    }
+  }
+
+  for (const seg of segs) {
+    if (seg.type === 'blank') {
+      currentSlide.push(seg);
+    } else {
+      // Split text on sentence endings + newlines
+      const parts = seg.content.split(/(\n+|(?<=[^0-9][\.\?\!])\s+(?=[A-Z0-9"]))/);
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (/^\n+$/.test(part)) {
+          // Newline = slide break
+          pushSlide();
+        } else if (/^\s+$/.test(part) && i > 0) {
+          // Sentence-ending whitespace: finish current sentence, start new
+          if (currentSlide.length > 0 || (parts[i-1] && parts[i-1].trim())) {
+            pushSlide();
+          }
+        } else if (part) {
+          currentSlide.push({ type:'text', content: part });
+        }
+      }
+    }
+  }
+  pushSlide();
+
+  return slides.map(segs => {
+    const blanks = segs.filter(s=>s.type==='blank');
+    return { segs, blanks };
+  });
+}
+
+// ════════════════════════════════════════
+// PREVIEW
+// ════════════════════════════════════════
+function openPreview() {
+  const data = buildGameData();
+  if (!data.slides.length) { alert('No content to preview.'); return; }
+  const html = buildStandaloneHTML(data);
+  const blob = new Blob([html],{type:'text/html'});
+  document.getElementById('preview-frame').src = URL.createObjectURL(blob);
+  document.getElementById('preview-modal').classList.add('open');
+}
+
+function closePreview() {
+  document.getElementById('preview-modal').classList.remove('open');
+}
+
+// ════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════
+function exportGame() {
+  const data = buildGameData();
+  if (!data.slides.length) { alert('Nothing to export.'); return; }
+  const html = buildStandaloneHTML(data);
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const safe = (data.title||'vocab_game').replace(/[^a-zA-Z0-9_\-\s]/g,'').trim().replace(/\s+/g,'_').slice(0,40);
+  a.download = `019v2_${safe}.html`;
+  a.click();
+}
+
+// ════════════════════════════════════════
+// REHYDRATE
+// ════════════════════════════════════════
+function rehydrateGame(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const html = e.target.result;
+    const m = html.match(/<!--GAMEDATA:([\s\S]+?):GAMEDATA-->/);
+    if (!m) { showStatus('load-status','error','No game data found in this file.'); return; }
+    try {
+      const data = JSON.parse(m[1]);
+      document.getElementById('lesson-title').value = data.title || '';
+      if (data.lang) document.getElementById('base-lang').value = data.lang;
+      segments = data.segments.map(s=>({...s}));
+      blankCounter = segments.filter(s=>s.type==='blank').length;
+      // Reconstruct raw text for textarea
+      document.getElementById('raw-text').value = segments.map(s=>s.type==='text'?s.content:s.answer).join('');
+      renderText();
+      document.getElementById('text-render-wrap').style.display = 'block';
+      document.getElementById('wb-section').style.display = 'block';
+      document.getElementById('export-section').style.display = 'block';
+      updateExportStatus();
+      updateWBColumns();
+      showStatus('load-status','success',`Rehydrated "${data.title}" — ${segments.filter(s=>s.type==='blank').length} blanks restored.`);
+    } catch(err) { showStatus('load-status','error','Failed to parse: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ════════════════════════════════════════
+// BUILD STANDALONE HTML
+// ════════════════════════════════════════
+function buildStandaloneHTML(data) {
+  const jsonBlob = JSON.stringify(data).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+
+  // Build slide HTML for standalone
+  const slidesJSON = JSON.stringify(data.slides.map(slide => {
+    let html = '';
+    slide.segs.forEach(seg => {
+      if (seg.type === 'text') {
+        html += escHtml(seg.content).replace(/\n/g,'<br>');
+      } else {
+        html += `__BLANK_${seg.num}__`;
+      }
+    });
+    return { html, blanks: slide.blanks.map(b=>({ num:b.num, hint:b.hint, answer:b.answer })) };
+  })).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${escHtml(data.title)}</title>
+<style>
+:root{--navy:#003366;--blue:#0066cc;--gold:#feca57;--gray:#f0f4fa;--text:#1a1a2e;--muted:#6b7a99;--reveal-bg:#d4edda;--reveal-border:#28a745;--reveal-text:#155724;--blank-bg:#fff3cd;--blank-border:#ffc107;--blank-text:#856404;--shadow:0 4px 20px rgba(0,51,102,.12);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#e8f0fb,#f5f0ff);min-height:100vh;color:var(--text);font-size:var(--fs,28px);}
+.hdr{background:linear-gradient(90deg,var(--navy),var(--blue));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.hdr img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+.hdr-title{font-size:.95rem;font-weight:700;}
+.hdr-sub{font-size:.7rem;opacity:.8;}
+.main{max-width:900px;margin:0 auto;padding:18px 16px 100px;display:flex;flex-direction:column;gap:14px;}
+.title-strip{background:#fff;border-radius:10px;padding:11px 16px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.lesson-name{font-size:.95rem;font-weight:700;color:var(--navy);}
+.slide-ctr{font-size:.78rem;color:var(--muted);font-weight:600;background:var(--gray);padding:3px 12px;border-radius:20px;}
+.sentence-card{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:28px 24px;line-height:2.2;min-height:120px;font-size:1em;}
+.blank-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 11px;border-radius:20px;border:2px solid var(--blank-border);background:var(--blank-bg);color:var(--blank-text);font-size:.82em;font-weight:700;cursor:pointer;transition:all .18s;vertical-align:middle;user-select:none;white-space:nowrap;}
+.blank-chip:hover{filter:brightness(.93);transform:scale(1.04);}
+.blank-chip.revealed{background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-text);}
+.blank-chip .num{font-size:.7em;opacity:.7;margin-right:1px;}
+.ctrl-bar{background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-bar .sp{flex:1;}
+.nav-bar{background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;}
+.nav-bar .sp{flex:1;}
+.dots{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.dot{width:10px;height:10px;border-radius:50%;background:#d0daf0;cursor:pointer;transition:background .2s;}
+.dot.active{background:var(--blue);}.dot.done{background:#28a745;}
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:5px;}
+.btn:disabled{opacity:.4;cursor:default;}
+.btn-gold{background:var(--gold);color:var(--navy);}.btn-gold:hover{background:#f0bc30;}
+.btn-danger{background:#fff0f0;color:#c0392b;border:2px solid #f5c6c6;}.btn-danger:hover{background:#fde8e8;}
+.btn-sec{background:var(--gray);color:var(--navy);border:2px solid #c8d8f0;}.btn-sec:hover{background:#dce8ff;}
+.btn-nav{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;}
+.btn-nav:disabled{opacity:.4;cursor:default;}
+.btn-nav:not(:disabled):hover{transform:translateY(-1px);}
+#zoom-btn{position:fixed;right:20px;bottom:20px;width:55px;height:55px;border-radius:50%;background:var(--navy);color:#fff;border:none;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,51,102,.4);display:flex;align-items:center;justify-content:center;z-index:900;transition:background .2s;}
+#zoom-btn:hover{background:var(--blue);}
+#instr-btn{position:fixed;bottom:35px;left:15px;z-index:900;background:var(--navy);color:#fff;border:none;border-radius:24px;padding:7px 14px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 3px 12px rgba(0,51,102,.3);}
+#instr-btn img{width:22px;height:22px;border-radius:50%;}
+#wm{position:fixed;bottom:12px;left:15px;font-size:.7rem;color:rgba(0,51,102,.3);pointer-events:none;z-index:999;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:linear-gradient(160deg,#003366,#0066cc);color:#fff;border-radius:14px;width:92vw;max-width:700px;max-height:85vh;overflow-y:auto;padding:28px;box-shadow:0 12px 50px rgba(0,0,0,.5);}
+.modal-box h2{color:var(--gold);font-size:1rem;font-weight:700;margin-bottom:16px;}
+.modal-close{float:right;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.83rem;margin-left:10px;}
+.wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;}
+.wb-item{background:rgba(255,255,255,.12);border-radius:8px;padding:7px 10px;font-size:.8rem;line-height:1.4;}
+.wb-num{color:var(--gold);font-weight:700;margin-right:4px;}
+.wb-en{font-weight:600;}.wb-jp{opacity:.75;font-size:.75rem;}
+.instr-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.instr-list li{background:rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;font-size:.85rem;line-height:1.5;}
+.instr-list li strong{color:var(--gold);}
+@media(max-width:600px){.sentence-card{padding:18px 12px;}.main{padding:12px 8px 100px;}}
+</style>
+</head>
+<body>
+<!--GAMEDATA:${jsonBlob}:GAMEDATA-->
+<div class="hdr">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
+  <div><div class="hdr-title">${escHtml(data.title)}</div><div class="hdr-sub">Click blanks to reveal · Click again to hide</div></div>
+</div>
+<div class="main">
+  <div class="title-strip">
+    <span class="lesson-name">${escHtml(data.title)}</span>
+    <span class="slide-ctr" id="slide-ctr"></span>
+  </div>
+  <div class="sentence-card" id="sentence-card"></div>
+  <div class="ctrl-bar">
+    <button class="btn btn-gold" onclick="revealAll()">👁 Reveal All</button>
+    <button class="btn btn-danger" onclick="resetSlide()">↩ Reset</button>
+    <div class="sp"></div>
+    <button class="btn btn-sec" onclick="openModal('wb-modal')">📚 Word Bank</button>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-nav" id="btn-prev" onclick="changeSlide(-1)">◀ Prev</button>
+    <div class="sp"></div>
+    <div class="dots" id="dots"></div>
+    <div class="sp"></div>
+    <button class="btn btn-nav" id="btn-next" onclick="changeSlide(1)">Next ▶</button>
+  </div>
+</div>
+<button id="zoom-btn" onclick="cycleZoom()">A</button>
+<button id="instr-btn" onclick="openModal('instr-modal')"><img src="https://i.imgur.com/sPiDZQ9.png" alt=""> How to use</button>
+<div id="wm">cmarasigan</div>
+
+<div class="modal-overlay" id="wb-modal" onclick="bgClose(event,'wb-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('wb-modal')">✕ Close</button>
+    <h2>📚 Word Bank</h2>
+    <div class="wb-grid" id="wb-grid"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="instr-modal" onclick="bgClose(event,'instr-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('instr-modal')">✕ Close</button>
+    <h2>How to Use</h2>
+    <ul class="instr-list">
+      <li><strong>Blank chips</strong> show a hint. Click to reveal the answer.</li>
+      <li><strong>Click again</strong> to hide the answer.</li>
+      <li><strong>Reveal All</strong> shows every answer on this slide.</li>
+      <li><strong>Reset</strong> hides all answers on this slide.</li>
+      <li><strong>◀ Prev / Next ▶</strong> moves between slides. Green dots = all revealed.</li>
+      <li><strong>A button</strong> (bottom-right) cycles through 5 text sizes.</li>
+      <li><strong>Word Bank</strong> opens the full vocabulary list.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const SLIDES = ${slidesJSON};
+const WB = ${jsonBlob.replace(/</g,'\\u003c').replace(/>/g,'\\u003e')};
+let cur=0, sz=0;
+const SIZES=['28px','34px','40px','46px','22px'];
+const ZLABELS=['A','A+','A++','A+++','A-'];
+
+function init(){
+  buildWB();
+  renderSlide();
+}
+
+function buildWB(){
+  const grid=document.getElementById('wb-grid');
+  Object.entries(WB.wordBank).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([num,wb])=>{
+    const d=document.createElement('div');
+    d.className='wb-item';
+    d.innerHTML='<span class=wb-num>'+num+'.</span> <span class=wb-en>'+esc(wb.hint)+'</span> <span class=wb-jp>→ '+esc(wb.answer)+'</span>';
+    grid.appendChild(d);
+  });
+}
+
+function renderSlide(){
+  const slide=SLIDES[cur];
+  const total=SLIDES.length;
+  document.getElementById('slide-ctr').textContent='Slide '+(cur+1)+' / '+total;
+
+  // Replace __BLANK_N__ markers with chips
+  let html=slide.html;
+  slide.blanks.forEach(b=>{
+    const rev=!!(slide.revealed&&slide.revealed[b.num]);
+    const chip='<span class="blank-chip'+(rev?' revealed':'')+'" onclick="toggle('+b.num+')">'
+      +'<span class=num>'+b.num+'.</span>'
+      +(rev?esc(b.answer):esc(b.hint))
+      +'</span>';
+    html=html.replace('__BLANK_'+b.num+'__',chip);
+  });
+  document.getElementById('sentence-card').innerHTML=html;
+
+  document.getElementById('btn-prev').disabled=cur===0;
+  document.getElementById('btn-next').disabled=cur===total-1;
+
+  const dotsEl=document.getElementById('dots');
+  dotsEl.innerHTML='';
+  SLIDES.forEach((s,i)=>{
+    const done=s.blanks.length>0&&s.blanks.every(b=>s.revealed&&s.revealed[b.num]);
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':'')+(done?' done':'');
+    d.title='Slide '+(i+1);
+    d.onclick=()=>{cur=i;renderSlide();};
+    dotsEl.appendChild(d);
+  });
+}
+
+function toggle(num){
+  const s=SLIDES[cur];
+  if(!s.revealed)s.revealed={};
+  s.revealed[num]=!s.revealed[num];
+  renderSlide();
+}
+function revealAll(){
+  const s=SLIDES[cur];
+  if(!s.revealed)s.revealed={};
+  s.blanks.forEach(b=>{s.revealed[b.num]=true;});
+  renderSlide();
+}
+function resetSlide(){SLIDES[cur].revealed={};renderSlide();}
+function changeSlide(d){const n=cur+d;if(n<0||n>=SLIDES.length)return;cur=n;renderSlide();}
+function cycleZoom(){sz=(sz+1)%SIZES.length;document.body.style.setProperty('--fs',SIZES[sz]);document.getElementById('zoom-btn').textContent=ZLABELS[sz];}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function bgClose(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+init();
+<\/script>
+</body>
+</html>`;
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function showStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'status ' + type;
+  el.textContent = msg;
+}
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
