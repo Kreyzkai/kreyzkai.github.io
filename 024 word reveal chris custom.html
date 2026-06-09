@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click-to-Reveal Vocab · Generator</title>
+<style>
+  :root {
+    --navy:#003366;--blue:#0066cc;--gold:#feca57;
+    --gray:#f0f4fa;--text:#1a1a2e;--muted:#6b7a99;
+    --radius:10px;--shadow:0 4px 20px rgba(0,51,102,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#e8f0fb,#f5f0ff);min-height:100vh;color:var(--text);}
+  .app-header{background:linear-gradient(90deg,var(--navy),var(--blue));color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+  .app-header img{width:36px;height:36px;border-radius:50%;object-fit:cover;}
+  .app-header h1{font-size:1.05rem;font-weight:700;}
+  .app-header .sub{font-size:.75rem;opacity:.8;}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 16px 60px;display:flex;flex-direction:column;gap:20px;}
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;}
+  .card h2{color:var(--navy);font-size:.95rem;font-weight:700;margin-bottom:10px;}
+  input[type=text],textarea{width:100%;padding:10px 12px;border:2px solid #d0daf0;border-radius:8px;font-size:.875rem;font-family:inherit;transition:border-color .2s;}
+  input[type=text]:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  textarea{resize:vertical;line-height:1.6;font-family:monospace;}
+  .hint{font-size:.76rem;color:var(--muted);margin-top:6px;line-height:1.5;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .btn{padding:10px 20px;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;box-shadow:0 3px 10px rgba(0,51,102,.25);}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(0,51,102,.3);}
+  .btn-secondary{background:var(--gray);color:var(--navy);border:2px solid #c8d8f0;}
+  .btn-secondary:hover{background:#dce8ff;}
+  .btn-export{background:var(--gold);color:var(--navy);font-weight:700;}
+  .btn-export:hover{background:#f0bc30;}
+  .error{background:#fff0f0;border:2px solid #f5c6c6;border-radius:8px;padding:10px 14px;font-size:.83rem;color:#c0392b;display:none;}
+  .error.show{display:block;}
+  #rehydrate-input{display:none;}
+  .preview-note{background:#e8f8ee;border:2px solid #a8dbb8;border-radius:8px;padding:10px 14px;font-size:.83rem;color:#1a5c35;display:none;}
+  .preview-note.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
+  <div>
+    <h1>Click-to-Reveal Vocab · Generator</h1>
+    <div class="sub">CMarasigan · Kasai-Minami High School</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>📌 Lesson Title</h2>
+    <input type="text" id="lesson-title" placeholder="e.g. 3　Unique Australian English">
+  </div>
+
+  <div class="card">
+    <h2>📝 Lesson Body Text</h2>
+    <textarea id="body-text" style="height:200px;" placeholder="Paste the body paragraphs here with numbered blanks:
+Australia is a country of 1.                         . 2.                          people..."></textarea>
+    <p class="hint">Each sentence becomes one slide. Paragraph line breaks also split slides.</p>
+  </div>
+
+  <div class="card">
+    <h2>🗂 Word Bank</h2>
+    <textarea id="wordbank-text" style="height:180px;" placeholder="1.	immigrants （移民）
+2.	Aboriginal （アボリジニの）
+3.	original inhabitants （先住民）
+..."></textarea>
+    <p class="hint">Format: <code>number. English word （Japanese）</code> — one per line.</p>
+  </div>
+
+  <div class="card">
+    <div class="error" id="parse-error"></div>
+    <div class="preview-note" id="preview-note"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="generateGame()">▶ Preview Game</button>
+      <button class="btn btn-export" id="btn-export" style="display:none" onclick="exportGame()">⬇ Export Standalone Game</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('rehydrate-input').click()">📂 Rehydrate from HTML</button>
+      <input type="file" id="rehydrate-input" accept=".html" onchange="rehydrateGame(event)">
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PREVIEW MODAL
+═══════════════════════════════════════════════════════════ -->
+<div id="preview-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;width:96vw;max-width:900px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <div style="background:linear-gradient(90deg,#003366,#0066cc);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-weight:700;font-size:.95rem;">🎮 Preview</span>
+      <button onclick="closePreview()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.85rem;">✕ Close</button>
+    </div>
+    <iframe id="preview-frame" style="flex:1;border:none;width:100%;min-height:500px;"></iframe>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// PARSING
+// ══════════════════════════════════════
+function parseWordBank(raw) {
+  const map = {};
+  for (const line of raw.trim().split('\n')) {
+    const m = line.match(/^(\d+)[.\s\t]+(.+)/);
+    if (!m) continue;
+    const num = parseInt(m[1]);
+    const rest = m[2].trim();
+    const jpMatch = rest.match(/^(.+?)\s*[（(](.+?)[）)]\s*$/);
+    if (jpMatch) map[num] = { en: jpMatch[1].trim(), jp: jpMatch[2].trim() };
+    else map[num] = { en: rest.trim(), jp: '' };
+  }
+  return map;
+}
+
+function splitSentences(text) {
+  const sentences = [];
+  for (const line of text.trim().split(/\n+/)) {
+    if (!line.trim()) continue;
+    // Split on sentence-ending punctuation NOT preceded by a digit+dot (blank markers)
+    const parts = line.split(/(?<=[^0-9\s][\.\?\!])\s+(?=[A-Z0-9"])/);
+    for (const p of parts) { if (p.trim()) sentences.push(p.trim()); }
+  }
+  return sentences;
+}
+
+function extractBlanks(sentence, wordBank) {
+  const blanks = [];
+  const re = /(\d+)\.\s{2,}/g;
+  let m;
+  while ((m = re.exec(sentence)) !== null) {
+    const num = parseInt(m[1]);
+    if (wordBank[num]) blanks.push({ num, ...wordBank[num] });
+  }
+  return blanks;
+}
+
+// ══════════════════════════════════════
+// GENERATE / PREVIEW
+// ══════════════════════════════════════
+let gameData = null;
+
+function generateGame() {
+  const title   = document.getElementById('lesson-title').value.trim() || 'Vocabulary Game';
+  const bodyRaw = document.getElementById('body-text').value.trim();
+  const wbRaw   = document.getElementById('wordbank-text').value.trim();
+  const errBox  = document.getElementById('parse-error');
+  errBox.classList.remove('show');
+  document.getElementById('btn-export').style.display = 'none';
+  document.getElementById('preview-note').classList.remove('show');
+
+  if (!bodyRaw || !wbRaw) { showErr('Please fill in both the lesson text and the word bank.'); return; }
+  const wordBank = parseWordBank(wbRaw);
+  if (!Object.keys(wordBank).length) { showErr('Could not parse word bank. Check the format.'); return; }
+  const sentences = splitSentences(bodyRaw);
+  if (!sentences.length) { showErr('Could not parse any sentences.'); return; }
+
+  const slides = sentences.map(text => ({ text, blanks: extractBlanks(text, wordBank) }));
+  gameData = { title, slides, wordBank };
+
+  // show preview in iframe
+  const html = buildStandaloneHTML(gameData);
+  const blob = new Blob([html], { type: 'text/html' });
+  document.getElementById('preview-frame').src = URL.createObjectURL(blob);
+  document.getElementById('preview-overlay').style.display = 'flex';
+  document.getElementById('btn-export').style.display = '';
+  const note = document.getElementById('preview-note');
+  note.textContent = `✔ Parsed ${slides.length} slides with ${Object.keys(wordBank).length} word bank entries. Preview opened — click "Export Standalone Game" to download.`;
+  note.classList.add('show');
+}
+
+function closePreview() {
+  document.getElementById('preview-overlay').style.display = 'none';
+}
+
+function exportGame() {
+  if (!gameData) return;
+  const html = buildStandaloneHTML(gameData);
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const safe = (gameData.title || 'vocab_game').replace(/[^a-zA-Z0-9_\-\s]/g,'').trim().replace(/\s+/g,'_').slice(0,40);
+  a.download = `019_${safe}.html`;
+  a.click();
+}
+
+// ══════════════════════════════════════
+// REHYDRATE FROM EXPORTED HTML
+// ══════════════════════════════════════
+function rehydrateGame(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const html = e.target.result;
+    const m = html.match(/<!--GAMEDATA:([\s\S]+?):GAMEDATA-->/);
+    if (!m) { showErr('Could not find game data in this file. Make sure it was exported by this generator.'); return; }
+    try {
+      const data = JSON.parse(m[1]);
+      document.getElementById('lesson-title').value = data.title || '';
+      // Reconstruct body text from slides
+      document.getElementById('body-text').value = data.slides.map(s => s.text).join('\n');
+      // Reconstruct word bank
+      const wbLines = Object.entries(data.wordBank)
+        .sort((a,b) => parseInt(a[0]) - parseInt(b[0]))
+        .map(([num, wb]) => `${num}.\t${wb.en}${wb.jp ? ' （' + wb.jp + '）' : ''}`);
+      document.getElementById('wordbank-text').value = wbLines.join('\n');
+      const note = document.getElementById('preview-note');
+      note.textContent = `✔ Rehydrated "${data.title}" — ${data.slides.length} slides loaded. Hit Preview Game to continue.`;
+      note.classList.add('show');
+      document.getElementById('parse-error').classList.remove('show');
+    } catch(err) { showErr('Failed to parse game data: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function showErr(msg) {
+  const e = document.getElementById('parse-error');
+  e.textContent = msg;
+  e.classList.add('show');
+}
+
+// ══════════════════════════════════════
+// BUILD STANDALONE HTML
+// ══════════════════════════════════════
+function buildStandaloneHTML(data) {
+  const jsonBlob = JSON.stringify(data).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${escHtml(data.title)}</title>
+<style>
+:root{--navy:#003366;--blue:#0066cc;--gold:#feca57;--gray:#f0f4fa;--text:#1a1a2e;--muted:#6b7a99;--reveal-bg:#d4edda;--reveal-border:#28a745;--reveal-text:#155724;--blank-bg:#fff3cd;--blank-border:#ffc107;--blank-text:#856404;--shadow:0 4px 20px rgba(0,51,102,.12);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#e8f0fb,#f5f0ff);min-height:100vh;color:var(--text);font-size:var(--fs,28px);}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(90deg,var(--navy),var(--blue));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.hdr img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+.hdr-title{font-size:.95rem;font-weight:700;}
+.hdr-sub{font-size:.7rem;opacity:.8;}
+
+/* ── LAYOUT ── */
+.main{max-width:900px;margin:0 auto;padding:18px 16px 100px;display:flex;flex-direction:column;gap:14px;}
+
+/* ── TITLE STRIP ── */
+.title-strip{background:#fff;border-radius:10px;padding:11px 16px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.lesson-name{font-size:.95rem;font-weight:700;color:var(--navy);}
+.slide-ctr{font-size:.78rem;color:var(--muted);font-weight:600;background:var(--gray);padding:3px 12px;border-radius:20px;}
+
+/* ── SENTENCE CARD ── */
+.sentence-card{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:28px 24px;line-height:2.2;min-height:120px;font-size:1em;}
+
+/* ── BLANK CHIP ── */
+.blank-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 11px;border-radius:20px;border:2px solid var(--blank-border);background:var(--blank-bg);color:var(--blank-text);font-size:.82em;font-weight:700;cursor:pointer;transition:all .18s;vertical-align:middle;user-select:none;white-space:nowrap;}
+.blank-chip:hover{filter:brightness(.93);transform:scale(1.04);}
+.blank-chip.revealed{background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-text);}
+.blank-chip .num{font-size:.7em;opacity:.7;margin-right:1px;}
+
+/* ── CONTROLS ── */
+.ctrl-bar{background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ctrl-bar .sp{flex:1;}
+.nav-bar{background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;}
+.nav-bar .sp{flex:1;}
+
+/* ── DOTS ── */
+.dots{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.dot{width:10px;height:10px;border-radius:50%;background:#d0daf0;cursor:pointer;transition:background .2s;}
+.dot.active{background:var(--blue);}
+.dot.done{background:#28a745;}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:5px;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-gold:hover{background:#f0bc30;}
+.btn-danger{background:#fff0f0;color:#c0392b;border:2px solid #f5c6c6;}
+.btn-danger:hover{background:#fde8e8;}
+.btn-sec{background:var(--gray);color:var(--navy);border:2px solid #c8d8f0;}
+.btn-sec:hover{background:#dce8ff;}
+.btn-nav{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;}
+.btn-nav:disabled{opacity:.4;cursor:default;transform:none!important;}
+.btn-nav:not(:disabled):hover{transform:translateY(-1px);}
+
+/* ── ZOOM BUTTON ── */
+#zoom-btn{position:fixed;right:20px;bottom:20px;width:55px;height:55px;border-radius:50%;background:var(--navy);color:#fff;border:none;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,51,102,.4);display:flex;align-items:center;justify-content:center;z-index:900;transition:background .2s;}
+#zoom-btn:hover{background:var(--blue);}
+
+/* ── INSTRUCTIONS PILL ── */
+#instr-btn{position:fixed;bottom:35px;left:15px;z-index:900;background:var(--navy);color:#fff;border:none;border-radius:24px;padding:7px 14px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 3px 12px rgba(0,51,102,.3);}
+#instr-btn img{width:22px;height:22px;border-radius:50%;}
+
+/* ── WATERMARK ── */
+#wm{position:fixed;bottom:12px;left:15px;font-size:.7rem;color:rgba(0,51,102,.3);pointer-events:none;z-index:999;}
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:linear-gradient(160deg,#003366,#0066cc);color:#fff;border-radius:14px;width:92vw;max-width:700px;max-height:85vh;overflow-y:auto;padding:28px;box-shadow:0 12px 50px rgba(0,0,0,.5);}
+.modal-box h2{color:var(--gold);font-size:1rem;font-weight:700;margin-bottom:16px;}
+.modal-close{float:right;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.83rem;margin-left:10px;}
+
+/* word bank grid */
+.wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;}
+.wb-item{background:rgba(255,255,255,.12);border-radius:8px;padding:7px 10px;font-size:.8rem;line-height:1.4;}
+.wb-num{color:var(--gold);font-weight:700;margin-right:4px;}
+.wb-en{font-weight:600;}
+.wb-jp{opacity:.75;font-size:.75rem;}
+
+/* instructions list */
+.instr-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.instr-list li{background:rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;font-size:.85rem;line-height:1.5;}
+.instr-list li strong{color:var(--gold);}
+
+@media(max-width:600px){.sentence-card{padding:18px 12px;}.main{padding:12px 8px 100px;}}
+</style>
+</head>
+<body class="scale-1">
+<!--GAMEDATA:${jsonBlob}:GAMEDATA-->
+
+<div class="hdr">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
+  <div>
+    <div class="hdr-title">${escHtml(data.title)}</div>
+    <div class="hdr-sub">Click blanks to reveal · Click again to hide</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="title-strip">
+    <span class="lesson-name">${escHtml(data.title)}</span>
+    <span class="slide-ctr" id="slide-ctr"></span>
+  </div>
+  <div class="sentence-card" id="sentence-card"></div>
+  <div class="ctrl-bar">
+    <button class="btn btn-gold" onclick="revealAll()">👁 Reveal All</button>
+    <button class="btn btn-danger" onclick="resetSlide()">↩ Reset</button>
+    <div class="sp"></div>
+    <button class="btn btn-sec" onclick="openModal('wb-modal')">📚 Word Bank</button>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-nav" id="btn-prev" onclick="changeSlide(-1)">◀ Prev</button>
+    <div class="sp"></div>
+    <div class="dots" id="dots"></div>
+    <div class="sp"></div>
+    <button class="btn btn-nav" id="btn-next" onclick="changeSlide(1)">Next ▶</button>
+  </div>
+</div>
+
+<!-- ZOOM BTN -->
+<button id="zoom-btn" onclick="cycleZoom()" title="Zoom text">A</button>
+
+<!-- INSTRUCTIONS PILL -->
+<button id="instr-btn" onclick="openModal('instr-modal')">
+  <img src="https://i.imgur.com/sPiDZQ9.png" alt=""> How to use
+</button>
+
+<!-- WATERMARK -->
+<div id="wm">cmarasigan</div>
+
+<!-- WORD BANK MODAL -->
+<div class="modal-overlay" id="wb-modal" onclick="bgClose(event,'wb-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('wb-modal')">✕ Close</button>
+    <h2>📚 Word Bank</h2>
+    <div class="wb-grid" id="wb-grid"></div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS MODAL -->
+<div class="modal-overlay" id="instr-modal" onclick="bgClose(event,'instr-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('instr-modal')">✕ Close</button>
+    <h2>How to Use</h2>
+    <ul class="instr-list">
+      <li><strong>Blank chips</strong> show the blank number and Japanese hint. Click to reveal the English answer.</li>
+      <li><strong>Click again</strong> to hide the answer and go back to the Japanese hint.</li>
+      <li><strong>Reveal All</strong> shows every answer on the current slide at once.</li>
+      <li><strong>Reset</strong> hides all answers on the current slide.</li>
+      <li><strong>◀ Prev / Next ▶</strong> to move between slides. Green dots = completed slides.</li>
+      <li><strong>A button</strong> (bottom-right) cycles through 5 text sizes for the projector.</li>
+      <li><strong>Word Bank</strong> opens the full vocabulary list in a pop-up.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const GD = ${jsonBlob};
+let cur = 0;
+const SIZES = ['28px','34px','40px','46px','22px'];
+let sz = 0;
+
+function init() {
+  buildWB();
+  renderSlide();
+}
+
+function buildWB() {
+  const grid = document.getElementById('wb-grid');
+  Object.entries(GD.wordBank).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([num,wb])=>{
+    const d = document.createElement('div');
+    d.className='wb-item';
+    d.innerHTML='<span class=wb-num>'+num+'.</span><span class=wb-en>'+esc(wb.en)+'</span> <span class=wb-jp>'+(wb.jp?'（'+esc(wb.jp)+'）':'')+'</span>';
+    grid.appendChild(d);
+  });
+}
+
+function renderSlide() {
+  const slide = GD.slides[cur];
+  const total = GD.slides.length;
+  document.getElementById('slide-ctr').textContent = 'Slide '+(cur+1)+' / '+total;
+
+  let html = slide.text.replace(/(\\d+)\\.\\s{2,}/g,(match,n)=>{
+    const num=parseInt(n);
+    const wb=GD.wordBank[num];
+    if(!wb) return match;
+    const rev=!!(slide.revealed&&slide.revealed[num]);
+    return '<span class="blank-chip'+(rev?' revealed':'')+'" data-num="'+num+'" onclick="toggle('+num+')">'
+      +'<span class=num>'+num+'.</span>'
+      +(rev?'<span class=en>'+esc(wb.en)+'</span>':'<span class=jp>'+esc(wb.jp)+'</span>')
+      +'</span> ';
+  });
+  document.getElementById('sentence-card').innerHTML = html;
+
+  document.getElementById('btn-prev').disabled = cur===0;
+  document.getElementById('btn-next').disabled = cur===total-1;
+
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML='';
+  GD.slides.forEach((s,i)=>{
+    const allDone = s.blanks.length>0 && s.blanks.every(b=>s.revealed&&s.revealed[b.num]);
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':'')+(allDone?' done':'');
+    d.title='Slide '+(i+1);
+    d.onclick=()=>{cur=i;renderSlide();};
+    dotsEl.appendChild(d);
+  });
+}
+
+function toggle(num){
+  const s=GD.slides[cur];
+  if(!s.revealed) s.revealed={};
+  s.revealed[num]=!s.revealed[num];
+  renderSlide();
+}
+function revealAll(){
+  const s=GD.slides[cur];
+  if(!s.revealed) s.revealed={};
+  s.blanks.forEach(b=>{s.revealed[b.num]=true;});
+  renderSlide();
+}
+function resetSlide(){
+  GD.slides[cur].revealed={};
+  renderSlide();
+}
+function changeSlide(d){
+  const n=cur+d;
+  if(n<0||n>=GD.slides.length) return;
+  cur=n; renderSlide();
+}
+function cycleZoom(){
+  sz=(sz+1)%SIZES.length;
+  document.body.style.setProperty('--fs',SIZES[sz]);
+  document.getElementById('zoom-btn').textContent=['A','A+','A++','A+++','A-'][sz];
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function bgClose(e,id){if(e.target===document.getElementById(id)) closeModal(id);}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function goBack(){if(confirm('Return to the tool index?')) window.location.href='index.html';}
+init();
+<\/script>
+</body>
+</html>`;
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
