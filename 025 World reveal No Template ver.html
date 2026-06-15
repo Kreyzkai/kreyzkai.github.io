@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Click-to-Reveal Vocab v2 · Generator</title>
+<title>Click-to-Reveal Vocab 019c · Generator</title>
 <style>
 :root{
   --navy:#003366;--blue:#0066cc;--gold:#feca57;
@@ -120,7 +120,7 @@ textarea{resize:vertical;line-height:1.7;font-family:inherit;}
 <div class="hdr">
   <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
   <div>
-    <h1>Click-to-Reveal Vocab · Generator v2</h1>
+    <h1>Click-to-Reveal Vocab · Generator 019c</h1>
     <div class="sub">CMarasigan · Kasai-Minami High School</div>
   </div>
 </div>
@@ -250,16 +250,23 @@ function renderText() {
   segments.forEach((seg, idx) => {
     if (seg.type === 'text') {
       // Split text by newlines → keep paragraph breaks
+      // IMPORTANT: every text piece gets its own span with data-seg-idx
+      // so that findSegIdxForNode always works — no bare text nodes
       const parts = seg.content.split('\n');
       parts.forEach((part, pi) => {
-        if (part) {
-          const span = document.createElement('span');
-          span.dataset.segIdx = idx;
-          span.className = 'text-seg';
-          span.textContent = part;
-          el.appendChild(span);
+        const span = document.createElement('span');
+        span.dataset.segIdx = idx;
+        span.className = 'text-seg';
+        span.textContent = part; // even empty string — ensures node exists
+        el.appendChild(span);
+        if (pi < parts.length - 1) {
+          // newline: add a <br> INSIDE a span so it keeps the seg-idx
+          const brSpan = document.createElement('span');
+          brSpan.dataset.segIdx = idx;
+          brSpan.className = 'text-seg';
+          brSpan.appendChild(document.createElement('br'));
+          el.appendChild(brSpan);
         }
-        if (pi < parts.length - 1) el.appendChild(document.createElement('br'));
       });
     } else {
       const chip = document.createElement('span');
@@ -327,16 +334,39 @@ function selectWordAtCaret(sel, e) {
   const text = node.textContent;
   let start = range.startOffset;
   let end = range.startOffset;
-  while (start > 0 && /\S/.test(text[start-1])) start--;
-  while (end < text.length && /\S/.test(text[end])) end++;
-  if (start === end) return;
+  while (start > 0 && /[\w\u3000-\u9fff]/.test(text[start-1])) start--;
+  while (end < text.length && /[\w\u3000-\u9fff]/.test(text[end])) end++;
+
+  // Word may continue into next text node if this node was split
+  let endNode = node;
+  let endOffset = end;
+  if (end === text.length) {
+    let next = node.nextSibling;
+    while (next) {
+      if (next.nodeType === Node.TEXT_NODE) {
+        let extra = 0;
+        while (extra < next.textContent.length && /[\w\u3000-\u9fff]/.test(next.textContent[extra])) extra++;
+        if (extra > 0) { endNode = next; endOffset = extra; }
+        break;
+      } else if (next.nodeType === Node.ELEMENT_NODE &&
+                 next.classList.contains('r-blank')) {
+        break;
+      }
+      next = next.nextSibling;
+    }
+  }
+
+  if (start === end && endNode === node) return;
 
   range.setStart(node, start);
-  range.setEnd(node, end);
+  range.setEnd(endNode, endOffset);
   sel.removeAllRanges();
   sel.addRange(range);
 
-  const word = text.slice(start, end).trim();
+  let word = text.slice(start);
+  if (endNode !== node) word += endNode.textContent.slice(0, endOffset);
+  else word = text.slice(start, end);
+  word = word.trim();
   if (word) openPopover(word, range, e.clientX, e.clientY);
 }
 
@@ -345,7 +375,7 @@ function openPopover(selText, range, cx, cy) {
   const cleanText = selText.replace(/^[\s\.,;:!?"'（）]+|[\s\.,;:!?"'（）]+$/g,'');
   if (!cleanText) return;
 
-  pendingSel = { range, text: cleanText };
+  pendingSel = { range, text: selText.trim(), displayText: cleanText };
 
   document.getElementById('pop-preview').textContent = cleanText;
   document.getElementById('replace-input').value = '';
@@ -404,117 +434,10 @@ function closePopover() {
 }
 
 // ════════════════════════════════════════
-// APPLY BLANK — segment surgery
+// HELPERS
 // ════════════════════════════════════════
-function applyBlankFromRange(range, answer, hint) {
-  // We need to find the text node(s) involved and map them back to segments
-  const container = document.getElementById('text-render');
-
-  // Collect all text nodes in container in order, mapped to segment index
-  const textNodes = [];
-  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-  let node;
-  while ((node = walker.nextNode())) {
-    const segIdx = findSegIdxForNode(node);
-    if (segIdx !== null) textNodes.push({ node, segIdx });
-  }
-
-  // Find start and end nodes
-  const startNode = range.startContainer;
-  const endNode   = range.endContainer;
-  const startOff  = range.startOffset;
-  const endOff    = range.endOffset;
-
-  if (startNode.nodeType !== Node.TEXT_NODE) return false;
-
-  // Simple case: same text node
-  if (startNode === endNode) {
-    const segIdx = findSegIdxForNode(startNode);
-    if (segIdx === null) return false;
-    const seg = segments[segIdx];
-    if (seg.type !== 'text') return false;
-
-    // Find offset within segment's full content
-    // The text node may be a partial render (after \n split), so find offset within segment
-    const nodeOffsetInSeg = getNodeOffsetInSegment(startNode, seg, container);
-    if (nodeOffsetInSeg === -1) return false;
-
-    const absStart = nodeOffsetInSeg + startOff;
-    const absEnd   = nodeOffsetInSeg + endOff;
-    const selText  = seg.content.slice(absStart, absEnd);
-    if (!selText.trim()) return false;
-
-    // Split segment into [before, blank, after]
-    const before = seg.content.slice(0, absStart);
-    const after  = seg.content.slice(absEnd);
-    const newSegs = [];
-    if (before) newSegs.push({ type:'text', content: before });
-    newSegs.push({ type:'blank', content: selText, answer: answer || selText, hint, num: 0 });
-    if (after)  newSegs.push({ type:'text', content: after });
-
-    segments.splice(segIdx, 1, ...newSegs);
-    return true;
-  }
-
-  // Multi-node case (drag across rendered text nodes within same segment or across)
-  // Find all nodes between start and end
-  let collecting = false;
-  let startSegIdx = null, endSegIdx = null;
-  let startAbsOff = 0, endAbsOff = 0;
-
-  for (const tn of textNodes) {
-    if (tn.node === startNode) {
-      collecting = true;
-      startSegIdx = tn.segIdx;
-      const off = getNodeOffsetInSegment(tn.node, segments[tn.segIdx], container);
-      startAbsOff = off + startOff;
-    }
-    if (tn.node === endNode) {
-      endSegIdx = tn.segIdx;
-      const off = getNodeOffsetInSegment(tn.node, segments[tn.segIdx], container);
-      endAbsOff = off + endOff;
-      break;
-    }
-  }
-
-  if (startSegIdx === null || endSegIdx === null) return false;
-  if (startSegIdx !== endSegIdx) {
-    // Cross-segment: only allow if all segments between are text segments
-    // Merge content, create one blank
-    let merged = '';
-    for (let i = startSegIdx; i <= endSegIdx; i++) {
-      if (segments[i].type === 'blank') return false; // can't merge across existing blanks
-      if (i === startSegIdx) merged += segments[i].content.slice(startAbsOff);
-      else if (i === endSegIdx) merged += segments[i].content.slice(0, endAbsOff);
-      else merged += segments[i].content;
-    }
-    const beforeContent = segments[startSegIdx].content.slice(0, startAbsOff);
-    const afterContent  = segments[endSegIdx].content.slice(endAbsOff);
-    const newSegs = [];
-    if (beforeContent) newSegs.push({ type:'text', content: beforeContent });
-    newSegs.push({ type:'blank', content: merged, answer: answer || merged, hint, num: 0 });
-    if (afterContent)  newSegs.push({ type:'text', content: afterContent });
-    segments.splice(startSegIdx, endSegIdx - startSegIdx + 1, ...newSegs);
-    return true;
-  }
-
-  // Same segment, different text node (line-break split)
-  const seg = segments[startSegIdx];
-  if (seg.type !== 'text') return false;
-  const before = seg.content.slice(0, startAbsOff);
-  const after  = seg.content.slice(endAbsOff);
-  const selContent = seg.content.slice(startAbsOff, endAbsOff);
-  const newSegs2 = [];
-  if (before) newSegs2.push({ type:'text', content: before });
-  newSegs2.push({ type:'blank', content: selContent, answer: answer || selContent, hint, num: 0 });
-  if (after)  newSegs2.push({ type:'text', content: after });
-  segments.splice(startSegIdx, 1, ...newSegs2);
-  return true;
-}
-
 function findSegIdxForNode(node) {
-  // Walk up to find data-seg-idx
-  let el = node.parentElement;
+  let el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
   while (el) {
     if (el.dataset && el.dataset.segIdx !== undefined) return parseInt(el.dataset.segIdx);
     el = el.parentElement;
@@ -522,50 +445,94 @@ function findSegIdxForNode(node) {
   return null;
 }
 
-function getNodeOffsetInSegment(textNode, seg, container) {
-  // The segment's text may be split across multiple DOM text nodes (by \n splits).
-  // Find this textNode's character offset within the full segment content.
-  const parts = seg.content.split('\n');
-  let offset = 0;
-  // Walk text nodes in container that belong to this segment
-  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-  let node;
-  let partIdx = 0;
-  while ((node = walker.nextNode())) {
-    const sIdx = findSegIdxForNode(node);
-    if (sIdx !== parseInt(Object.keys({[Object.keys(segments.reduce((a,s,i)=>{a[i]=s;return a},{}))[segments.indexOf(seg)]]:''})[0] ?? segments.indexOf(seg))) {
-      // simpler: check if node text matches seg part
-    }
-    if (node === textNode) return offset;
-    // Check if this node belongs to same segment
-    const parentSeg = findSegIdxForNode(node);
-    if (parentSeg === segments.indexOf(seg)) {
-      offset += node.textContent.length;
-      // Account for \n between parts
-      if (partIdx < parts.length - 1) { offset += 1; partIdx++; }
-    }
-  }
-  return -1;
-}
+// ════════════════════════════════════════
+// APPLY BLANK — segment surgery
+// Uses absolute char position from range, not indexOf or DOM offsets
+// ════════════════════════════════════════
+function applyBlankFromRange(range, answer, hint) {
+  if (!answer || !answer.trim()) return false;
+  const container = document.getElementById('text-render');
 
-// Simpler, more reliable offset finder
-function getNodeOffsetInSegment(textNode, seg, container) {
-  const parts = seg.content.split('\n');
-  const segIdx = segments.indexOf(seg);
-  let offset = 0;
+  // Walk ALL text nodes in container in DOM order.
+  // For each text node we know its segment index and its char offset within that segment.
+  // When we hit range.startContainer we know the absolute position.
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-  let n, partI = 0;
+  let n;
+  // Build ordered list: { node, segIdx, offsetInSeg }
+  // segIdx is from data-seg-idx on the nearest ancestor span
+  const nodes = [];
+  // Track offset per segment as we walk
+  const segOffsets = {}; // segIdx -> chars seen so far in this segment
   while ((n = walker.nextNode())) {
-    if (n === textNode) return offset;
-    if (findSegIdxForNode(n) === segIdx) {
-      offset += n.textContent.length;
-      // If there are more parts, account for the \n
-      if (partI < parts.length - 1) { offset += 1; partI++; }
+    const si = findSegIdxForNode(n);
+    if (si === null) continue;
+    if (!(si in segOffsets)) segOffsets[si] = 0;
+    nodes.push({ node: n, segIdx: si, offsetInSeg: segOffsets[si] });
+    segOffsets[si] += n.textContent.length;
+    // Account for \n char: if parent span contains a <br>, that represents a \n in segment content
+    // Check if next sibling span contains a <br> with same seg-idx
+    const parentSpan = n.parentElement;
+    if (parentSpan) {
+      const nextSpan = parentSpan.nextSibling;
+      if (nextSpan && nextSpan.nodeType === Node.ELEMENT_NODE) {
+        const nextSi = nextSpan.dataset && nextSpan.dataset.segIdx !== undefined
+          ? parseInt(nextSpan.dataset.segIdx) : null;
+        if (nextSi === si && nextSpan.querySelector('br')) {
+          segOffsets[si] += 1; // the \n character
+        }
+      }
     }
   }
-  return -1;
+
+  // Find start node entry
+  const startEntry = nodes.find(e => e.node === range.startContainer);
+  const endEntry   = nodes.find(e => e.node === range.endContainer);
+  if (!startEntry) return false;
+
+  const startSegIdx = startEntry.segIdx;
+  const absStart    = startEntry.offsetInSeg + range.startOffset;
+
+  if (!endEntry || endEntry.segIdx === startSegIdx) {
+    // Single segment
+    const seg = segments[startSegIdx];
+    if (seg.type !== 'text') return false;
+    const endOffInSeg = endEntry
+      ? endEntry.offsetInSeg + range.endOffset
+      : absStart + answer.length;
+    const absEnd = Math.min(endOffInSeg, seg.content.length);
+    return spliceBlank(startSegIdx, absStart, absEnd, seg.content.slice(absStart, absEnd), hint);
+  }
+
+  // Cross-segment drag
+  const endSegIdx = endEntry.segIdx;
+  let merged = '';
+  for (let i = startSegIdx; i <= endSegIdx; i++) {
+    if (segments[i].type === 'blank') return false;
+    if (i === startSegIdx) merged += segments[i].content.slice(absStart);
+    else if (i === endSegIdx) merged += segments[i].content.slice(0, endEntry.offsetInSeg + range.endOffset);
+    else merged += segments[i].content;
+  }
+  const beforeContent = segments[startSegIdx].content.slice(0, absStart);
+  const afterContent  = segments[endSegIdx].content.slice(endEntry.offsetInSeg + range.endOffset);
+  const newSegs = [];
+  if (beforeContent) newSegs.push({ type:'text', content: beforeContent });
+  newSegs.push({ type:'blank', content: merged, answer: merged, hint, num: 0 });
+  if (afterContent)  newSegs.push({ type:'text', content: afterContent });
+  segments.splice(startSegIdx, endSegIdx - startSegIdx + 1, ...newSegs);
+  return true;
 }
 
+function spliceBlank(segIdx, start, end, answer, hint) {
+  const seg = segments[segIdx];
+  const before = seg.content.slice(0, start);
+  const after  = seg.content.slice(end);
+  const newSegs = [];
+  if (before) newSegs.push({ type:'text', content: before });
+  newSegs.push({ type:'blank', content: answer, answer, hint, num: 0 });
+  if (after)  newSegs.push({ type:'text', content: after });
+  segments.splice(segIdx, 1, ...newSegs);
+  return true;
+}
 // ════════════════════════════════════════
 // REMOVE BLANK
 // ════════════════════════════════════════
@@ -632,67 +599,100 @@ function updateExportStatus() {
 }
 
 // ════════════════════════════════════════
-// BUILD GAME DATA
+// BUILD GAME DATA — 019c (raw text split, best-guess)
 // ════════════════════════════════════════
 function buildGameData() {
-  const title = document.getElementById('lesson-title').value.trim() || 'Vocabulary Game';
-  const lang  = document.getElementById('base-lang').value;
+  const title   = document.getElementById('lesson-title').value.trim() || 'Vocabulary Game';
+  const lang    = document.getElementById('base-lang').value;
+  const rawText = document.getElementById('raw-text').value.trim();
 
-  // Reconstruct full text with blank markers like "1.   " for sentence splitting
-  // We'll use a different approach: split segments into sentences, keeping blanks in place
   const wordBank = {};
   segments.filter(s=>s.type==='blank').forEach(s => {
     wordBank[s.num] = { hint: s.hint, answer: s.answer };
   });
 
-  // Build sentence-based slides
-  // Flatten segments into a mixed array, then split on sentence boundaries
-  const slides = buildSlides(segments, wordBank);
-
+  const slides = buildSlides(rawText, segments, wordBank);
   return { title, lang, slides, wordBank, segments: segments.map(s=>({...s})) };
 }
 
-function buildSlides(segs, wordBank) {
-  // Group segments into sentences by splitting text segments on sentence endings
-  const slides = [];
-  let currentSlide = [];
-
-  function pushSlide() {
-    if (currentSlide.length > 0) {
-      const hasContent = currentSlide.some(s => (s.type==='text' && s.content.trim()) || s.type==='blank');
-      if (hasContent) slides.push([...currentSlide]);
-      currentSlide = [];
-    }
-  }
-
-  for (const seg of segs) {
-    if (seg.type === 'blank') {
-      currentSlide.push(seg);
-    } else {
-      // Split text on sentence endings + newlines
-      const parts = seg.content.split(/(\n+|(?<=[^0-9][\.\?\!])\s+(?=[A-Z0-9"]))/);
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        if (/^\n+$/.test(part)) {
-          // Newline = slide break
-          pushSlide();
-        } else if (/^\s+$/.test(part) && i > 0) {
-          // Sentence-ending whitespace: finish current sentence, start new
-          if (currentSlide.length > 0 || (parts[i-1] && parts[i-1].trim())) {
-            pushSlide();
+function splitSentences(text) {
+  // Split raw text into sentences robustly:
+  // - Split on [.!?] + whitespace + uppercase/digit
+  // - Skip known abbreviations before a dot
+  // - Also split on newlines
+  const ABBREV = /^(Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|vs|etc|e\.g|i\.e|approx|dept|est|vol|pp|No)$/i;
+  const result = [];
+  const paras = text.split(/\n+/);
+  for (const para of paras) {
+    if (!para.trim()) continue;
+    let buf = '';
+    let i = 0;
+    while (i < para.length) {
+      buf += para[i];
+      // Check for sentence-ending punctuation
+      if (/[.!?]/.test(para[i])) {
+        // Look ahead for whitespace + uppercase/digit
+        const ahead = para.slice(i + 1);
+        const m = ahead.match(/^(\s+)([A-Z0-9"])/);
+        if (m) {
+          // Check abbreviation: last token in buf before this dot
+          const tokens = buf.trimEnd().replace(/[.!?]$/, '').split(/\s+/);
+          const lastToken = tokens[tokens.length - 1];
+          if (!ABBREV.test(lastToken)) {
+            result.push(buf.trim());
+            buf = '';
+            i += m[1].length; // skip whitespace
+            i++; continue;
           }
-        } else if (part) {
-          currentSlide.push({ type:'text', content: part });
         }
       }
+      i++;
+    }
+    if (buf.trim()) result.push(buf.trim());
+  }
+  return result;
+}
+
+function buildSlides(rawText, segs, wordBank) {
+  const sentences = splitSentences(rawText);
+
+  // Map blank positions in raw text
+  let pos = 0;
+  const blankPos = [];
+  for (const seg of segs) {
+    if (seg.type === 'text') {
+      pos += seg.content.length;
+    } else {
+      blankPos.push({ num: seg.num, hint: seg.hint, answer: seg.answer, start: pos, end: pos + seg.answer.length });
+      pos += seg.answer.length;
     }
   }
-  pushSlide();
 
-  return slides.map(segs => {
-    const blanks = segs.filter(s=>s.type==='blank');
-    return { segs, blanks };
-  });
+  // For each sentence find its span in rawText, collect its blanks
+  let cursor = 0;
+  const slides = [];
+  for (const sentence of sentences) {
+    const idx = rawText.indexOf(sentence, cursor);
+    const sentStart = idx >= 0 ? idx : cursor;
+    const sentEnd   = sentStart + sentence.length;
+    cursor = sentEnd;
+
+    // Blanks whose start falls within this sentence
+    const blanks = blankPos.filter(b => b.start >= sentStart && b.start < sentEnd);
+
+    // Build slide segs by interleaving text and blanks
+    const slideSegs = [];
+    let lc = sentStart;
+    for (const b of blanks) {
+      if (b.start > lc) slideSegs.push({ type:'text', content: rawText.slice(lc, b.start) });
+      slideSegs.push({ type:'blank', num: b.num, hint: b.hint, answer: b.answer });
+      lc = b.end;
+    }
+    if (lc < sentEnd) slideSegs.push({ type:'text', content: rawText.slice(lc, sentEnd) });
+
+    if (slideSegs.length > 0) slides.push({ segs: slideSegs, blanks });
+  }
+  return slides;
 }
 
 // ════════════════════════════════════════
@@ -722,7 +722,7 @@ function exportGame() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const safe = (data.title||'vocab_game').replace(/[^a-zA-Z0-9_\-\s]/g,'').trim().replace(/\s+/g,'_').slice(0,40);
-  a.download = `019v2_${safe}.html`;
+  a.download = `019c_${safe}.html`;
   a.click();
 }
 
