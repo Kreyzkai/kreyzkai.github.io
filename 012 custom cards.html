@@ -6,6 +6,7 @@
   <title>Card Creator</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
     
@@ -129,7 +130,7 @@
         <p class="text-sm text-sky-600">Create memory games with custom pairs</p>
        </div>
       </div>
-      <div class="flex gap-2"><button id="tab-create" class="tab-btn active px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> ✏️ Create Cards </button> <button id="tab-preview" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> 👁️ Preview </button>
+      <div class="flex gap-2 flex-wrap"><button id="tab-create" class="tab-btn active px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> ✏️ Create Cards </button> <button id="tab-preview" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> 👁️ Preview </button> <button id="tab-template" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> 📋 Template Cards </button> <button id="tab-fillin" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sky-700 bg-sky-100"> 🃏 Fill-In Cards </button>
       </div>
      </div>
     </div>
@@ -240,6 +241,159 @@
     </div>
    </main>
   </div>
+
+  <!-- TEMPLATE CARDS SECTION -->
+  <div id="template-section" class="hidden max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-sky-900 flex items-center gap-2">&#x2699;&#xFE0F; Template Settings</h2>
+        <a href="index.html" class="px-4 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition">&larr; Back to Main</a>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Category Label</label>
+          <input type="text" id="tpl-category" value="ADJECTIVE" placeholder="e.g. ADJECTIVE" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 font-bold">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Header Color</label>
+          <div class="flex gap-2">
+            <input type="color" id="tpl-color" value="#003399" class="w-14 h-12 rounded-lg cursor-pointer border-2 border-sky-200">
+            <input type="text" id="tpl-color-text" value="#003399" class="flex-1 px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 font-mono">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Card Size</label>
+          <select id="tpl-size" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900">
+            <option value="2.5x3.5">Standard (2.5 x 3.5 in)</option>
+            <option value="3.0x4.0" selected>Monopoly (3.0 x 4.0 in)</option>
+            <option value="3.5x4.5">Large (3.5 x 4.5 in)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Paper Size (for printing)</label>
+          <select id="tpl-paper" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900">
+            <option value="letter">Letter (8.5 x 11 in) — Bond Paper</option>
+            <option value="legal">Legal (8.5 x 14 in)</option>
+            <option value="a4" selected>A4 (8.27 x 11.69 in)</option>
+            <option value="a3">A3 (11.69 x 16.54 in)</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <p id="tpl-cards-per-page" class="text-sm text-sky-600 bg-sky-50 rounded-lg px-4 py-3 w-full">Calculating cards per page...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-sky-900">Task Groups</h2>
+        <button id="tpl-add-group-btn" class="px-4 py-2 rounded-lg font-semibold text-white bg-sky-500 hover:bg-sky-600 transition">+ Add Group</button>
+      </div>
+      <div id="tpl-groups-list" class="space-y-4"></div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <h2 class="text-lg font-bold text-sky-900 mb-4">Card Preview</h2>
+      <div id="tpl-card-preview" class="flex flex-wrap gap-4 justify-center min-h-32 items-start"></div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex flex-col md:flex-row gap-4">
+        <button id="tpl-download-btn" class="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 px-6 rounded-xl font-bold hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">Print Sheet (Download HTML)</button>
+        <button id="tpl-word-export-btn" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg">📄 Export for Word (.docx)</button>
+        <button id="tpl-clear-btn" class="bg-red-100 text-red-700 py-3 px-6 rounded-xl font-bold hover:bg-red-200 transition">Clear All</button>
+      </div>
+      <p class="text-sm text-sky-600 mt-3">Opens a print-ready HTML file. Use Ctrl+P to print. Cards are 6-per-page with cut guides.</p>
+      <p class="text-sm text-blue-600 mt-1">"Export for Word" downloads a ready-to-edit .docx with a real table layout — resize cells, retype text, or recolor shading directly in Word.</p>
+    </section>
+  </div>
+
+  <!-- FILL-IN CARDS SECTION -->
+  <div id="fillin-section" class="hidden max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-sky-900">🃏 Fill-In Card Settings</h2>
+        <a href="index.html" class="px-4 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition">&larr; Back to Main</a>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Deck Title</label>
+          <input type="text" id="fi-title" value="My Card Deck" placeholder="e.g. Conversation Starters"
+            class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 font-bold">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Title Mode</label>
+          <select id="fi-title-mode" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900">
+            <option value="shared">Use same title on every card</option>
+            <option value="custom">Let me set a custom title per card</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Header Color</label>
+          <div class="flex gap-2">
+            <input type="color" id="fi-color" value="#7c3aed" class="w-14 h-12 rounded-lg cursor-pointer border-2 border-sky-200">
+            <input type="text" id="fi-color-text" value="#7c3aed" class="flex-1 px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900 font-mono">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Card Size</label>
+          <select id="fi-size" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900">
+            <option value="2.5x3.5">Standard (2.5 x 3.5 in)</option>
+            <option value="3.0x4.0" selected>Monopoly (3.0 x 4.0 in)</option>
+            <option value="3.5x4.5">Large (3.5 x 4.5 in)</option>
+            <option value="4.0x6.0">Index Card (4.0 x 6.0 in)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-semibold text-sky-800 mb-2">Paper Size (for printing)</label>
+          <select id="fi-paper" class="w-full px-4 py-3 rounded-xl border-2 border-sky-200 focus:border-sky-400 focus:outline-none transition text-sky-900">
+            <option value="letter">Letter (8.5 x 11 in) — Bond Paper</option>
+            <option value="legal">Legal (8.5 x 14 in)</option>
+            <option value="a4" selected>A4 (8.27 x 11.69 in)</option>
+            <option value="a3">A3 (11.69 x 16.54 in)</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <p id="fi-cards-per-page" class="text-sm text-sky-600 bg-sky-50 rounded-lg px-4 py-3 w-full">Calculating cards per page...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-sky-900">Cards</h2>
+        <button id="fi-add-card-btn" class="px-4 py-2 rounded-lg font-semibold text-white bg-sky-500 hover:bg-sky-600 transition">+ Add Card</button>
+      </div>
+      <div id="fi-cards-list" class="space-y-4"></div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <h2 class="text-lg font-bold text-sky-900 mb-4">Card Preview</h2>
+      <div id="fi-card-preview" class="flex flex-wrap gap-4 justify-center min-h-32 items-start"></div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 border border-sky-100">
+      <div class="flex flex-col md:flex-row gap-4">
+        <button id="fi-download-btn" class="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 px-6 rounded-xl font-bold hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">Print Sheet (Download HTML)</button>
+        <button id="fi-word-export-btn" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg">📄 Export for Word (.docx)</button>
+        <button id="fi-clear-btn" class="bg-red-100 text-red-700 py-3 px-6 rounded-xl font-bold hover:bg-red-200 transition">Clear All</button>
+      </div>
+      <p class="text-sm text-sky-600 mt-3">Opens a print-ready HTML sized to your chosen paper, with cut guides. Use Ctrl+P / Cmd+P to print.</p>
+      <p class="text-sm text-blue-600 mt-1">"Export for Word" downloads a ready-to-edit .docx with a real table layout — resize cells, retype text, or recolor shading directly in Word.</p>
+    </section>
+
+  </div>
+
   <script>
     const defaultConfig = {
       app_title: 'Card Creator',
@@ -556,11 +710,23 @@
       currentTab = tab;
       document.getElementById('create-section').classList.toggle('hidden', tab !== 'create');
       document.getElementById('preview-section').classList.toggle('hidden', tab !== 'preview');
+      document.getElementById('template-section').classList.toggle('hidden', tab !== 'template');
+      document.getElementById('fillin-section').classList.toggle('hidden', tab !== 'fillin');
       document.getElementById('tab-create').classList.toggle('active', tab === 'create');
       document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
+      document.getElementById('tab-template').classList.toggle('active', tab === 'template');
+      document.getElementById('tab-fillin').classList.toggle('active', tab === 'fillin');
       
       if (tab === 'preview') {
         updatePreview();
+      }
+      if (tab === 'template') {
+        renderTplPreview();
+        updateTplCardsPerPage();
+      }
+      if (tab === 'fillin') {
+        renderFiPreview();
+        updateFiCardsPerPage();
       }
     }
 
@@ -609,6 +775,8 @@
 
     document.getElementById('tab-create').addEventListener('click', () => switchTab('create'));
     document.getElementById('tab-preview').addEventListener('click', () => switchTab('preview'));
+    document.getElementById('tab-template').addEventListener('click', () => switchTab('template'));
+    document.getElementById('tab-fillin').addEventListener('click', () => switchTab('fillin'));
 
     document.getElementById('card-color').addEventListener('input', (e) => {
       document.getElementById('card-color-text').value = e.target.value;
@@ -647,6 +815,825 @@
         });
       }
     }
+
+    // ============================================================
+    // SHARED WORD (.docx) EXPORT ENGINE
+    // Used by both Template Cards and Fill-In Cards.
+    // Builds a real Word table — one table per page — so the
+    // teacher gets native, editable cells (resize, retype, recolor)
+    // instead of a flattened print-only layout.
+    // ============================================================
+
+    function docxHexNoHash(hex) {
+      return (hex || '#000000').replace('#', '').toUpperCase();
+    }
+
+    // Generic page-of-cards docx builder.
+    // pages: array of pages, each page is an array of card-cell-spec objects (or null for empty slots)
+    // cardSpec: { wIn, hIn }
+    // grid: { cols, rows, sheetWIn, sheetHIn, orientation }
+    // cellRenderer(cardData) -> array of Paragraph for that cell's content
+    async function buildAndDownloadDocx({ filename, deckLabel, grid, cardWIn, cardHIn, cards, cellBuilder }) {
+      // The docx library loads from a CDN <script> tag; on a slow connection it may
+      // still be loading when the button is clicked. Wait briefly before giving up.
+      let lib = window.docx;
+      if (!lib) {
+        for (let i = 0; i < 20 && !lib; i++) {
+          await new Promise(r => setTimeout(r, 250));
+          lib = window.docx;
+        }
+      }
+      if (!lib) {
+        showToast('Word export library failed to load. Check your internet connection and try again.', 'error');
+        return false;
+      }
+      const { Document, Packer, Table, TableRow, TableCell, Paragraph, TextRun, WidthType, AlignmentType,
+              VerticalAlign, convertInchesToTwip, PageOrientation, BorderStyle, HeightRule, TableLayoutType } = lib;
+
+      const perPage = grid.perPage;
+      const cols = grid.cols;
+      const rows = grid.rows;
+      const sheetWIn = grid.sheetW;
+      const sheetHIn = grid.sheetH;
+      const orientation = grid.orientation === 'landscape' ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT;
+      // docx page width/height always describe the UNROTATED sheet; when orientation is
+      // LANDSCAPE, Word expects width = the longer side. We pass the already-oriented
+      // sheet dimensions through, since grid.sheetW/sheetH are already swapped upstream.
+      const pageWTwip = convertInchesToTwip(sheetWIn);
+      const pageHTwip = convertInchesToTwip(sheetHIn);
+      const marginTwip = convertInchesToTwip(0.2);
+      const gapTwip = convertInchesToTwip(0.1);
+      const cardWTwip = convertInchesToTwip(cardWIn);
+      const cardHTwip = convertInchesToTwip(cardHIn);
+
+      const thinBorder = { style: BorderStyle.DASHED, size: 4, color: 'CCCCCC' };
+      const cellBorders = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+
+      function emptyCell() {
+        return new TableCell({
+          width: { size: cardWTwip, type: WidthType.DXA },
+          borders: cellBorders,
+          children: [new Paragraph({ text: '' })]
+        });
+      }
+
+      // Build a spacer cell (used as a thin gap column/row substitute is tricky in Word tables,
+      // so instead we rely on cell margins to create breathing room — simpler & more robust).
+      const sections = [];
+      for (let i = 0; i < cards.length; i += perPage) {
+        const pageCards = cards.slice(i, i + perPage);
+        const tableRows = [];
+        for (let r = 0; r < rows; r++) {
+          const rowCells = [];
+          for (let c = 0; c < cols; c++) {
+            const idx = r * cols + c;
+            const cardData = pageCards[idx];
+            if (cardData) {
+              rowCells.push(new TableCell({
+                width: { size: cardWTwip, type: WidthType.DXA },
+                verticalAlign: VerticalAlign.CENTER,
+                borders: cellBorders,
+                margins: { top: 120, bottom: 120, left: 150, right: 150 },
+                children: cellBuilder(lib, cardData)
+              }));
+            } else {
+              rowCells.push(emptyCell());
+            }
+          }
+          tableRows.push(new TableRow({
+            children: rowCells,
+            height: { value: cardHTwip, rule: HeightRule.EXACT }
+          }));
+        }
+        const table = new Table({
+          rows: tableRows,
+          width: { size: cardWTwip * cols, type: WidthType.DXA },
+          columnWidths: new Array(cols).fill(cardWTwip),
+          layout: TableLayoutType.FIXED
+        });
+        const pageNum = Math.floor(i / perPage) + 1;
+        const totalPages = Math.ceil(cards.length / perPage);
+
+        sections.push({
+          properties: {
+            page: {
+              size: { orientation, width: pageWTwip, height: pageHTwip },
+              margin: { top: marginTwip, bottom: marginTwip, left: marginTwip, right: marginTwip }
+            }
+          },
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 150 },
+              children: [ new TextRun({ text: `${deckLabel} — Page ${pageNum} of ${totalPages}`, size: 16, color: '999999' }) ]
+            }),
+            table
+          ]
+        });
+      }
+
+      const doc = new Document({
+        creator: 'CMarasigan',
+        title: deckLabel,
+        sections
+      });
+
+      try {
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Word document downloaded! Open it in Word to edit, resize, or print.');
+        return true;
+      } catch (err) {
+        console.error('Docx generation failed:', err);
+        showToast('Word export failed: ' + (err && err.message ? err.message : 'unknown error'), 'error');
+        return false;
+      }
+    }
+
+    // ============================================================
+    // TEMPLATE CARDS LOGIC
+    // ============================================================
+    let tplGroups = [];
+
+    function tplGetColor() {
+      return document.getElementById('tpl-color').value || '#003399';
+    }
+
+    function tplGetCategory() {
+      return (document.getElementById('tpl-category').value || 'CATEGORY').toUpperCase();
+    }
+
+    function tplGetSize() {
+      const v = document.getElementById('tpl-size').value;
+      const map = { '2.5x3.5': {w:'2.5in',h:'3.5in'}, '3.0x4.0': {w:'3.0in',h:'4.0in'}, '3.5x4.5': {w:'3.5in',h:'4.5in'} };
+      return map[v] || map['3.0x4.0'];
+    }
+
+    function tplGetPaper() {
+      // Reuses FI_PAPER_SIZES, defined later in the Fill-In Cards block; safe because
+      // this function is only ever invoked after the whole script has loaded.
+      const el = document.getElementById('tpl-paper');
+      return FI_PAPER_SIZES[el ? el.value : 'a4'] || FI_PAPER_SIZES.a4;
+    }
+
+    // Auto-picks portrait vs landscape, whichever fits more cards — same logic as Fill-In Cards.
+    function updateTplCardsPerPage() {
+      const sizeStr = tplGetSize();
+      const card = { w: parseFloat(sizeStr.w), h: parseFloat(sizeStr.h) };
+      const paper = tplGetPaper();
+
+      const portrait = fiCalcGrid(paper.w, paper.h, card.w, card.h);
+      const landscape = fiCalcGrid(paper.h, paper.w, card.w, card.h);
+
+      const best = landscape.perPage >= portrait.perPage
+        ? { ...landscape, orientation: 'landscape', sheetW: paper.h, sheetH: paper.w }
+        : { ...portrait, orientation: 'portrait', sheetW: paper.w, sheetH: paper.h };
+
+      const label = document.getElementById('tpl-cards-per-page');
+      if (label) {
+        const orientLabel = best.orientation === 'landscape' ? 'Landscape' : 'Portrait';
+        label.innerHTML = `<strong>${paper.label} (${orientLabel}):</strong> ${best.cols} × ${best.rows} grid = <strong>${best.perPage} card(s) per sheet</strong>`;
+      }
+      return best;
+    }
+
+    function addTplGroup() {
+      const id = Date.now();
+      tplGroups.push({ id, taskNum: tplGroups.length + 1, taskLabel: '', cards: [] });
+      renderTplGroups();
+    }
+
+    function removeTplGroup(id) {
+      tplGroups = tplGroups.filter(g => g.id !== id);
+      renderTplGroups();
+      renderTplPreview();
+    }
+
+    function renderTplGroups() {
+      const container = document.getElementById('tpl-groups-list');
+      if (tplGroups.length === 0) {
+        container.innerHTML = '<p class="text-sky-500 text-center py-8">No groups yet. Click "+ Add Group" to start.</p>';
+        return;
+      }
+      container.innerHTML = tplGroups.map((g, gi) => `
+        <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4" data-gid="${g.id}">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex items-center gap-2 flex-1">
+              <label class="text-sm font-semibold text-sky-800 whitespace-nowrap">Task #</label>
+              <input type="number" min="1" max="99" value="${g.taskNum}" 
+                class="w-16 px-2 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none text-sky-900 font-bold text-center"
+                onchange="tplUpdateGroup(${g.id}, 'taskNum', parseInt(this.value))">
+              <input type="text" placeholder="Task description (e.g. Identify the adjective)" value="${g.taskLabel}"
+                class="flex-1 px-3 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none text-sky-900"
+                oninput="tplUpdateGroup(${g.id}, 'taskLabel', this.value)">
+            </div>
+            <button onclick="removeTplGroup(${g.id})" class="text-red-500 hover:text-red-700 font-bold text-lg px-2">✕</button>
+          </div>
+          <div class="mb-2">
+            <label class="block text-sm font-semibold text-sky-800 mb-1">Card sentences (one per line):</label>
+            <textarea rows="6" placeholder="The hungry cat waited by the kitchen door.&#10;We walked across the narrow bridge slowly.&#10;Her shiny shoes reflected the bright light."
+              class="w-full px-3 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none text-sky-900 font-medium text-sm resize-y"
+              oninput="tplUpdateGroupCards(${g.id}, this.value)">${g.cards.join('\n')}</textarea>
+          </div>
+          <p class="tpl-count-label text-xs text-sky-500">${g.cards.length} card(s) &mdash; IDs: ${tplGetCategory().substring(0,3)}-${g.taskNum}-01 through ${String(g.cards.length).padStart(2,'0')}</p>
+        </div>
+      `).join('');
+    }
+
+    function tplUpdateGroup(id, field, value) {
+      const g = tplGroups.find(g => g.id === id);
+      if (!g) return;
+      g[field] = value;
+      // Patch only the count label — do NOT call renderTplGroups() which destroys focus
+      const lbl = document.querySelector('[data-gid="' + id + '"] .tpl-count-label');
+      if (lbl) {
+        const cat = tplGetCategory().substring(0,3);
+        lbl.innerHTML = g.cards.length + ' card(s) &mdash; IDs: ' + cat + '-' + g.taskNum + '-01 through ' + String(g.cards.length).padStart(2,'0');
+      }
+      renderTplPreview();
+    }
+
+    function tplUpdateGroupCards(id, text) {
+      const g = tplGroups.find(g => g.id === id);
+      if (!g) return;
+      // Keep raw text so textarea isn't reset; split for card data
+      g.cards = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const lbl = document.querySelector('[data-gid="' + id + '"] .tpl-count-label');
+      if (lbl) {
+        const cat = tplGetCategory().substring(0,3);
+        lbl.innerHTML = g.cards.length + ' card(s) &mdash; IDs: ' + cat + '-' + g.taskNum + '-01 through ' + String(g.cards.length).padStart(2,'0');
+      }
+      renderTplPreview();
+    }
+
+    function buildTplCardHTML(category, headerColor, taskNum, taskLabel, sentence, cardId, size) {
+      // Match the PDF style: colored header band, task instruction, large centered sentence, ID bottom-right
+      const fontSizeBody = size.w === '3.5in' ? '13px' : (size.w === '3.0in' ? '12px' : '11px');
+      const fontSizeHeader = size.w === '3.5in' ? '13px' : '12px';
+      const fontSizeSentence = size.w === '3.5in' ? '16px' : (size.w === '3.0in' ? '15px' : '13px');
+      return `
+        <div style="width:${size.w};height:${size.h};border:1.5px solid #ccc;border-radius:6px;background:white;
+          display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.12);font-family:'Arial',sans-serif;">
+          <!-- Header band -->
+          <div style="background:${headerColor};color:white;padding:7px 10px 5px 10px;flex-shrink:0;">
+            <div style="font-weight:900;font-size:${fontSizeHeader};letter-spacing:1.5px;text-transform:uppercase;">${escHtml(category)}</div>
+            <div style="font-size:${fontSizeBody};font-weight:600;opacity:0.92;margin-top:2px;">${escHtml(taskNum + '. ' + taskLabel)}</div>
+          </div>
+          <!-- Sentence body -->
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:12px 14px;text-align:center;">
+            <span style="font-size:${fontSizeSentence};font-weight:700;color:#1a1a2e;line-height:1.45;">${escHtml(sentence)}</span>
+          </div>
+          <!-- Footer with colored bar + ID -->
+          <div style="background:${headerColor};padding:4px 10px;text-align:right;flex-shrink:0;">
+            <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:0.5px;">${escHtml(cardId)}</span>
+          </div>
+        </div>`;
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function getAllTplCards() {
+      const category = tplGetCategory();
+      const color = tplGetColor();
+      const size = tplGetSize();
+      const catCode = category.replace(/\s+/g,'').substring(0,8).toUpperCase();
+      const cards = [];
+      tplGroups.forEach(g => {
+        g.cards.forEach((sentence, i) => {
+          const cardId = `${catCode}-${String(g.taskNum).padStart(1,'0')}-${String(i+1).padStart(2,'0')}`;
+          cards.push({ category, color, taskNum: g.taskNum, taskLabel: g.taskLabel, sentence, cardId, size });
+        });
+      });
+      return cards;
+    }
+
+    function renderTplPreview() {
+      const preview = document.getElementById('tpl-card-preview');
+      const cards = getAllTplCards();
+      if (cards.length === 0) {
+        preview.innerHTML = '<p class="text-sky-400 text-center w-full py-8">Add groups and sentences above to preview cards here.</p>';
+        return;
+      }
+      // Show first 12 as preview, scaled down
+      const shown = cards.slice(0, 12);
+      preview.innerHTML = shown.map(c => `
+        <div style="transform:scale(0.55);transform-origin:top left;width:calc(${c.size.w} * 0.55);height:calc(${c.size.h} * 0.55);margin-bottom:calc(${c.size.h} * -0.45 + 10px);margin-right:calc(${c.size.w} * -0.45 + 10px);">
+          ${buildTplCardHTML(c.category, c.color, c.taskNum, c.taskLabel, c.sentence, c.cardId, c.size)}
+        </div>
+      `).join('') + (cards.length > 12 ? `<p class="text-sky-400 text-sm w-full text-center mt-2">...and ${cards.length - 12} more cards</p>` : '');
+    }
+
+    function generateTplPrintHTML() {
+      const cards = getAllTplCards();
+      if (cards.length === 0) return null;
+      const size = tplGetSize();
+      const category = tplGetCategory();
+      const paper = tplGetPaper();
+      const grid = updateTplCardsPerPage(); // { cols, rows, perPage, orientation, sheetW, sheetH }
+      const perPage = grid.perPage;
+      const orientLabel = grid.orientation === 'landscape' ? 'Landscape' : 'Portrait';
+
+      let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(category)} Cards - Print</title>`;
+      html += `<style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+        html, body { margin:0; padding:0; background:white; font-family:Arial,sans-serif; -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact; }
+        @page { size: ${grid.sheetW}in ${grid.sheetH}in; margin: ${FI_PRINT_MARGIN}in; }
+        * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+        .page { page-break-after: always; padding: 0; }
+        .page:last-child { page-break-after: auto; }
+        .page-label { font-size:11px; color:#888; text-align:center; margin-bottom:10px; font-weight:600; letter-spacing:1px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(${grid.cols}, ${size.w}); grid-template-rows: repeat(${grid.rows}, ${size.h}); gap: ${FI_CARD_GAP}in; justify-content:center; }
+        .card-wrap { width:${size.w}; height:${size.h}; }
+        .card { width:100%; height:100%; border:1.5px solid #ccc; border-radius:6px; background:white; display:flex; flex-direction:column; box-sizing:border-box; overflow:hidden; }
+        .card-header { padding:7px 10px 5px 10px; flex-shrink:0; }
+        .card-category { font-weight:900; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:white; }
+        .card-task { font-size:11px; font-weight:600; opacity:0.92; margin-top:2px; color:white; }
+        .card-body { flex:1; display:flex; align-items:center; justify-content:center; padding:12px 14px; text-align:center; }
+        .card-sentence { font-size:15px; font-weight:700; color:#1a1a2e; line-height:1.45; }
+        .card-footer { padding:4px 10px; text-align:right; flex-shrink:0; }
+        .card-id { font-size:9px; font-weight:700; color:rgba(255,255,255,0.85); letter-spacing:0.5px; }
+        .cut-guide { border: 1px dashed #ddd; }
+        .watermark { position:fixed; bottom:8px; left:8px; font-size:9px; font-weight:600; color:#888; opacity:0.5; }
+      </style></head><body>`;
+      html += `<div class="watermark">CMarasigan for Kasai-Minami HS</div>`;
+
+      for (let i = 0; i < cards.length; i += perPage) {
+        const pageCards = cards.slice(i, i + perPage);
+        const pageNum = Math.floor(i / perPage) + 1;
+        const totalPages = Math.ceil(cards.length / perPage);
+        html += `<div class="page">`;
+        html += `<div class="page-label">${escHtml(category)} &mdash; ${paper.label} ${orientLabel} &mdash; Page ${pageNum} of ${totalPages} &mdash; ${cards.length} cards total</div>`;
+        html += `<div class="cards-grid">`;
+        for (let j = 0; j < perPage; j++) {
+          if (pageCards[j]) {
+            const c = pageCards[j];
+            html += `<div class="card-wrap"><div class="card cut-guide">
+              <div class="card-header" style="background:${escHtml(c.color)};-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                <div class="card-category">${escHtml(c.category)}</div>
+                <div class="card-task">${escHtml(c.taskNum + '. ' + c.taskLabel)}</div>
+              </div>
+              <div class="card-body"><span class="card-sentence">${escHtml(c.sentence)}</span></div>
+              <div class="card-footer" style="background:${escHtml(c.color)};-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span class="card-id">${escHtml(c.cardId)}</span></div>
+            </div></div>`;
+          } else {
+            html += `<div class="card-wrap"></div>`;
+          }
+        }
+        html += `</div></div>`;
+      }
+      html += `</body></html>`;
+      return html;
+    }
+
+    // Template controls event listeners
+    document.getElementById('tpl-color').addEventListener('input', (e) => {
+      document.getElementById('tpl-color-text').value = e.target.value;
+      renderTplPreview();
+    });
+    document.getElementById('tpl-color-text').addEventListener('input', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+        document.getElementById('tpl-color').value = e.target.value;
+        renderTplPreview();
+      }
+    });
+    document.getElementById('tpl-category').addEventListener('input', () => { renderTplGroups(); renderTplPreview(); });
+    document.getElementById('tpl-size').addEventListener('change', () => { renderTplPreview(); updateTplCardsPerPage(); });
+    document.getElementById('tpl-paper').addEventListener('change', () => updateTplCardsPerPage());
+
+    document.getElementById('tpl-add-group-btn').addEventListener('click', addTplGroup);
+
+    document.getElementById('tpl-clear-btn').addEventListener('click', () => {
+      tplGroups = [];
+      renderTplGroups();
+      renderTplPreview();
+    });
+
+    document.getElementById('tpl-download-btn').addEventListener('click', () => {
+      const html = generateTplPrintHTML();
+      if (!html) { showToast('Add at least one card to print!', 'error'); return; }
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = tplGetCategory().toLowerCase() + '_cards_print.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Print sheet downloaded! Open it and press Ctrl+P.');
+    });
+
+    document.getElementById('tpl-word-export-btn').addEventListener('click', async () => {
+      const cards = getAllTplCards();
+      if (cards.length === 0) { showToast('Add at least one card first!', 'error'); return; }
+      const grid = updateTplCardsPerPage();
+      const size = tplGetSize();
+      const cardWIn = parseFloat(size.w);
+      const cardHIn = parseFloat(size.h);
+
+      const cellBuilder = (lib, c) => {
+        const { Paragraph, TextRun, AlignmentType, ShadingType } = lib;
+        const colorHex = docxHexNoHash(c.color);
+        return [
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            shading: { type: ShadingType.CLEAR, fill: colorHex },
+            spacing: { after: 40 },
+            children: [ new TextRun({ text: c.category, bold: true, color: 'FFFFFF', size: 20, allCaps: true }) ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            shading: { type: ShadingType.CLEAR, fill: colorHex },
+            spacing: { after: 200 },
+            children: [ new TextRun({ text: c.taskNum + '. ' + c.taskLabel, bold: true, color: 'FFFFFF', size: 16 }) ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 100, after: 200 },
+            children: [ new TextRun({ text: c.sentence, bold: true, color: '1A1A2E', size: 24 }) ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            shading: { type: ShadingType.CLEAR, fill: colorHex },
+            children: [ new TextRun({ text: c.cardId, color: 'FFFFFF', size: 14 }) ]
+          })
+        ];
+      };
+
+      const btn = document.getElementById('tpl-word-export-btn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Generating...';
+      btn.disabled = true;
+      await buildAndDownloadDocx({
+        filename: tplGetCategory().toLowerCase() + '_cards.docx',
+        deckLabel: tplGetCategory(),
+        grid, cardWIn, cardHIn, cards, cellBuilder
+      });
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
+
+    // Initialize template section
+    renderTplGroups();
+
+    // ============================================================
+    // END TEMPLATE CARDS LOGIC
+    // ============================================================
+
+    // ============================================================
+    // FILL-IN CARDS LOGIC
+    // ============================================================
+    let fiCards = []; // { id, customTitle, flavorText, instruction }
+
+    // Paper size in inches (portrait orientation, width x height)
+    const FI_PAPER_SIZES = {
+      letter: { w: 8.5, h: 11, label: 'Letter' },
+      legal:  { w: 8.5, h: 14, label: 'Legal' },
+      a4:     { w: 8.27, h: 11.69, label: 'A4' },
+      a3:     { w: 11.69, h: 16.54, label: 'A3' }
+    };
+
+    function fiGetColor() {
+      return document.getElementById('fi-color').value || '#7c3aed';
+    }
+
+    function fiGetTitle() {
+      return document.getElementById('fi-title').value || 'Card Deck';
+    }
+
+    function fiGetTitleMode() {
+      return document.getElementById('fi-title-mode').value;
+    }
+
+    function fiGetSize() {
+      const v = document.getElementById('fi-size').value;
+      const map = {
+        '2.5x3.5': { w: '2.5in', h: '3.5in' },
+        '3.0x4.0': { w: '3.0in', h: '4.0in' },
+        '3.5x4.5': { w: '3.5in', h: '4.5in' },
+        '4.0x6.0': { w: '4.0in', h: '6.0in' }
+      };
+      return map[v] || map['3.0x4.0'];
+    }
+
+    function fiGetPaper() {
+      return FI_PAPER_SIZES[document.getElementById('fi-paper').value] || FI_PAPER_SIZES.a4;
+    }
+
+    function fiCardSizeInches(size) {
+      // Parse "3.0in" -> 3.0
+      return { w: parseFloat(size.w), h: parseFloat(size.h) };
+    }
+
+    // Print-safe minimums: most laser/inkjet printers handle these reliably.
+    const FI_PRINT_MARGIN = 0.2;  // in
+    const FI_CARD_GAP = 0.1;      // in — just enough for scissors/cutter clearance
+
+    // Tests a sheet dimension (w x h) against a card size and returns the best grid.
+    function fiCalcGrid(sheetW, sheetH, cardW, cardH) {
+      const usableW = sheetW - FI_PRINT_MARGIN * 2;
+      const usableH = sheetH - FI_PRINT_MARGIN * 2;
+      const cols = Math.max(0, Math.floor((usableW + FI_CARD_GAP) / (cardW + FI_CARD_GAP)));
+      const rows = Math.max(0, Math.floor((usableH + FI_CARD_GAP) / (cardH + FI_CARD_GAP)));
+      return { cols, rows, perPage: cols * rows };
+    }
+
+    // Automatically picks whichever sheet orientation (portrait vs landscape)
+    // fits MORE cards for the given card size — this is the main cost-saving lever.
+    function updateFiCardsPerPage() {
+      const card = fiCardSizeInches(fiGetSize());
+      const paper = fiGetPaper();
+
+      const portrait = fiCalcGrid(paper.w, paper.h, card.w, card.h);
+      const landscape = fiCalcGrid(paper.h, paper.w, card.w, card.h);
+
+      const best = landscape.perPage >= portrait.perPage
+        ? { ...landscape, orientation: 'landscape', sheetW: paper.h, sheetH: paper.w }
+        : { ...portrait, orientation: 'portrait', sheetW: paper.w, sheetH: paper.h };
+
+      const label = document.getElementById('fi-cards-per-page');
+      if (label) {
+        const orientLabel = best.orientation === 'landscape' ? 'Landscape' : 'Portrait';
+        label.innerHTML = `<strong>${paper.label} (${orientLabel}):</strong> ${best.cols} × ${best.rows} grid = <strong>${best.perPage} card(s) per sheet</strong>`;
+      }
+      return best;
+    }
+
+    function addFiCard() {
+      fiCards.push({ id: Date.now() + Math.random(), customTitle: '', flavorText: '', instruction: '' });
+      renderFiCards();
+      renderFiPreview();
+    }
+
+    function removeFiCard(id) {
+      fiCards = fiCards.filter(c => c.id !== id);
+      renderFiCards();
+      renderFiPreview();
+    }
+
+    function renderFiCards() {
+      const container = document.getElementById('fi-cards-list');
+      const titleMode = fiGetTitleMode();
+      if (fiCards.length === 0) {
+        container.innerHTML = '<p class="text-sky-500 text-center py-8">No cards yet. Click "+ Add Card" to start.</p>';
+        return;
+      }
+      container.innerHTML = fiCards.map((c, i) => `
+        <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4" data-fid="${c.id}">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-bold text-sky-800">Card ${i + 1}</span>
+            <button onclick="removeFiCard(${JSON.stringify(c.id)})" class="text-red-500 hover:text-red-700 font-bold text-lg px-2">✕</button>
+          </div>
+          ${titleMode === 'custom' ? `
+          <div class="mb-3">
+            <label class="block text-sm font-semibold text-sky-800 mb-1">Custom Title (overrides deck title)</label>
+            <input type="text" placeholder="Leave blank to use deck title" value="${escAttr(c.customTitle)}"
+              class="w-full px-3 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none text-sky-900 font-bold"
+              oninput="fiUpdateCard(${JSON.stringify(c.id)}, 'customTitle', this.value)">
+          </div>` : ''}
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-sky-800 mb-1">Instruction</label>
+              <textarea rows="3" placeholder="e.g. Ask your partner this question"
+                class="w-full px-3 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none text-sky-900 text-sm resize-y"
+                oninput="fiUpdateCard(${JSON.stringify(c.id)}, 'instruction', this.value)">${c.instruction}</textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-sky-800 mb-1">Flavor Text / Main Content</label>
+              <textarea rows="3" placeholder="e.g. What's the bravest thing you've ever done?"
+                class="w-full px-3 py-2 rounded-lg border-2 border-sky-200 focus:border-sky-400 focus:outline-none text-sky-900 text-sm resize-y font-medium"
+                oninput="fiUpdateCard(${JSON.stringify(c.id)}, 'flavorText', this.value)">${c.flavorText}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escAttr(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // IMPORTANT: never call renderFiCards() here — that destroys focus mid-keystroke.
+    // Only update the data model and refresh the live preview.
+    function fiUpdateCard(id, field, value) {
+      const c = fiCards.find(c => c.id === id);
+      if (!c) return;
+      c[field] = value;
+      renderFiPreview();
+    }
+
+    function buildFiCardHTML(title, headerColor, instruction, flavorText, size) {
+      const fontTitle = size.w === '4.0in' ? '15px' : (size.w === '3.5in' ? '14px' : '12px');
+      const fontInstr = size.w === '4.0in' ? '12px' : '11px';
+      const fontFlavor = size.w === '4.0in' ? '17px' : (size.w === '3.0in' ? '15px' : '13px');
+      return `
+        <div style="width:${size.w};height:${size.h};border:1.5px solid #ccc;border-radius:6px;background:white;
+          display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.12);font-family:'Arial',sans-serif;">
+          <div style="background:${headerColor};color:white;padding:8px 10px;flex-shrink:0;text-align:center;">
+            <div style="font-weight:900;font-size:${fontTitle};letter-spacing:0.5px;">${escHtml(title)}</div>
+          </div>
+          ${instruction ? `<div style="padding:6px 12px 0 12px;flex-shrink:0;"><span style="font-size:${fontInstr};font-style:italic;color:#666;">${escHtml(instruction)}</span></div>` : ''}
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:10px 14px;text-align:center;">
+            <span style="font-size:${fontFlavor};font-weight:700;color:#1a1a2e;line-height:1.4;">${escHtml(flavorText)}</span>
+          </div>
+          <div style="background:${headerColor};height:8px;flex-shrink:0;"></div>
+        </div>`;
+    }
+
+    function getAllFiCards() {
+      const deckTitle = fiGetTitle();
+      const titleMode = fiGetTitleMode();
+      const color = fiGetColor();
+      const size = fiGetSize();
+      return fiCards.map(c => ({
+        title: (titleMode === 'custom' && c.customTitle.trim()) ? c.customTitle.trim() : deckTitle,
+        color, instruction: c.instruction, flavorText: c.flavorText, size
+      }));
+    }
+
+    function renderFiPreview() {
+      const preview = document.getElementById('fi-card-preview');
+      const cards = getAllFiCards();
+      if (cards.length === 0) {
+        preview.innerHTML = '<p class="text-sky-400 text-center w-full py-8">Add cards above to preview them here.</p>';
+        return;
+      }
+      const shown = cards.slice(0, 12);
+      preview.innerHTML = shown.map(c => `
+        <div style="transform:scale(0.55);transform-origin:top left;width:calc(${c.size.w} * 0.55);height:calc(${c.size.h} * 0.55);margin-bottom:calc(${c.size.h} * -0.45 + 10px);margin-right:calc(${c.size.w} * -0.45 + 10px);">
+          ${buildFiCardHTML(c.title, c.color, c.instruction, c.flavorText, c.size)}
+        </div>
+      `).join('') + (cards.length > 12 ? `<p class="text-sky-400 text-sm w-full text-center mt-2">...and ${cards.length - 12} more cards</p>` : '');
+    }
+
+    function generateFiPrintHTML() {
+      const cards = getAllFiCards();
+      if (cards.length === 0) return null;
+      const size = fiGetSize();
+      const paper = fiGetPaper();
+      const grid = updateFiCardsPerPage(); // { cols, rows, perPage, orientation, sheetW, sheetH }
+      const perPage = grid.perPage;
+      const orientLabel = grid.orientation === 'landscape' ? 'Landscape' : 'Portrait';
+
+      let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(fiGetTitle())} - Print</title>`;
+      html += `<style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+        html, body { margin:0; padding:0; background:white; font-family:Arial,sans-serif; -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact; }
+        * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+        @page { size: ${grid.sheetW}in ${grid.sheetH}in; margin: ${FI_PRINT_MARGIN}in; }
+        .page { page-break-after: always; }
+        .page:last-child { page-break-after: auto; }
+        .page-label { font-size:11px; color:#888; text-align:center; margin-bottom:10px; font-weight:600; letter-spacing:1px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(${grid.cols}, ${size.w}); grid-template-rows: repeat(${grid.rows}, ${size.h}); gap: ${FI_CARD_GAP}in; justify-content:center; }
+        .card-wrap { width:${size.w}; height:${size.h}; }
+        .card { width:100%; height:100%; border:1.5px solid #ccc; border-radius:6px; background:white; display:flex; flex-direction:column; box-sizing:border-box; overflow:hidden; }
+        .card-header { padding:8px 10px; text-align:center; flex-shrink:0; }
+        .card-title { font-weight:900; font-size:13px; letter-spacing:0.5px; color:white; }
+        .card-instruction { padding:6px 12px 0 12px; flex-shrink:0; }
+        .card-instruction span { font-size:11px; font-style:italic; color:#666; }
+        .card-body { flex:1; display:flex; align-items:center; justify-content:center; padding:10px 14px; text-align:center; }
+        .card-flavor { font-size:15px; font-weight:700; color:#1a1a2e; line-height:1.4; }
+        .card-footer-bar { height:8px; flex-shrink:0; }
+        .cut-guide { border: 1px dashed #ddd; }
+        .watermark { position:fixed; bottom:8px; left:8px; font-size:9px; font-weight:600; color:#888; opacity:0.5; }
+      </style></head><body>`;
+      html += `<div class="watermark">CMarasigan for Kasai-Minami HS</div>`;
+
+      for (let i = 0; i < cards.length; i += perPage) {
+        const pageCards = cards.slice(i, i + perPage);
+        const pageNum = Math.floor(i / perPage) + 1;
+        const totalPages = Math.ceil(cards.length / perPage);
+        html += `<div class="page">`;
+        html += `<div class="page-label">${escHtml(fiGetTitle())} &mdash; ${paper.label} ${orientLabel} &mdash; Page ${pageNum} of ${totalPages} &mdash; ${cards.length} cards total</div>`;
+        html += `<div class="cards-grid">`;
+        for (let j = 0; j < perPage; j++) {
+          if (pageCards[j]) {
+            const c = pageCards[j];
+            html += `<div class="card-wrap"><div class="card cut-guide">
+              <div class="card-header" style="background:${escHtml(c.color)};-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                <div class="card-title">${escHtml(c.title)}</div>
+              </div>
+              ${c.instruction ? `<div class="card-instruction"><span>${escHtml(c.instruction)}</span></div>` : ''}
+              <div class="card-body"><span class="card-flavor">${escHtml(c.flavorText)}</span></div>
+              <div class="card-footer-bar" style="background:${escHtml(c.color)};-webkit-print-color-adjust:exact;print-color-adjust:exact;"></div>
+            </div></div>`;
+          } else {
+            html += `<div class="card-wrap"></div>`;
+          }
+        }
+        html += `</div></div>`;
+      }
+      html += `</body></html>`;
+      return html;
+    }
+
+    // Fill-in tab event listeners
+    document.getElementById('fi-color').addEventListener('input', (e) => {
+      document.getElementById('fi-color-text').value = e.target.value;
+      renderFiPreview();
+    });
+    document.getElementById('fi-color-text').addEventListener('input', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+        document.getElementById('fi-color').value = e.target.value;
+        renderFiPreview();
+      }
+    });
+    document.getElementById('fi-title').addEventListener('input', () => renderFiPreview());
+    document.getElementById('fi-title-mode').addEventListener('change', () => { renderFiCards(); renderFiPreview(); });
+    document.getElementById('fi-size').addEventListener('change', () => { renderFiPreview(); updateFiCardsPerPage(); });
+    document.getElementById('fi-paper').addEventListener('change', () => updateFiCardsPerPage());
+
+    document.getElementById('fi-add-card-btn').addEventListener('click', addFiCard);
+
+    document.getElementById('fi-clear-btn').addEventListener('click', () => {
+      fiCards = [];
+      renderFiCards();
+      renderFiPreview();
+    });
+
+    document.getElementById('fi-download-btn').addEventListener('click', () => {
+      const html = generateFiPrintHTML();
+      if (!html) { showToast('Add at least one card to print!', 'error'); return; }
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fiGetTitle().toLowerCase().replace(/\s+/g, '_') + '_cards_print.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Print sheet downloaded! Open it and press Ctrl+P.');
+    });
+
+    document.getElementById('fi-word-export-btn').addEventListener('click', async () => {
+      const cards = getAllFiCards();
+      if (cards.length === 0) { showToast('Add at least one card first!', 'error'); return; }
+      const grid = updateFiCardsPerPage();
+      const size = fiGetSize();
+      const cardWIn = parseFloat(size.w);
+      const cardHIn = parseFloat(size.h);
+
+      const cellBuilder = (lib, c) => {
+        const { Paragraph, TextRun, AlignmentType, ShadingType } = lib;
+        const colorHex = docxHexNoHash(c.color);
+        const paras = [
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            shading: { type: ShadingType.CLEAR, fill: colorHex },
+            spacing: { after: 150 },
+            children: [ new TextRun({ text: c.title, bold: true, color: 'FFFFFF', size: 22 }) ]
+          })
+        ];
+        if (c.instruction) {
+          paras.push(new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 100 },
+            children: [ new TextRun({ text: c.instruction, italics: true, color: '666666', size: 16 }) ]
+          }));
+        }
+        paras.push(new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 100, after: 150 },
+          children: [ new TextRun({ text: c.flavorText, bold: true, color: '1A1A2E', size: 26 }) ]
+        }));
+        paras.push(new Paragraph({
+          alignment: AlignmentType.CENTER,
+          shading: { type: ShadingType.CLEAR, fill: colorHex },
+          children: [ new TextRun({ text: ' ', size: 4 }) ]
+        }));
+        return paras;
+      };
+
+      const btn = document.getElementById('fi-word-export-btn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Generating...';
+      btn.disabled = true;
+      await buildAndDownloadDocx({
+        filename: fiGetTitle().toLowerCase().replace(/\s+/g, '_') + '_cards.docx',
+        deckLabel: fiGetTitle(),
+        grid, cardWIn, cardHIn, cards, cellBuilder
+      });
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
+
+    // Initialize fill-in section
+    renderFiCards();
+    updateFiCardsPerPage();
+
+    // ============================================================
+    // END FILL-IN CARDS LOGIC
+    // ============================================================
 
     initApp();
   </script>
