@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulary PowerPoint Prompt Generator v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --surface3: #2c3040;
+    --border: #363b4a;
+    --border-focus: #6c8aff;
+    --accent: #6c8aff;
+    --accent-hover: #8ba3ff;
+    --accent-glow: rgba(108,138,255,0.15);
+    --accent2: #ff6b9d;
+    --accent3: #50d4a0;
+    --text: #e8eaf0;
+    --text-dim: #8b90a0;
+    --text-muted: #5a5f70;
+    --danger: #ff4d6a;
+    --warning: #ffb84d;
+    --success: #50d4a0;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  .header {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 16px rgba(108,138,255,0.3);
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, var(--text), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #5570e6);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(108,138,255,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(108,138,255,0.4);
+  }
+  .btn-secondary {
+    background: var(--surface3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger {
+    background: rgba(255,77,106,0.1);
+    color: var(--danger);
+    border: 1px solid rgba(255,77,106,0.2);
+  }
+  .btn-danger:hover { background: rgba(255,77,106,0.2); }
+  .btn-success {
+    background: linear-gradient(135deg, var(--success), #3bc48a);
+    color: #0f1117;
+    box-shadow: 0 4px 16px rgba(80,212,160,0.3);
+    font-size: 15px;
+    padding: 14px 32px;
+  }
+  .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(80,212,160,0.4);
+  }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-icon {
+    width: 36px; height: 36px;
+    padding: 0; display: flex;
+    align-items: center; justify-content: center;
+    border-radius: 8px;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: border-color var(--transition);
+  }
+  .section:hover { border-color: rgba(108,138,255,0.3); }
+  .section-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+  .section-header:hover { background: rgba(108,138,255,0.03); }
+  .section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+  .section-number {
+    width: 32px; height: 32px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(108,138,255,0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .section-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .section-badge {
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .section-badge.required { background: rgba(255,107,157,0.1); color: var(--accent2); }
+  .section-toggle {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    transition: transform var(--transition);
+    flex-shrink: 0;
+  }
+  .section.collapsed .section-toggle { transform: rotate(-90deg); }
+  .section-body {
+    padding: 0 24px 24px;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.25s ease;
+  }
+  .section.collapsed .section-body {
+    max-height: 0 !important;
+    padding-top: 0; padding-bottom: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .form-label .hint {
+    font-weight: 400;
+    text-transform: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-left: 4px;
+  }
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all var(--transition);
+    outline: none;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+  .form-textarea { resize: vertical; min-height: 120px; line-height: 1.7; }
+  .form-textarea.tall { min-height: 200px; }
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b90a0' d='M6 8.5L1 3.5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .form-row { grid-template-columns: 1fr; } }
+
+  .checkbox-group, .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+  .checkbox-item, .radio-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition);
+    flex: 1 1 200px;
+    min-width: 180px;
+  }
+  .checkbox-item:hover, .radio-item:hover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .checkbox-item.checked, .radio-item.checked {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .check-box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition);
+    font-size: 12px;
+    color: transparent;
+  }
+  .checkbox-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .radio-dot {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition);
+  }
+  .radio-dot::after {
+    content: '';
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform var(--transition);
+  }
+  .radio-item.checked .radio-dot { border-color: var(--accent); }
+  .radio-item.checked .radio-dot::after { transform: scale(1); }
+  .check-label { font-size: 14px; font-weight: 500; line-height: 1.3; }
+  .check-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .vocab-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .vocab-table { width: 100%; border-collapse: collapse; }
+  .vocab-table thead { background: var(--surface3); }
+  .vocab-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .vocab-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid rgba(54,59,74,0.5);
+    vertical-align: middle;
+  }
+  .vocab-table tr:last-child td { border-bottom: none; }
+  .vocab-table tr:hover td { background: rgba(108,138,255,0.03); }
+  .vocab-table input {
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: all var(--transition);
+  }
+  .vocab-table input:focus {
+    background: var(--surface2);
+    border-color: var(--border-focus);
+  }
+  .vocab-table input::placeholder { color: var(--text-muted); }
+  .vocab-table .row-num {
+    width: 40px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .vocab-table .col-actions { width: 44px; text-align: center; }
+  .vocab-table .del-btn {
+    width: 28px; height: 28px;
+    background: none; border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    font-size: 16px;
+  }
+  .vocab-table .del-btn:hover { background: rgba(255,77,106,0.15); color: var(--danger); }
+  .vocab-controls { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+  .img-table-wrap { margin-top: 8px; }
+  .img-table-wrap .vocab-table input.img-word { color: var(--accent); font-weight: 500; }
+
+  .color-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .color-swatch {
+    width: 60px; height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all var(--transition);
+    position: relative;
+  }
+  .color-swatch:hover { transform: scale(1.1); }
+  .color-swatch.selected {
+    border-color: var(--text);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text);
+  }
+  .color-swatch.selected::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px; font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .prompt-preview {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin-top: 8px;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    max-width: 950px;
+    width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .modal-header h2 { font-size: 18px; font-weight: 700; }
+  .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+  .modal-body pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: none;
+  }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--success);
+    color: var(--success);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .progress-bar {
+    display: flex;
+    gap: 6px;
+    padding: 16px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .progress-step.active { color: var(--accent); }
+  .progress-step.done { color: var(--success); }
+  .progress-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .progress-step.active .progress-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .progress-step.done .progress-dot { background: var(--success); }
+  .progress-sep { width: 20px; height: 1px; background: var(--border); flex-shrink: 0; }
+
+  .generate-bar {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    padding: 32px 0 24px;
+    text-align: center;
+    z-index: 50;
+  }
+  .generate-bar .btn-success {
+    font-size: 16px;
+    padding: 16px 48px;
+    border-radius: 14px;
+  }
+
+  .form-input.error, .form-textarea.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(255,77,106,0.1);
+  }
+  .error-msg {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    transition: all var(--transition);
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+  .drop-zone .drop-icon { font-size: 32px; margin-bottom: 8px; }
+
+  .file-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  .info-tip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--surface3);
+    color: var(--text-muted);
+    font-size: 11px; font-weight: 700;
+    cursor: help;
+    margin-left: 6px;
+    position: relative;
+  }
+  .info-tip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px; font-weight: 400;
+    width: 220px;
+    white-space: normal;
+    line-height: 1.5;
+    z-index: 200;
+    box-shadow: var(--shadow);
+  }
+
+  .count-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+  }
+
+  /* Translation Panel */
+  .translation-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .translation-panel h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .translation-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .translation-row .form-group { margin-bottom: 0; flex: 1; min-width: 200px; }
+  .translation-row .btn { flex-shrink: 0; }
+  .translation-status {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .translation-status.loading::after {
+    content: '';
+    width: 14px; height: 14px;
+    border: 2px solid var(--accent);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Image Prompt Builder */
+  .image-prompt-builder {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .image-prompt-builder h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .prompt-preview-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent3);
+    margin-top: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  .style-preset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all var(--transition);
+  }
+  .style-preset:hover { border-color: var(--accent); }
+  .style-preset.selected { border-color: var(--accent); background: var(--accent-glow); }
+
+  /* Version indicator */
+  .version-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .main { padding: 16px; }
+    .section-header { padding: 16px; }
+    .section-body { padding: 0 16px 16px; }
+    .header-inner { padding: 0 16px; }
+    .header h1 { font-size: 18px; }
+    .checkbox-item, .radio-item { min-width: 140px; }
+    .translation-row { flex-direction: column; }
+    .translation-row .form-group { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-icon">📚</div>
+      <div>
+        <h1>Vocabulary PowerPoint Prompt Generator <span class="version-badge">v2</span></h1>
+        <div class="header-subtitle">Improved prompts for consistent AI results + Auto-translation</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" onclick="saveFormData()" title="Save to browser">💾 Save Draft</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadFormData()" title="Load saved draft">📂 Load Draft</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑️ Clear All</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-step active" data-step="1"><div class="progress-dot"></div> Passage</div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="2"><div class="progress-dot"></div> Vocabulary</div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="3"><div class="progress-dot"></div> Images</div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="4"><div class="progress-dot"></div> Design</div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="5"><div class="progress-dot"></div> Activities</div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="6"><div class="progress-dot"></div> Options</div>
+  </div>
+
+  <!-- SECTION 1: Reading Passage -->
+  <div class="section" data-section="1">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-header-left">
+        <div class="section-number">1</div>
+        <div>
+          <div class="section-title">Reading Passage</div>
+          <div class="section-desc">Paste or type the full English reading passage</div>
+        </div>
+      </div>
+      <span class="section-badge required">Required</span>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="form-group">
+        <label class="form-label">Passage Title</label>
+        <input type="text" class="form-input" id="passageTitle" placeholder='e.g., "Ramadan" or "Turkish Cuisine"'>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Reading Passage Text
+          <span class="hint">– Paste the complete text below</span>
+        </label>
+        <div class="drop-zone" id="passageDropZone" onclick="document.getElementById('passageFileInput').click()">
+          <div class="drop-icon">📄</div>
+          <div>Drag & drop a .txt file here, or click to upload</div>
+          <div style="margin-top:4px;font-size:11px;">Or type/paste directly in the text box below</div>
+        </div>
+        <input type="file" id="passageFileInput" accept=".txt,.text" style="display:none" onchange="handlePassageFile(event)">
+        <div id="passageFileName"></div>
+        <textarea class="form-textarea tall" id="passageText" placeholder="Paste the reading passage here..."></textarea>
+        <div class="error-msg" id="passageError">Please enter the reading passage text.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Notes / Glossary
+          <span class="hint">– Optional: add any notes section from the textbook</span>
+        </label>
+        <textarea class="form-textarea" id="passageNotes" placeholder="e.g., Ramadan：ラマダン，断食月　the Islamic calendar：イスラム暦..." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Vocabulary List -->
+  <div class="section" data-section="2">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-header-left">
+        <div class="section-number">2</div>
+        <div>
+          <div class="section-title">Vocabulary List <span class="count-badge" id="vocabCount">0</span></div>
+          <div class="section-desc">Enter each vocabulary word with its exact translation</div>
+        </div>
+      </div>
+      <span class="section-badge required">Required</span>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <!-- Translation Panel -->
+      <div class="translation-panel">
+        <h4>🌐 Auto-Translate <span style="font-weight:400; font-size:12px; color:var(--text-muted)">– Select languages, then click "Import & Auto-Translate"</span></h4>
+        <div class="translation-row">
+          <div class="form-group">
+            <label class="form-label" style="text-transform:none; font-size:12px;">Translate From</label>
+            <select class="form-select" id="translateFrom">
+              <option value="en">English</option>
+              <option value="ja">Japanese</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="zh">Chinese</option>
+              <option value="ko">Korean</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="text-transform:none; font-size:12px;">Translate To</label>
+            <select class="form-select" id="translateTo">
+              <option value="ja">Japanese</option>
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="zh">Chinese</option>
+              <option value="ko">Korean</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="translateVocabList()">
+            🌐 Translate All Words
+          </button>
+        </div>
+        <div class="translation-status" id="translateStatus">
+          Uses MyMemory API (free, no API key required)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Bulk Import
+          <span class="hint">– Paste tab-separated or comma-separated pairs (one per line)</span>
+          <span class="info-tip" data-tip="Format: English[TAB]Japanese or English, Japanese — one pair per line. Click 'Import' to populate the table.">?</span>
+        </label>
+        <textarea class="form-textarea" id="vocabBulk" placeholder="register&#10;encourage&#10;make a decision&#10;freedom of choice&#10;&#10;(Tip: English-only words work! Click &quot;Import & Auto-Translate&quot; to fill translations automatically)" style="min-height:90px; font-family:'JetBrains Mono',monospace; font-size:13px;"></textarea>
+        <div style="margin-top:8px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="importAndTranslate()">🌐 Import & Auto-Translate</button>
+          <button class="btn btn-secondary btn-sm" onclick="importVocab()">📥 Import to Table</button>
+          <button class="btn btn-secondary btn-sm" onclick="importVocabFromPassageNotes()">📋 Import from Notes</button>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">Vocabulary Table</label>
+        <div class="vocab-table-wrap">
+          <table class="vocab-table" id="vocabTable">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>English Word / Phrase</th>
+                <th>Part of Speech</th>
+                <th>Translation</th>
+                <th style="width:44px"></th>
+              </tr>
+            </thead>
+            <tbody id="vocabBody">
+            </tbody>
+          </table>
+        </div>
+        <div class="vocab-controls">
+          <button class="btn btn-secondary btn-sm" onclick="addVocabRow()">＋ Add Row</button>
+          <button class="btn btn-secondary btn-sm" onclick="addVocabRows(5)">＋ Add 5 Rows</button>
+          <button class="btn btn-danger btn-sm" onclick="clearVocabTable()">Clear Table</button>
+        </div>
+        <div class="error-msg" id="vocabError">Please add at least one vocabulary word with translation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Image Guidelines -->
+  <div class="section" data-section="3">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-header-left">
+        <div class="section-number">3</div>
+        <div>
+          <div class="section-title">Image Generation Settings</div>
+          <div class="section-desc">Configure image prompts for consistent results across all AI models</div>
+        </div>
+      </div>
+      <span class="section-badge">Recommended</span>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+        <strong>Why this matters:</strong> Different AI image generators (DALL-E, Midjourney, Stable Diffusion, etc.) interpret vague prompts differently. 
+        Specific, structured prompts with style parameters produce consistent, usable images.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">
+          Image Style Presets
+          <span class="hint">– Choose the artistic style for all vocabulary images</span>
+        </label>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+          <span class="style-preset selected" data-style="flat-illustration" onclick="selectStylePreset(this)">
+            📊 Flat Illustration
+          </span>
+          <span class="style-preset" data-style="realistic-photo" onclick="selectStylePreset(this)">
+            📷 Realistic Photo
+          </span>
+          <span class="style-preset" data-style="vector-art" onclick="selectStylePreset(this)">
+            ✨ Vector Art
+          </span>
+          <span class="style-preset" data-style="watercolor" onclick="selectStylePreset(this)">
+            🎨 Watercolor
+          </span>
+          <span class="style-preset" data-style="cartoon" onclick="selectStylePreset(this)">
+            🎬 Cartoon/Kawaii
+          </span>
+          <span class="style-preset" data-style="minimalist" onclick="selectStylePreset(this)">
+            ⬜ Minimalist
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Lighting Style</label>
+          <select class="form-select" id="lightingStyle">
+            <option value="natural">Natural Daylight (default)</option>
+            <option value="soft">Soft Studio Lighting</option>
+            <option value="dramatic">Dramatic Shadows</option>
+            <option value="warm">Warm Ambient</option>
+            <option value="cool">Cool Blue Tones</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Composition Type</label>
+          <select class="form-select" id="compositionType">
+            <option value="centered">Centered Subject</option>
+            <option value="wide">Wide/Landscape</option>
+            <option value="portrait">Portrait Orientation</option>
+            <option value="closeup">Close-up Detail</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Image Quality Requirements</label>
+        <div class="checkbox-group">
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="high-res">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">High Resolution (1920x1080+)</div>
+              <div class="check-desc">Ensure images are classroom-ready</div>
+            </div>
+          </div>
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="clean-bg">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">Clean Background</div>
+              <div class="check-desc">No distracting elements</div>
+            </div>
+          </div>
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="educational">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">Educational Context</div>
+              <div class="check-desc">Relates to reading passage content</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Hints Table -->
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">
+          Per-Word Image Descriptions
+          <span class="hint">– Specific context descriptions for key vocabulary</span>
+        </label>
+        <div class="img-table-wrap vocab-table-wrap">
+          <table class="vocab-table" id="imageTable">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th style="width:180px">Vocabulary Word</th>
+                <th>Image Description (specific scene from passage)</th>
+              </tr>
+            </thead>
+            <tbody id="imageBody">
+            </tbody>
+          </table>
+        </div>
+        <div class="vocab-controls">
+          <button class="btn btn-secondary btn-sm" onclick="syncImageTable()">🔄 Sync from Vocabulary</button>
+          <button class="btn btn-secondary btn-sm" onclick="addImageRow()">＋ Add Row</button>
+        </div>
+      </div>
+
+      <!-- Live Prompt Preview -->
+      <div class="image-prompt-builder">
+        <h4>🔍 Live Image Prompt Preview</h4>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+          This is the exact format your generated prompt will use for image generation:
+        </p>
+        <div class="prompt-preview-box" id="imagePromptPreview">
+          [Select vocabulary words to see preview]
+        </div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="updateImagePreview()">
+          🔄 Update Preview
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Design & Theme -->
+  <div class="section" data-section="4">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-header-left">
+        <div class="section-number">4</div>
+        <div>
+          <div class="section-title">Design & Theme</div>
+          <div class="section-desc">Choose color theme and audience settings</div>
+        </div>
+      </div>
+      <span class="section-badge">Optional</span>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Target Audience</label>
+          <select class="form-select" id="audience">
+            <option value="Japanese high school students (CEFR A2–B1)">Japanese High School — A2–B1 (Default)</option>
+            <option value="Japanese junior high school students (CEFR A1–A2)">Japanese Junior High School — A1–A2</option>
+            <option value="Japanese university students (CEFR B1–B2)">Japanese University — B1–B2</option>
+            <option value="Japanese adult learners (CEFR A2–B1)">Japanese Adult Learners — A2–B1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Fill-in-the-Blank Sentences</label>
+          <select class="form-select" id="fillCount">
+            <option value="5">5 sentences</option>
+            <option value="8">8 sentences</option>
+            <option value="10" selected>10 sentences</option>
+            <option value="15">15 sentences (all words)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Color Theme</label>
+        <div class="radio-group">
+          <div class="radio-item checked" onclick="selectRadio(this, 'colorTheme')" data-value="auto">
+            <div class="radio-dot"></div>
+            <div>
+              <div class="check-label">🎨 AI's Choice</div>
+              <div class="check-desc">Let the AI pick a theme matching the topic</div>
+            </div>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this, 'colorTheme')" data-value="warm">
+            <div class="radio-dot"></div>
+            <div>
+              <div class="check-label">🟠 Warm Earth Tones</div>
+              <div class="check-desc">Gold, amber, brown</div>
+            </div>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this, 'colorTheme')" data-value="cool">
+            <div class="radio-dot"></div>
+            <div>
+              <div class="check-label">🔵 Cool Blues</div>
+              <div class="check-desc">Navy, teal, sky blue</div>
+            </div>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this, 'colorTheme')" data-value="green">
+            <div class="radio-dot"></div>
+            <div>
+              <div class="check-label">🟢 Fresh Greens</div>
+              <div class="check-desc">Forest, emerald, lime</div>
+            </div>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this, 'colorTheme')" data-value="custom">
+            <div class="radio-dot"></div>
+            <div>
+              <div class="check-label">✏️ Custom Description</div>
+              <div class="check-desc">Describe your own theme</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" id="customColorGroup" style="display:none;">
+        <label class="form-label">Custom Color Description</label>
+        <input type="text" class="form-input" id="customColor" placeholder='e.g., "Deep teal and gold with Ramadan lantern motifs"'>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Review Activities -->
+  <div class="section" data-section="5">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-header-left">
+        <div class="section-number">5</div>
+        <div>
+          <div class="section-title">Review Activities</div>
+          <div class="section-desc">Select which review slides to include after vocabulary</div>
+        </div>
+      </div>
+      <span class="section-badge">Recommended</span>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="form-group">
+        <label class="form-label">Include These Review Slides</label>
+        <div class="checkbox-group">
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="matching">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">📝 Vocabulary Matching Quiz</div>
+              <div class="check-desc">Match English ↔ Japanese</div>
+            </div>
+          </div>
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="picture">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🖼️ Picture Vocabulary Quiz</div>
+              <div class="check-desc">Identify words from images</div>
+            </div>
+          </div>
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="fillin">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">✏️ Fill-in-the-Blank</div>
+              <div class="check-desc">Complete sentences with vocabulary</div>
+            </div>
+          </div>
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="speaking">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🗣️ Speaking Activity</div>
+              <div class="check-desc">Pair work discussion</div>
+            </div>
+          </div>
+          <div class="checkbox-item checked" onclick="toggleCheck(this)" data-value="answerkey">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🔑 Answer Key</div>
+              <div class="check-desc">Answers for all activities</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="speakingPromptGroup">
+        <label class="form-label">
+          Speaking Activity Prompt
+          <span class="hint">– Customize the pair work discussion prompt</span>
+        </label>
+        <textarea class="form-textarea" id="speakingPrompt" style="min-height:80px;" placeholder='e.g., "Explain Ramadan and its traditions to someone who does not know about it. Use at least five vocabulary words from today&#39;s lesson."'></textarea>
+        <div class="prompt-preview" id="speakingPreview">
+          Preview: Students work in pairs. Prompt will appear here...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Optional Add-ons -->
+  <div class="section" data-section="6">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-header-left">
+        <div class="section-number">6</div>
+        <div>
+          <div class="section-title">Optional Add-ons</div>
+          <div class="section-desc">Extra features to include in the presentation</div>
+        </div>
+      </div>
+      <span class="section-badge">Optional</span>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="form-group">
+        <div class="checkbox-group">
+          <div class="checkbox-item" onclick="toggleCheck(this)" data-value="warmup">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🔥 Warm-up Slide</div>
+              <div class="check-desc">Discussion questions before vocab</div>
+            </div>
+          </div>
+          <div class="checkbox-item" onclick="toggleCheck(this)" data-value="comprehension">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">📖 Reading Comprehension</div>
+              <div class="check-desc">5 questions about the passage</div>
+            </div>
+          </div>
+          <div class="checkbox-item" onclick="toggleCheck(this)" data-value="pronunciation">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🔊 Pronunciation Guide</div>
+              <div class="check-desc">IPA / phonetic spelling on each slide</div>
+            </div>
+          </div>
+          <div class="checkbox-item" onclick="toggleCheck(this)" data-value="wordparts">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🧩 Word Parts / Etymology</div>
+              <div class="check-desc">Root words, prefixes, suffixes</div>
+            </div>
+          </div>
+          <div class="checkbox-item" onclick="toggleCheck(this)" data-value="collocations">
+            <div class="check-box">✓</div>
+            <div>
+              <div class="check-label">🔗 Collocations Slide</div>
+              <div class="check-desc">Common word combinations</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATE BUTTON -->
+  <div class="generate-bar">
+    <button class="btn btn-success" onclick="generatePrompt()">
+      ✨ Generate Improved Prompt
+    </button>
+  </div>
+
+</main>
+
+<div class="modal-overlay" id="outputModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>✨ Generated Prompt</h2>
+      <button class="btn btn-secondary btn-sm btn-icon" onclick="closeModal()" title="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre id="outputText"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+      <button class="btn btn-secondary" onclick="downloadTxt()">📄 Download .txt</button>
+      <button class="btn btn-primary" onclick="downloadDocx()">📘 Download .docx</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// State & Init
+// ══════════════════════════════════════
+let vocabRowId = 0;
+let imageRowId = 0;
+let selectedImageStyle = 'flat-illustration';
+
+const imageStylePresets = {
+  'flat-illustration': {
+    name: 'Flat Illustration',
+    prompt_suffix: ', flat illustration style, clean vector design, modern flat art, vibrant colors, simple shapes, minimalist composition, educational infographic, white background, high contrast, sharp edges, no gradients, corporate design style'
+  },
+  'realistic-photo': {
+    name: 'Realistic Photo',
+    prompt_suffix: ', professional photography, high resolution, natural lighting, clean background, educational context, sharp focus, 8k quality, studio lighting setup, subject isolated'
+  },
+  'vector-art': {
+    name: 'Vector Art',
+    prompt_suffix: ', vector illustration, clean lines, scalable graphics, smooth curves, flat colors, modern corporate art style, geometric shapes, professional design, transparent background, scalable vector'
+  },
+  'watercolor': {
+    name: 'Watercolor',
+    prompt_suffix: ', watercolor painting, soft brush strokes, delicate color palette, artistic illustration, educational artwork, hand-painted texture, paper texture visible, gentle gradients, fine art style'
+  },
+  'cartoon': {
+    name: 'Cartoon/Kawaii',
+    prompt_suffix: ', cartoon illustration, kawaii style, cute character design, friendly colors, playful composition, animated style, clean lines, vibrant saturated colors, Japanese anime influence'
+  },
+  'minimalist': {
+    name: 'Minimalist',
+    prompt_suffix: ', minimalist design, simple illustration, clean white space, limited color palette, modern minimalism, geometric simplicity, negative space, elegant composition, Scandinavian design style'
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  addVocabRows(10);
+  updateProgress();
+  updateImagePreview();
+
+  const sp = document.getElementById('speakingPrompt');
+  sp.addEventListener('input', () => {
+    const preview = document.getElementById('speakingPreview');
+    const val = sp.value.trim();
+    preview.textContent = val ? `Preview: Students work in pairs. "${val}"` : 'Preview: Students work in pairs. Prompt will appear here...';
+  });
+
+  const dropZone = document.getElementById('passageDropZone');
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) readPassageFile(file);
+  });
+
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('input', () => { updateProgress(); updateImagePreview(); });
+    el.addEventListener('change', () => { updateProgress(); updateImagePreview(); });
+  });
+});
+
+function selectStylePreset(el) {
+  document.querySelectorAll('.style-preset').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedImageStyle = el.dataset.style;
+  updateImagePreview();
+}
+
+function toggleSection(header) {
+  const section = header.closest('.section');
+  section.classList.toggle('collapsed');
+}
+
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+  updateProgress();
+  const speakingChecked = document.querySelector('[data-value="speaking"]').classList.contains('checked');
+  document.getElementById('speakingPromptGroup').style.display = speakingChecked ? '' : 'none';
+}
+
+function selectRadio(item, groupName) {
+  item.closest('.radio-group').querySelectorAll('.radio-item').forEach(el => el.classList.remove('checked'));
+  item.classList.add('checked');
+  if (groupName === 'colorTheme') {
+    const isCustom = item.dataset.value === 'custom';
+    document.getElementById('customColorGroup').style.display = isCustom ? '' : 'none';
+  }
+  updateProgress();
+}
+
+// ══════════════════════════════════════
+// Translation Functions
+// ══════════════════════════════════════
+async function translateVocabList() {
+  const vocab = getVocabData().filter(v => v.eng.trim());
+  if (vocab.length === 0) {
+    showToast('⚠️ Add vocabulary words first', true);
+    return;
+  }
+
+  const fromLang = document.getElementById('translateFrom').value;
+  const toLang = document.getElementById('translateTo').value;
+  const statusEl = document.getElementById('translateStatus');
+  
+  statusEl.textContent = 'Translating...';
+  statusEl.classList.add('loading');
+  
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (const row of document.querySelectorAll('#vocabBody tr')) {
+    const engInput = row.querySelector('.vocab-eng');
+    const jpInput = row.querySelector('.vocab-jp');
+    
+    const word = engInput.value.trim();
+    if (!word || jpInput.value.trim()) continue; // Skip if no word or already has translation
+    
+    try {
+      const translation = await translateText(word, fromLang, toLang);
+      if (translation) {
+        jpInput.value = translation;
+        successCount++;
+      } else {
+        errorCount++;
+      }
+    } catch (e) {
+      errorCount++;
+      console.error('Translation error for:', word, e);
+    }
+    
+    // Small delay to avoid rate limiting
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  statusEl.classList.remove('loading');
+  statusEl.textContent = `✓ Translated ${successCount} words${errorCount > 0 ? `, ${errorCount} failed` : ''} (MyMemory API)`;
+  
+  if (successCount > 0) {
+    showToast(`✅ Translated ${successCount} words`);
+  } else if (errorCount > 0) {
+    showToast(`⚠️ ${errorCount} translations failed`, true);
+  }
+  
+  updateVocabCount();
+  updateProgress();
+}
+
+async function translateText(text, fromLang, toLang) {
+  // MyMemory Translation API - free, no API key required
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`;
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('API error');
+    
+    const data = await response.json();
+    if (data.responseStatus === 200 && data.responseData?.translatedText) {
+      return data.responseData.translatedText;
+    }
+    return null;
+  } catch (e) {
+    console.error('Translation API error:', e);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════
+// Vocabulary Table
+// ══════════════════════════════════════
+function addVocabRow(eng = '', pos = '', jp = '') {
+  vocabRowId++;
+  const tbody = document.getElementById('vocabBody');
+  const tr = document.createElement('tr');
+  tr.dataset.id = vocabRowId;
+  tr.innerHTML = `
+    <td class="row-num">${tbody.children.length + 1}</td>
+    <td><input type="text" placeholder="e.g., migrate" value="${escHtml(eng)}" class="vocab-eng" oninput="updateProgress(); updateImagePreview();"></td>
+    <td><input type="text" placeholder="e.g., verb" value="${escHtml(pos)}" class="vocab-pos"></td>
+    <td><input type="text" placeholder="e.g., ～に移住する" value="${escHtml(jp)}" class="vocab-jp" oninput="updateProgress();"></td>
+    <td class="col-actions"><button class="del-btn" onclick="deleteVocabRow(this)" title="Delete">×</button></td>
+  `;
+  tbody.appendChild(tr);
+  return tr;
+}
+
+function addVocabRows(n) {
+  for (let i = 0; i < n; i++) addVocabRow();
+}
+
+function deleteVocabRow(btn) {
+  const tr = btn.closest('tr');
+  tr.remove();
+  renumberVocab();
+  updateVocabCount();
+  updateProgress();
+  updateImagePreview();
+}
+
+function clearVocabTable() {
+  if (!confirm('Clear all vocabulary entries?')) return;
+  document.getElementById('vocabBody').innerHTML = '';
+  vocabRowId = 0;
+  addVocabRows(5);
+  updateVocabCount();
+  updateProgress();
+  updateImagePreview();
+}
+
+function renumberVocab() {
+  document.querySelectorAll('#vocabBody tr').forEach((tr, i) => {
+    tr.querySelector('.row-num').textContent = i + 1;
+  });
+}
+
+function updateVocabCount() {
+  const rows = getVocabData().filter(v => v.eng.trim());
+  document.getElementById('vocabCount').textContent = rows.length;
+}
+
+function getVocabData() {
+  const rows = [];
+  document.querySelectorAll('#vocabBody tr').forEach(tr => {
+    rows.push({
+      eng: tr.querySelector('.vocab-eng').value,
+      pos: tr.querySelector('.vocab-pos').value,
+      jp: tr.querySelector('.vocab-jp').value,
+    });
+  });
+  return rows;
+}
+
+// ══════════════════════════════════════
+// Bulk Import
+// ══════════════════════════════════════
+function importVocab() {
+  const raw = document.getElementById('vocabBulk').value.trim();
+  if (!raw) { showToast('⚠️ Nothing to import', true); return; }
+
+  const lines = raw.split('\n').filter(l => l.trim());
+  let count = 0;
+
+  const existingData = getVocabData();
+  const hasData = existingData.some(v => v.eng.trim() || v.jp.trim());
+
+  if (!hasData) {
+    document.getElementById('vocabBody').innerHTML = '';
+  }
+
+  lines.forEach(line => {
+    let parts;
+    if (line.includes('\t')) {
+      parts = line.split('\t');
+    } else if (line.includes(',')) {
+      const idx = line.indexOf(',');
+      parts = [line.substring(0, idx), line.substring(idx + 1)];
+    } else if (line.includes('：')) {
+      const idx = line.indexOf('：');
+      parts = [line.substring(0, idx), line.substring(idx + 1)];
+    } else {
+      return;
+    }
+
+    const eng = parts[0]?.trim() || '';
+    const jp = parts[parts.length - 1]?.trim() || '';
+    if (eng) {
+      addVocabRow(eng, '', jp);
+      count++;
+    }
+  });
+
+  renumberVocab();
+  updateVocabCount();
+  updateProgress();
+  updateImagePreview();
+  showToast(`✅ Imported ${count} vocabulary items`);
+}
+
+function importVocabFromPassageNotes() {
+  const notes = document.getElementById('passageNotes').value.trim();
+  if (!notes) { showToast('⚠️ No notes found. Paste notes first.', true); return; }
+
+  const entries = notes.split(/[　\s]+/).filter(e => e.includes('：') || e.includes(':'));
+  let count = 0;
+
+  const existingData = getVocabData();
+  const hasData = existingData.some(v => v.eng.trim() || v.jp.trim());
+  if (!hasData) {
+    document.getElementById('vocabBody').innerHTML = '';
+  }
+
+  entries.forEach(entry => {
+    const sep = entry.includes('：') ? '：' : ':';
+    const idx = entry.indexOf(sep);
+    const eng = entry.substring(0, idx).trim();
+    const jp = entry.substring(idx + 1).trim().replace(/[，,]/g, ', ');
+    if (eng && jp) {
+      addVocabRow(eng, '', jp);
+      count++;
+    }
+  });
+
+  renumberVocab();
+  updateVocabCount();
+  updateProgress();
+  updateImagePreview();
+  if (count > 0) showToast(`✅ Imported ${count} items from notes`);
+  else showToast('⚠️ Could not parse notes. Use format: word：translation', true);
+}
+
+// ══════════════════════════════════════
+// Import & Auto-Translate (NEW)
+// ══════════════════════════════════════
+async function importAndTranslate() {
+  // Debug: show alert to confirm function is called
+  alert('🔄 Import & Translate clicked! Processing...');
+  console.log('importAndTranslate called');
+  
+  const raw = document.getElementById('vocabBulk').value.trim();
+  if (!raw) { 
+    showToast('⚠️ Paste English words in the Bulk Import box first', true); 
+    return; 
+  }
+
+  const lines = raw.split('\n').filter(l => l.trim());
+  console.log('Lines found:', lines.length);
+  if (lines.length === 0) {
+    showToast('⚠️ No words found to import', true);
+    return;
+  }
+
+  const fromLang = document.getElementById('translateFrom').value;
+  const toLang = document.getElementById('translateTo').value;
+  console.log('Language pair:', fromLang, '->', toLang);
+  
+  // Clear existing empty rows
+  const existingData = getVocabData();
+  const hasData = existingData.some(v => v.eng.trim() || v.jp.trim());
+  if (!hasData) {
+    document.getElementById('vocabBody').innerHTML = '';
+    vocabRowId = 0;
+  }
+
+  showToast(`🌐 Importing & translating ${lines.length} words...`);
+
+  let count = 0;
+  let failed = 0;
+  const statusEl = document.getElementById('translateStatus');
+  statusEl.textContent = `Translating 0/${lines.length}...`;
+  statusEl.classList.add('loading');
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // Parse the word (remove any existing translation part)
+    let word = line;
+    
+    // Extract just the English word (before comma, tab, or colon)
+    if (line.includes('\t')) {
+      word = line.split('\t')[0].trim();
+    } else if (line.includes('：')) {
+      word = line.split('：')[0].trim();
+    } else if (line.includes(':')) {
+      word = line.split(':')[0].trim();
+    } else if (line.includes(',')) {
+      word = line.split(',')[0].trim();
+    } else {
+      word = line.trim();
+    }
+
+    if (!word) continue;
+    console.log('Processing word:', word);
+
+    // Add row with word - capture the returned row
+    const newRow = addVocabRow(word, '', '');
+    const jpInput = newRow.querySelector('.vocab-jp');
+
+    // Translate
+    try {
+      console.log('Translating:', word);
+      const translation = await translateText(word, fromLang, toLang);
+      console.log('Translation result:', translation);
+      if (translation) {
+        jpInput.value = translation;
+        count++;
+      } else {
+        // Try longer phrases as single unit
+        jpInput.value = word + ' (translation unavailable)';
+        failed++;
+      }
+    } catch (e) {
+      console.error('Translation error for', word, ':', e);
+      jpInput.value = '(error)';
+      failed++;
+    }
+
+    // Update progress
+    statusEl.textContent = `Translating ${i + 1}/${lines.length}... "${word}"`;
+    
+    // Small delay to avoid rate limiting (100ms)
+    if (i < lines.length - 1) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+  }
+
+  renumberVocab();
+  updateVocabCount();
+  updateProgress();
+  updateImagePreview();
+  
+  statusEl.classList.remove('loading');
+  statusEl.textContent = `✅ ${count} translated${failed > 0 ? `, ${failed} failed` : ''} (MyMemory API)`;
+  
+  showToast(`✅ Imported & translated ${count} words!`);
+  
+  // Clear the bulk import box since we're done
+  document.getElementById('vocabBulk').value = '';
+}
+
+// ══════════════════════════════════════
+// Image Table & Preview
+// ══════════════════════════════════════
+function addImageRow(word = '', desc = '') {
+  imageRowId++;
+  const tbody = document.getElementById('imageBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="row-num">${tbody.children.length + 1}</td>
+    <td><input type="text" class="img-word" value="${escHtml(word)}" placeholder="Word"></td>
+    <td><input type="text" value="${escHtml(desc)}" placeholder="e.g., Muslim family gathering around a table for iftar dinner"></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function syncImageTable() {
+  const vocab = getVocabData().filter(v => v.eng.trim());
+  const tbody = document.getElementById('imageBody');
+
+  const existing = {};
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const w = inputs[0].value.trim().toLowerCase();
+    const d = inputs[1].value.trim();
+    if (w && d) existing[w] = d;
+  });
+
+  tbody.innerHTML = '';
+  imageRowId = 0;
+
+  vocab.forEach(v => {
+    const desc = existing[v.eng.trim().toLowerCase()] || '';
+    addImageRow(v.eng.trim(), desc);
+  });
+
+  updateImagePreview();
+  showToast(`🔄 Synced ${vocab.length} words to image table`);
+}
+
+function updateImagePreview() {
+  const preview = document.getElementById('imagePromptPreview');
+  const vocab = getVocabData().filter(v => v.eng.trim());
+  const imageHints = {};
+  
+  document.querySelectorAll('#imageBody tr').forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const w = inputs[0].value.trim();
+    const d = inputs[1].value.trim();
+    if (w && d) imageHints[w.toLowerCase()] = d;
+  });
+
+  const stylePreset = imageStylePresets[selectedImageStyle];
+  const lighting = document.getElementById('lightingStyle').value;
+  const composition = document.getElementById('compositionType').value;
+
+  let html = `<span style="color:var(--accent2)">// Example image prompt format for each vocabulary word:</span>\n\n`;
+
+  vocab.slice(0, 3).forEach((v, i) => {
+    const customDesc = imageHints[v.eng.toLowerCase()] || `[create an image showing the meaning of "${v.eng}" in educational context]`;
+    const lightingText = {
+      'natural': 'natural daylight',
+      'soft': 'soft studio lighting',
+      'dramatic': 'dramatic shadows with rim lighting',
+      'warm': 'warm ambient lighting',
+      'cool': 'cool blue tones with soft light'
+    }[lighting] || 'natural daylight';
+    
+    const compText = {
+      'centered': 'subject centered in frame',
+      'wide': 'wide composition with negative space',
+      'portrait': 'portrait orientation, vertical framing',
+      'closeup': 'close-up detail, macro perspective'
+    }[composition] || 'centered subject';
+
+    html += `<span style="color:var(--warning)">// ${v.eng}</span>\n`;
+    html += `<span style="color:var(--success)">"${customDesc}", ${compText}, ${lightingText}${stylePreset.prompt_suffix}"</span>\n\n`;
+  });
+
+  if (vocab.length > 3) {
+    html += `<span style="color:var(--text-muted)">... and ${vocab.length - 3} more words with same format</span>`;
+  }
+
+  preview.innerHTML = html;
+}
+
+// ══════════════════════════════════════
+// File Handling
+// ══════════════════════════════════════
+function handlePassageFile(event) {
+  const file = event.target.files[0];
+  if (file) readPassageFile(file);
+}
+
+function readPassageFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('passageText').value = e.target.result;
+    document.getElementById('passageFileName').innerHTML =
+      `<div class="file-name">📄 ${escHtml(file.name)}</div>`;
+    updateProgress();
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════
+// Progress Tracking
+// ══════════════════════════════════════
+function updateProgress() {
+  const steps = document.querySelectorAll('.progress-step');
+  const checks = [
+    () => document.getElementById('passageText').value.trim().length > 0,
+    () => getVocabData().filter(v => v.eng.trim() && v.jp.trim()).length >= 1,
+    () => true,
+    () => true,
+    () => document.querySelectorAll('.checkbox-item.checked[data-value]').length > 0,
+    () => true,
+  ];
+
+  steps.forEach((step, i) => {
+    step.classList.remove('active', 'done');
+    if (checks[i] && checks[i]()) {
+      step.classList.add('done');
+    }
+  });
+
+  for (let i = 0; i < checks.length; i++) {
+    if (!checks[i]()) {
+      steps[i].classList.remove('done');
+      steps[i].classList.add('active');
+      break;
+    }
+  }
+}
+
+// ══════════════════════════════════════
+// Generate Prompt (IMPROVED VERSION)
+// ══════════════════════════════════════
+function generatePrompt() {
+  let valid = true;
+  const passageText = document.getElementById('passageText').value.trim();
+  const passageTitle = document.getElementById('passageTitle').value.trim() || 'Untitled Passage';
+  const vocab = getVocabData().filter(v => v.eng.trim());
+
+  if (!passageText) {
+    document.getElementById('passageText').classList.add('error');
+    document.getElementById('passageError').classList.add('show');
+    const sec = document.querySelector('.section[data-section="1"]');
+    if (sec) sec.classList.remove('collapsed');
+    valid = false;
+  } else {
+    document.getElementById('passageText').classList.remove('error');
+    document.getElementById('passageError').classList.remove('show');
+  }
+
+  if (vocab.filter(v => v.jp.trim()).length === 0) {
+    document.getElementById('vocabError').classList.add('show');
+    const sec = document.querySelector('.section[data-section="2"]');
+    if (sec) sec.classList.remove('collapsed');
+    valid = false;
+  } else {
+    document.getElementById('vocabError').classList.remove('show');
+  }
+
+  if (!valid) {
+    showToast('⚠️ Please fill in required fields', true);
+    return;
+  }
+
+  try {
+    const prompt = buildImprovedPrompt(passageTitle, passageText);
+    document.getElementById('outputText').textContent = prompt;
+    document.getElementById('outputModal').classList.add('active');
+  } catch (err) {
+    console.error('Prompt generation error:', err);
+    showToast('❌ Error generating prompt: ' + err.message, true);
+  }
+}
+
+function buildImprovedPrompt(title, passage) {
+  const notes = document.getElementById('passageNotes').value.trim();
+  const audience = document.getElementById('audience').value;
+  const fillCount = document.getElementById('fillCount').value;
+  const vocab = getVocabData().filter(v => v.eng.trim());
+
+  // Color theme
+  let colorTheme = 'leave it to your judgment based on the topic';
+  const selectedColor = document.querySelector('.radio-item.checked[data-value]');
+  if (selectedColor) {
+    const val = selectedColor.dataset.value;
+    const themes = {
+      'warm': 'warm earth tones (gold, amber, brown)',
+      'cool': 'cool blues (navy, teal, sky blue)',
+      'green': 'fresh greens (forest, emerald, lime)',
+      'custom': document.getElementById('customColor').value.trim() || 'custom theme',
+    };
+    if (themes[val]) colorTheme = themes[val];
+  }
+
+  // Review activities
+  const activities = [];
+  document.querySelectorAll('.section[data-section="5"] .checkbox-item').forEach(el => {
+    if (el.classList.contains('checked')) activities.push(el.dataset.value);
+  });
+
+  const speakingPrompt = document.getElementById('speakingPrompt').value.trim();
+
+  // Add-ons
+  const addons = [];
+  document.querySelectorAll('.section[data-section="6"] .checkbox-item').forEach(el => {
+    if (el.classList.contains('checked')) addons.push(el.dataset.value);
+  });
+
+  // Image settings
+  const stylePreset = imageStylePresets[selectedImageStyle];
+  const lighting = document.getElementById('lightingStyle').value;
+  const composition = document.getElementById('compositionType').value;
+  
+  const imgQualitySettings = [];
+  document.querySelectorAll('.section[data-section="3"] .checkbox-item').forEach(el => {
+    if (el.classList.contains('checked')) imgQualitySettings.push(el.dataset.value);
+  });
+
+  // Image hints
+  const imageHints = {};
+  document.querySelectorAll('#imageBody tr').forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const word = inputs[0].value.trim();
+    const desc = inputs[1].value.trim();
+    if (word && desc) imageHints[word.toLowerCase()] = desc;
+  });
+
+  // ══════════════════════════════════════
+  // BUILD THE IMPROVED PROMPT
+  // ══════════════════════════════════════
+  let p = '';
+
+  // HEADER - Clear instructions for consistency
+  p += `═══════════════════════════════════════════════════════════════════════════════\n`;
+  p += `TASK: Create a Vocabulary PowerPoint Presentation\n`;
+  p += `TOPIC: "${title}"\n`;
+  p += `TARGET AUDIENCE: ${audience}\n`;
+  p += `═══════════════════════════════════════════════════════════════════════════════\n\n`;
+
+  // READING PASSAGE CONTEXT
+  p += `## READING PASSAGE (Use this context for all vocabulary examples and images)\n\n`;
+  p += passage + '\n\n';
+
+  if (notes) {
+    p += `## GLOSSARY NOTES\n\n${notes}\n\n`;
+  }
+
+  p += `───────────────────────────────────────────────────────────────────────────────\n\n`;
+
+  // VOCABULARY LIST - EXACT FORMAT
+  p += `## VOCABULARY LIST (Use these EXACT translations - do not substitute)\n\n`;
+  p += `| # | English Word | Part of Speech | Translation |\n`;
+  p += `|---|--------------|----------------|-------------|\n`;
+  vocab.forEach((v, i) => {
+    const jp = v.jp.trim() || '(provide translation)';
+    const pos = v.pos.trim() || '-';
+    p += `| ${i + 1} | ${v.eng.trim()} | ${pos} | ${jp} |\n`;
+  });
+  p += `\n`;
+
+  // EXPLICIT INSTRUCTIONS FOR CONSISTENCY
+  p += `───────────────────────────────────────────────────────────────────────────────\n`;
+  p += `## EXPLICIT INSTRUCTIONS (Follow these rules for consistent results)\n\n`;
+
+  p += `### RULE 1: STRUCTURE\n`;
+  p += `- Create ONE vocabulary word per PowerPoint slide\n`;
+  p += `- Do NOT combine multiple words on one slide\n`;
+  p += `- Do NOT create a summary table slide as the main vocabulary display\n\n`;
+
+  p += `### RULE 2: SLIDE ELEMENTS (Every vocabulary slide MUST have)\n`;
+  p += `1. English word prominently displayed (large font, 48pt+)\n`;
+  p += `2. Part of speech label (noun/verb/adjective/etc.)\n`;
+  p += `3. Contextual image (see image generation rules below)\n`;
+  p += `4. EXACT Japanese translation (from the vocabulary list above)\n`;
+  p += `5. Example sentence using the word in passage context (NOT generic dictionary example)\n`;
+  p += `6. Simple comprehension question related to the passage\n`;
+  p += `7. Teacher note (brief explanation in small text at bottom)\n\n`;
+
+  p += `### RULE 3: ANIMATION SEQUENCE (Use click-triggered animations)\n`;
+  p += `- STEP 1 (Slide appears): English word + Image visible\n`;
+  p += `- STEP 2 (Click): Japanese translation appears\n`;
+  p += `- STEP 3 (Click): Example sentence appears\n`;
+  p += `- STEP 4 (Click): Comprehension question appears\n\n`;
+
+  p += `### RULE 4: DESIGN STANDARDS\n`;
+  p += `- Font: Use readable sans-serif fonts (Calibri, Arial, or similar)\n`;
+  p += `- Text size: Minimum 24pt for body text, 48pt+ for vocabulary words\n`;
+  p += `- Color scheme: ${colorTheme}\n`;
+  p += `- Layout: Clean, modern, ample white space\n`;
+  p += `- Consistency: Use SAME slide template for all vocabulary words\n\n`;
+
+  // IMAGE GENERATION - THE KEY IMPROVEMENT
+  p += `───────────────────────────────────────────────────────────────────────────────\n`;
+  p += `## IMAGE GENERATION RULES (Critical for consistent results)\n\n`;
+
+  p += `### IMAGE STYLE: ${stylePreset.name.toUpperCase()}\n`;
+  p += `Use the following style parameters for EVERY vocabulary image:\n`;
+  p += `${stylePreset.prompt_suffix}\n\n`;
+
+  p += `### LIGHTING: `;
+  const lightingMap = {
+    'natural': 'Natural Daylight - outdoor or window light, realistic shadows',
+    'soft': 'Soft Studio Lighting - diffused light, minimal shadows, even exposure',
+    'dramatic': 'Dramatic Shadows - high contrast, strong directional light, cinematic',
+    'warm': 'Warm Ambient - golden hour lighting, cozy atmosphere, orange tones',
+    'cool': 'Cool Blue Tones - overcast daylight, clean professional look, blue cast'
+  };
+  p += lightingMap[lighting] + '\n\n';
+
+  p += `### COMPOSITION: `;
+  const compMap = {
+    'centered': 'Centered Subject - main object in middle of frame, symmetrical',
+    'wide': 'Wide/Landscape - more background context, subject smaller, environmental',
+    'portrait': 'Portrait Orientation - vertical framing, full body or tall objects',
+    'closeup': 'Close-up Detail - tight framing on important details, macro perspective'
+  };
+  p += compMap[composition] + '\n\n';
+
+  if (imgQualitySettings.includes('high-res')) {
+    p += `### QUALITY REQUIREMENTS\n`;
+    p += `- Resolution: 1920x1080 pixels or higher\n`;
+    p += `- Format: High-quality PNG or JPG\n`;
+    p += `- No pixelation or blur\n\n`;
+  }
+
+  if (imgQualitySettings.includes('clean-bg')) {
+    p += `- Background: Clean, uncluttered, no distracting elements\n`;
+    p += `- Subject isolation: Main object clearly separated from background\n\n`;
+  }
+
+  p += `### IMAGE PROMPTS FORMAT\n`;
+  p += `For each vocabulary word, generate an image using this EXACT format:\n\n`;
+  p += `PROMPT: "[specific scene description], [composition type], [lighting type], [style parameters]"\n\n`;
+  p += `Example for "migrate":\n`;
+  p += `"A family of birds flying south across a sunset sky, wide composition, natural daylight, `;
+  p += `${stylePreset.name.toLowerCase()} style, clean design, educational illustration"\n\n`;
+
+  p += `### SPECIFIC IMAGE GUIDANCE (Use these exact descriptions)\n`;
+  if (Object.keys(imageHints).length > 0) {
+    vocab.forEach(v => {
+      const hint = imageHints[v.eng.toLowerCase()];
+      if (hint) {
+        p += `- ${v.eng}: ${hint}\n`;
+      }
+    });
+    p += `\nIf no specific guidance is given, create an image that:\n`;
+    p += `1. Directly relates to the word's meaning in the reading passage\n`;
+    p += `2. Is appropriate for the target audience (young learners)\n`;
+    p += `3. Has clear, recognizable subject matter\n`;
+  } else {
+    p += `For each vocabulary word, create an image that:\n`;
+    p += `1. Illustrates the word's meaning as used in the passage (not generic dictionary definition)\n`;
+    p += `2. Shows a realistic, recognizable scene\n`;
+    p += `3. Is appropriate for educational use with young learners\n`;
+    p += `4. Uses the specified style: ${stylePreset.name}\n\n`;
+  }
+
+  p += `───────────────────────────────────────────────────────────────────────────────\n\n`;
+
+  // EXAMPLE SENTENCES
+  p += `## EXAMPLE SENTENCE RULES\n\n`;
+  p += `### DO:\n`;
+  p += `✓ Base sentences on information from the reading passage\n`;
+  p += `✓ Use the vocabulary word naturally in context\n`;
+  p += `✓ Keep language at A2-B1 level for high school students\n`;
+  p += `✓ Bold the target vocabulary word in each sentence\n\n`;
+
+  p += `### DON'T:\n`;
+  p += `✗ Use generic dictionary examples unrelated to the passage\n`;
+  p += `✗ Create sentences about unrelated topics\n`;
+  p += `✗ Use overly complex grammar or vocabulary beyond target level\n\n`;
+
+  // Review Activities
+  if (activities.length > 0) {
+    p += `───────────────────────────────────────────────────────────────────────────────\n`;
+    p += `## REVIEW ACTIVITIES (Create these slides AFTER all vocabulary slides)\n\n`;
+
+    if (activities.includes('matching')) {
+      p += `### 1. VOCABULARY MATCHING QUIZ\n`;
+      p += `- Format: Two columns (English | Japanese) in random order\n`;
+      p += `- Students draw lines to match pairs\n`;
+      p += `- Include all vocabulary words from the list\n\n`;
+    }
+
+    if (activities.includes('picture')) {
+      p += `### 2. PICTURE VOCABULARY QUIZ\n`;
+      p += `- Show the images you generated for each vocabulary word\n`;
+      p += `- Students write the English word that matches each image\n`;
+      p += `- Display images WITHOUT the word labels\n\n`;
+    }
+
+    if (activities.includes('fillin')) {
+      p += `### 3. FILL-IN-THE-BLANK SENTENCES\n`;
+      p += `- Create EXACTLY ${fillCount} sentences\n`;
+      p += `- Base each sentence on information from the reading passage\n`;
+      p += `- Leave the target vocabulary word blank\n`;
+      p += `- Include a word bank with all ${fillCount} answers\n\n`;
+    }
+
+    if (activities.includes('speaking')) {
+      p += `### 4. SPEAKING ACTIVITY\n`;
+      p += `- Format: Pair work discussion\n`;
+      if (speakingPrompt) {
+        p += `- Prompt: "${speakingPrompt}"\n`;
+      } else {
+        p += `- Prompt: "Explain the topic of today's reading using at least five vocabulary words from the lesson."\n`;
+      }
+      p += `- Include discussion time suggestions (e.g., 3-4 minutes)\n`;
+      p += `- Provide speaking frames/sentence starters if appropriate\n\n`;
+    }
+
+    if (activities.includes('answerkey')) {
+      p += `### 5. ANSWER KEY SLIDE\n`;
+      p += `- Show correct answers for all review activities\n`;
+      p += `- Use clear formatting (numbered list or table)\n`;
+      p += `- Include for teacher reference only (or reveal after student work time)\n\n`;
+    }
+  }
+
+  // Add-ons
+  if (addons.length > 0) {
+    p += `───────────────────────────────────────────────────────────────────────────────\n`;
+    p += `## ADDITIONAL SLIDES\n\n`;
+
+    if (addons.includes('warmup')) {
+      p += `### WARM-UP SLIDE (Place before vocabulary slides)\n`;
+      p += `- Include 2-3 discussion questions\n`;
+      p += `- Questions should activate prior knowledge about the passage topic\n`;
+      p += `- Use simple language appropriate for target level\n\n`;
+    }
+
+    if (addons.includes('comprehension')) {
+      p += `### READING COMPREHENSION SLIDES (Place after vocabulary, before review)\n`;
+      p += `- Create 5 questions about the full reading passage\n`;
+      p += `- Mix question types: True/False, Multiple Choice, Short Answer\n`;
+      p += `- Include answer key at the end\n\n`;
+    }
+
+    if (addons.includes('pronunciation')) {
+      p += `### PRONUNCIATION GUIDE (Add to each vocabulary slide)\n`;
+      p += `- Include IPA transcription below the vocabulary word\n`;
+      p += `- Or use simplified phonetic spelling (e.g., "mi-GRAY-t")\n`;
+      p += `- Include audio pronunciation cue if possible\n\n`;
+    }
+
+    if (addons.includes('wordparts')) {
+      p += `### WORD PARTS / ETYMOLOGY SLIDE\n`;
+      p += `- For key vocabulary, show: root word, prefix, suffix\n`;
+      p += `- Include simple etymology for Latin/Greek origin words\n`;
+      p += `- Help students connect to known words\n\n`;
+    }
+
+    if (addons.includes('collocations')) {
+      p += `### COLLOCATIONS SLIDE\n`;
+      p += `- Show common word combinations using target vocabulary\n`;
+      p += `- Include collocations from the reading passage\n`;
+      p += `- Format: word + common collocate (e.g., "make a decision")\n\n`;
+    }
+  }
+
+  // Final Output Requirements
+  p += `───────────────────────────────────────────────────────────────────────────────\n`;
+  p += `## OUTPUT REQUIREMENTS\n\n`;
+  p += `1. File format: PowerPoint (.pptx)\n`;
+  p += `2. All animations must be click-triggered (no automatic timing)\n`;
+  p += `3. Animations should reveal information in this order:\n`;
+  p += `   → Step 1: Word + Image\n`;
+  p += `   → Step 2: Translation\n`;
+  p += `   → Step 3: Example Sentence\n`;
+  p += `   → Step 4: Question\n`;
+  p += `4. Consistent formatting throughout (use slide masters)\n`;
+  p += `5. Text must be readable from the back of a classroom\n`;
+  p += `6. Images must be high-quality and classroom-ready\n`;
+  p += `7. Include a title slide with the passage topic\n`;
+  p += `8. Presentation should be ready to use with minimal teacher preparation\n\n`;
+
+  p += `═══════════════════════════════════════════════════════════════════════════════\n`;
+  p += `END OF PROMPT\n`;
+  p += `═══════════════════════════════════════════════════════════════════════════════\n`;
+
+  return p;
+}
+
+// ══════════════════════════════════════
+// Export Functions
+// ══════════════════════════════════════
+function copyToClipboard() {
+  const text = document.getElementById('outputText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ Copied to clipboard!');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✅ Copied to clipboard!');
+  });
+}
+
+function downloadTxt() {
+  const text = document.getElementById('outputText').textContent;
+  const title = document.getElementById('passageTitle').value.trim() || 'Vocabulary_Prompt';
+  const filename = title.replace(/[^a-zA-Z0-9]/g, '_') + '_Prompt.txt';
+  downloadFile(text, filename, 'text/plain');
+  showToast(`✅ Downloaded ${filename}`);
+}
+
+function downloadDocx() {
+  const text = document.getElementById('outputText').textContent;
+  const title = document.getElementById('passageTitle').value.trim() || 'Vocabulary_Prompt';
+  const filename = title.replace(/[^a-zA-Z0-9]/g, '_') + '_Prompt.docx';
+
+  const htmlContent = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:w="urn:schemas-microsoft-com:office:word"
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Calibri', sans-serif; font-size: 11pt; line-height: 1.6; margin: 1in; }
+        h1 { font-size: 18pt; color: #1a3a5c; margin-top: 20pt; margin-bottom: 6pt; }
+        h2 { font-size: 14pt; color: #2a5a8c; margin-top: 16pt; margin-bottom: 4pt; }
+        h3 { font-size: 12pt; color: #3a7abc; margin-top: 12pt; margin-bottom: 4pt; }
+        p { margin: 4pt 0; }
+        table { border-collapse: collapse; width: 100%; margin: 8pt 0; }
+        th, td { border: 1px solid #ccc; padding: 6pt 10pt; text-align: left; }
+        th { background: #f0f4f8; font-weight: bold; }
+        hr { border: none; border-top: 1px solid #ddd; margin: 12pt 0; }
+        ul { margin: 4pt 0 4pt 20pt; }
+        li { margin: 2pt 0; }
+        pre { font-family: Consolas, monospace; font-size: 10pt; white-space: pre-wrap; }
+      </style>
+    </head>
+    <body>${markdownToHtml(text)}</body>
+    </html>
+  `;
+
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename.replace('.docx', '.doc');
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`✅ Downloaded ${filename.replace('.docx', '.doc')}`);
+}
+
+function markdownToHtml(md) {
+  let html = md;
+
+  // Tables
+  html = html.replace(/\|(.+)\|\n\|[-|\s]+\|\n((?:\|.+\|\n?)+)/g, (match, header, rows) => {
+    const ths = header.split('|').filter(s => s.trim()).map(s => `<th>${s.trim()}</th>`).join('');
+    const trs = rows.trim().split('\n').map(row => {
+      const tds = row.split('|').filter(s => s.trim()).map(s => `<td>${s.trim()}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+  });
+
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // HR
+  html = html.replace(/^═══════════════════════════════════════════════════════════════════════════════$/gm, '<hr>');
+  html = html.replace(/^───────────────────────────────────────────────────────────────────────────────$/gm, '<hr>');
+
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // Lists
+  html = html.replace(/^✓ (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/^✗ (.+)$/gm, '<li style="color:red;">$1</li>');
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+  // Code blocks
+  html = html.replace(/```[\s\S]*?```/g, (match) => {
+    return `<pre>${match.replace(/```/g, '')}</pre>`;
+  });
+
+  // Paragraphs
+  html = html.replace(/^(?!<[hultdhr]|<\/li)(.+)$/gm, '<p>$1</p>');
+
+  // Clean up
+  html = html.replace(/\n{3,}/g, '\n\n');
+
+  return html;
+}
+
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], { type: type + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════
+// Save / Load Draft
+// ══════════════════════════════════════
+function saveFormData() {
+  const data = {
+    passageTitle: document.getElementById('passageTitle').value,
+    passageText: document.getElementById('passageText').value,
+    passageNotes: document.getElementById('passageNotes').value,
+    vocab: getVocabData(),
+    audience: document.getElementById('audience').value,
+    fillCount: document.getElementById('fillCount').value,
+    speakingPrompt: document.getElementById('speakingPrompt').value,
+    colorTheme: document.querySelector('.radio-item.checked[data-value]')?.dataset.value || 'auto',
+    customColor: document.getElementById('customColor').value,
+    activities: [...document.querySelectorAll('.section[data-section="5"] .checkbox-item.checked')].map(el => el.dataset.value),
+    addons: [...document.querySelectorAll('.section[data-section="6"] .checkbox-item.checked')].map(el => el.dataset.value),
+    imageHints: [...document.querySelectorAll('#imageBody tr')].map(tr => {
+      const inputs = tr.querySelectorAll('input');
+      return { word: inputs[0].value, desc: inputs[1].value };
+    }),
+    imageStyle: selectedImageStyle,
+    lighting: document.getElementById('lightingStyle').value,
+    composition: document.getElementById('compositionType').value,
+  };
+  localStorage.setItem('vocabPromptDraft_v2', JSON.stringify(data));
+  showToast('💾 Draft saved to browser');
+}
+
+function loadFormData() {
+  const raw = localStorage.getItem('vocabPromptDraft_v2') || localStorage.getItem('vocabPromptDraft');
+  if (!raw) { showToast('⚠️ No saved draft found', true); return; }
+  const data = JSON.parse(raw);
+
+  document.getElementById('passageTitle').value = data.passageTitle || '';
+  document.getElementById('passageText').value = data.passageText || '';
+  document.getElementById('passageNotes').value = data.passageNotes || '';
+  document.getElementById('audience').value = data.audience || 'Japanese high school students (CEFR A2–B1)';
+  document.getElementById('fillCount').value = data.fillCount || '10';
+  document.getElementById('speakingPrompt').value = data.speakingPrompt || '';
+  document.getElementById('customColor').value = data.customColor || '';
+
+  // Vocab
+  document.getElementById('vocabBody').innerHTML = '';
+  (data.vocab || []).forEach(v => addVocabRow(v.eng, v.pos, v.jp));
+  if (!data.vocab || data.vocab.length === 0) addVocabRows(5);
+
+  // Color theme radio
+  document.querySelectorAll('.radio-item').forEach(el => {
+    el.classList.toggle('checked', el.dataset.value === (data.colorTheme || 'auto'));
+  });
+  document.getElementById('customColorGroup').style.display = data.colorTheme === 'custom' ? '' : 'none';
+
+  // Activity checkboxes
+  document.querySelectorAll('.section[data-section="5"] .checkbox-item').forEach(el => {
+    el.classList.toggle('checked', (data.activities || []).includes(el.dataset.value));
+  });
+
+  // Addon checkboxes
+  document.querySelectorAll('.section[data-section="6"] .checkbox-item').forEach(el => {
+    el.classList.toggle('checked', (data.addons || []).includes(el.dataset.value));
+  });
+
+  // Image settings
+  if (data.imageStyle) {
+    selectedImageStyle = data.imageStyle;
+    document.querySelectorAll('.style-preset').forEach(el => {
+      el.classList.toggle('selected', el.dataset.style === data.imageStyle);
+    });
+  }
+  if (data.lighting) document.getElementById('lightingStyle').value = data.lighting;
+  if (data.composition) document.getElementById('compositionType').value = data.composition;
+
+  // Image hints
+  document.getElementById('imageBody').innerHTML = '';
+  (data.imageHints || []).forEach(h => addImageRow(h.word, h.desc));
+
+  renumberVocab();
+  updateVocabCount();
+  updateProgress();
+  updateImagePreview();
+  showToast('📂 Draft loaded');
+}
+
+// ══════════════════════════════════════
+// Utilities
+// ══════════════════════════════════════
+function closeModal() {
+  document.getElementById('outputModal').classList.remove('active');
+}
+
+function clearAll() {
+  if (!confirm('Clear all form data? This cannot be undone.')) return;
+  document.getElementById('passageTitle').value = '';
+  document.getElementById('passageText').value = '';
+  document.getElementById('passageNotes').value = '';
+  document.getElementById('speakingPrompt').value = '';
+  document.getElementById('customColor').value = '';
+  document.getElementById('passageFileName').innerHTML = '';
+  document.getElementById('vocabBody').innerHTML = '';
+  document.getElementById('imageBody').innerHTML = '';
+  document.getElementById('vocabBulk').value = '';
+  document.getElementById('translateStatus').textContent = 'Uses MyMemory API (free, no API key required)';
+  vocabRowId = 0;
+  imageRowId = 0;
+  addVocabRows(10);
+  updateVocabCount();
+
+  // Reset image style
+  selectedImageStyle = 'flat-illustration';
+  document.querySelectorAll('.style-preset').forEach(el => {
+    el.classList.toggle('selected', el.dataset.style === 'flat-illustration');
+  });
+  document.getElementById('lightingStyle').value = 'natural';
+  document.getElementById('compositionType').value = 'centered';
+
+  // Reset radios
+  document.querySelectorAll('.radio-item').forEach(el => {
+    el.classList.toggle('checked', el.dataset.value === 'auto');
+  });
+  document.getElementById('customColorGroup').style.display = 'none';
+
+  // Reset checkboxes
+  document.querySelectorAll('.section[data-section="5"] .checkbox-item').forEach(el => el.classList.add('checked'));
+  document.querySelectorAll('.section[data-section="6"] .checkbox-item').forEach(el => el.classList.remove('checked'));
+
+  updateProgress();
+  updateImagePreview();
+  showToast('🗑️ All data cleared');
+}
+
+function showToast(msg, isWarning = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.borderColor = isWarning ? 'var(--warning)' : 'var(--success)';
+  toast.style.color = isWarning ? 'var(--warning)' : 'var(--success)';
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay')) closeModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1197c3ebd06de1f',t:'MTc4MjQ0ODMxNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
