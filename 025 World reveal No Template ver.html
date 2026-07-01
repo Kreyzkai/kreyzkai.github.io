@@ -1,11 +1,10 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Click-to-Reveal Vocab 019f · Generator</title>
+<title>Click-to-Reveal Vocab 0202 · Generator</title>
 <style>
 :root{
   --navy:#003366;--blue:#0066cc;--gold:#feca57;
@@ -68,6 +67,7 @@ textarea{resize:vertical;line-height:1.7;font-family:inherit;}
 }
 .r-blank:hover{filter:brightness(.93);}
 .r-blank .bnum{font-size:.7rem;opacity:.65;margin-right:1px;}
+.r-blank .empty-hint{display:inline-block;min-width:4.5em;border-bottom:2px solid currentColor;transform:translateY(-2px);}
 .sel-highlight{background:#cce5ff;border-radius:3px;}
 
 /* POPOVER */
@@ -122,7 +122,7 @@ textarea{resize:vertical;line-height:1.7;font-family:inherit;}
 <div class="hdr">
   <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
   <div>
-    <h1>Click-to-Reveal Vocab · Generator 019f</h1>
+    <h1>Click-to-Reveal Vocab · Generator 0202</h1>
     <div class="sub">CMarasigan · Kasai-Minami High School</div>
   </div>
 </div>
@@ -144,7 +144,17 @@ textarea{resize:vertical;line-height:1.7;font-family:inherit;}
           <option value="jp">Japanese → blanks show English hint</option>
         </select>
       </div>
+      <div>
+        <label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px;">Display Mode in Game</label>
+        <select id="display-mode">
+          <option value="all">Show all content on one slide</option>
+          <option value="line">Show by line</option>
+          <option value="paragraph">Show per paragraph</option>
+          <option value="numbered">Show numbered items</option>
+        </select>
+      </div>
     </div>
+    <p class="hint">Display Mode controls how the exported game divides the text into slides.</p>
   </div>
 
   <!-- TEXT INPUT -->
@@ -194,8 +204,8 @@ textarea{resize:vertical;line-height:1.7;font-family:inherit;}
 <div id="popover">
   <h3>Mark as blank</h3>
   <div class="sel-preview" id="pop-preview"></div>
-  <label>Replace with (hint shown to students):</label>
-  <input type="text" id="replace-input" placeholder="e.g. 移民" autocomplete="off">
+  <label>Replace with optional hint shown to students:</label>
+  <input type="text" id="replace-input" placeholder="Optional — leave empty for a blank" autocomplete="off">
   <div class="pop-actions">
     <button class="btn btn-primary btn-sm" onclick="confirmBlank()">✔ Confirm</button>
     <button class="btn btn-sec btn-sm" onclick="cancelBlank()">✕ Cancel</button>
@@ -241,6 +251,7 @@ function loadText() {
 // RENDER SEGMENTS → DOM
 // ════════════════════════════════════════
 function renderText() {
+  healPartialWordBlanks();
   const el = document.getElementById('text-render');
   el.innerHTML = '';
 
@@ -274,7 +285,7 @@ function renderText() {
       const chip = document.createElement('span');
       chip.className = 'r-blank';
       chip.dataset.segIdx = idx;
-      chip.innerHTML = `<span class="bnum">${seg.num}.</span>${escHtml(seg.hint)}`;
+      chip.innerHTML = `<span class="bnum">${seg.num}.</span>${seg.hint ? escHtml(seg.hint) : '<span class="empty-hint"></span>'}`;
       chip.title = `Answer: ${seg.answer}\nClick to remove`;
       chip.onclick = () => removeBlank(idx);
       el.appendChild(chip);
@@ -307,9 +318,8 @@ function handleMouseUp(e) {
   const range = sel.getRangeAt(0);
   if (!container.contains(range.commonAncestorContainer)) { sel.removeAllRanges(); return; }
 
-  // 019f FIX: normalize the browser selection before using it.
-  // If the drag stops inside a word, e.g. "runnin" in "running",
-  // expand to the complete word before showing the popover.
+  // Normalize selection now so a drag ending inside a word does not leave
+  // a trailing character visible, e.g. "runnin" + "g".
   const normRange = normalizeRangeForBlank(range);
   const selText = normRange.toString().trim();
   if (!selText) return;
@@ -379,8 +389,8 @@ function selectWordAtCaret(sel, e) {
 }
 
 function openPopover(selText, range, cx, cy) {
-  // 019f FIX: keep a normalized clone. The visible browser selection can change
-  // when the hint input receives focus, so do not rely on the live selection.
+  // Keep a normalized clone. The live browser selection may change when the
+  // hint input receives focus, but this saved range remains stable.
   const normRange = normalizeRangeForBlank(range);
   const cleanText = normRange.toString().trim();
   if (!cleanText) return;
@@ -415,8 +425,9 @@ document.addEventListener('keydown', e => {
 });
 
 function confirmBlank() {
+  // Hint is optional. Leave it empty to show a true blank line/chip.
   const hint = document.getElementById('replace-input').value.trim();
-  if (!hint || !pendingSel) { cancelBlank(); return; }
+  if (!pendingSel) { cancelBlank(); return; }
 
   const { range, text: answer } = pendingSel;
 
@@ -455,38 +466,35 @@ function findSegIdxForNode(node) {
   return null;
 }
 
-// 019f FIX HELPERS -----------------------------------------------------------
-// A word character is any Unicode letter/number plus underscore.
+// WHOLE-WORD SELECTION HELPERS ---------------------------------------------
+// A blank may be a single word or a phrase. The first/last word of the blank
+// must be complete; otherwise browsers can leave one character behind.
 function isWordChar(ch) {
   return !!ch && /[\p{L}\p{N}_]/u.test(ch);
 }
-
 function isEdgeJunk(ch) {
-  // Spaces, parentheses, commas, periods, etc. should not be part of a blank.
   return !!ch && !isWordChar(ch);
 }
-
 function normalizeOffsetsForBlank(text, start, end) {
   start = Math.max(0, Math.min(start, text.length));
   end   = Math.max(start, Math.min(end, text.length));
 
-  // First trim accidental edge punctuation/space from a selection like " running ".
+  // Trim accidental outside punctuation/space: selecting "( running )" blanks
+  // only "running", leaving the parentheses in the text.
   while (start < end && isEdgeJunk(text[start])) start++;
   while (end > start && isEdgeJunk(text[end - 1])) end--;
 
-  // Then expand if the selection is inside a word: "runnin" -> "running".
+  // Expand partial first/last word: "runnin" -> "running"; "water pollu" ->
+  // "water pollution". Internal spaces/punctuation are preserved for phrases.
   while (start > 0 && isWordChar(text[start - 1])) start--;
   while (end < text.length && isWordChar(text[end])) end++;
 
-  // Final trim, for safety.
   while (start < end && isEdgeJunk(text[start])) start++;
   while (end > start && isEdgeJunk(text[end - 1])) end--;
   return { start, end };
 }
-
 function normalizeRangeForBlank(originalRange) {
   const r = originalRange.cloneRange();
-
   if (r.startContainer === r.endContainer && r.startContainer.nodeType === Node.TEXT_NODE) {
     const node = r.startContainer;
     const o = normalizeOffsetsForBlank(node.textContent, r.startOffset, r.endOffset);
@@ -494,8 +502,6 @@ function normalizeRangeForBlank(originalRange) {
     r.setEnd(node, o.end);
     return r;
   }
-
-  // Multi-node fallback: expand text-node endpoints if they are inside words.
   if (r.startContainer.nodeType === Node.TEXT_NODE) {
     const t = r.startContainer.textContent;
     let start = r.startOffset;
@@ -510,6 +516,44 @@ function normalizeRangeForBlank(originalRange) {
   }
   return r;
 }
+
+function absorbAdjacentWordChars(blankSegIdx) {
+  // Final safety net after a blank segment is inserted. If the blank touches
+  // a text segment with word characters, pull those characters into the answer.
+  const seg = segments[blankSegIdx];
+  if (!seg || seg.type !== 'blank') return;
+  if (typeof seg.answer !== 'string') seg.answer = String(seg.answer || '');
+
+  // Pull missing letters from the previous text segment.
+  if (blankSegIdx > 0 && segments[blankSegIdx - 1].type === 'text') {
+    let prev = segments[blankSegIdx - 1].content;
+    while (prev && seg.answer && isWordChar(prev[prev.length - 1]) && isWordChar(seg.answer[0])) {
+      seg.answer = prev[prev.length - 1] + seg.answer;
+      seg.content = seg.answer;
+      prev = prev.slice(0, -1);
+    }
+    segments[blankSegIdx - 1].content = prev;
+    if (!prev) { segments.splice(blankSegIdx - 1, 1); blankSegIdx--; }
+  }
+
+  // Pull missing letters from the next text segment, e.g. blank "runnin" + text "g )".
+  if (blankSegIdx < segments.length - 1 && segments[blankSegIdx + 1].type === 'text') {
+    let next = segments[blankSegIdx + 1].content;
+    while (next && seg.answer && isWordChar(next[0]) && isWordChar(seg.answer[seg.answer.length - 1])) {
+      seg.answer += next[0];
+      seg.content = seg.answer;
+      next = next.slice(1);
+    }
+    segments[blankSegIdx + 1].content = next;
+    if (!next) segments.splice(blankSegIdx + 1, 1);
+  }
+}
+
+function healPartialWordBlanks() {
+  for (let i = 0; i < segments.length; i++) {
+    if (segments[i] && segments[i].type === 'blank') absorbAdjacentWordChars(i);
+  }
+}
 // ---------------------------------------------------------------------------
 
 // ════════════════════════════════════════
@@ -517,87 +561,104 @@ function normalizeRangeForBlank(originalRange) {
 // Uses absolute char position from range, not indexOf or DOM offsets
 // ════════════════════════════════════════
 function applyBlankFromRange(range, answer, hint) {
-  // Normalize again at the last possible moment. This is the safety net.
   range = normalizeRangeForBlank(range);
   answer = range.toString();
   if (!answer || !answer.trim()) return false;
   const container = document.getElementById('text-render');
 
-  // Walk ALL text nodes in container in DOM order.
-  // For each text node we know its segment index and its char offset within that segment.
-  // When we hit range.startContainer we know the absolute position.
+  const pointToSegOffset = (node, offset) => {
+    // If the range endpoint is an element, move to a neighboring text node.
+    if (node.nodeType !== Node.TEXT_NODE) {
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+      let t, last = null;
+      while ((t = walker.nextNode())) {
+        if (node.contains && node.contains(t)) { return { node: t, offset: 0 }; }
+        last = t;
+      }
+      if (last) return { node: last, offset: last.textContent.length };
+      return null;
+    }
+    return { node, offset };
+  };
+
+  const startPoint = pointToSegOffset(range.startContainer, range.startOffset);
+  const endPoint   = pointToSegOffset(range.endContainer, range.endOffset);
+  if (!startPoint || !endPoint) return false;
+
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-  let n;
-  // Build ordered list: { node, segIdx, offsetInSeg }
-  // segIdx is from data-seg-idx on the nearest ancestor span
   const nodes = [];
-  // Track offset per segment as we walk
-  const segOffsets = {}; // segIdx -> chars seen so far in this segment
+  const segOffsets = {};
+  let n;
   while ((n = walker.nextNode())) {
     const si = findSegIdxForNode(n);
     if (si === null) continue;
     if (!(si in segOffsets)) segOffsets[si] = 0;
     nodes.push({ node: n, segIdx: si, offsetInSeg: segOffsets[si] });
     segOffsets[si] += n.textContent.length;
-    // Account for \n char: if parent span contains a <br>, that represents a \n in segment content
-    // Check if next sibling span contains a <br> with same seg-idx
+
+    // A <br> span represents one newline in the segment content.
     const parentSpan = n.parentElement;
     if (parentSpan) {
       const nextSpan = parentSpan.nextSibling;
       if (nextSpan && nextSpan.nodeType === Node.ELEMENT_NODE) {
         const nextSi = nextSpan.dataset && nextSpan.dataset.segIdx !== undefined
           ? parseInt(nextSpan.dataset.segIdx) : null;
-        if (nextSi === si && nextSpan.querySelector('br')) {
-          segOffsets[si] += 1; // the \n character
-        }
+        if (nextSi === si && nextSpan.querySelector('br')) segOffsets[si] += 1;
       }
     }
   }
 
-  // Find start node entry
-  const startEntry = nodes.find(e => e.node === range.startContainer);
-  const endEntry   = nodes.find(e => e.node === range.endContainer);
-  if (!startEntry) return false;
+  const startEntry = nodes.find(e => e.node === startPoint.node);
+  const endEntry   = nodes.find(e => e.node === endPoint.node);
+  if (!startEntry || !endEntry) return false;
 
   const startSegIdx = startEntry.segIdx;
-  const absStart    = startEntry.offsetInSeg + range.startOffset;
+  const endSegIdx   = endEntry.segIdx;
+  let absStart = startEntry.offsetInSeg + startPoint.offset;
+  let absEnd   = endEntry.offsetInSeg + endPoint.offset;
 
-  if (!endEntry || endEntry.segIdx === startSegIdx) {
-    // Single segment
+  // Single text segment: the normal case. Normalize against the original
+  // segment string and then splice exactly those complete word/phrase offsets.
+  if (startSegIdx === endSegIdx) {
     const seg = segments[startSegIdx];
-    if (seg.type !== 'text') return false;
-    const endOffInSeg = endEntry
-      ? endEntry.offsetInSeg + range.endOffset
-      : absStart + answer.length;
-    const absEnd = Math.min(endOffInSeg, seg.content.length);
-    return spliceBlank(startSegIdx, absStart, absEnd, seg.content.slice(absStart, absEnd), hint);
+    if (!seg || seg.type !== 'text') return false;
+    const o = normalizeOffsetsForBlank(seg.content, absStart, absEnd);
+    return spliceBlank(startSegIdx, o.start, o.end, seg.content.slice(o.start, o.end), hint);
   }
 
-  // Cross-segment drag
-  const endSegIdx = endEntry.segIdx;
+  // Cross-segment drag. Do not allow crossing existing blanks, but normalize the
+  // first and last text segments so phrase edges are complete words.
+  for (let i = startSegIdx; i <= endSegIdx; i++) {
+    if (!segments[i] || segments[i].type === 'blank') return false;
+  }
+  const startNorm = normalizeOffsetsForBlank(segments[startSegIdx].content, absStart, segments[startSegIdx].content.length);
+  const endNorm   = normalizeOffsetsForBlank(segments[endSegIdx].content, 0, absEnd);
+  absStart = startNorm.start;
+  absEnd = endNorm.end;
+
   let merged = '';
   for (let i = startSegIdx; i <= endSegIdx; i++) {
-    if (segments[i].type === 'blank') return false;
     if (i === startSegIdx) merged += segments[i].content.slice(absStart);
-    else if (i === endSegIdx) merged += segments[i].content.slice(0, endEntry.offsetInSeg + range.endOffset);
+    else if (i === endSegIdx) merged += segments[i].content.slice(0, absEnd);
     else merged += segments[i].content;
   }
+  merged = merged.replace(/^[\s\.,;:!?"'()（）]+|[\s\.,;:!?"'()（）]+$/g, '');
+  if (!merged.trim()) return false;
+
   const beforeContent = segments[startSegIdx].content.slice(0, absStart);
-  const afterContent  = segments[endSegIdx].content.slice(endEntry.offsetInSeg + range.endOffset);
+  const afterContent  = segments[endSegIdx].content.slice(absEnd);
   const newSegs = [];
   if (beforeContent) newSegs.push({ type:'text', content: beforeContent });
+  const blankIndexInNew = newSegs.length;
   newSegs.push({ type:'blank', content: merged, answer: merged, hint, num: 0 });
   if (afterContent)  newSegs.push({ type:'text', content: afterContent });
   segments.splice(startSegIdx, endSegIdx - startSegIdx + 1, ...newSegs);
+  absorbAdjacentWordChars(startSegIdx + blankIndexInNew);
   return true;
 }
 
 function spliceBlank(segIdx, start, end, answer, hint) {
   const seg = segments[segIdx];
-
-  // 019f CRITICAL FIX: do not trust the raw range offsets. Browser drag
-  // selection often stops one character short. Normalize against the real
-  // segment text before cutting it. This prevents "runnin" + leftover "g".
   const o = normalizeOffsetsForBlank(seg.content, start, end);
   start = o.start;
   end = o.end;
@@ -608,9 +669,11 @@ function spliceBlank(segIdx, start, end, answer, hint) {
   const after  = seg.content.slice(end);
   const newSegs = [];
   if (before) newSegs.push({ type:'text', content: before });
+  const blankIndexInNew = newSegs.length;
   newSegs.push({ type:'blank', content: answer, answer, hint, num: 0 });
   if (after)  newSegs.push({ type:'text', content: after });
   segments.splice(segIdx, 1, ...newSegs);
+  absorbAdjacentWordChars(segIdx + blankIndexInNew);
   return true;
 }
 // ════════════════════════════════════════
@@ -674,16 +737,19 @@ function updateWordBank() {
 function updateExportStatus() {
   const blanks = segments.filter(s=>s.type==='blank');
   const title = document.getElementById('lesson-title').value.trim() || '(no title)';
+  const mode = displayModeLabel(document.getElementById('display-mode').value || 'all');
   document.getElementById('export-status').textContent =
-    `✔ "${title}" · ${blanks.length} blank${blanks.length!==1?'s':''} · Ready to preview or export.`;
+    `✔ "${title}" · ${blanks.length} blank${blanks.length!==1?'s':''} · ${mode} · Ready to preview or export.`;
 }
 
 // ════════════════════════════════════════
-// BUILD GAME DATA — 019f (raw text split, best-guess)
+// BUILD GAME DATA — 0202 (raw text split, best-guess)
 // ════════════════════════════════════════
 function buildGameData() {
+  healPartialWordBlanks();
   const title   = document.getElementById('lesson-title').value.trim() || 'Vocabulary Game';
   const lang    = document.getElementById('base-lang').value;
+  const displayMode = document.getElementById('display-mode').value || 'all';
   const rawText = document.getElementById('raw-text').value.trim();
 
   const wordBank = {};
@@ -691,8 +757,8 @@ function buildGameData() {
     wordBank[s.num] = { hint: s.hint, answer: s.answer };
   });
 
-  const slides = buildSlides(rawText, segments, wordBank);
-  return { title, lang, slides, wordBank, segments: segments.map(s=>({...s})) };
+  const slides = buildSlides(rawText, segments, wordBank, displayMode);
+  return { title, lang, displayMode, slides, wordBank, segments: segments.map(s=>({...s})) };
 }
 
 function splitSentences(text) {
@@ -733,10 +799,84 @@ function splitSentences(text) {
   return result;
 }
 
-function buildSlides(rawText, segs, wordBank) {
-  const sentences = splitSentences(rawText);
+function splitDisplayUnits(text, mode) {
+  const units = [];
 
-  // Map blank positions in raw text
+  if (mode === 'all') {
+    const trimmedStart = text.search(/\S/);
+    if (trimmedStart < 0) return [];
+    const trimmedEnd = text.search(/\s*$/);
+    return [{ content: text.trim(), start: trimmedStart, end: trimmedStart + text.trim().length }];
+  }
+
+  if (mode === 'line') {
+    const re = /[^\n]+/g;
+    let m;
+    while ((m = re.exec(text))) {
+      if (!m[0].trim()) continue;
+      const leading = m[0].search(/\S/);
+      const content = m[0].trim();
+      const start = m.index + (leading < 0 ? 0 : leading);
+      units.push({ content, start, end: start + content.length });
+    }
+    return units;
+  }
+
+  if (mode === 'paragraph') {
+    // Paragraphs are blocks separated by one or more blank lines.
+    const re = /\S[\s\S]*?(?=\n\s*\n|$)/g;
+    let m;
+    while ((m = re.exec(text))) {
+      const raw = m[0];
+      const leading = raw.search(/\S/);
+      const content = raw.trim();
+      if (!content) continue;
+      const start = m.index + (leading < 0 ? 0 : leading);
+      units.push({ content, start, end: start + content.length });
+    }
+    return units;
+  }
+
+  if (mode === 'numbered') {
+    // Items beginning at a line start, such as "1. ...", "2) ...", etc.
+    const itemStart = /^\s*\d+\s*[\.)]\s*/gm;
+    const starts = [];
+    let m;
+    while ((m = itemStart.exec(text))) {
+      starts.push(m.index);
+    }
+    if (starts.length) {
+      starts.forEach((st, i) => {
+        const en = i < starts.length - 1 ? starts[i + 1] : text.length;
+        const raw = text.slice(st, en);
+        const leading = raw.search(/\S/);
+        const content = raw.trim();
+        if (!content) return;
+        const start = st + (leading < 0 ? 0 : leading);
+        units.push({ content, start, end: start + content.length });
+      });
+      return units;
+    }
+    // Fallback if no numbered markers exist.
+    return splitDisplayUnits(text, 'paragraph');
+  }
+
+  return splitDisplayUnits(text, 'all');
+}
+
+function displayModeLabel(mode) {
+  return ({
+    all: 'All content',
+    line: 'By line',
+    paragraph: 'Per paragraph',
+    numbered: 'Numbered items'
+  })[mode] || 'All content';
+}
+
+function buildSlides(rawText, segs, wordBank, displayMode = 'all') {
+  const units = splitDisplayUnits(rawText, displayMode);
+
+  // Map blank positions in raw text.
   let pos = 0;
   const blankPos = [];
   for (const seg of segs) {
@@ -748,29 +888,28 @@ function buildSlides(rawText, segs, wordBank) {
     }
   }
 
-  // For each sentence find its span in rawText, collect its blanks
-  let cursor = 0;
   const slides = [];
-  for (const sentence of sentences) {
-    const idx = rawText.indexOf(sentence, cursor);
-    const sentStart = idx >= 0 ? idx : cursor;
-    const sentEnd   = sentStart + sentence.length;
-    cursor = sentEnd;
+  for (const unit of units) {
+    const unitStart = unit.start;
+    const unitEnd = unit.end;
 
-    // Blanks whose start falls within this sentence
-    const blanks = blankPos.filter(b => b.start >= sentStart && b.start < sentEnd);
+    // Include blanks that intersect this unit. This handles blanks near edges.
+    const blanks = blankPos.filter(b => b.start < unitEnd && b.end > unitStart);
 
-    // Build slide segs by interleaving text and blanks
     const slideSegs = [];
-    let lc = sentStart;
+    let lc = unitStart;
     for (const b of blanks) {
-      if (b.start > lc) slideSegs.push({ type:'text', content: rawText.slice(lc, b.start) });
+      const bStart = Math.max(b.start, unitStart);
+      const bEnd = Math.min(b.end, unitEnd);
+      if (bStart > lc) slideSegs.push({ type:'text', content: rawText.slice(lc, bStart) });
       slideSegs.push({ type:'blank', num: b.num, hint: b.hint, answer: b.answer });
-      lc = b.end;
+      lc = bEnd;
     }
-    if (lc < sentEnd) slideSegs.push({ type:'text', content: rawText.slice(lc, sentEnd) });
+    if (lc < unitEnd) slideSegs.push({ type:'text', content: rawText.slice(lc, unitEnd) });
 
-    if (slideSegs.length > 0) slides.push({ segs: slideSegs, blanks });
+    if (slideSegs.length > 0) {
+      slides.push({ segs: slideSegs, blanks, mode: displayMode, label: displayModeLabel(displayMode) });
+    }
   }
   return slides;
 }
@@ -802,7 +941,7 @@ function exportGame() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const safe = (data.title||'vocab_game').replace(/[^a-zA-Z0-9_\-\s]/g,'').trim().replace(/\s+/g,'_').slice(0,40);
-  a.download = `019f_${safe}.html`;
+  a.download = `0202_${safe}.html`;
   a.click();
 }
 
@@ -821,6 +960,7 @@ function rehydrateGame(event) {
       const data = JSON.parse(m[1]);
       document.getElementById('lesson-title').value = data.title || '';
       if (data.lang) document.getElementById('base-lang').value = data.lang;
+      if (data.displayMode) document.getElementById('display-mode').value = data.displayMode;
       segments = data.segments.map(s=>({...s}));
       blankCounter = segments.filter(s=>s.type==='blank').length;
       // Reconstruct raw text for textarea
@@ -880,6 +1020,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .blank-chip:hover{filter:brightness(.93);transform:scale(1.04);}
 .blank-chip.revealed{background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-text);}
 .blank-chip .num{font-size:.7em;opacity:.7;margin-right:1px;}
+.blank-chip .empty-hint{display:inline-block;min-width:4.5em;border-bottom:2px solid currentColor;transform:translateY(-2px);}
 .ctrl-bar{background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .ctrl-bar .sp{flex:1;}
 .nav-bar{background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;}
@@ -993,7 +1134,7 @@ function buildWB(){
 function renderSlide(){
   const slide=SLIDES[cur];
   const total=SLIDES.length;
-  document.getElementById('slide-ctr').textContent='Slide '+(cur+1)+' / '+total;
+  document.getElementById('slide-ctr').textContent=(slide.label?slide.label+' · ':'')+'Slide '+(cur+1)+' / '+total;
 
   // Replace __BLANK_N__ markers with chips
   let html=slide.html;
@@ -1001,7 +1142,7 @@ function renderSlide(){
     const rev=!!(slide.revealed&&slide.revealed[b.num]);
     const chip='<span class="blank-chip'+(rev?' revealed':'')+'" onclick="toggle('+b.num+')">'
       +'<span class=num>'+b.num+'.</span>'
-      +(rev?esc(b.answer):esc(b.hint))
+      +(rev ? esc(b.answer) : (b.hint ? esc(b.hint) : '<span class=empty-hint></span>'))
       +'</span>';
     html=html.replace('__BLANK_'+b.num+'__',chip);
   });
