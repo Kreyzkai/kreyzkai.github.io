@@ -1,9 +1,11 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Click-to-Reveal Vocab 019c · Generator</title>
+<title>Click-to-Reveal Vocab 019f · Generator</title>
 <style>
 :root{
   --navy:#003366;--blue:#0066cc;--gold:#feca57;
@@ -120,7 +122,7 @@ textarea{resize:vertical;line-height:1.7;font-family:inherit;}
 <div class="hdr">
   <img src="https://i.imgur.com/sPiDZQ9.png" alt="">
   <div>
-    <h1>Click-to-Reveal Vocab · Generator 019c</h1>
+    <h1>Click-to-Reveal Vocab · Generator 019f</h1>
     <div class="sub">CMarasigan · Kasai-Minami High School</div>
   </div>
 </div>
@@ -301,14 +303,20 @@ function handleMouseUp(e) {
     return;
   }
 
-  const selText = sel.toString().trim();
-  if (!selText) return;
-
   // Check selection is within container
   const range = sel.getRangeAt(0);
   if (!container.contains(range.commonAncestorContainer)) { sel.removeAllRanges(); return; }
 
-  openPopover(selText, range, e.clientX, e.clientY);
+  // 019f FIX: normalize the browser selection before using it.
+  // If the drag stops inside a word, e.g. "runnin" in "running",
+  // expand to the complete word before showing the popover.
+  const normRange = normalizeRangeForBlank(range);
+  const selText = normRange.toString().trim();
+  if (!selText) return;
+  sel.removeAllRanges();
+  sel.addRange(normRange);
+
+  openPopover(selText, normRange, e.clientX, e.clientY);
 }
 
 function selectWordAtCaret(sel, e) {
@@ -334,8 +342,8 @@ function selectWordAtCaret(sel, e) {
   const text = node.textContent;
   let start = range.startOffset;
   let end = range.startOffset;
-  while (start > 0 && /[\w\u3000-\u9fff]/.test(text[start-1])) start--;
-  while (end < text.length && /[\w\u3000-\u9fff]/.test(text[end])) end++;
+  while (start > 0 && isWordChar(text[start-1])) start--;
+  while (end < text.length && isWordChar(text[end])) end++;
 
   // Word may continue into next text node if this node was split
   let endNode = node;
@@ -345,7 +353,7 @@ function selectWordAtCaret(sel, e) {
     while (next) {
       if (next.nodeType === Node.TEXT_NODE) {
         let extra = 0;
-        while (extra < next.textContent.length && /[\w\u3000-\u9fff]/.test(next.textContent[extra])) extra++;
+        while (extra < next.textContent.length && isWordChar(next.textContent[extra])) extra++;
         if (extra > 0) { endNode = next; endOffset = extra; }
         break;
       } else if (next.nodeType === Node.ELEMENT_NODE &&
@@ -371,11 +379,13 @@ function selectWordAtCaret(sel, e) {
 }
 
 function openPopover(selText, range, cx, cy) {
-  // Strip leading/trailing punctuation from display but keep range
-  const cleanText = selText.replace(/^[\s\.,;:!?"'（）]+|[\s\.,;:!?"'（）]+$/g,'');
+  // 019f FIX: keep a normalized clone. The visible browser selection can change
+  // when the hint input receives focus, so do not rely on the live selection.
+  const normRange = normalizeRangeForBlank(range);
+  const cleanText = normRange.toString().trim();
   if (!cleanText) return;
 
-  pendingSel = { range, text: selText.trim(), displayText: cleanText };
+  pendingSel = { range: normRange.cloneRange(), text: cleanText, displayText: cleanText };
 
   document.getElementById('pop-preview').textContent = cleanText;
   document.getElementById('replace-input').value = '';
@@ -445,11 +455,71 @@ function findSegIdxForNode(node) {
   return null;
 }
 
+// 019f FIX HELPERS -----------------------------------------------------------
+// A word character is any Unicode letter/number plus underscore.
+function isWordChar(ch) {
+  return !!ch && /[\p{L}\p{N}_]/u.test(ch);
+}
+
+function isEdgeJunk(ch) {
+  // Spaces, parentheses, commas, periods, etc. should not be part of a blank.
+  return !!ch && !isWordChar(ch);
+}
+
+function normalizeOffsetsForBlank(text, start, end) {
+  start = Math.max(0, Math.min(start, text.length));
+  end   = Math.max(start, Math.min(end, text.length));
+
+  // First trim accidental edge punctuation/space from a selection like " running ".
+  while (start < end && isEdgeJunk(text[start])) start++;
+  while (end > start && isEdgeJunk(text[end - 1])) end--;
+
+  // Then expand if the selection is inside a word: "runnin" -> "running".
+  while (start > 0 && isWordChar(text[start - 1])) start--;
+  while (end < text.length && isWordChar(text[end])) end++;
+
+  // Final trim, for safety.
+  while (start < end && isEdgeJunk(text[start])) start++;
+  while (end > start && isEdgeJunk(text[end - 1])) end--;
+  return { start, end };
+}
+
+function normalizeRangeForBlank(originalRange) {
+  const r = originalRange.cloneRange();
+
+  if (r.startContainer === r.endContainer && r.startContainer.nodeType === Node.TEXT_NODE) {
+    const node = r.startContainer;
+    const o = normalizeOffsetsForBlank(node.textContent, r.startOffset, r.endOffset);
+    r.setStart(node, o.start);
+    r.setEnd(node, o.end);
+    return r;
+  }
+
+  // Multi-node fallback: expand text-node endpoints if they are inside words.
+  if (r.startContainer.nodeType === Node.TEXT_NODE) {
+    const t = r.startContainer.textContent;
+    let start = r.startOffset;
+    while (start > 0 && isWordChar(t[start - 1])) start--;
+    r.setStart(r.startContainer, start);
+  }
+  if (r.endContainer.nodeType === Node.TEXT_NODE) {
+    const t = r.endContainer.textContent;
+    let end = r.endOffset;
+    while (end < t.length && isWordChar(t[end])) end++;
+    r.setEnd(r.endContainer, end);
+  }
+  return r;
+}
+// ---------------------------------------------------------------------------
+
 // ════════════════════════════════════════
 // APPLY BLANK — segment surgery
 // Uses absolute char position from range, not indexOf or DOM offsets
 // ════════════════════════════════════════
 function applyBlankFromRange(range, answer, hint) {
+  // Normalize again at the last possible moment. This is the safety net.
+  range = normalizeRangeForBlank(range);
+  answer = range.toString();
   if (!answer || !answer.trim()) return false;
   const container = document.getElementById('text-render');
 
@@ -524,6 +594,16 @@ function applyBlankFromRange(range, answer, hint) {
 
 function spliceBlank(segIdx, start, end, answer, hint) {
   const seg = segments[segIdx];
+
+  // 019f CRITICAL FIX: do not trust the raw range offsets. Browser drag
+  // selection often stops one character short. Normalize against the real
+  // segment text before cutting it. This prevents "runnin" + leftover "g".
+  const o = normalizeOffsetsForBlank(seg.content, start, end);
+  start = o.start;
+  end = o.end;
+  answer = seg.content.slice(start, end);
+  if (!answer || !answer.trim()) return false;
+
   const before = seg.content.slice(0, start);
   const after  = seg.content.slice(end);
   const newSegs = [];
@@ -599,7 +679,7 @@ function updateExportStatus() {
 }
 
 // ════════════════════════════════════════
-// BUILD GAME DATA — 019c (raw text split, best-guess)
+// BUILD GAME DATA — 019f (raw text split, best-guess)
 // ════════════════════════════════════════
 function buildGameData() {
   const title   = document.getElementById('lesson-title').value.trim() || 'Vocabulary Game';
@@ -722,7 +802,7 @@ function exportGame() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const safe = (data.title||'vocab_game').replace(/[^a-zA-Z0-9_\-\s]/g,'').trim().replace(/\s+/g,'_').slice(0,40);
-  a.download = `019c_${safe}.html`;
+  a.download = `019f_${safe}.html`;
   a.click();
 }
 
