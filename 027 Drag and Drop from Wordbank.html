@@ -1,0 +1,1917 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag &amp; Drop Fill-in-the-Blanks • Teaching Tool</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #6366f1;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1e7ff 100%);
+            min-height: 100vh;
+            color: #1e2937;
+        }
+        
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 22px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        .main-content {
+            padding: 28px 32px;
+            position: relative;
+        }
+        
+        .instructions-btn {
+            position: absolute;
+            top: 22px;
+            right: 22px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            z-index: 10;
+        }
+        
+        .instructions-btn img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        /* === TWO COLUMN GAME LAYOUT === */
+        .game-play-area {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        
+        .sentences-col {
+            min-width: 0;
+        }
+        
+        .wordbank-col {
+            min-width: 0;
+        }
+        
+        .sentences {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px 26px;
+            min-height: 200px;
+            line-height: 1.55;
+            font-size: 18px;
+        }
+        
+        .sentence {
+            margin-bottom: 16px;
+            font-size: 17.5px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .sentence:last-child {
+            margin-bottom: 0;
+        }
+        
+        .sentence-number {
+            font-weight: 700;
+            color: #64748b;
+            min-width: 26px;
+            font-size: 14.5px;
+            margin-right: 6px;
+        }
+        
+        .hint {
+            font-size: 13.5px;
+            color: #64748b;
+            font-style: italic;
+            margin-top: 4px;
+            margin-left: 32px;
+            display: block;
+        }
+        
+        .blank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 118px;
+            min-height: 34px;
+            border: 2.5px dashed #64748b;
+            border-radius: 9px;
+            padding: 4px 12px;
+            margin: 0 3px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 16.5px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .blank.drag-over {
+            border-color: #6366f1;
+            background: #e0e7ff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .blank.filled {
+            border: 2.5px solid #10b981;
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: 700;
+        }
+        
+        .blank.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .blank.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+            animation: shake 0.35s ease;
+        }
+        
+        .word-bank {
+            background: white;
+            border: 3px solid #6366f1;
+            border-radius: 16px;
+            padding: 18px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .word-bank-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .word-bank-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #1e2937;
+            font-weight: 700;
+        }
+        
+        .word-bank-header .count {
+            background: #6366f1;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 1px 10px;
+            border-radius: 9999px;
+        }
+        
+        .words-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 52px;
+        }
+        
+        .word-item {
+            background: linear-gradient(135deg, #f1e7ff, #e0e7ff);
+            border: 2.5px solid #6366f1;
+            color: #4338ca;
+            padding: 7px 15px;
+            border-radius: 9999px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.2);
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .word-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+        }
+        
+        .word-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .word-item.used {
+            opacity: 0.35;
+            cursor: not-allowed;
+            background: #e2e8f0;
+            border-color: #94a3b8;
+            color: #64748b;
+            text-decoration: line-through;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        
+        button {
+            font-family: inherit;
+            font-weight: 700;
+            padding: 11px 24px;
+            border-radius: 9999px;
+            font-size: 14.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #f1e7ff;
+            color: #4338ca;
+            border: 2px solid #6366f1;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+        
+        .feedback {
+            margin-top: 12px;
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .feedback.show {
+            display: block;
+        }
+        
+        .feedback.correct {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+        
+        .feedback.incorrect {
+            background: #fef2f2;
+            color: #9f1239;
+            border: 2px solid #ef4444;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .title-input {
+            font-size: 20px;
+            font-weight: 700;
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 3px 0;
+            margin-bottom: 6px;
+            color: #1e2937;
+        }
+        
+        .teacher-panel {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+        
+        .teacher-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14.5px;
+            color: #64748b;
+        }
+        
+        textarea, input {
+            width: 100%;
+            font-family: inherit;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14.5px;
+            margin-bottom: 8px;
+            resize: vertical;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 620px;
+            width: 100%;
+            max-height: 85vh;
+            overflow: auto;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+        
+        .modal-header {
+            padding: 20px 26px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 22px 26px 30px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 26px;
+            color: #64748b;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .success-banner {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: center;
+            margin: 14px 0;
+            display: none;
+        }
+        
+        .success-banner.show {
+            display: block;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+        
+        .footer {
+            padding: 15px 32px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .status {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            padding: 3px;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+        
+        .mode-toggle button {
+            padding: 7px 18px;
+            font-size: 13.5px;
+            border-radius: 9999px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: #475569;
+        }
+        
+        .mode-toggle button.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            color: #4338ca;
+        }
+        
+        .zoom-btn {
+            position: absolute;
+            top: 22px;
+            right: 72px;
+            background: white;
+            border: 2px solid #6366f1;
+            color: #4338ca;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            z-index: 10;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background: #f1e7ff;
+            transform: scale(1.05);
+        }
+        
+        /* RELIABLE ZOOM STYLES */
+        .game-play-area {
+            transition: font-size 0.15s ease;
+        }
+        
+        .game-play-area.scale-1 { font-size: 100% !important; }
+        .game-play-area.scale-2 { font-size: 112% !important; }
+        .game-play-area.scale-3 { font-size: 126% !important; }
+        .game-play-area.scale-4 { font-size: 142% !important; }
+        .game-play-area.scale-5 { font-size: 160% !important; }
+        
+        .game-play-area .sentences,
+        .game-play-area .sentence,
+        .game-play-area .blank,
+        .game-play-area .word-item {
+            font-size: inherit !important;
+        }
+        
+        /* Selection mode styles */
+        .selectable-text {
+            background: #fff;
+            border: 2px solid #6366f1;
+            border-radius: 14px;
+            padding: 20px;
+            margin: 12px 0;
+            font-size: 16.5px;
+            line-height: 1.55;
+        }
+        
+        .selectable-sentence {
+            margin-bottom: 14px;
+        }
+        
+        .selectable-word {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 1px 2px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+        }
+        
+        .selectable-word:hover {
+            background: #e0e7ff;
+        }
+        
+        .selectable-word.selected {
+            background: #6366f1;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px #4f46e5;
+        }
+        
+        .selected-words-preview {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            font-size: 13.5px;
+        }
+        
+        .selected-word-tag {
+            display: inline-flex;
+            align-items: center;
+            background: #6366f1;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-size: 13.5px;
+            margin: 2px 4px 2px 0;
+            font-weight: 600;
+        }
+        
+        .selected-word-tag button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            margin-left: 4px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .display-mode-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .hint-input {
+            font-size: 13px !important;
+            padding: 7px 10px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div>
+                <h1>Drag &amp; Drop Fill-in-the-Blanks</h1>
+                <div class="subtitle">Word Bank • Click-to-Blank</div>
+            </div>
+            <div style="text-align: right; font-size: 12.5px; opacity: 0.9;">
+                Teaching Tool<br>
+                <span style="font-weight: 500;">CMarasigan</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            
+            <!-- Instructions Button -->
+            <button class="instructions-btn" onclick="showInstructions()">
+                <img src="https://i.imgur.com/sPiDZQ9.png" alt="Instructions">
+            </button>
+            
+            <!-- ZOOM BUTTON -->
+            <button class="zoom-btn" onclick="toggleZoom()" title="Zoom text size (click to change)">
+                🔍
+            </button>
+            
+            <!-- TITLE -->
+            <div style="margin-bottom: 14px;">
+                <input id="game-title" class="title-input" type="text" value="Vocabulary Practice • Unit 3" oninput="updateTitle()">
+            </div>
+            
+            <!-- TEACHER CONFIG PANEL -->
+            <div class="teacher-panel">
+                <h3>⚙️ TEACHER CONFIG — Paste + Hints + Click-to-Blank</h3>
+                
+                <!-- Display Mode Toggle -->
+                <div style="margin-bottom: 12px;">
+                    <span class="display-mode-label">Display Mode:</span>
+                    <div class="mode-toggle">
+                        <button id="mode-paragraph" onclick="setDisplayMode('paragraph')">Paragraph</button>
+                        <button id="mode-numbered" class="active" onclick="setDisplayMode('numbered')">Numbered Sentences</button>
+                    </div>
+                </div>
+                
+                <!-- PASTE MODE (with new hints support) -->
+                <div id="paste-mode-panel">
+                    <label style="font-weight:600; font-size:12.5px; color:#475569; display:block; margin-bottom:3px;">
+                        Paste your sentences / paragraph here:
+                    </label>
+                    <textarea id="paste-text-input" rows="3" placeholder="Paste full text. One sentence per line or paragraph.&#10;Example:&#10;The capital of Japan is Tokyo."></textarea>
+                    
+                    <!-- NEW: Has hints checkbox + hints box -->
+                    <div style="margin-top: 8px;">
+                        <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:#475569; cursor:pointer;">
+                            <input type="checkbox" id="has-hints-checkbox" onchange="toggleHintsBox()">
+                            Has hints (one per line below)
+                        </label>
+                        <textarea id="hints-paste-input" rows="2" style="display:none; margin-top:5px;" placeholder="Hint line 1 (e.g. 日本の首都)&#10;Hint line 2 (e.g. 世界最大の海)"></textarea>
+                    </div>
+                    
+                    <div class="controls" style="margin-top: 8px; margin-bottom: 6px;">
+                        <button onclick="parseAndEnterSelectionMode()" class="btn-primary" style="padding: 9px 18px; font-size: 13.5px;">
+                            ✨ Parse Text &amp; Click Words to Blank
+                        </button>
+                        <button onclick="useDemoData()" class="btn-secondary" style="padding: 9px 16px; font-size: 13.5px;">
+                            🎯 Load Demo (with hints)
+                        </button>
+                    </div>
+                    
+                    <!-- SELECTION AREA -->
+                    <div id="selection-area" style="display:none;">
+                        <div style="margin-bottom:6px;">
+                            <strong style="font-size:14.5px;">Click words to turn them into blanks</strong>
+                            <span style="font-size:11.5px; color:#64748b;">(click again to unselect)</span>
+                        </div>
+                        
+                        <div id="selectable-text" class="selectable-text"></div>
+                        
+                        <div class="selected-words-preview">
+                            <div style="font-weight:600; margin-bottom:4px; font-size:12.5px;">Selected words → Word Bank:</div>
+                            <div id="selected-words-list" style="min-height:24px;"></div>
+                        </div>
+                        
+                        <div class="controls" style="margin-top:10px;">
+                            <button onclick="clearAllSelections()" class="btn-secondary" style="padding:7px 14px; font-size:12.5px;">Clear Selections</button>
+                            <button onclick="buildGameFromSelection()" class="btn-primary" style="padding:7px 16px; font-size:13px;">✅ Build Game</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- MANUAL MODE (kept for compatibility) -->
+                <div id="manual-mode-panel" style="display:none; margin-top:12px; border-top:1px solid #e2e8f0; padding-top:12px;">
+                    <div style="margin-bottom: 6px;">
+                        <label style="font-weight:600; font-size:12.5px; color:#475569;">Sentences (use ___ for blanks)</label>
+                        <textarea id="sentences-input" rows="3"></textarea>
+                    </div>
+                    <div style="margin-bottom:6px;">
+                        <label style="font-weight:600; font-size:12.5px; color:#475569;">Word Bank (one per line)</label>
+                        <textarea id="wordbank-input" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:12.5px; color:#475569;">Hints (optional, one per line)</label>
+                        <textarea id="hints-input" rows="2" class="hint-input"></textarea>
+                    </div>
+                    <div class="controls" style="margin-top: 6px;">
+                        <button onclick="loadManualData()" class="btn-secondary" style="padding: 8px 16px; font-size: 13px;">🔄 Load</button>
+                        <button onclick="buildGameFromManual()" class="btn-primary" style="padding: 8px 16px; font-size: 13px;">✅ Build Game</button>
+                    </div>
+                </div>
+                
+                <div style="font-size: 11.5px; color: #64748b; margin-top: 10px;">
+                    Tips: Check “Has hints” and paste matching lines below. Hints appear under each sentence.
+                </div>
+                
+                <div style="margin-top: 10px;">
+                    <button onclick="generateStudentHTML()" class="btn-primary" style="font-size: 13.5px; padding: 8px 18px;">
+                        📥 Download Student Version
+                    </button>
+                </div>
+            </div>
+            
+            <!-- STATS -->
+            <div class="stats">
+                <div class="stat">
+                    <span id="filled-count">0</span> / <span id="total-blanks">0</span> filled
+                </div>
+                <div class="stat" id="score-stat" style="display: none;">
+                    Score: <span id="score-value">0</span>%
+                </div>
+            </div>
+            
+            <!-- GAME PLAY AREA: TWO COLUMN -->
+            <div class="game-play-area" id="game-play-area">
+                
+                <!-- SENTENCES (LEFT) -->
+                <div class="sentences-col">
+                    <div class="section-title">Sentences</div>
+                    <div class="sentences" id="sentences-container">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+                
+                <!-- WORD BANK (RIGHT QUARTER) -->
+                <div class="wordbank-col">
+                    <div class="section-title">Word Bank</div>
+                    <div class="word-bank">
+                        <div class="word-bank-header">
+                            <h3>Available</h3>
+                            <div class="count" id="bank-count">0</div>
+                        </div>
+                        <div class="words-container" id="word-bank-container">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- CONTROLS -->
+            <div class="controls" style="margin-top: 16px;">
+                <button onclick="checkAnswers()" class="btn-primary">
+                    ✅ Check Answers
+                </button>
+                <button onclick="resetGame()" class="btn-secondary">
+                    🔄 Reset All
+                </button>
+                <button onclick="showAnswers()" class="btn-secondary">
+                    👁️ Show Answers
+                </button>
+            </div>
+            
+            <div id="feedback" class="feedback"></div>
+            <div id="success-banner" class="success-banner">🎉 Excellent! All blanks correctly filled.</div>
+            
+        </div>
+        
+        <div class="footer">
+            <div>
+                <span class="status" id="status-text">Ready • Drag words into blanks</span>
+            </div>
+            <div>
+                <button onclick="resetGame()" style="font-size:12px; padding:5px 12px; background:#f1e7ff; color:#4338ca; border:1px solid #6366f1; border-radius:9999px;">Reset</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin:0; font-size:21px;">📚 How to Use</h2>
+                <button class="close-btn" onclick="hideInstructions()">×</button>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin-top:0;">Fast workflow (recommended)</h3>
+                <ol style="padding-left:18px; line-height:1.6; font-size:14.5px;">
+                    <li>Paste your sentences in the box.</li>
+                    <li>Check <strong>“Has hints (one per line below)”</strong> and paste matching hints in the new box underneath.</li>
+                    <li>Click <strong>“Parse Text &amp; Click Words to Blank”</strong>.</li>
+                    <li>Click words you want to blank — they are auto-added to the word bank.</li>
+                    <li>Click <strong>✅ Build Game</strong>.</li>
+                    <li>Hints will appear under each sentence.</li>
+                </ol>
+                
+                <h3 style="margin-top:16px;">Other features</h3>
+                <ul style="padding-left:18px; line-height:1.6; font-size:14.5px;">
+                    <li>Word Bank stays on the right quarter.</li>
+                    <li>🔍 Zoom button cycles text size (5 levels) — now fixed!</li>
+                    <li>Numbered or Paragraph display mode.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ========================
+        // STATE
+        // ========================
+        let gameData = {
+            title: "Vocabulary Practice • Unit 3",
+            sentences: [],
+            wordBank: [],
+            hints: []               // one hint per sentence
+        };
+        
+        let displayMode = 'numbered';
+        let currentBlanks = [];
+        let placedWords = new Set();
+        
+        // Click-to-blank state
+        let rawPastedText = '';
+        let selectedBlankWords = new Set();
+        let currentSelectionSentences = [];
+        
+        // Zoom state
+        let zoomLevel = 1;
+        
+        // Temporary hints for paste flow
+        let pendingHints = [];
+        
+        // ========================
+        // ZOOM - FIXED & RELIABLE
+        // ========================
+        function toggleZoom() {
+            zoomLevel = (zoomLevel % 5) + 1;
+            
+            const area = document.getElementById('game-play-area');
+            const sentences = document.getElementById('sentences-container');
+            const wb = document.getElementById('word-bank-container');
+            
+            if (!area) return;
+            
+            // Clear previous classes
+            area.classList.remove('scale-1','scale-2','scale-3','scale-4','scale-5');
+            area.classList.add('scale-' + zoomLevel);
+            
+            const sizes = {1:'100%',2:'112%',3:'126%',4:'142%',5:'160%'};
+            const size = sizes[zoomLevel];
+            
+            // Apply to several elements directly (this is the reliable way)
+            area.style.fontSize = size;
+            if (sentences) sentences.style.fontSize = size;
+            if (wb) wb.style.fontSize = size;
+            
+            // Force the browser to recalculate and apply the change
+            void area.offsetWidth;
+        }
+        
+        // ========================
+        // UI HELPERS
+        // ========================
+        function updateTitle() {
+            gameData.title = document.getElementById('game-title').value;
+        }
+        
+        function setDisplayMode(mode) {
+            displayMode = mode;
+            document.getElementById('mode-paragraph').classList.toggle('active', mode === 'paragraph');
+            document.getElementById('mode-numbered').classList.toggle('active', mode === 'numbered');
+            
+            if (gameData.sentences.length > 0) {
+                renderGameSentences();
+            }
+        }
+        
+        function toggleHintsBox() {
+            const checkbox = document.getElementById('has-hints-checkbox');
+            const hintsBox = document.getElementById('hints-paste-input');
+            hintsBox.style.display = checkbox.checked ? 'block' : 'none';
+        }
+        
+        function setInputMethod(method) {
+            const pastePanel = document.getElementById('paste-mode-panel');
+            const manualPanel = document.getElementById('manual-mode-panel');
+            const pasteBtn = document.getElementById('input-paste-btn');
+            const manualBtn = document.getElementById('input-manual-btn');
+            
+            if (method === 'paste') {
+                pastePanel.style.display = 'block';
+                manualPanel.style.display = 'none';
+                pasteBtn.classList.add('active');
+                manualBtn.classList.remove('active');
+            } else {
+                pastePanel.style.display = 'none';
+                manualPanel.style.display = 'block';
+                pasteBtn.classList.remove('active');
+                manualBtn.classList.add('active');
+            }
+        }
+        
+        function updateFilledCount() {
+            const filled = currentBlanks.filter(b => b.currentValue !== null).length;
+            document.getElementById('filled-count').textContent = filled;
+            document.getElementById('total-blanks').textContent = currentBlanks.length || '0';
+            
+            if (currentBlanks.length > 0 && filled === currentBlanks.length) {
+                document.getElementById('status-text').textContent = "All blanks filled!";
+            } else if (currentBlanks.length > 0) {
+                document.getElementById('status-text').textContent = "Ready • Drag words into blanks";
+            }
+        }
+        
+        // ========================
+        // PASTE + CLICK + HINTS
+        // ========================
+        function parseAndEnterSelectionMode() {
+            const raw = document.getElementById('paste-text-input').value.trim();
+            if (!raw) {
+                alert("Please paste some text first.");
+                return;
+            }
+            
+            rawPastedText = raw;
+            selectedBlankWords.clear();
+            pendingHints = [];
+            
+            const hasHints = document.getElementById('has-hints-checkbox').checked;
+            if (hasHints) {
+                const hintsRaw = document.getElementById('hints-paste-input').value.trim();
+                if (hintsRaw) {
+                    pendingHints = hintsRaw.split('\n').map(h => h.trim());
+                }
+            }
+            
+            currentSelectionSentences = tokenizeTextToSentences(raw);
+            
+            document.getElementById('selection-area').style.display = 'block';
+            renderSelectableWords();
+            
+            document.getElementById('sentences-container').innerHTML = '';
+            document.getElementById('word-bank-container').innerHTML = '';
+            currentBlanks = [];
+            placedWords.clear();
+            updateFilledCount();
+        }
+        
+        function tokenizeTextToSentences(text) {
+            let lines = text.split(/\n+/).map(l => l.trim()).filter(l => l.length > 0);
+            
+            if (lines.length <= 1) {
+                const sentences = text.split(/([.!?]+)/).reduce((acc, curr, i, arr) => {
+                    if (i % 2 === 0 && curr.trim()) {
+                        const next = arr[i+1] || '';
+                        acc.push((curr + next).trim());
+                    }
+                    return acc;
+                }, []).filter(s => s.length > 0);
+                lines = sentences.length > 0 ? sentences : [text];
+            }
+            
+            return lines.map(sentence => sentence.split(/\s+/).filter(w => w.length > 0));
+        }
+        
+        function renderSelectableWords() {
+            const container = document.getElementById('selectable-text');
+            container.innerHTML = '';
+            
+            currentSelectionSentences.forEach((sentenceWords, sIndex) => {
+                const sentenceDiv = document.createElement('div');
+                sentenceDiv.className = 'selectable-sentence';
+                
+                sentenceWords.forEach((word, wIndex) => {
+                    const span = document.createElement('span');
+                    span.className = 'selectable-word';
+                    span.textContent = word;
+                    span.dataset.sentence = sIndex;
+                    span.dataset.wordIndex = wIndex;
+                    
+                    if (selectedBlankWords.has(word)) {
+                        span.classList.add('selected');
+                    }
+                    
+                    span.onclick = () => toggleWordSelection(span, word);
+                    sentenceDiv.appendChild(span);
+                    
+                    if (wIndex < sentenceWords.length - 1) {
+                        sentenceDiv.appendChild(document.createTextNode(' '));
+                    }
+                });
+                
+                container.appendChild(sentenceDiv);
+            });
+            
+            updateSelectedWordsPreview();
+        }
+        
+        function toggleWordSelection(spanEl, word) {
+            if (selectedBlankWords.has(word)) {
+                selectedBlankWords.delete(word);
+                spanEl.classList.remove('selected');
+            } else {
+                selectedBlankWords.add(word);
+                spanEl.classList.add('selected');
+            }
+            updateSelectedWordsPreview();
+        }
+        
+        function updateSelectedWordsPreview() {
+            const listEl = document.getElementById('selected-words-list');
+            listEl.innerHTML = '';
+            
+            if (selectedBlankWords.size === 0) {
+                listEl.innerHTML = '<span style="color:#64748b; font-size:12.5px;">No words selected yet — click words above</span>';
+                return;
+            }
+            
+            Array.from(selectedBlankWords).forEach(word => {
+                const tag = document.createElement('span');
+                tag.className = 'selected-word-tag';
+                tag.innerHTML = `${word} <button onclick="removeSelectedWord('${word}', event)">×</button>`;
+                listEl.appendChild(tag);
+            });
+        }
+        
+        function removeSelectedWord(word, e) {
+            e.stopImmediatePropagation();
+            selectedBlankWords.delete(word);
+            
+            const spans = document.querySelectorAll('#selectable-text .selectable-word');
+            spans.forEach(span => {
+                if (span.textContent === word) span.classList.remove('selected');
+            });
+            
+            updateSelectedWordsPreview();
+        }
+        
+        function clearAllSelections() {
+            selectedBlankWords.clear();
+            const spans = document.querySelectorAll('#selectable-text .selectable-word');
+            spans.forEach(s => s.classList.remove('selected'));
+            updateSelectedWordsPreview();
+        }
+        
+        function buildGameFromSelection() {
+            if (selectedBlankWords.size === 0) {
+                alert("Please click at least one word to turn into a blank.");
+                return;
+            }
+            
+            const newSentences = currentSelectionSentences.map(sentenceWords => {
+                return sentenceWords.map(word => selectedBlankWords.has(word) ? '___' : word).join(' ');
+            });
+            
+            gameData.sentences = newSentences;
+            gameData.wordBank = Array.from(selectedBlankWords);
+            
+            // Apply pending hints
+            gameData.hints = new Array(newSentences.length).fill('');
+            if (pendingHints.length > 0) {
+                pendingHints.forEach((hint, i) => {
+                    if (i < gameData.hints.length) gameData.hints[i] = hint;
+                });
+            }
+            
+            document.getElementById('selection-area').style.display = 'none';
+            
+            renderGameSentences();
+            buildWordBank();
+            updateFilledCount();
+            
+            document.getElementById('status-text').textContent = "Game built (hints applied)";
+        }
+        
+        // ========================
+        // MANUAL MODE
+        // ========================
+        function loadManualData() {
+            const sentencesRaw = document.getElementById('sentences-input').value.trim();
+            const wordsRaw = document.getElementById('wordbank-input').value.trim();
+            const hintsRaw = document.getElementById('hints-input').value.trim();
+            
+            if (!sentencesRaw || !wordsRaw) {
+                alert("Please fill sentences and word bank.");
+                return;
+            }
+            
+            gameData.sentences = sentencesRaw.split('\n').map(s => s.trim()).filter(Boolean);
+            gameData.wordBank = wordsRaw.split('\n').map(w => w.trim()).filter(Boolean);
+            
+            const hintsArr = hintsRaw ? hintsRaw.split('\n').map(h => h.trim()) : [];
+            gameData.hints = new Array(gameData.sentences.length).fill('');
+            hintsArr.forEach((h, i) => { if (i < gameData.hints.length) gameData.hints[i] = h; });
+            
+            renderGameSentences();
+            buildWordBank();
+            updateFilledCount();
+        }
+        
+        function buildGameFromManual() {
+            loadManualData();
+        }
+        
+        // ========================
+        // RENDER GAME (with hints)
+        // ========================
+        function renderGameSentences() {
+            const container = document.getElementById('sentences-container');
+            container.innerHTML = '';
+            currentBlanks = [];
+            placedWords.clear();
+            
+            let blankId = 0;
+            
+            if (displayMode === 'paragraph') {
+                const para = document.createElement('div');
+                para.className = 'sentence';
+                
+                let html = '';
+                
+                gameData.sentences.forEach((sentence, sIndex) => {
+                    const parts = sentence.split('___');
+                    
+                    parts.forEach((part, pIndex) => {
+                        html += `<span>${part}</span>`;
+                        
+                        if (pIndex < parts.length - 1) {
+                            const blankIdStr = `blank-${blankId}`;
+                            const correctWord = gameData.wordBank[blankId] || `word${blankId}`;
+                            
+                            html += `<span class="blank" id="${blankIdStr}" 
+                                        data-blank-id="${blankId}"
+                                        data-correct="${correctWord}"
+                                        ondrop="dropHandler(event)"
+                                        ondragover="allowDrop(event)"
+                                        ondragleave="dragLeaveHandler(event)"
+                                        onclick="clearBlank(${blankId})"></span>`;
+                            
+                            currentBlanks.push({
+                                id: blankId,
+                                correctWord: correctWord,
+                                currentValue: null,
+                                elementId: blankIdStr
+                            });
+                            blankId++;
+                        }
+                    });
+                    
+                    if (sIndex < gameData.sentences.length - 1) html += ' ';
+                    
+                    const hint = (gameData.hints && gameData.hints[sIndex]) || '';
+                    if (hint) {
+                        html += `<span class="hint">💡 ${hint}</span>`;
+                    }
+                });
+                
+                para.innerHTML = html;
+                container.appendChild(para);
+                
+            } else {
+                gameData.sentences.forEach((sentence, sIndex) => {
+                    const sentenceDiv = document.createElement('div');
+                    sentenceDiv.className = 'sentence';
+                    
+                    const parts = sentence.split('___');
+                    let html = `<span class="sentence-number">${sIndex + 1}.</span>`;
+                    
+                    parts.forEach((part, pIndex) => {
+                        html += `<span>${part}</span>`;
+                        
+                        if (pIndex < parts.length - 1) {
+                            const blankIdStr = `blank-${blankId}`;
+                            const correctWord = gameData.wordBank[blankId] || `word${blankId}`;
+                            
+                            html += `<span class="blank" id="${blankIdStr}" 
+                                        data-blank-id="${blankId}"
+                                        data-correct="${correctWord}"
+                                        ondrop="dropHandler(event)"
+                                        ondragover="allowDrop(event)"
+                                        ondragleave="dragLeaveHandler(event)"
+                                        onclick="clearBlank(${blankId})"></span>`;
+                            
+                            currentBlanks.push({
+                                id: blankId,
+                                correctWord: correctWord,
+                                currentValue: null,
+                                elementId: blankIdStr
+                            });
+                            blankId++;
+                        }
+                    });
+                    
+                    sentenceDiv.innerHTML = html;
+                    
+                    const hint = (gameData.hints && gameData.hints[sIndex]) || '';
+                    if (hint) {
+                        const hintEl = document.createElement('span');
+                        hintEl.className = 'hint';
+                        hintEl.textContent = `💡 ${hint}`;
+                        sentenceDiv.appendChild(hintEl);
+                    }
+                    
+                    container.appendChild(sentenceDiv);
+                });
+            }
+            
+            document.getElementById('total-blanks').textContent = currentBlanks.length;
+            updateFilledCount();
+        }
+        
+        function buildWordBank() {
+            const container = document.getElementById('word-bank-container');
+            container.innerHTML = '';
+            
+            const used = Array.from(placedWords);
+            
+            gameData.wordBank.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = `word-item ${used.includes(word) ? 'used' : ''}`;
+                wordEl.draggable = !used.includes(word);
+                wordEl.textContent = word;
+                wordEl.dataset.word = word;
+                
+                if (!used.includes(word)) {
+                    wordEl.addEventListener('dragstart', dragStartHandler);
+                    wordEl.addEventListener('click', () => tryPlaceWord(word));
+                }
+                
+                container.appendChild(wordEl);
+            });
+            
+            document.getElementById('bank-count').textContent = gameData.wordBank.length - used.length;
+        }
+        
+        // ========================
+        // DRAG & DROP
+        // ========================
+        function dragStartHandler(e) {
+            const word = e.target.dataset.word;
+            e.dataTransfer.setData("text/plain", word);
+            e.dataTransfer.effectAllowed = "move";
+        }
+        
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function dragLeaveHandler(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function dropHandler(e) {
+            e.preventDefault();
+            const blankEl = e.currentTarget;
+            blankEl.classList.remove('drag-over');
+            
+            const word = e.dataTransfer.getData("text/plain");
+            const blankId = parseInt(blankEl.dataset.blankId);
+            
+            placeWordInBlank(blankId, word);
+        }
+        
+        function tryPlaceWord(word) {
+            const emptyBlank = currentBlanks.find(b => b.currentValue === null);
+            if (emptyBlank) {
+                placeWordInBlank(emptyBlank.id, word);
+            } else {
+                const fb = document.getElementById('feedback');
+                fb.textContent = "All blanks are already filled. Reset to start over.";
+                fb.className = "feedback show";
+                setTimeout(() => fb.classList.remove('show'), 1600);
+            }
+        }
+        
+        function placeWordInBlank(blankId, word) {
+            const blankInfo = currentBlanks.find(b => b.id === blankId);
+            if (!blankInfo) return;
+            
+            if (blankInfo.currentValue) {
+                placedWords.delete(blankInfo.currentValue);
+            }
+            
+            blankInfo.currentValue = word;
+            placedWords.add(word);
+            
+            const blankEl = document.getElementById(blankInfo.elementId);
+            blankEl.innerHTML = `<span style="font-weight:700;">${word}</span>`;
+            blankEl.classList.add('filled');
+            blankEl.classList.remove('drag-over');
+            
+            buildWordBank();
+            updateFilledCount();
+            
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('success-banner').classList.remove('show');
+        }
+        
+        function clearBlank(blankId) {
+            const blankInfo = currentBlanks.find(b => b.id === blankId);
+            if (!blankInfo || !blankInfo.currentValue) return;
+            
+            const word = blankInfo.currentValue;
+            placedWords.delete(word);
+            blankInfo.currentValue = null;
+            
+            const blankEl = document.getElementById(blankInfo.elementId);
+            blankEl.innerHTML = '';
+            blankEl.classList.remove('filled', 'correct', 'incorrect');
+            
+            buildWordBank();
+            updateFilledCount();
+        }
+        
+        // ========================
+        // CHECK / RESET / SHOW ANSWERS
+        // ========================
+        function checkAnswers() {
+            let correctCount = 0;
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.classList.remove('show', 'correct', 'incorrect');
+            
+            currentBlanks.forEach(blankInfo => {
+                const blankEl = document.getElementById(blankInfo.elementId);
+                if (!blankInfo.currentValue) {
+                    blankEl.classList.remove('correct', 'incorrect');
+                    return;
+                }
+                
+                const isCorrect = blankInfo.currentValue.toLowerCase().trim() === 
+                                 blankInfo.correctWord.toLowerCase().trim();
+                
+                if (isCorrect) {
+                    blankEl.classList.add('correct');
+                    blankEl.classList.remove('incorrect');
+                    correctCount++;
+                } else {
+                    blankEl.classList.add('incorrect');
+                    blankEl.classList.remove('correct');
+                    setTimeout(() => {
+                        if (blankEl.classList.contains('incorrect')) blankEl.classList.remove('incorrect');
+                    }, 1100);
+                }
+            });
+            
+            const total = currentBlanks.length;
+            const percent = Math.round((correctCount / total) * 100);
+            
+            if (correctCount === total) {
+                feedbackEl.innerHTML = `🎉 Perfect! All ${total} answers are correct.`;
+                feedbackEl.className = "feedback show correct";
+                document.getElementById('success-banner').classList.add('show');
+                document.getElementById('score-stat').style.display = 'flex';
+                document.getElementById('score-value').textContent = percent;
+            } else {
+                feedbackEl.innerHTML = `✅ ${correctCount} out of ${total} correct (${percent}%)`;
+                feedbackEl.className = "feedback show";
+                document.getElementById('success-banner').classList.remove('show');
+                document.getElementById('score-stat').style.display = 'flex';
+                document.getElementById('score-value').textContent = percent;
+            }
+            
+            updateFilledCount();
+        }
+        
+        function showAnswers() {
+            currentBlanks.forEach(blankInfo => {
+                const blankEl = document.getElementById(blankInfo.elementId);
+                if (blankEl) {
+                    blankEl.innerHTML = `<span style="font-weight:700; color:#065f46;">${blankInfo.correctWord}</span>`;
+                    blankEl.classList.add('filled', 'correct');
+                    blankEl.classList.remove('incorrect');
+                    
+                    if (blankInfo.currentValue) placedWords.delete(blankInfo.currentValue);
+                    blankInfo.currentValue = blankInfo.correctWord;
+                    placedWords.add(blankInfo.correctWord);
+                }
+            });
+            
+            buildWordBank();
+            updateFilledCount();
+            
+            const fb = document.getElementById('feedback');
+            fb.innerHTML = `👁️ Answers revealed.`;
+            fb.className = "feedback show";
+        }
+        
+        function resetGame() {
+            currentBlanks.forEach(blankInfo => {
+                const blankEl = document.getElementById(blankInfo.elementId);
+                if (blankEl) {
+                    blankEl.innerHTML = '';
+                    blankEl.classList.remove('filled', 'correct', 'incorrect');
+                }
+                blankInfo.currentValue = null;
+            });
+            
+            placedWords.clear();
+            
+            buildWordBank();
+            updateFilledCount();
+            
+            const fb = document.getElementById('feedback');
+            fb.classList.remove('show');
+            document.getElementById('success-banner').classList.remove('show');
+            document.getElementById('score-stat').style.display = 'none';
+            
+            document.getElementById('status-text').textContent = "Ready • Drag words into blanks";
+        }
+        
+        // ========================
+        // STUDENT HTML GENERATOR
+        // ========================
+        function generateStudentHTML() {
+            if (!gameData.sentences.length || !gameData.wordBank.length) {
+                alert("Please build the game first.");
+                return;
+            }
+            
+            const title = gameData.title;
+            const sentences = JSON.stringify(gameData.sentences);
+            const wordBank = JSON.stringify(gameData.wordBank);
+            const hints = JSON.stringify(gameData.hints || []);
+            const mode = displayMode;
+            
+            const studentHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} • Student Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', system_ui, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1e7ff 100%); min-height: 100vh; color: #1e2937; }
+        .container { max-width: 1060px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 20px 30px; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+        .main { padding: 26px 30px; }
+        .game-play-area { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; align-items: start; }
+        .sentences { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 22px 24px; min-height: 180px; line-height: 1.55; font-size: 17.5px; }
+        .sentence { margin-bottom: 14px; font-size: 17px; display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+        .sentence-number { font-weight: 700; color: #64748b; min-width: 24px; font-size: 14px; margin-right: 6px; }
+        .hint { font-size: 13px; color: #64748b; font-style: italic; margin-top: 3px; margin-left: 30px; display: block; }
+        .blank { display: inline-flex; align-items: center; justify-content: center; min-width: 112px; min-height: 33px; border: 2.5px dashed #64748b; border-radius: 9px; padding: 4px 11px; margin: 0 3px; background: #f8fafc; font-weight: 600; color: #475569; font-size: 16px; transition: all 0.2s; cursor: pointer; }
+        .blank.drag-over { border-color: #6366f1; background: #e0e7ff; }
+        .blank.filled { border: 2.5px solid #10b981; background: #d1fae5; color: #065f46; font-weight: 700; }
+        .blank.correct { border-color: #10b981; background: #ecfdf5; }
+        .blank.incorrect { border-color: #ef4444; background: #fee2e2; animation: shake 0.35s ease; }
+        .word-bank { background: white; border: 3px solid #6366f1; border-radius: 14px; padding: 16px; position: sticky; top: 20px; }
+        .words-container { display: flex; flex-wrap: wrap; gap: 7px; min-height: 48px; }
+        .word-item { background: linear-gradient(135deg, #f1e7ff, #e0e7ff); border: 2.5px solid #6366f1; color: #4338ca; padding: 6px 14px; border-radius: 9999px; font-size: 14.5px; font-weight: 700; cursor: grab; user-select: none; box-shadow: 0 3px 8px rgba(99, 102, 241, 0.2); }
+        .word-item:hover { transform: translateY(-2px); }
+        .word-item.used { opacity: 0.35; cursor: not-allowed; background: #e2e8f0; border-color: #94a3b8; color: #64748b; text-decoration: line-through; }
+        button { font-family: inherit; font-weight: 700; padding: 10px 22px; border-radius: 9999px; font-size: 14px; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-primary { background: #6366f1; color: white; }
+        .btn-secondary { background: #f1e7ff; color: #4338ca; border: 2px solid #6366f1; }
+        .controls { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 10px; }
+        .feedback { margin-top: 12px; padding: 12px 17px; border-radius: 12px; font-weight: 600; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #ecfdf5; color: #065f46; border: 2px solid #10b981; }
+        .stat { display: inline-flex; align-items: center; background: #f8fafc; border: 2px solid #e2e8f0; padding: 6px 13px; border-radius: 9999px; font-size: 13px; font-weight: 600; margin-right: 10px; }
+        .success { background: #ecfdf5; border: 2px solid #10b981; padding: 11px; border-radius: 12px; margin: 12px 0; text-align: center; font-weight: 700; color: #065f46; display: none; }
+        .success.show { display: block; }
+        .zoom-btn { position: absolute; top: 20px; right: 68px; background: white; border: 2px solid #6366f1; color: #4338ca; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; box-shadow: 0 3px 6px -1px rgb(0 0 0 / 0.1); z-index: 10; }
+        .game-play-area { transition: font-size 0.15s ease; }
+        .game-play-area.scale-1 { font-size: 100% !important; }
+        .game-play-area.scale-2 { font-size: 112% !important; }
+        .game-play-area.scale-3 { font-size: 126% !important; }
+        .game-play-area.scale-4 { font-size: 142% !important; }
+        .game-play-area.scale-5 { font-size: 160% !important; }
+        .game-play-area .sentences,
+        .game-play-area .sentence,
+        .game-play-area .blank,
+        .game-play-area .word-item { font-size: inherit !important; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-4px)} 40%,80%{transform:translateX(4px)} }
+        .footer { padding: 14px 30px; background: #f8fafc; font-size: 12px; color: #64748b; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>${title}</h1>
+            <div style="opacity:0.9; font-size:13px; margin-top:3px;">Drag the words into the blanks</div>
+        </div>
+        <div class="main" style="position:relative;">
+            <button class="zoom-btn" onclick="toggleZoom()">🔍</button>
+            
+            <div style="margin-bottom:12px;">
+                <div class="stat"><span id="filled-count">0</span> / <span id="total-blanks">${gameData.wordBank.length}</span> filled</div>
+                <div class="stat" id="score-stat" style="display:none;">Score: <span id="score-value">0</span>%</div>
+            </div>
+            
+            <div class="game-play-area" id="game-play-area">
+                <div>
+                    <div style="font-size:13px; font-weight:700; color:#64748b; margin-bottom:6px;">Sentences</div>
+                    <div class="sentences" id="sentences-container"></div>
+                </div>
+                
+                <div>
+                    <div style="font-size:13px; font-weight:700; color:#64748b; margin-bottom:6px;">Word Bank</div>
+                    <div class="word-bank">
+                        <div class="words-container" id="word-bank-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button onclick="checkAnswers()" class="btn-primary">✅ Check Answers</button>
+                <button onclick="resetGame()" class="btn-secondary">🔄 Reset</button>
+                <button onclick="showAnswers()" class="btn-secondary">👁️ Reveal Answers</button>
+            </div>
+            
+            <div id="feedback" class="feedback"></div>
+            <div id="success-banner" class="success">🎉 All correct! Great work.</div>
+        </div>
+        
+        <div class="footer">
+            <div>Standalone student game • No login needed</div>
+            <button onclick="window.location.reload()" style="font-size:11px; padding:3px 11px; background:#f1e7ff; color:#4338ca; border:1px solid #6366f1; border-radius:9999px;">Restart</button>
+        </div>
+    </div>
+    
+    <script>
+        const gameData = { title: "${title}", sentences: ${sentences}, wordBank: ${wordBank}, hints: ${hints} };
+        const displayMode = "${mode}";
+        
+        let currentBlanks = [];
+        let placedWords = new Set();
+        let zoomLevel = 1;
+        
+        function toggleZoom() {
+            zoomLevel = (zoomLevel % 5) + 1;
+            const area = document.getElementById('game-play-area');
+            if (!area) return;
+
+            // Clear classes
+            area.classList.remove('scale-1','scale-2','scale-3','scale-4','scale-5');
+            area.classList.add('scale-' + zoomLevel);
+
+            const sizes = {1:'100%',2:'112%',3:'126%',4:'142%',5:'160%'};
+            const size = sizes[zoomLevel];
+
+            // RELIABLE: direct style on main container
+            area.style.fontSize = size;
+
+            // Apply to sentences container
+            const sentencesEl = document.getElementById('sentences-container');
+            if (sentencesEl) sentencesEl.style.fontSize = size;
+
+            // Apply to word bank container
+            const wbContainer = document.getElementById('word-bank-container');
+            if (wbContainer) wbContainer.style.fontSize = size;
+
+            // Apply to word-bank wrapper
+            const wordBankEl = document.querySelector('.word-bank');
+            if (wordBankEl) wordBankEl.style.fontSize = size;
+
+            // Broad aggressive application to all text elements
+            document.querySelectorAll('#sentences-container, .sentences, .sentence, .blank, .word-item, .hint, .sentence-number').forEach(el => {
+                el.style.fontSize = size;
+            });
+
+            // Force reflow for immediate effect
+            void area.offsetWidth;
+            void document.body.offsetWidth;
+        }
+        
+        function buildGame() {
+            const container = document.getElementById('sentences-container');
+            container.innerHTML = '';
+            currentBlanks = [];
+            placedWords.clear();
+            
+            let blankId = 0;
+            
+            if (displayMode === 'paragraph') {
+                const para = document.createElement('div');
+                para.className = 'sentence';
+                let html = '';
+                
+                gameData.sentences.forEach((sentence, sIndex) => {
+                    const parts = sentence.split('___');
+                    parts.forEach((part, pIndex) => {
+                        html += '<span>' + part + '</span>';
+                        if (pIndex < parts.length - 1) {
+                            const id = 'blank-' + blankId;
+                            const correct = gameData.wordBank[blankId] || '';
+                            html += '<span class="blank" id="' + id + '" data-blank-id="' + blankId + '" data-correct="' + correct + '" ondrop="dropHandler(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" onclick="clearBlank(' + blankId + ')"></span>';
+                            currentBlanks.push({ id: blankId, correctWord: correct, currentValue: null, elementId: id });
+                            blankId++;
+                        }
+                    });
+                    html += ' ';
+                    if (gameData.hints && gameData.hints[sIndex]) {
+                        html += '<span class="hint" style="display:block;margin-left:0;margin-top:2px;">💡 ' + gameData.hints[sIndex] + '</span>';
+                    }
+                });
+                para.innerHTML = html;
+                container.appendChild(para);
+            } else {
+                gameData.sentences.forEach((sentence, sIndex) => {
+                    const div = document.createElement('div');
+                    div.className = 'sentence';
+                    const parts = sentence.split('___');
+                    let html = '<span class="sentence-number">' + (sIndex + 1) + '.</span>';
+                    
+                    parts.forEach((part, pIndex) => {
+                        html += '<span>' + part + '</span>';
+                        if (pIndex < parts.length - 1) {
+                            const id = 'blank-' + blankId;
+                            const correct = gameData.wordBank[blankId] || '';
+                            html += '<span class="blank" id="' + id + '" data-blank-id="' + blankId + '" data-correct="' + correct + '" ondrop="dropHandler(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" onclick="clearBlank(' + blankId + ')"></span>';
+                            currentBlanks.push({ id: blankId, correctWord: correct, currentValue: null, elementId: id });
+                            blankId++;
+                        }
+                    });
+                    div.innerHTML = html;
+                    
+                    if (gameData.hints && gameData.hints[sIndex]) {
+                        const hintEl = document.createElement('span');
+                        hintEl.className = 'hint';
+                        hintEl.textContent = '💡 ' + gameData.hints[sIndex];
+                        div.appendChild(hintEl);
+                    }
+                    container.appendChild(div);
+                });
+            }
+            
+            document.getElementById('total-blanks').textContent = currentBlanks.length;
+            buildWordBank();
+        }
+        
+        function buildWordBank() {
+            const container = document.getElementById('word-bank-container');
+            container.innerHTML = '';
+            const used = Array.from(placedWords);
+            
+            gameData.wordBank.forEach(word => {
+                const el = document.createElement('div');
+                el.className = 'word-item ' + (used.includes(word) ? 'used' : '');
+                el.draggable = !used.includes(word);
+                el.textContent = word;
+                el.dataset.word = word;
+                
+                if (!used.includes(word)) {
+                    el.addEventListener('dragstart', dragStart);
+                    el.addEventListener('click', () => tryPlaceWord(word));
+                }
+                container.appendChild(el);
+            });
+        }
+        
+        function updateFilledCount() {
+            const filled = currentBlanks.filter(b => b.currentValue).length;
+            document.getElementById('filled-count').textContent = filled;
+        }
+        
+        function dragStart(e) { e.dataTransfer.setData('text/plain', e.target.dataset.word); }
+        function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+        
+        function dropHandler(e) {
+            e.preventDefault();
+            const blank = e.currentTarget;
+            blank.classList.remove('drag-over');
+            const word = e.dataTransfer.getData('text/plain');
+            const id = parseInt(blank.dataset.blankId);
+            placeWord(id, word);
+        }
+        
+        function tryPlaceWord(word) {
+            const empty = currentBlanks.find(b => !b.currentValue);
+            if (empty) placeWord(empty.id, word);
+        }
+        
+        function placeWord(blankId, word) {
+            const b = currentBlanks.find(x => x.id === blankId);
+            if (!b) return;
+            if (b.currentValue) placedWords.delete(b.currentValue);
+            b.currentValue = word;
+            placedWords.add(word);
+            const el = document.getElementById(b.elementId);
+            el.innerHTML = '<span style="font-weight:700;">' + word + '</span>';
+            el.classList.add('filled');
+            buildWordBank();
+            updateFilledCount();
+        }
+        
+        function clearBlank(id) {
+            const b = currentBlanks.find(x => x.id === id);
+            if (!b || !b.currentValue) return;
+            placedWords.delete(b.currentValue);
+            b.currentValue = null;
+            const el = document.getElementById(b.elementId);
+            el.innerHTML = '';
+            el.classList.remove('filled', 'correct', 'incorrect');
+            buildWordBank();
+            updateFilledCount();
+        }
+        
+        function checkAnswers() {
+            let correct = 0;
+            const fb = document.getElementById('feedback');
+            fb.classList.remove('show', 'correct');
+            
+            currentBlanks.forEach(b => {
+                const el = document.getElementById(b.elementId);
+                if (!b.currentValue) { el.classList.remove('correct', 'incorrect'); return; }
+                const ok = b.currentValue.toLowerCase().trim() === b.correctWord.toLowerCase().trim();
+                if (ok) { el.classList.add('correct'); el.classList.remove('incorrect'); correct++; }
+                else { el.classList.add('incorrect'); el.classList.remove('correct'); setTimeout(() => el.classList.remove('incorrect'), 1100); }
+            });
+            
+            const pct = Math.round((correct / currentBlanks.length) * 100);
+            
+            if (correct === currentBlanks.length) {
+                fb.innerHTML = '🎉 Perfect! All answers correct.';
+                fb.className = 'feedback show correct';
+                document.getElementById('success-banner').classList.add('show');
+                document.getElementById('score-stat').style.display = 'inline-flex';
+                document.getElementById('score-value').textContent = pct;
+            } else {
+                fb.innerHTML = correct + ' / ' + currentBlanks.length + ' correct (' + pct + '%)';
+                fb.className = 'feedback show';
+                document.getElementById('success-banner').classList.remove('show');
+                document.getElementById('score-stat').style.display = 'inline-flex';
+                document.getElementById('score-value').textContent = pct;
+            }
+        }
+        
+        function showAnswers() {
+            currentBlanks.forEach(b => {
+                const el = document.getElementById(b.elementId);
+                el.innerHTML = '<span style="font-weight:700;color:#065f46;">' + b.correctWord + '</span>';
+                el.classList.add('filled', 'correct');
+                el.classList.remove('incorrect');
+                if (b.currentValue) placedWords.delete(b.currentValue);
+                b.currentValue = b.correctWord;
+                placedWords.add(b.correctWord);
+            });
+            buildWordBank();
+            updateFilledCount();
+        }
+        
+        function resetGame() {
+            currentBlanks.forEach(b => {
+                const el = document.getElementById(b.elementId);
+                if (el) { el.innerHTML = ''; el.classList.remove('filled', 'correct', 'incorrect'); }
+                b.currentValue = null;
+            });
+            placedWords.clear();
+            buildWordBank();
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('success-banner').classList.remove('show');
+            document.getElementById('score-stat').style.display = 'none';
+            updateFilledCount();
+        }
+        
+        window.onload = function() {
+            buildGame();
+            document.getElementById('total-blanks').textContent = currentBlanks.length;
+            
+            // Ensure initial zoom class
+            const area = document.getElementById('game-play-area');
+            if (area && !area.classList.contains('scale-1')) {
+                area.classList.add('scale-1');
+            }
+        };
+    <\/script>
+</body>
+</html>`;
+            
+            const blob = new Blob([studentHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${gameData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_student.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // ========================
+        // DEMO
+        // ========================
+        function useDemoData() {
+            setInputMethod('paste');
+            
+            const demoText = `The capital of Japan is Tokyo.
+The largest ocean in the world is the Pacific Ocean.
+Mount Everest is located in the Himalayas Mountains.
+The Great Wall of China is in China.
+The currency of Japan is the yen.
+Tokyo is the capital of Japan.`;
+            
+            const demoHints = `日本の首都
+世界最大の海
+世界最高峰の山脈
+中華人民共和国
+日本の通貨
+日本の首都`;
+            
+            document.getElementById('paste-text-input').value = demoText;
+            
+            const checkbox = document.getElementById('has-hints-checkbox');
+            const hintsBox = document.getElementById('hints-paste-input');
+            checkbox.checked = true;
+            hintsBox.style.display = 'block';
+            hintsBox.value = demoHints;
+            
+            setTimeout(() => {
+                parseAndEnterSelectionMode();
+                
+                setTimeout(() => {
+                    const demoWords = ["Tokyo", "Pacific", "Himalayas", "China", "yen", "capital"];
+                    demoWords.forEach(w => selectedBlankWords.add(w));
+                    renderSelectableWords();
+                    
+                    setTimeout(() => {
+                        buildGameFromSelection();
+                    }, 420);
+                }, 360);
+            }, 110);
+        }
+        
+        function loadManualData() {
+            const sentencesRaw = document.getElementById('sentences-input').value.trim();
+            const wordsRaw = document.getElementById('wordbank-input').value.trim();
+            const hintsRaw = document.getElementById('hints-input').value.trim();
+            
+            if (!sentencesRaw || !wordsRaw) {
+                alert("Please fill sentences and word bank.");
+                return;
+            }
+            
+            gameData.sentences = sentencesRaw.split('\n').map(s => s.trim()).filter(Boolean);
+            gameData.wordBank = wordsRaw.split('\n').map(w => w.trim()).filter(Boolean);
+            
+            const hintsArr = hintsRaw ? hintsRaw.split('\n').map(h => h.trim()) : [];
+            gameData.hints = new Array(gameData.sentences.length).fill('');
+            hintsArr.forEach((h, i) => { if (i < gameData.hints.length) gameData.hints[i] = h; });
+            
+            renderGameSentences();
+            buildWordBank();
+            updateFilledCount();
+        }
+        
+        // Keyboard
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.activeElement.tagName === 'BODY') checkAnswers();
+            if (e.key.toLowerCase() === 'r' && document.activeElement.tagName === 'BODY') resetGame();
+            if (e.key.toLowerCase() === 'z' && document.activeElement.tagName === 'BODY') toggleZoom();
+        });
+        
+        // INITIALIZE
+        window.onload = function() {
+            displayMode = 'numbered';
+            document.getElementById('mode-numbered').classList.add('active');
+            document.getElementById('mode-paragraph').classList.remove('active');
+            
+            setInputMethod('paste');
+            
+            document.getElementById('paste-text-input').value = 
+                "The capital of Japan is Tokyo.\nThe largest ocean is the Pacific.";
+            
+            document.getElementById('hints-paste-input').style.display = 'none';
+            document.getElementById('has-hints-checkbox').checked = false;
+            
+            document.getElementById('game-title').value = gameData.title;
+            document.getElementById('total-blanks').textContent = '0';
+            document.getElementById('manual-mode-panel').style.display = 'none';
+            
+            // Initialize zoom
+            const playArea = document.getElementById('game-play-area');
+            playArea.classList.add('scale-1');
+            playArea.style.fontSize = '100%';
+            
+            console.log('%c[Drag Fill-in-Blanks] Ready — zoom fixed with direct style + classes', 'color:#6366f1');
+        };
+        
+        window.setDisplayMode = setDisplayMode;
+        window.resetGame = resetGame;
+        window.useDemoData = useDemoData;
+        window.toggleZoom = toggleZoom;
+    </script>
+</body>
+</html>
