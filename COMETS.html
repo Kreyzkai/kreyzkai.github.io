@@ -262,7 +262,9 @@
         <div class="gate-panel">
             <h2>🔒 COMETS</h2>
             <p>This section is password protected.</p>
-            <input type="password" id="gateInput" placeholder="Enter password" autocomplete="off" />
+            <input type="text" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" tabindex="-1" autocomplete="username" />
+            <input type="password" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" tabindex="-1" autocomplete="new-password" />
+            <input type="password" id="gateInput" name="cometsAccessCode_2026" placeholder="Enter password" autocomplete="new-password" data-lpignore="true" data-1p-ignore readonly onfocus="this.removeAttribute('readonly');" />
             <button onclick="checkGatePassword()">Enter</button>
             <div id="gateError"></div>
         </div>
@@ -368,7 +370,7 @@
     </div>
 
     <script>
-    const GATE_PASSWORD = "JETChris";
+    const GATE_PASSWORD = "Kasai";
 
     function checkGatePassword() {
         const input = document.getElementById('gateInput');
