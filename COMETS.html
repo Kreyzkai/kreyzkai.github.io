@@ -201,10 +201,74 @@
             h1 { font-size: 1.6rem; }
             .grid { grid-template-columns: 1fr; }
         }
+
+        #passwordGate {
+            position: fixed;
+            inset: 0;
+            background: url('https://i.imgur.com/UB5InWR.gif') center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+        #passwordGate .gate-panel {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 340px;
+            width: 88%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+        #passwordGate h2 { margin: 0 0 8px 0; font-size: 1.3rem; }
+        #passwordGate p { font-size: 0.85rem; opacity: 0.85; margin: 0 0 20px 0; }
+        #passwordGate input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        #passwordGate button {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #003366;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        #passwordGate button:hover { background: #feca57; }
+        #gateError {
+            color: #feca57;
+            font-size: 0.8rem;
+            min-height: 18px;
+            margin-top: 10px;
+        }
+        #siteContent { display: none; }
     </style>
 </head>
 
 <body>
+
+    <div id="passwordGate">
+        <div class="gate-panel">
+            <h2>🔒 COMETS</h2>
+            <p>This section is password protected.</p>
+            <input type="password" id="gateInput" placeholder="Enter password" autocomplete="off" />
+            <button onclick="checkGatePassword()">Enter</button>
+            <div id="gateError"></div>
+        </div>
+    </div>
+
+    <div id="siteContent">
     <div class="container">
         <h1>Teaching Tools</h1>
         <p class="subtitle">COMET BASIC NOTE</p>
@@ -300,6 +364,33 @@
             <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button>
         </div>
     </div>
+
+    </div>
+
+    <script>
+    const GATE_PASSWORD = "JETChris";
+
+    function checkGatePassword() {
+        const input = document.getElementById('gateInput');
+        const error = document.getElementById('gateError');
+        if (input.value === GATE_PASSWORD) {
+            document.getElementById('passwordGate').style.display = 'none';
+            document.getElementById('siteContent').style.display = 'block';
+        } else {
+            error.textContent = 'Incorrect password. Try again.';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    document.getElementById('gateInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') checkGatePassword();
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('gateInput').focus();
+    });
+    </script>
 
     <script>
     document.getElementById('aboutModal').addEventListener('click', function(e) {
