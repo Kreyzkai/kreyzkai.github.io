@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chris' Teaching Tools Launcher</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('https://i.imgur.com/UB5InWR.gif') center/cover fixed;
+            background-color: #f4f6fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.5);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 960px;
+            width: 85%;
+        }
+
+        h1 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 10px; color: #003366; }
+        .subtitle { text-align: center; font-size: 0.85rem; color: #555; margin-bottom: 35px; font-style: italic; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        a { text-decoration: none; display: block; transition: transform 0.2s; }
+        a:hover { transform: scale(1.05); }
+
+        .card-wrap { position: relative; height: 100%; }
+
+        .card {
+            background: #ffffff;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            color: #333;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eee;
+        }
+
+        a:hover .card {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: #f8f9fa;
+        }
+
+        .number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 15px;
+            background: #e8f0f8;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #003366;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0.55;
+            transition: opacity 0.2s, transform 0.2s;
+            line-height: 1;
+            font-family: Arial, sans-serif;
+        }
+        .info-btn:hover, .info-btn.active { opacity: 1; transform: scale(1.15); }
+
+        .info-tip {
+            display: none;
+            position: absolute;
+            top: 32px;
+            right: 0;
+            width: 210px;
+            background: #003366;
+            color: white;
+            font-size: 11.5px;
+            line-height: 1.55;
+            padding: 10px 13px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            z-index: 50;
+            pointer-events: none;
+        }
+        .info-tip::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 6px;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid #003366;
+        }
+        .card-wrap:hover .info-tip { display: block; }
+        .info-tip.show { display: block; pointer-events: auto; }
+
+        #aboutBtn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,51,102,0.7);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        #aboutBtn:hover { background: #003366; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+
+        #watermark {
+            position: fixed;
+            left: 15px;
+            bottom: 20px;
+            font-size: 12px;
+            opacity: 0.3;
+            pointer-events: none;
+            color: #333;
+        }
+
+        #aboutModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        #aboutModal.open { display: flex; }
+
+        .modal-panel {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 520px;
+            width: 88%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+        .modal-panel h2 { margin: 0 0 8px 0; font-size: 1.4rem; }
+        .modal-panel .modal-sub { font-size: 0.8rem; opacity: 0.7; margin-bottom: 24px; }
+        .modal-panel p { font-size: 0.88rem; line-height: 1.7; margin: 0 0 14px 0; opacity: 0.95; }
+        .modal-panel .section-label { color: #feca57; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 18px 0 6px 0; }
+        .modal-close { margin-top: 24px; display: block; width: 100%; padding: 12px; background: white; color: #003366; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { background: #feca57; }
+
+        .tool-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 8px; }
+        .tool-table td { padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: top; }
+        .tool-table td:first-child { color: #feca57; font-weight: bold; white-space: nowrap; padding-right: 10px; }
+
+        @media (max-width: 600px) {
+            .container { padding: 25px 15px; }
+            h1 { font-size: 1.6rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Teaching Tools</h1>
+        <p class="subtitle">COMET BASIC NOTE</p>
+        
+
+        <div class="grid">
+
+            <a href="COMET2_Drillbook.html">
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">COMET 2 Drill Book</div>
+                    <div class="card">
+                        <div class="number">001</div>
+                        <div class="title">COMET II Drill Book<br>(With recommended follow up activities</div>
+                    </div>
+                </div>
+            </a>
+
+            <a href="FINAL COMET I Basic Note.html">
+                <div class="card-wrap">
+                    <button class="info-btn" onclick="toggleTip(event,this)">?</button>
+                    <div class="info-tip">Teacher enters two-option (A or B) questions with optional images. Generates a downloadable student game.</div>
+                    <div class="card">
+                        <div class="number">002</div>
+                        <div class="title">COMET I Basic Note<br></div>
+                    </div>
+                </div>
+            </a>
+
+           
+
+        </div>
+    </div>
+
+    <button id="aboutBtn" onclick="document.getElementById('aboutModal').classList.add('open')" title="About this site">?</button>
+    <div id="watermark">CMarasigan</div>
+
+    <!-- About Modal -->
+    <div id="aboutModal">
+        <div class="modal-panel">
+            <h2>About This Site</h2>
+            <p class="modal-sub">Teaching Tools — CMarasigan for Kasai-Minami High School</p>
+
+            <p>A private collection of browser-based tools for generating classroom games and worksheets. Everything runs entirely in your browser — no internet connection needed once the files are loaded, and no data is ever sent anywhere.</p>
+
+            <div class="section-label">What each tool does</div>
+            <table class="tool-table">
+                <tr><td>001</td><td>Multiple-choice quiz generator — text only</td></tr>
+                <tr><td>002</td><td>Two-option (A/B) quiz with optional image uploads</td></tr>
+                <tr><td>003</td><td>Hangman-style word guessing game</td></tr>
+                <tr><td>004</td><td>Sentence word-order jumbling game</td></tr>
+                <tr><td>005</td><td>Fill-in-the-blank printable worksheet</td></tr>
+                <tr><td>006</td><td>Multiple-choice quiz with image answer choices</td></tr>
+                <tr><td>007</td><td>Enhanced jumbler — words, phrases, or full sentences</td></tr>
+                <tr><td>008</td><td>Interactive fill-in-the-blank game with scoring</td></tr>
+                <tr><td>009</td><td>Full Jeopardy game generator with animations</td></tr>
+                <tr><td>010</td><td>Two-column translation worksheet (beta)</td></tr>
+                <tr><td>011</td><td>Basic Jeopardy — simpler, faster to set up</td></tr>
+                <tr><td>012</td><td>Custom card deck — printable or on-screen</td></tr>
+                <tr><td>013</td><td>PPTX text extractor — animation order, fully offline</td></tr>
+                <tr><td>014</td><td>Multi-set drag-and-match game with text/image support, review screen, and built-in A4 worksheet + RTF export</td></tr>
+                <tr><td>015</td><td>Category sorting game — create categories and sortable entries</td></tr>
+                <tr><td>016</td><td>Watching Worlds FITB — fill-in-the-blank generator specific to the Watching Worlds textbook</td></tr>
+                <tr><td>017</td><td>Multiple-choice quiz builder with reusable answer choices across quizzes</td></tr>
+                <tr><td>018</td><td>AI image generator powered by Flux — text-to-image (beta)</td></tr>
+                <tr><td>019</td><td>Media format converter — converts common audio and video formats (beta)</td></tr>
+                <tr><td>020</td><td>Text-to-speech with preloaded ElevenLabs voices (beta)</td></tr>
+                <tr><td>021</td><td>Voice clone TTS — record your voice to create a clone via Fish Audio, then generate speech in it. Free tier (beta)</td></tr>
+                <tr><td>022</td><td>Falling Words Generator — teacher enters JP/EN pairs, exports an arcade-style student vocabulary game</td></tr>
+                <tr><td>023</td><td>OCR text extractor — pulls readable text from uploaded or pasted images, supports Japanese and English</td></tr>
+            </table>
+
+            <div class="section-label">How to use</div>
+            <p>Click any card to open that tool. Fill in your content, preview, and download the student file. Student files are standalone HTML — just open and play, no installation needed.</p>
+
+            <div class="section-label">About the site and Acknowledgements</div>
+            <p>First, a disclaimer: I am by no means an expert. This entire site was vibe-coded using Claude, ChatGPT, Canva AI, GitHub AI, and a lot of asking around.</p>
+            <p>I have had the privilege of building these tools as a JET Programme ALT assigned to Tokyo Metropolitan Kasai-Minami High School. Made with ☕ and a lot of trial and error — simply because I couldn't afford anything else.</p>
+            <p>Thank you to Marcel Badua of Third Wind Stories and Coach Richard Munar for all the advice you have provided.</p>
+            <p>Thanks to Ueda Sensei for her encouragements and the feedback. As well, to the Principal, Vice Principal, and all the JTE's of The Tokyo Metropolitan Kasai Minami High School.</p>
+            <p>My love and gratitude to Ayie and Kaizen for their support and patience.</p>
+            <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+
+    <script>
+    document.getElementById('aboutModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+    });
+
+    function toggleTip(e, btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const tip = btn.nextElementSibling;
+        const isOpen = tip.classList.contains('show');
+        document.querySelectorAll('.info-tip.show').forEach(t => {
+            t.classList.remove('show');
+            t.previousElementSibling.classList.remove('active');
+        });
+        if (!isOpen) {
+            tip.classList.add('show');
+            btn.classList.add('active');
+        }
+    }
+
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.info-tip.show').forEach(t => {
+            t.classList.remove('show');
+            t.previousElementSibling.classList.remove('active');
+        });
+    });
+    </script>
+</body>
+</html>

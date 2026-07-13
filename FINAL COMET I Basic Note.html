@@ -1,0 +1,3470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>改訂版 COMET English Communication I ベーシックノート</title>
+<style>
+  /* =========================================================
+     COMET 1 Basic Note – Interactive Textbook Edition
+     Single-file HTML. No external deps. UTF-8.
+     ========================================================= */
+  :root{
+    --ink:#1a2733;
+    --ink-soft:#3a4a5c;
+    --paper:#fbfaf5;
+    --paper-warm:#f5f0e1;
+    --cream:#fff8e8;
+    --cyan:#0e5f7a;
+    --cyan-soft:#e6f2f6;
+    --cyan-bar:#123846;
+    --rule:#c8bfa8;
+    --rule-soft:#e2dcc8;
+    --accent:#c94a3c;
+    --good:#2f8f4f;
+    --bad:#c94a3c;
+    --shadow: 0 2px 6px rgba(0,0,0,0.08);
+    --font-jp: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", "Noto Serif JP", serif;
+    --font-jp-sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+    --font-en: "Georgia", "Times New Roman", "Noto Serif", serif;
+    --font-ui: "Helvetica Neue", "Segoe UI", "Yu Gothic UI", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e8e2d1;color:var(--ink);font-family:var(--font-ui);height:100%}
+  body{overflow:hidden}
+
+  /* ---------- Splash ---------- */
+  #splash{
+    position:fixed;inset:0;z-index:1000;
+    background:radial-gradient(ellipse at top,#1c4b60,#0a2530);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    transition:opacity .5s;
+  }
+  #splash.hide{opacity:0;pointer-events:none}
+  .splash-card{
+    text-align:center;padding:48px 56px;max-width:640px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:16px;backdrop-filter:blur(6px);
+  }
+  .splash-brand{font-family:var(--font-en);font-weight:700;font-size:56px;letter-spacing:6px;margin:0}
+  .splash-brand small{display:block;font-size:16px;letter-spacing:3px;font-weight:400;opacity:.85;margin-top:6px}
+  .splash-jp{font-family:var(--font-jp);font-size:28px;margin:22px 0 8px;letter-spacing:.15em}
+  .splash-sub{font-size:14px;opacity:.85;margin:0 0 28px}
+  .splash-btn{
+    background:#f5c14b;color:#1a2733;border:none;
+    font-size:16px;font-weight:700;letter-spacing:.15em;
+    padding:14px 36px;border-radius:999px;cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+    transition:transform .15s;
+  }
+  .splash-btn:hover{transform:translateY(-2px)}
+  .splash-authors{font-size:12px;opacity:.7;margin-top:24px;letter-spacing:.05em}
+
+  /* ---------- App shell ---------- */
+  #app{display:grid;grid-template-columns:280px 1fr;height:100vh;transition:grid-template-columns .25s ease}
+  #app.side-collapsed{grid-template-columns:0 1fr}
+  #app.side-collapsed aside#sidebar{transform:translateX(-100%);pointer-events:none}
+  aside#sidebar{
+    background:#123846;color:#e6f2f6;overflow-y:auto;
+    border-right:1px solid #082530;
+    transition:transform .25s ease;
+  }
+  .side-collapse-btn{
+    background:#123846;color:#fff;border:none;
+    width:34px;height:34px;border-radius:8px;font-size:18px;cursor:pointer;
+    flex-shrink:0;box-shadow:var(--shadow);
+  }
+  .side-collapse-btn:hover{filter:brightness(1.15)}
+
+  /* Reveal (per-question) button */
+  .reveal-btn{
+    background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8;
+    font-family:var(--font-jp-sans);font-size:10.5px;font-weight:700;
+    padding:1px 8px;border-radius:999px;cursor:pointer;
+    margin-left:6px;vertical-align:middle;letter-spacing:.05em;
+  }
+  .reveal-btn:hover{background:#f5c14b;color:#1a2733;border-color:#c19a2a}
+  .side-head{
+    padding:20px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  .side-head .brand{font-family:var(--font-en);font-weight:700;font-size:22px;letter-spacing:3px}
+  .side-head .brand small{display:block;font-size:11px;letter-spacing:2px;opacity:.7;font-weight:400}
+  .side-head .brand-jp{font-family:var(--font-jp);font-size:14px;opacity:.85;margin-top:6px;letter-spacing:.1em}
+  .toc{list-style:none;padding:12px 0;margin:0}
+  .toc li{margin:0}
+  .toc a{
+    display:block;padding:11px 20px;color:#cfe3ea;text-decoration:none;
+    font-size:14px;border-left:3px solid transparent;
+    display:flex;align-items:center;gap:10px;
+  }
+  .toc a:hover{background:rgba(255,255,255,0.06)}
+  .toc a.active{background:rgba(245,193,75,0.14);border-left-color:#f5c14b;color:#fff}
+  .toc a .num{
+    font-family:var(--font-en);font-weight:700;
+    background:#f5c14b;color:#123846;
+    width:26px;height:26px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;flex-shrink:0;
+  }
+  .toc a.active .num{background:#fff}
+  .toc a .title-en{display:block;font-family:var(--font-en);font-weight:600;font-size:13.5px;line-height:1.25}
+  .toc a .title-jp{display:block;font-family:var(--font-jp);font-size:11px;opacity:.75;margin-top:2px;letter-spacing:.05em}
+  .toc a .col{display:flex;flex-direction:column;min-width:0}
+
+  .side-foot{padding:14px 20px;font-size:11px;opacity:.6;border-top:1px solid rgba(255,255,255,0.1)}
+
+  /* ---------- Main area ---------- */
+  main#stage{
+    position:relative;overflow-y:auto;
+    background:
+      linear-gradient(#e8e2d1,#d9d1b8);
+    padding:24px 24px 80px;
+  }
+  .topbar{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:#fff;border:1px solid var(--rule);border-radius:10px;
+    padding:10px 16px;margin-bottom:18px;box-shadow:var(--shadow);
+  }
+  .topbar .crumb{
+    font-family:var(--font-jp-sans);font-size:13px;color:var(--ink-soft);
+    flex:1;min-width:200px;
+  }
+  .topbar .crumb b{color:var(--cyan);font-weight:700}
+  .topbar .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{
+    background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8;
+    padding:7px 14px;border-radius:999px;font-size:12.5px;cursor:pointer;
+    font-family:var(--font-jp-sans);white-space:nowrap;
+  }
+  .tab:hover{background:#e6ecdd}
+  .tab.active{background:#123846;color:#fff;border-color:#123846}
+  .tab .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#c94a3c;margin-right:6px;opacity:0}
+  .tab.done .dot{opacity:1;background:#2f8f4f}
+
+  .zoom{display:flex;gap:4px;align-items:center;font-size:12px;color:#3a4a5c}
+  .zoom button{
+    background:#fff;border:1px solid #c8bfa8;width:28px;height:28px;
+    border-radius:6px;cursor:pointer;font-weight:700;color:#3a4a5c;
+  }
+  .zoom button:hover{background:#f0ede4}
+
+  /* ---------- Textbook page ---------- */
+  .book{
+    max-width:920px;margin:0 auto;background:var(--paper);
+    box-shadow:0 4px 20px rgba(0,0,0,.15);
+    border:1px solid #b8ad8f;
+    border-radius:4px;overflow:hidden;
+    transform-origin:top center;transition:transform .2s;
+  }
+  .page{padding:34px 44px 44px;min-height:600px;position:relative}
+  .page::before{
+    content:attr(data-foot);position:absolute;bottom:14px;left:44px;
+    font-family:var(--font-jp-sans);font-size:11px;color:#8a7f60;letter-spacing:.1em;
+  }
+  .page::after{
+    content:attr(data-page);position:absolute;bottom:14px;right:44px;
+    font-family:var(--font-en);font-size:12px;color:#8a7f60;font-weight:600;
+  }
+
+  /* ---- Lesson header ---- */
+  .lesson-header{
+    display:flex;align-items:center;gap:18px;margin-bottom:22px;
+    border-bottom:2px solid #3a4a5c;padding-bottom:14px;
+  }
+  .lesson-badge{
+    flex-shrink:0;width:78px;height:78px;border-radius:50%;
+    background:#e8e2d1;color:#3a4a5c;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:var(--font-en);border:1px solid #b8ad8f;
+  }
+  .lesson-badge .lb1{font-size:11px;letter-spacing:.15em;margin-top:4px}
+  .lesson-badge .lb2{font-family:var(--font-en);font-size:30px;font-weight:700;line-height:1;margin-top:-2px}
+  .lesson-title{flex:1;min-width:0}
+  .lesson-title .en{
+    font-family:var(--font-en);font-weight:700;font-size:30px;color:#1a2733;
+    line-height:1.15;margin:0 0 6px;
+  }
+  .lesson-title .em{font-style:italic}
+  .kyoukasho{
+    display:inline-block;background:#3a4a5c;color:#fff;
+    font-family:var(--font-jp-sans);font-size:11px;
+    padding:2px 8px;border-radius:3px;margin-right:8px;
+  }
+  .lesson-title .jp{
+    font-family:var(--font-jp);font-size:15px;color:var(--ink-soft);
+    letter-spacing:.05em;
+  }
+
+  /* ---- Section bar (cyan-ish black bar in the book) ---- */
+  .section-bar{
+    background:linear-gradient(#1a2f3a,#0d1e26);
+    color:#fff;
+    border-radius:999px;
+    padding:9px 22px;
+    font-family:var(--font-jp-sans);font-size:14.5px;font-weight:700;
+    display:inline-flex;align-items:center;gap:10px;
+    margin:22px 0 14px;letter-spacing:.06em;
+    box-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .section-bar .ico{
+    width:22px;height:22px;background:#fff;color:#123846;
+    border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:700;
+  }
+
+  .subsec{
+    background:#eef1ea;border-radius:999px;
+    padding:5px 16px;display:inline-block;
+    font-family:var(--font-jp-sans);font-size:13px;font-weight:700;color:#1a2733;
+    margin:14px 0 8px;
+  }
+
+  /* ---- Numbered main-text lines (本文) ---- */
+  .honbun{list-style:none;padding:0;margin:0}
+  .honbun li{
+    display:flex;align-items:baseline;gap:12px;
+    border-bottom:1px solid #b8ad8f;padding:12px 4px 14px;
+    font-family:var(--font-en);font-size:16px;line-height:1.5;
+  }
+  .honbun .n{
+    flex-shrink:0;font-family:var(--font-en);font-weight:700;
+    width:26px;height:22px;border:1.5px solid #3a4a5c;border-radius:6px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#3a4a5c;
+    background:#fff;
+  }
+  .honbun .txt{flex:1}
+  /* underline = subject (solid) */
+  .honbun u{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+  /* dotted underline for extras */
+  .honbun .du{border-bottom:1px dotted #3a4a5c;padding-bottom:1px}
+  .honbun b{font-weight:700}
+  .honbun em{font-style:italic}
+
+  /* Translation-exercise honbun: click sentence to reveal Japanese translation */
+  .honbun.translate li{
+    flex-direction:column;align-items:stretch;gap:6px;cursor:pointer;
+    transition:background .15s;
+  }
+  .honbun.translate li:hover{background:#fff8e8}
+  .honbun.translate li .row{
+    display:flex;align-items:baseline;gap:12px;
+  }
+  .honbun.translate .en-row{font-family:var(--font-en);font-size:16px;line-height:1.5;flex:1}
+  .honbun.translate .jp-answer{
+    display:none;font-family:var(--font-jp);font-size:14.5px;color:#0e5f7a;
+    background:#f7fbe6;border-left:3px solid #7aa832;border-radius:0 6px 6px 0;
+    padding:8px 14px;margin:2px 0 0 38px;line-height:1.7;
+  }
+  .honbun.translate li.revealed .jp-answer{display:block}
+  .translate-toolbar{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    margin:14px 0 6px;padding:8px 14px;
+    background:#eef1ea;border:1px solid #c8bfa8;border-radius:8px;
+    font-family:var(--font-jp-sans);font-size:12.5px;color:#3a4a5c;
+  }
+  .translate-toolbar .info{flex:1;min-width:200px}
+  .translate-toolbar button{
+    background:#123846;color:#fff;border:none;padding:6px 14px;border-radius:6px;
+    font-family:var(--font-jp-sans);font-size:12px;font-weight:700;cursor:pointer;
+  }
+  .translate-toolbar button.secondary{background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8}
+  .translate-toolbar button.next-btn{background:#c94a3c;margin-left:auto}
+  .translate-toolbar button:hover{filter:brightness(1.1)}
+
+  /* (Date/WPM/QR head-side removed per instructor request) */
+
+  /* ---- Vocab bank pill row (word bank) ---- */
+  .wordbank{
+    background:#fff;border:1.5px dashed #8a9aab;border-radius:8px;
+    padding:8px 14px;margin:10px auto;display:inline-block;
+    font-family:var(--font-jp);font-size:14px;letter-spacing:.05em;
+    color:#1a2733;
+  }
+  .wordbank.center{display:block;text-align:center;max-width:520px}
+  .wordbank .sep{color:#8a9aab;margin:0 8px}
+
+  /* ---- Exercise blocks ---- */
+  .ex{margin:10px 0 18px}
+  .ex-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;background:#3a4a5c;color:#fff;
+    border-radius:4px;font-family:var(--font-en);font-weight:700;font-size:12px;
+    margin-right:6px;vertical-align:-2px;
+  }
+  .ex-instr{
+    font-family:var(--font-jp-sans);font-size:13.5px;color:#1a2733;
+    margin:6px 0 10px;line-height:1.5;
+  }
+  .ex-list{list-style:none;padding:0;margin:6px 0 0}
+  .ex-list > li{
+    display:flex;align-items:baseline;gap:8px;padding:6px 0;
+    font-family:var(--font-en);font-size:15px;line-height:1.6;
+  }
+  .ex-list > li .idx{
+    font-family:var(--font-jp);font-size:12px;color:#3a4a5c;flex-shrink:0;min-width:20px;
+  }
+  .ex-list > li .jp{font-family:var(--font-jp);font-size:13.5px;color:#3a4a5c;min-width:230px;display:inline-block}
+  .ex-list > li .en{font-family:var(--font-en);font-size:14.5px;color:#1a2733;flex:1}
+  .ex-list.stack > li{flex-direction:column;align-items:flex-start;gap:2px;border-bottom:1px dotted #d0c8ae;padding:8px 0}
+  .ex-list.stack > li .en{width:100%}
+
+  /* ---- Inputs / choices ---- */
+  .fillin{
+    display:inline-block;min-width:110px;
+    border:none;border-bottom:1.5px solid #3a4a5c;
+    background:transparent;font-family:var(--font-en);font-size:14.5px;
+    padding:2px 4px;margin:0 3px;color:#0e5f7a;
+  }
+  .fillin:focus{outline:none;background:#fff8d6;border-bottom-color:#c94a3c}
+  .fillin.correct{background:#e2f4e6;border-bottom-color:#2f8f4f;color:#2f8f4f}
+  .fillin.wrong{background:#fbe4e2;border-bottom-color:#c94a3c;color:#c94a3c}
+  .fillin.short{min-width:70px}
+  .fillin.long{min-width:170px}
+
+  .choice{
+    display:inline-flex;gap:0;border:1px solid #3a4a5c;border-radius:6px;overflow:hidden;
+    margin:0 3px;vertical-align:-2px;
+  }
+  .choice button{
+    background:#fff;border:none;padding:3px 10px;font-family:var(--font-en);font-size:13.5px;
+    cursor:pointer;color:#1a2733;border-right:1px solid #c8bfa8;
+  }
+  .choice button:last-child{border-right:none}
+  .choice button:hover{background:#f0ede4}
+  .choice button.picked{background:#123846;color:#fff}
+  .choice button.picked.correct{background:#2f8f4f}
+  .choice button.picked.wrong{background:#c94a3c}
+
+  .jp-choice{
+    display:inline-flex;gap:0;border:1px solid #3a4a5c;border-radius:6px;overflow:hidden;margin:0 4px;
+  }
+  .jp-choice button{
+    background:#fff;border:none;padding:2px 10px;font-family:var(--font-jp);font-size:13.5px;
+    cursor:pointer;color:#1a2733;border-right:1px solid #c8bfa8;
+  }
+  .jp-choice button:last-child{border-right:none}
+  .jp-choice button:hover{background:#f0ede4}
+  .jp-choice button.picked{background:#123846;color:#fff}
+  .jp-choice button.picked.correct{background:#2f8f4f}
+  .jp-choice button.picked.wrong{background:#c94a3c}
+
+  .letter-hint{
+    display:inline-block;font-family:var(--font-en);font-style:italic;color:#3a4a5c;
+    border-bottom:1.5px solid #3a4a5c;padding:0 4px 1px;min-width:10px;
+  }
+  .cloze-num{
+    font-family:var(--font-en);font-size:10px;color:#3a4a5c;vertical-align:sub;margin-right:2px;
+  }
+
+  /* ---- Grammar formula box ---- */
+  .grammar-box{
+    background:#fff;border:1.5px solid #3a4a5c;border-radius:14px;
+    padding:14px 20px;margin:10px 0 18px;position:relative;
+  }
+  .grammar-box .gtitle{
+    font-family:var(--font-jp-sans);font-weight:700;color:#1a2733;
+    font-size:14.5px;margin-bottom:10px;
+  }
+  .grammar-box .gtitle .term{
+    color:#c94a3c;font-weight:700;margin-right:8px;
+  }
+  .grammar-box .rule{
+    font-family:var(--font-jp);font-size:12.5px;color:#3a4a5c;
+    text-align:right;margin-top:2px;
+  }
+  .grammar-box .pat{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin:8px 0;
+    font-family:var(--font-en);font-size:14.5px;
+  }
+  .grammar-box .patlabel{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;background:#1a2733;color:#fff;border-radius:50%;
+    font-family:var(--font-en);font-size:12px;font-weight:700;flex-shrink:0;
+  }
+  .grammar-box .patdesc{font-family:var(--font-jp);color:#c94a3c;font-size:13px;font-weight:700}
+  .grammar-box .example{font-family:var(--font-en);font-size:14px;margin:2px 0 4px 30px}
+  .grammar-box .example .jp{color:#3a4a5c;font-family:var(--font-jp);font-size:12.5px;margin-left:12px}
+  .grammar-table{
+    display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:0;
+    border:1px solid #3a4a5c;border-radius:6px;overflow:hidden;
+    font-family:var(--font-en);font-size:13px;margin:8px 0;
+  }
+  .grammar-table > div{padding:5px 10px;border-right:1px solid #c8bfa8;border-bottom:1px solid #c8bfa8;background:#fff;text-align:center}
+  .grammar-table > div:nth-child(3n){border-right:none}
+  .grammar-table > div.h{background:#f0ede4;font-weight:700;font-family:var(--font-jp-sans);font-size:12px}
+  .gt-title{
+    text-align:center;font-family:var(--font-jp-sans);font-size:12px;font-weight:700;
+    background:#3a4a5c;color:#fff;padding:3px;margin:12px 0 0;border-radius:4px 4px 0 0;
+    max-width:none;
+  }
+  .gt-split{
+    display:grid;grid-template-columns:1fr 1.15fr;gap:0;
+    border:1px solid #3a4a5c;border-top:none;border-radius:0 0 6px 6px;overflow:hidden;
+    background:#fff;
+  }
+  .gt-left{display:grid;font-family:var(--font-en);font-size:13px;border-right:1px solid #3a4a5c}
+  .gt-left > div{
+    padding:5px 6px;border-right:1px solid #c8bfa8;border-bottom:1px solid #c8bfa8;
+    text-align:center;background:#fff;
+  }
+  .gt-left > div.h{background:#f0ede4;font-weight:700;font-family:var(--font-jp-sans);font-size:11.5px}
+  .gt-right{display:flex;flex-direction:column;font-family:var(--font-jp-sans);font-size:12px}
+  .gt-r-h{background:#f0ede4;padding:4px 10px;font-weight:700;border-bottom:1px solid #c8bfa8}
+  .gt-r-b{padding:6px 10px;font-family:var(--font-en);font-size:12.5px;border-bottom:1px solid #c8bfa8;background:#fff}
+  .gt-r-b:last-child, .gt-right > div:last-child{border-bottom:none}
+  @media (max-width:720px){ .gt-split{grid-template-columns:1fr} .gt-left{border-right:none;border-bottom:1px solid #3a4a5c} }
+
+  /* ---- Try box ---- */
+  .try{
+    background:#fff;border-left:5px solid #c94a3c;
+    padding:12px 16px;margin:14px 0;border-radius:0 8px 8px 0;
+  }
+  .try .try-tag{
+    display:inline-block;background:#c94a3c;color:#fff;
+    font-family:var(--font-en);font-weight:700;font-size:12px;
+    padding:1px 10px;border-radius:999px;margin-right:8px;
+  }
+  .try .try-instr{font-family:var(--font-jp-sans);font-size:13px;color:#1a2733;margin:6px 0 10px}
+  .try .dial{margin:6px 0;font-family:var(--font-en);font-size:14.5px}
+  .try .dial .who{font-weight:700;margin-right:6px}
+  .try .rightbank{
+    float:right;border:1.5px dashed #8a9aab;border-radius:6px;
+    padding:6px 12px;background:#fff;font-family:var(--font-en);font-size:13.5px;
+    text-align:center;margin:0 0 8px 12px;
+  }
+  .clr{clear:both}
+
+  /* Sample / example line under an ex-instr */
+  .sample-line{
+    background:#fff8e8;border:1px solid #e8dcb2;border-radius:6px;
+    padding:6px 12px;margin:4px 0 10px;
+    font-family:var(--font-jp-sans);font-size:12.5px;color:#5a4a20;
+    display:flex;align-items:flex-start;gap:8px;
+  }
+  .sample-tag{
+    background:#c94a3c;color:#fff;font-family:var(--font-jp-sans);font-size:11px;
+    font-weight:700;padding:1px 8px;border-radius:3px;flex-shrink:0;
+  }
+
+  /* ---- Cloze passage ---- */
+  .cloze{
+    font-family:var(--font-en);font-size:15.5px;line-height:2.0;
+    background:#fff;border:1px solid #e2dcc8;border-radius:8px;
+    padding:22px 24px;color:#1a2733;text-indent:1.4em;
+  }
+  .cloze p{margin:0 0 12px;text-indent:1.4em}
+  .cloze .fillin{min-width:120px}
+  .kyou-p{
+    background:#c94a3c;color:#fff;font-family:var(--font-jp-sans);
+    display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:700;
+    margin-bottom:8px;
+  }
+  .kyou-p::before{content:"→ "}
+
+  /* ---- Note area (メモ欄) ---- */
+  .note-area{
+    background:#fff;border:1px solid #e2dcc8;border-radius:8px;
+    padding:14px 16px;margin-top:12px;
+  }
+  .note-area .note-head{
+    font-family:var(--font-jp-sans);font-size:12px;color:#8a7f60;
+    display:flex;align-items:center;gap:6px;margin-bottom:6px;
+  }
+  .note-area textarea{
+    width:100%;min-height:140px;border:none;resize:vertical;
+    font-family:var(--font-jp);font-size:14px;line-height:1.9;color:#1a2733;
+    background:repeating-linear-gradient(#fff 0,#fff 27px,#e2dcc8 28px);
+    outline:none;padding:2px 4px;
+  }
+
+  /* ---- Focus / open triangle for content ordering ---- */
+  .diamond{color:#c94a3c;font-weight:700;margin-right:6px}
+
+  /* ---- Action bar ---- */
+  .actions{
+    display:flex;gap:10px;margin:22px 0 0;flex-wrap:wrap;
+    padding-top:16px;border-top:1px dashed #c8bfa8;
+  }
+  .btn{
+    background:#123846;color:#fff;border:none;
+    padding:9px 20px;border-radius:6px;cursor:pointer;
+    font-family:var(--font-jp-sans);font-size:13px;font-weight:700;
+    box-shadow:var(--shadow);letter-spacing:.05em;
+  }
+  .btn.secondary{background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8}
+  .btn.warn{background:#c94a3c}
+  .btn:hover{filter:brightness(1.1)}
+  .status{
+    margin-left:auto;font-family:var(--font-jp-sans);font-size:13px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .status.good{color:#2f8f4f}
+  .status.bad{color:#c94a3c}
+
+  /* ---- 2-column layout (left main text, right vocab/content) ---- */
+  .spread{display:grid;grid-template-columns:1.05fr 1fr;gap:26px;align-items:start}
+  @media (max-width:840px){
+    .spread{grid-template-columns:1fr}
+  }
+
+  /* ---- Sidebar toggle for mobile ---- */
+  /* Old floating sidebar toggle superseded by topbar .side-collapse-btn */
+  #sideToggle{display:none !important}
+  @media (max-width:900px){
+    #app{grid-template-columns:1fr}
+    aside#sidebar{
+      position:fixed;inset:0 auto 0 0;width:280px;z-index:50;
+      transform:translateX(-100%);transition:transform .25s;
+    }
+    aside#sidebar.open{transform:translateX(0)}
+    main#stage{padding:24px 12px 60px}
+    .page{padding:22px 20px 40px}
+    .lesson-title .en{font-size:22px}
+  }
+
+  /* Print helper */
+  @media print{
+    #splash,#sidebar,.topbar,.actions,#sideToggle{display:none!important}
+    #app{grid-template-columns:1fr}
+    main#stage{overflow:visible;background:#fff;padding:0}
+    .book{box-shadow:none;border:none}
+  }
+
+  /* Focus visible */
+  button:focus-visible,input:focus-visible,a:focus-visible{
+    outline:2px solid #f5c14b;outline-offset:2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH ============ -->
+<div id="splash">
+  <div class="splash-card">
+    <h1 class="splash-brand">COMET<small>English Communication I &nbsp;— Revised Edition</small></h1>
+    <div class="splash-jp">ベーシックノート</div>
+    <p class="splash-sub">改訂版 COMET English Communication I 準拠 授業用ノート</p>
+    <button class="splash-btn" onclick="document.getElementById('splash').classList.add('hide')">
+      はじめる &nbsp;›
+    </button>
+    <div class="splash-authors">監修：北村 和士 先生 / Mark Campana 先生</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<button id="sideToggle" aria-label="menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<div id="app">
+  <aside id="sidebar" aria-label="Lessons">
+    <div class="side-head">
+      <div class="brand">COMET<small>English Communication Ⅰ</small></div>
+      <div class="brand-jp">目次 — ベーシックノート</div>
+    </div>
+    <ul class="toc" id="toc"></ul>
+    <div class="side-foot">© Kyoiku Shuppan · Digital Rebuild 2026</div>
+  </aside>
+
+  <main id="stage">
+    <div class="topbar">
+      <button class="side-collapse-btn" onclick="toggleSidebar()" title="サイドバーの表示/非表示" aria-label="サイドバー切り替え">☰</button>
+      <div class="crumb" id="crumb">Lesson を選択してください</div>
+      <div class="tabs" id="tabs"></div>
+      <div class="zoom">
+        <button onclick="zoom(-0.1)" aria-label="zoom out">−</button>
+        <span id="zoomLabel">100%</span>
+        <button onclick="zoom(0.1)" aria-label="zoom in">+</button>
+        <button onclick="zoom(0,true)" aria-label="reset zoom" title="reset">⟲</button>
+      </div>
+    </div>
+    <div id="pageHost"></div>
+  </main>
+</div>
+
+<script>
+/* =========================================================================
+   DATA MODEL
+   Every string here comes from COMET 1 Basic Note PDF, verified against
+   the scanned images page-by-page. No content generated, no paraphrase.
+   ========================================================================= */
+
+/* =========================================================================
+   NEW MULTI-PART DATA MODEL
+   Every string verified against COMET 1 Basic Note PDF images page-by-page.
+   Lesson.parts[] = one entry per 2-page content spread (①②③④).
+   Each part contains: honbun, check1, check2, seiri1, seiri2, seiriQ.
+   Lesson.grammar / grammarEx / tryEx / cloze are shared at the lesson level.
+   ========================================================================= */
+
+const LESSONS = [
+
+/* ================================= LESSON 01 ================================= */
+{
+  id:"L01", num:"01",
+  en:"From the Window of the Shinkansen",
+  jp:"新幹線の窓から",
+  parts:[
+    {
+      label:"", kyou:"p.18",
+      honbun:[
+        {n:1, en:`<u>I</u> <b>traveled</b> by Shinkansen from Osaka to Tokyo.`, jp:`私は大阪から東京まで新幹線で旅行しました。`},
+        {n:2, en:`From the window, <u>I</u> <b>enjoyed</b> many wonderful views.`, jp:`窓から，私はたくさんのすばらしい景色を楽しみました。`},
+        {n:3, en:`In Kyoto, <u>I</u> <b>saw</b> the five-story tower, <em>Gojunoto</em>.`, jp:`京都で，私は五重塔「五重塔（ごじゅうのとう）」を見ました。`},
+        {n:4, en:`On the way to Nagoya, <u>there</u> <b>was</b> <span class="du">a castle</span>.`, jp:`名古屋へ向かう途中に，城がありました。`},
+        {n:5, en:`<u>I</u> <b>checked</b> the map, and <u>it</u> <b>was</b> Kiyosu Castle.`, jp:`私は地図を確認しました。それは清洲城でした。`},
+        {n:6, en:`<u>I</u> also <b>saw</b> Mt. Fuji in Shizuoka.`, jp:`私は静岡で富士山も見ました。`},
+        {n:7, en:`<u>It</u> <b>was</b> so beautiful!`, jp:`それはとても美しかったです！`},
+        {n:8, en:`<u>I</u> <b>took</b> pictures of it.`, jp:`私はその写真を撮りました。`},
+        {n:9, en:`Now <u>it</u><b>&rsquo;s</b> your turn.`, jp:`さあ，今度はあなたの番です。`},
+        {n:10, en:`<b>Tell</b> us about your experiences during vacation.`, jp:`休みの間のあなたの体験について私たちに教えてください。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:2, w:"view",       ans:"景色"},
+          {n:4, w:"castle",     ans:"城"},
+          {n:10,w:"experience", ans:"経験"}
+        ],
+        bank:["経験","城","景色"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"そのバスは駅から学校まで行きます。", ref:"1",
+           parts:["The bus goes (", {i:0,ans:"from"}, ") the station (", {i:1,ans:"to"}, ") the school."]},
+          {jp:"私たちは公園に向かう途中で友だちに会いました。", ref:"4",
+           parts:["We met our friends (", {i:0,ans:"on"}, ") (", {i:1,ans:"the"}, ") (", {i:2,ans:"way"}, ") (", {i:3,ans:"to"}, ") the park."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の（ジョーンズ先生が話す）内容に合うように，[ ]内から適切なものを選ぼう。",
+        items:[
+          {label:"a.", jpTemplate:[
+            {t:"ジョーンズ先生は ["},
+            {choice:["大阪","東京"], ans:0},
+            {t:"] から ["},
+            {choice:["東京","京都"], ans:0},
+            {t:"] まで旅行した。"}
+          ]},
+          {label:"b.", jpTemplate:[
+            {t:"京都で，ジョーンズ先生は ["},
+            {choice:["清洲城","五重塔"], ans:1},
+            {t:"] を見た。"}
+          ]},
+          {label:"c.", jpTemplate:[
+            {t:"富士山がとても美しかったので，ジョーンズ先生は ["},
+            {choice:["写真を撮った","動画を送った"], ans:0},
+            {t:"]。"}
+          ]}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものを1つ選ぼう。",
+        choices:[
+          "a. Ms. Jones traveled from Osaka to Tokyo by plane.",
+          "b. Ms. Jones checked the map when she saw a castle.",
+          "c. Ms. Jones didn't have a good experience during vacation."
+        ],
+        ans:1
+      },
+      seiriQ:"ジョーンズ先生は新幹線の中から何を見ましたか。"
+    }
+  ],
+  grammar:{
+    term:"過去形",
+    rule:"過去の出来事について言いたいときは動詞を過去形にします。",
+    tables:[
+      {title:"be動詞",
+       left:{cols:["〜だ【現在形】","〜だった【過去形】"],
+             rows:[["am","was"],["is","was"],["are","were"]]},
+       right:[
+         {h:"過去形の否定文「〜ではなかった」", body:"主語+was / were not[wasn't / weren't]〜."},
+         {h:"過去形の疑問文「〜でしたか」",     body:"Was[Were]+主語〜？"}
+       ]},
+      {title:"一般動詞",
+       left:{cols:["〜する【現在形】","〜した【過去形】"],
+             rows:[["play / plays","played"],["study / studies","studied"],["make / makes","made"]]},
+       right:[
+         {h:"過去形の否定文「〜しなかった」", body:"主語+did not[didn't]+動詞の原形〜."},
+         {h:"過去形の疑問文「〜しましたか」", body:"Did+主語+動詞の原形〜？"}
+       ]}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"日本文に合うように，（　）内から適切なものを選ぼう。", type:"pick",
+     items:[
+      {jp:"ユキは毎日ギターを練習する。", en:["Yuki (", {choice:["practices","practiced"], ans:0}, ") the guitar every day."]},
+      {jp:"ケンはとても速く泳ぐ。",       en:["Ken (", {choice:["swims","swam"], ans:0}, ") very fast."]},
+      {jp:"去年，エミはスペインにいた。", en:["Emi (", {choice:["is","was"], ans:1}, ") in Spain last year."]},
+      {jp:"あなたは今疲れているのですか。", en:["(", {choice:["Are","Were"], ans:0}, ") you tired now?"]},
+      {jp:"昨夜は3時間しか寝なかった。",   en:["I (", {choice:["sleep","slept"], ans:1}, ") for only three hours last night."]}
+    ]},
+    {n:2, instr:"日本文に合うように，（　）に入る語を下から選んで入れよう。", type:"bank",
+     bank:["watched","likes","eat","wasn't","went"],
+     items:[
+      {jp:"タクヤはトマトが好きだ。",           en:["Takuya (", {i:0,ans:"likes"}, ") tomatoes."]},
+      {jp:"ユイと私は先週名古屋へ行った。",     en:["Yui and I (", {i:0,ans:"went"}, ") to Nagoya last week."]},
+      {jp:"私たちはきのう野球の試合を見た。",   en:["We (", {i:0,ans:"watched"}, ") a baseball game yesterday."]},
+      {jp:"その試合はあまりわくわくしなかった。", en:["The game (", {i:0,ans:"wasn't"}, ") very exciting."]},
+      {jp:"今日，朝食を食べましたか。",         en:["Did you (", {i:0,ans:"eat"}, ") breakfast today?"]}
+    ]}
+  ],
+  tryEx:{
+    instr:"アキが遅刻した理由をサトウ先生に話しています。（　）に適する語を右の枠内から選んで記入し，対話を完成させよう。",
+    bank:["were","was","missed"],
+    lines:[
+      {who:"Aki", parts:["I'm sorry. I ",{i:0,ans:"was"}," late for school today."]},
+      {who:"Mr. Sato", parts:["Why ",{i:0,ans:"were"}," you late?"]},
+      {who:"Aki", parts:["I ",{i:0,ans:"missed"}," the bus this morning."]}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.18",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "I traveled by Shinkansen from Osaka to Tokyo. From the window, I enjoyed many wonderful ",
+        {n:1, letter:"v", ans:"views"},
+        ". In Kyoto, I saw the five-story ",
+        {n:2, letter:"t", ans:"tower"},
+        ", ",{em:"Gojunoto"},". On the way to Nagoya, there was a castle. I checked the ",
+        {n:3, letter:"m", ans:"map"},
+        ", and it was Kiyosu Castle. I also saw Mt. Fuji in Shizuoka. It was so beautiful! I took ",
+        {n:4, letter:"p", ans:"pictures"},
+        " of it."
+      ],
+      [
+        "Now it's your ",
+        {n:5, letter:"t", ans:"turn"},
+        ". Tell us about your experiences during ",
+        {n:6, letter:"v", ans:"vacation"},
+        "."
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 02 ================================= */
+{
+  id:"L02", num:"02",
+  en:"Miniature Art: The World of Tanaka Tatsuya",
+  jp:"ミニチュアアート：田中達也の世界",
+  parts:[
+    {
+      label:"", kyou:"p.26",
+      honbun:[
+        {n:1, en:`<u>Children</u> <b>are climbing up</b> a tree with a ladder.`, jp:`子どもたちがはしごで木に登っています。`},
+        {n:2, en:`Wait, <u>it</u><b>&rsquo;s not</b> a tree.`, jp:`待って，それは木ではありません。`},
+        {n:3, en:`<u>It</u><b>&rsquo;s</b> broccoli!`, jp:`ブロッコリーです！`},
+        {n:4, en:`Now, <b>look at</b> the four runners.`, jp:`今度は，4人のランナーを見てください。`},
+        {n:5, en:`Where <b>are</b> <u>they</u>?`, jp:`彼らはどこにいますか。`},
+        {n:6, en:`<b>Are</b> <u>they</u> <b>running</b> on a track?`, jp:`彼らはトラックで走っているのですか。`},
+        {n:7, en:`No, <u>they</u> <b>are</b> on a dictionary!`, jp:`いいえ，彼らは辞書の上にいます！`},
+        {n:8, en:`<u>Tanaka Tatsuya</u> <b>made</b> these creative miniature artworks.`, jp:`田中達也がこれらの創造的なミニチュア作品を作りました。`},
+        {n:9, en:`<u>He</u> <b>uses</b> everyday objects in unique ways.`, jp:`彼は身近な物を独特の方法で使います。`},
+        {n:10, en:`<u>He</u> <b>feels</b> happy when he comes up with good ideas.`, jp:`彼はよいアイデアを思いつくと，幸せな気持ちになります。`},
+        {n:11, en:`<u>He</u> really <b>enjoys</b> his work.`, jp:`彼は本当に自分の仕事を楽しんでいます。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1, w:"ladder",   ans:"はしご"},
+          {n:3, w:"broccoli", ans:"ブロッコリー"},
+          {n:8, w:"creative", ans:"創造的な"},
+          {n:8, w:"miniature",ans:"ミニチュアの"},
+          {n:8, w:"artwork",  ans:"芸術作品"},
+          {n:9, w:"object",   ans:"物"},
+          {n:9, w:"unique",   ans:"独特の"}
+        ],
+        bank:["芸術作品","ブロッコリー","創造的な","はしご","ミニチュアの","物","独特の"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"シンヤは新しいアイデアを思いつきました。", ref:"10",
+           parts:["Shinya (", {i:0,ans:"came"}, ") (", {i:1,ans:"up"}, ") (", {i:2,ans:"with"}, ") a new idea."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"子どもたちが登っているのは，実は（1.", ans:"ブロッコリー", post:"）で，ランナーたちが走っているのは，"},
+          {pre:"実は（2.", ans:"辞書", post:"）の上である。田中達也がこれらのミニチュアの（3."},
+          {pre:"", ans:"作品", post:"）を作った。"}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものには○，一致しないものには×を書こう。",
+        truefalse:[
+          {t:"a. The children are climbing up the tree with a rope.", ans:"×"},
+          {t:"b. Tanaka Tatsuya uses everyday objects in his artworks.", ans:"○"},
+          {t:"c. Tanaka Tatsuya is happy when he has good ideas.", ans:"○"}
+        ]
+      },
+      seiriQ:"田中さんはミニチュアアート作品を制作するとき，何を使うでしょうか。"
+    }
+  ],
+  grammar:{
+    term:"進行形",
+    rule:"〈be動詞+動詞の-ing形〉で，「（今）〜している」「（そのとき）〜していた」という進行中の動作を表します。",
+    patterns:[
+      {n:1, desc:"be動詞（am / are / is）+動詞の-ing形「（今）〜している」",
+       ex:"Mary <b>is playing</b> tennis now.", jp:"メアリーは今テニスをしている。"},
+      {n:2, desc:"be動詞（was / were）+動詞の-ing形「（そのとき）〜していた」",
+       ex:"Mary <b>was playing</b> tennis at 3 p.m. yesterday.", jp:"メアリーはきのうの午後3時にテニスをしていた。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"（　）に入るものとして，適切なものを1つ選ぼう。", type:"pick",
+     items:[
+      {jp:"", en:["Look! A cat (", {choice:["is walking","was walking","walks"], ans:0}, ") around the tree."]},
+      {jp:"", en:[
+        "\u201CWhen did you get this book?\u201D — \u201CI (",
+        {choice:["am buying","was buying","bought"], ans:2},
+        ") it last Sunday.\u201D"
+      ]},
+      {jp:"", en:["My mother (", {choice:["is driving","was driving","drove"], ans:1}, ") a car then."]},
+      {jp:"", en:["Takashi and Yuji (", {choice:["is having","are having","had"], ans:1}, ") lunch now."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）今メアリーは本を読んでいる。[read] Mary (is) (reading) a book now.", type:"bank",
+     items:[
+      {jp:"ユリとミキは図書館で勉強しています。［study］",
+       en:["Yuri and Miki (", {i:0,ans:"are"}, ") (", {i:1,ans:"studying"}, ") in the library."]},
+      {jp:"そのとき，私たちは電話で話していた。［talk］",
+       en:["We (", {i:0,ans:"were"}, ") (", {i:1,ans:"talking"}, ") on the phone at that time."]},
+      {jp:"かさを持っていきなさい。雨が降っています。［rain］",
+       en:["Take an umbrella with you. It (", {i:0,ans:"is"}, ") (", {i:1,ans:"raining"}, ")."]},
+      {jp:"そのとき，テレビで何を見ていましたか。［watch］",
+       en:["What (", {i:0,ans:"were"}, ") you (", {i:1,ans:"watching"}, ") on TV then?"]}
+    ]}
+  ],
+  tryEx:{
+    instr:"夕食時に小学生のティムとお父さんが話しています。（　）に適する語を右の枠内から選んで記入し，対話を完成させよう。",
+    bank:["want","are","making"],
+    lines:[
+      {who:"Tim", parts:["Dad, what ",{i:0,ans:"are"}," you cooking for dinner?"]},
+      {who:"Dad", parts:["I'm ",{i:0,ans:"making"}," curry and rice. Are you hungry?"]},
+      {who:"Tim", parts:["Yeah, I'm very hungry. I really ",{i:0,ans:"want"}," it!"]}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.26",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "Children are ",
+        {n:1, letter:"c", ans:"climbing"},
+        " up a tree with a ladder. Wait, it's not a tree. It's broccoli! Now, look at the four ",
+        {n:2, letter:"r", ans:"runners"},
+        ". Where are they? Are they ",
+        {n:3, letter:"r", ans:"running"},
+        " on a track? No, they are on a dictionary!"
+      ],
+      [
+        "Tanaka Tatsuya made these creative miniature artworks. He uses everyday ",
+        {n:4, letter:"o", ans:"objects"},
+        " in unique ways. He feels happy when he comes up with good ideas. He really ",
+        {n:5, letter:"e", ans:"enjoys"},
+        " his work."
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 03 ================================= */
+{
+  id:"L03", num:"03",
+  en:"Onigiri Goes Overseas", enItalic:true,
+  jp:"おにぎりの人気は海外へ",
+  parts:[
+    {
+      label:"", kyou:"p.36",
+      honbun:[
+        {n:1, en:`<em><u>Onigiri</u></em>, <span class="du">a rice ball</span>, <b>is</b> popular abroad.`, jp:`おにぎりは，米で作ったボール状の食べ物で，海外で人気があります。`},
+        {n:2, en:`<u>You</u> <b>can find</b> <em>onigiri</em> shops in the US, France, Singapore, and even Israel!`, jp:`アメリカ，フランス，シンガポール，イスラエルでさえ，おにぎりの店を見つけることができます。`},
+        {n:3, en:`Why <b>does</b> <em>onigiri</em> <b>appeal</b> to people overseas?`, jp:`なぜおにぎりは海外の人々の興味をひくのでしょうか。`},
+        {n:4, en:`<u>It</u> <b>is</b> a handy and healthy fast food.`, jp:`それは手軽で健康によいファストフードです。`},
+        {n:5, en:`In addition, <u>they</u> <b>can enjoy</b> a variety of fillings.`, jp:`さらに，人々はさまざまな中身（具）を楽しむことができます。`},
+        {n:6, en:`<u>They</u> <b>may put</b> their local food in it.`, jp:`彼らは自分たちの地元の食べ物を入れることもあります。`},
+        {n:7, en:`Also, <u>some people</u> <b>see</b> <em>onigiri</em> in their favorite Japanese anime, and <u>they</u> <b>become</b> interested in it.`, jp:`また，お気に入りの日本のアニメでおにぎりを見て，それに興味をもつようになる人もいます。`},
+        {n:8, en:`Today, <em><u>onigiri</u></em> <b>is</b> an international food.`, jp:`今日では，おにぎりは国際的な食べ物です。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:3, w:"appeal",  ans:"興味をひく"},
+          {n:3, w:"overseas",ans:"海外で"},
+          {n:4, w:"handy",   ans:"手軽な"},
+          {n:4, w:"healthy", ans:"健康によい"},
+          {n:5, w:"addition",ans:"追加"},
+          {n:5, w:"variety", ans:"種類"},
+          {n:5, w:"filling", ans:"中身（具）"}
+        ],
+        bank:["手軽な","海外で","中身（具）","追加","健康によい","種類","興味をひく"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"アユミは歌がとてもじょうずです。さらに，彼女はすばらしい俳優です。", ref:"5",
+           parts:["Ayumi sings very well. (", {i:0,ans:"In"}, ") (", {i:1,ans:"addition"}, "), she is a good actor."]},
+          {jp:"クミは庭にさまざまな花を植えています。", ref:"5",
+           parts:["Kumi has (", {i:0,ans:"a"}, ") (", {i:1,ans:"variety"}, ") (", {i:2,ans:"of"}, ") flowers in her garden."]},
+          {jp:"トムは博物館を訪れたとき，科学に興味をもつようになった。", ref:"7",
+           parts:["Tom (", {i:0,ans:"became"}, ") (", {i:1,ans:"interested"}, ") (", {i:2,ans:"in"}, ") science when he visited a museum."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"おにぎりは海外で人気があり，アメリカ，（1.", ans:"フランス", post:"），シンガポールやイスラエルでも"},
+          {pre:"おにぎりを売る店を見つけることができる。おにぎりが，手軽で（2.", ans:"健康", post:"）によい"},
+          {pre:"（3.", ans:"ファストフード", post:"）であるのも海外の人々に受ける理由の1つだ。"}
+        ]
+      },
+      seiri2:{
+        instr:"海外のおにぎりの具について，本文の内容に合うように，（　）に適切な語を入れよう。",
+        parts:[
+          "There is a (", {i:0,ans:"variety"}, ") of fillings. People overseas put their (",
+          {i:1,ans:"local"}, ") (", {i:2,ans:"food"}, ") in ", {em:"onigiri"}, "."
+        ]
+      },
+      seiriQ:"おにぎりが海外で人気があるのはなぜでしょうか。"
+    }
+  ],
+  grammar:{
+    term:"助動詞",
+    rule:"動詞の前に置き，さまざまな意味を動詞に付け加えます。",
+    subrule:"※助動詞のあとの動詞は，(e)sや(e)dなどがつかない元の形（原形）。",
+    patterns:[
+      {n:1, desc:"can「〜できる」",
+       ex:"I <b>can</b> write a letter in English.", jp:"私は英語で手紙を書くことができる。",
+       ex2:"I <b>cannot[can't]</b> write a letter in English.", jp2:"私は英語で手紙を書くことができない。"},
+      {n:2, desc:"may「〜するかもしれない」",
+       ex:"Miho <b>may</b> know me.", jp:"ミホは私のことを知っているかもしれない。",
+       ex2:"Miho <b>may not</b> know me.", jp2:"ミホは私のことを知らないかもしれない。"},
+      {n:3, desc:"must「〜しなくてはいけない」",
+       ex:"You <b>must</b> do that.", jp:"あなたはそれをしなくてはいけない。",
+       ex2:"You <b>must not [mustn't]</b> do that.", jp2:"あなたはそれをしてはいけない。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"日本文に合うように，空所に入る語句を下から選んで入れよう。", type:"bank",
+     bank:["must not play","may be","can speak"],
+     items:[
+      {jp:"シュンは英語を話すことができる。",  en:["Shun (", {i:0,ans:"can speak"}, ") English."]},
+      {jp:"レナは学校にいるかもしれない。",    en:["Rena (", {i:0,ans:"may be"}, ") at school."]},
+      {jp:"ここでボール遊びは禁止です。",      en:["You (", {i:0,ans:"must not play"}, ") ball here."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）ティムは速く泳ぐことができる。[swim] Tim (can) (swim) fast.", type:"bank",
+     items:[
+      {jp:"今夜，雪が降るかもしれない。［snow］",
+       en:["It (", {i:0,ans:"may"}, ") (", {i:1,ans:"snow"}, ") tonight."]},
+      {jp:"ユミは今日家にいなければならない。［stay］",
+       en:["Yumi (", {i:0,ans:"must"}, ") (", {i:1,ans:"stay"}, ") home today."]},
+      {jp:"私はじょうずに絵が描けない。［draw］",
+       en:["I (", {i:0,ans:"cannot"}, ") (", {i:1,ans:"draw"}, ") pictures well."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"朝の登校前にハナとお母さんが話しています。ハナはふだん，朝8時に家を出ます。[ ]内の語句を並べ替えて対話を完成させよう。",
+    order:true,
+    lines:[
+      {who:"Mom", tokens:["leave","must","home"], answer:"must leave home",
+       prefix:"It's 8:00! You ", suffix:" now. You may miss the train."},
+      {who:"Hana", tokens:["catch","can","the train"], answer:"can catch the train",
+       prefix:"Mom, don't worry. I ", suffix:" if I run."}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.36",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        {em:"Onigiri"}, ", a rice ball, is ",
+        {n:1, letter:"p", ans:"popular"},
+        " abroad. You can find ",{em:"onigiri"}," shops in the US, France, Singapore, and even Israel!"
+      ],
+      [
+        "Why does ",{em:"onigiri"}," appeal to people overseas? It is a ",
+        {n:2, letter:"h", ans:"handy"},
+        " and healthy fast food. In addition, they can ",
+        {n:3, letter:"e", ans:"enjoy"},
+        " a variety of fillings. They may put their ",
+        {n:4, letter:"l", ans:"local"},
+        " food in it. Also, some people see ",{em:"onigiri"}," in their favorite Japanese anime, and they become ",
+        {n:5, letter:"i", ans:"interested"},
+        " in it. Today, ",{em:"onigiri"}," is an ",
+        {n:6, letter:"i", ans:"international"},
+        " food."
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 04 ================================= */
+{
+  id:"L04", num:"04",
+  en:"Pictograms",
+  jp:"ピクトグラム",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.44",
+      honbun:[
+        {n:1, en:`<b>Look at</b> Picture A.`, jp:`写真Aを見てください。`},
+        {n:2, en:`<u>Some people</u> <b>are</b> in a box.`, jp:`何人かの人が箱の中にいます。`},
+        {n:3, en:`<u>The box</u> <b>goes</b> up and down.`, jp:`その箱は上下に動きます。`},
+        {n:4, en:`What <b>does</b> <u>it</u> <b>mean</b>?`, jp:`それは何を意味しているでしょうか。`},
+        {n:5, en:`Yes, <u>it</u> <b>is</b> an elevator!`, jp:`そう，エレベーターです！`},
+        {n:6, en:`How about Picture B?`, jp:`写真Bはどうですか。`},
+        {n:7, en:`<u>You</u> <b>see</b> a sandwich and a bottle under a roof.`, jp:`屋根の下にサンドイッチとボトルが見えます。`},
+        {n:8, en:`<u>It</u><b>&rsquo;s not</b> a cafe. <u>It</u> <b>is</b> a convenient place to buy things.`, jp:`喫茶店ではありません。ものを買うのに便利な場所です。`},
+        {n:10, en:`<u>That</u><b>&rsquo;s</b> right. <u>It</u> <b>shows</b> a convenience store.`, jp:`そのとおり。それはコンビニエンスストアを示しています。`},
+        {n:12, en:`<u>These</u> <b>are</b> examples of pictograms.`, jp:`これらはピクトグラムの例です。`},
+        {n:13, en:`<u>Pictograms</u> <b>are</b> simple pictures.`, jp:`ピクトグラムは単純な絵です。`},
+        {n:14, en:`<u>We</u> <b>don&rsquo;t need</b> words to understand them.`, jp:`私たちはそれらを理解するのに言葉を必要としません。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:5, w:"elevator",  ans:"エレベーター"},
+          {n:7, w:"roof",      ans:"屋根"},
+          {n:8, w:"cafe",      ans:"喫茶店"},
+          {n:9, w:"convenient",ans:"便利な"},
+          {n:12,w:"pictogram", ans:"ピクトグラム"},
+          {n:13,w:"simple",    ans:"単純な"}
+        ],
+        bank:["屋根","単純な","エレベーター","喫茶店","便利な","ピクトグラム"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"このボトルを1分間上下に振ってください。", ref:"3",
+           parts:["Shake this bottle (", {i:0,ans:"up"}, ") (", {i:1,ans:"and"}, ") (", {i:2,ans:"down"}, ") for one minute."]},
+          {jp:"私はこの歌が大好きです！ あなたはどうですか。", ref:"6",
+           parts:["I love this song! (", {i:0,ans:"How"}, ") (", {i:1,ans:"about"}, ") you?"]}
+        ]
+      },
+      seiri1:{
+        instr:"Picture A，Bの特徴について説明しているものをすべて選び，表に書き入れよう。",
+        table:{
+          headers:["Picture A","Picture B"],
+          options:[
+            {label:"a. 複数の人がいる", cols:["A"]},
+            {label:"b. サンドイッチとペットボトルがある", cols:["B"]},
+            {label:"c. 屋根がある", cols:["B"]},
+            {label:"d. 箱がある", cols:["A"]}
+          ]
+        }
+      },
+      seiri2:{
+        instr:"本文の内容と一致しないものを1つ選ぼう。",
+        choices:[
+          "a. Picture A shows an elevator and B means \u201Cconvenience store.\u201D",
+          "b. Both Picture A and B are examples of pictograms.",
+          "c. We use many words to understand pictograms."
+        ],
+        ans:2
+      },
+      seiriQ:"ピクトグラムとはどのようなものでしょうか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.46",
+      honbun:[
+        {n:15, en:`How <b>did</b> <u>pictograms</u> <b>become</b> so common?`, jp:`ピクトグラムはどのようにしてそんなに一般的になったのでしょうか。`},
+        {n:16, en:`During the 1964 Tokyo Olympics, <u>Japan</u> <b>used</b> pictograms for different sports and facilities.`, jp:`1964年の東京オリンピック大会のあいだに，日本はさまざまなスポーツや施設のためにピクトグラムを使いました。`},
+        {n:17, en:`<u>They</u> <b>were</b> helpful for foreign visitors.`, jp:`それらは外国からの訪問者にとって役立ちました。`},
+        {n:18, en:`After that, <u>other countries</u> <b>began to use</b> them.`, jp:`その後，他の国々もそれらを使い始めました。`},
+        {n:19, en:`Now <u>we</u> <b>can see</b> pictograms all over the world.`, jp:`今では，私たちは世界中でピクトグラムを目にすることができます。`},
+        {n:20, en:`Sometimes <u>we</u> <b>need to update</b> pictograms.`, jp:`ピクトグラムを更新する必要がある場合もあります。`},
+        {n:21, en:`In 2017, <u>Japan</u> <b>added</b> 15 new pictograms.`, jp:`2017年に，日本は15個の新しいピクトグラムを加えました。`},
+        {n:22, en:`<u>They</u> <b>include</b> symbols for wireless networks and charging stations.`, jp:`それらには，無線ネットワークや充電スポットの記号が含まれています。`},
+        {n:23, en:`What kind of pictograms <b>will</b> <u>we</u> <b>see</b> next?`, jp:`私たちは次にどんなピクトグラムを目にすることになるでしょうか。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:15,w:"common",              ans:"一般的な"},
+          {n:16,w:"Olympics",            ans:"オリンピック（大会）"},
+          {n:16,w:"facility＞facilities",ans:"施設"},
+          {n:17,w:"helpful",             ans:"役立つ"},
+          {n:20,w:"update",              ans:"〜を更新する"},
+          {n:22,w:"include",             ans:"〜を含んでいる"},
+          {n:22,w:"symbol",              ans:"記号"}
+        ],
+        bank:["〜を更新する","一般的な","施設","役立つ","記号","オリンピック（大会）","〜を含んでいる"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"その歌手は世界中で有名です。", ref:"19",
+           parts:["The singer is famous (", {i:0,ans:"all"}, ") (", {i:1,ans:"over"}, ") (", {i:2,ans:"the"}, ") (", {i:3,ans:"world"}, ")."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，次の質問に答えよう。",
+        qa:[
+          {q:"1) ピクトグラムが普及するきっかけとなった出来事は何でしょうか。",
+           parts:["(", {i:0,ans:"1964"}, ") 年に開催された(", {i:1,ans:"東京オリンピック"}, ")"]},
+          {q:"2) 2017年に日本が追加したピクトグラムについて，本文と一致するものをすべて選ぼう。",
+           multi:[
+             {label:"a. カフェ", correct:false},
+             {label:"b. 無線ネットワーク", correct:true},
+             {label:"c. トイレ", correct:false},
+             {label:"d. 充電スポット", correct:true},
+             {label:"e. エレベーター", correct:false}
+           ]}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものには○，一致しないものには×を書こう。",
+        truefalse:[
+          {t:"a. Pictograms were helpful for people from abroad in 1964.", ans:"○"},
+          {t:"b. Japan is the only country to use pictograms.",             ans:"×"},
+          {t:"c. We need to keep pictograms without any changes.",          ans:"×"},
+          {t:"d. We will see new pictograms in the future.",                ans:"○"}
+        ]
+      },
+      seiriQ:"ピクトグラムはどのようにして一般的になりましたか。"
+    }
+  ],
+  grammar:{
+    term:"不定詞",
+    rule:"動詞の前に to をつけた形を不定詞といいます。to をつける動詞は (e)s や (e)d などがつかない元の形（原形）になります。",
+    subrule:"○ to watch（原形）　　× to watched / to watches",
+    patterns:[
+      {n:1, desc:"不定詞の働き ❶「〜すること」",
+       ex:"Ken likes <b>to watch</b> movies.", jp:"ケンは映画を見ることが好きだ。"},
+      {n:2, desc:"❷「〜する（ための）」",
+       ex:"I want something <b>to drink</b>.", jp:"何か飲むもの[←飲むための何か]がほしい。"},
+      {n:3, desc:"❸「〜するために」",
+       ex:"We went to the park <b>to play</b> soccer.", jp:"私たちはサッカーをするために公園へ行った。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"（　）内の語のうち，to に続く正しい形の動詞を選ぼう。", type:"pick",
+     items:[
+      {jp:"", en:["Yuki hopes to (", {choice:["visits","visit","visited"], ans:1}, ") Peru someday."]},
+      {jp:"", en:["Do you have something to (", {choice:["reading","reads","read"], ans:2}, ") on the plane?"]},
+      {jp:"", en:["My brother went to Canada to (", {choice:["learn","learned","learning"], ans:0}, ") English."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）母は海外旅行をするのが好きだ。[travel] My mother likes (to) (travel) abroad.", type:"bank",
+     items:[
+      {jp:"この週末は買い物に行きたい。［go］",
+       en:["I want (", {i:0,ans:"to"}, ") (", {i:1,ans:"go"}, ") shopping this weekend."]},
+      {jp:"ショウタは夕食を作るために早く帰宅した。［cook］",
+       en:["Shota came home early (", {i:0,ans:"to"}, ") (", {i:1,ans:"cook"}, ") dinner."]},
+      {jp:"リクには数学を教えてくれる人が必要だった。［teach］",
+       en:["Riku needed someone (", {i:0,ans:"to"}, ") (", {i:1,ans:"teach"}, ") him math."]},
+      {jp:"ナナはそのパレードを見るために窓際に立っていた。［watch］",
+       en:["Nana stood by the window (", {i:0,ans:"to"}, ") (", {i:1,ans:"watch"}, ") the parade."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"放課後，リュウジはマサトを映画に誘っています。[ ]内の語句を並べ替えて対話を完成させよう。",
+    order:true,
+    lines:[
+      {who:"Ryuji", parts:["Masato, are you free now? Let's go to see a movie."]},
+      {who:"Masato", tokens:["to","some homework","have"], answer:"have some homework to",
+       prefix:"Sounds great, but I ", suffix:" do today."},
+      {who:"Ryuji", parts:["How about this weekend?"]},
+      {who:"Masato", tokens:["write","to","a report"], answer:"to write a report",
+       prefix:"Sorry, I have to visit a museum ", suffix:" this weekend."}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.44 / p.46",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "Look at Picture A. Some people are in a box. The box goes up and down. What does it ",
+        {n:1, letter:"m", ans:"mean"},
+        "? Yes, it is an elevator!"
+      ],
+      [
+        "How about Picture B? You see a sandwich and a bottle under a roof. It's not a cafe. It is a ",
+        {n:2, letter:"c", ans:"convenient"},
+        " place to buy things. That's right. It shows a convenience store."
+      ],
+      [
+        "These are ",
+        {n:3, letter:"e", ans:"examples"},
+        " of pictograms. Pictograms are simple pictures. We don't need ",
+        {n:4, letter:"w", ans:"words"},
+        " to understand them."
+      ],
+      [
+        "How did pictograms become so ",
+        {n:5, letter:"c", ans:"common"},
+        "? During the 1964 Tokyo Olympics, Japan used pictograms for different sports and facilities. They were ",
+        {n:6, letter:"h", ans:"helpful"},
+        " for foreign visitors. After that, other countries began to use them. Now we can see pictograms all over the world."
+      ],
+      [
+        "Sometimes we need to ",
+        {n:7, letter:"u", ans:"update"},
+        " pictograms. In 2017, Japan ",
+        {n:8, letter:"a", ans:"added"},
+        " 15 new pictograms. They include symbols for wireless networks and charging stations. What kind of pictograms will we see next?"
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 05 ================================= */
+{
+  id:"L05", num:"05",
+  en:"Morita Yuko: Hospital Facility Dog Handler",
+  jp:"ハンドラー，森田優子",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.54",
+      honbun:[
+        {n:1, en:`<u>I</u><b>&rsquo;m</b> Morita Yuko, a facility dog handler.`, jp:`私は森田優子，ハンドラーです。`},
+        {n:2, en:`<b>Do</b> <u>you</u> <b>know</b> about hospital facility dogs?`, jp:`あなたはホスピタルファシリティドッグについて知っていますか。`},
+        {n:3, en:`<u>They</u> <b>work</b> in hospitals as members of medical teams.`, jp:`彼らは医療チームの一員として病院で働いています。`},
+        {n:4, en:`<u>Their job</u> <b>is</b> giving emotional support to children in hospitals.`, jp:`彼らの仕事は，病院にいる子どもたちに感情面での支援を与えることです。`},
+        {n:5, en:`Sometimes <u>medical treatments</u> <b>are</b> tough.`, jp:`時に，医療の治療はつらいものです。`},
+        {n:6, en:`<u>Children</u> <b>feel</b> pain and stress.`, jp:`子どもたちは痛みやストレスを感じます。`},
+        {n:7, en:`<u>The dogs</u> <b>comfort</b> them by staying with them.`, jp:`犬たちはそばにいることで彼らを元気づけます。`},
+        {n:8, en:`As handlers, <u>we</u> <b>work</b> with hospital facility dogs.`, jp:`ハンドラーとして，私たちはホスピタルファシリティドッグと共に働きます。`},
+        {n:9, en:`<u>We</u> also <b>take care of</b> them.`, jp:`私たちは彼らの世話もします。`},
+        {n:10, en:`<u>We</u> <b>are</b> always together with them, even at home.`, jp:`私たちは家でさえ，いつも彼らと共にいます。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1, w:"handler",   ans:"ハンドラー"},
+          {n:3, w:"medical",   ans:"医療の"},
+          {n:4, w:"emotional", ans:"感情の"},
+          {n:5, w:"treatment", ans:"治療"},
+          {n:5, w:"tough",     ans:"つらい"},
+          {n:6, w:"pain",      ans:"痛み"},
+          {n:6, w:"stress",    ans:"ストレス"},
+          {n:7, w:"comfort",   ans:"〜を元気づける"}
+        ],
+        bank:["ストレス","つらい","ハンドラー","痛み","医療の","感情の","治療","〜を元気づける"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"私の兄は，地元の学校で教師として働いています。", ref:"3",
+           parts:["My brother works (", {i:0,ans:"as"}, ") a teacher at the local school."]},
+          {jp:"ジムは写真を使うことによって自分の考えを明確に説明した。", ref:"7",
+           parts:["Jim explained his ideas clearly (", {i:0,ans:"by"}, ") (", {i:1,ans:"using"}, ") pictures."]},
+          {jp:"私はそのネコの世話をしています。", ref:"9",
+           parts:["I (", {i:0,ans:"take"}, ") (", {i:1,ans:"care"}, ") (", {i:2,ans:"of"}, ") the cat."]},
+          {jp:"友だちといっしょにいると，私は安心します。", ref:"10",
+           parts:["I feel safe when I am (", {i:0,ans:"together"}, ") (", {i:1,ans:"with"}, ") my friends."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，[ ]内から適切なものを選ぼう。",
+        items:[
+          {label:"a.", jpTemplate:[
+            {t:"ホスピタルファシリティドッグは子どもたちを ["},
+            {choice:["気持ちの","身体的な"], ans:0},
+            {t:"] 面で支える。"}
+          ]},
+          {label:"b.", jpTemplate:[
+            {t:"["},
+            {choice:["ハンドラー","入院中の子どもたち"], ans:0},
+            {t:"] はファシリティドッグの世話をする。"}
+          ]}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致しないものを1つ選ぼう。",
+        choices:[
+          "a. Hospital facility dogs are members of medical teams.",
+          "b. Children in hospitals sometimes feel pain and stress.",
+          "c. Handlers and facility dogs are together only in the hospital."
+        ],
+        ans:2
+      },
+      seiriQ:"ファシリティドッグとそのハンドラーは何をしますか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.56",
+      honbun:[
+        {n:11, en:`There <b>are</b> <u>some important things for handlers</u>.`, jp:`ハンドラーにとって大切なことがいくつかあります。`},
+        {n:12, en:`First, <u>we</u> <b>must keep</b> facility dogs clean because they work in hospitals.`, jp:`まず，私たちはファシリティドッグを清潔に保たなくてはなりません。彼らは病院で働くからです。`},
+        {n:13, en:`<u>We</u> <b>brush</b> our dogs&rsquo; hair and teeth carefully every morning.`, jp:`私たちは毎朝，犬たちの毛と歯を注意深くブラッシングします。`},
+        {n:14, en:`Second, <u>handlers</u> <b>should</b> always <b>be</b> happy.`, jp:`次に，ハンドラーはいつも明るい気持ちでいるべきです。`},
+        {n:15, en:`<u>Dogs</u> <b>are</b> very sensitive.`, jp:`犬はとても敏感です。`},
+        {n:16, en:`If we are sad or nervous, <u>they</u> <b>may feel</b> the same.`, jp:`もし私たちが悲しかったり不安であったりすると，彼らも同じように感じるかもしれません。`},
+        {n:17, en:`Then <u>they</u> <b>cannot enjoy</b> working.`, jp:`そうすると，彼らは仕事を楽しむことができなくなります。`},
+        {n:18, en:`In addition, <u>handlers and dogs</u> <b>should understand</b> each other.`, jp:`さらに，ハンドラーと犬は互いを理解し合うべきです。`},
+        {n:19, en:`<u>We</u> <b>are</b> together twenty-four seven, so <u>we</u> <b>have</b> a strong bond!`, jp:`私たちは24時間ずっと一緒なので，強いきずなで結ばれています！`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:13,w:"carefully",ans:"注意深く"},
+          {n:15,w:"sensitive",ans:"敏感な"},
+          {n:16,w:"nervous",  ans:"不安で"},
+          {n:19,w:"bond",     ans:"きずな"}
+        ],
+        bank:["不安で","敏感な","きずな","注意深く"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"クリスとリサは互いをよく知っている。", ref:"18",
+           parts:["Chris and Lisa know (", {i:0,ans:"each"}, ") (", {i:1,ans:"other"}, ") well."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，次の質問に答えよう。",
+        qa:[
+          {q:"1) ファシリティドッグが病院で働くために，ハンドラーが毎朝入念にしていることを2つ挙げよう。",
+           parts:["1. ファシリティドッグの(", {i:0,ans:"毛"}, ")こと", {br:true},
+                  "2. ファシリティドッグの(", {i:1,ans:"歯"}, ")こと"]},
+          {q:"2) ファシリティドッグの特徴について本文と一致するものをすべて選ぼう。",
+           multi:[
+             {label:"a. いつも清潔な状態でいる", correct:true},
+             {label:"b. 仕事のあと毎晩散歩をする", correct:false},
+             {label:"c. 鈍感で周囲を気にしない", correct:false},
+             {label:"d. ハンドラーといつもいっしょにいる", correct:true}
+           ]}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容に合うように，（　）に適切な語を入れよう。",
+        multiparts:[
+          {label:"1.", parts:["Facility dogs cannot enjoy working if the handlers feel sad or (", {i:0,ans:"nervous"}, ")."]},
+          {label:"2.", parts:["The (", {i:0,ans:"bond"}, ") between handlers and facility dogs is strong."]}
+        ]
+      },
+      seiriQ:"ハンドラーにとって大切なことは何ですか。"
+    }
+  ],
+  grammar:{
+    term:"動名詞",
+    rule:"〈動詞+-ing〉の形で「〜する[している]こと」という意味になる。動詞の後ろで目的語（❶）や補語（❷）になったり，文の主語（❸）になったりします。また，前置詞のあと（❹）に続くこともあります。",
+    patterns:[
+      {n:1, desc:"", ex:"Takeshi stopped <b>talking</b>.", jp:"タケシは話すのをやめた。"},
+      {n:2, desc:"", ex:"Mary's hobby is <b>collecting</b> old coins.", jp:"メアリーの趣味は古いコインを集めることです。"},
+      {n:3, desc:"", ex:"<b>Riding</b> a horse is easy for me.", jp:"馬に乗ることは私にとっては簡単だ。"},
+      {n:4, desc:"", ex:"Thank you for <b>coming</b> today.", jp:"今日は来てくれてありがとう。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"（　）内の語を動名詞（〜ing）に変えて，全文を書こう。", type:"bank",
+     items:[
+      {jp:"1) Ken likes ( play ) soccer.",              en:["Ken likes (", {i:0,ans:"playing"}, ") soccer."]},
+      {jp:"2) ( Study ) English is important for me.",  en:["(", {i:0,ans:"Studying"}, ") English is important for me."]},
+      {jp:"3) We enjoyed ( sing ) together.",           en:["We enjoyed (", {i:0,ans:"singing"}, ") together."]},
+      {jp:"4) I'm sorry for ( call ) you so late.",      en:["I'm sorry for (", {i:0,ans:"calling"}, ") you so late."]},
+      {jp:"5) Some birds are good at ( catch ) fish.",   en:["Some birds are good at (", {i:0,ans:"catching"}, ") fish."]},
+      {jp:"6) ( Run ) in the park is good exercise.",    en:["(", {i:0,ans:"Running"}, ") in the park is good exercise."]}
+    ]},
+    {n:2, instr:"日本文に合うように適切な語を下から選び，動名詞に変えて（　）に入れよう。", type:"bank",
+     bank:["work","eat","make","write","read"],
+     items:[
+      {jp:"私はこの本を読み終えた。",            en:["I finished (", {i:0,ans:"reading"}, ") this book."]},
+      {jp:"食べすぎはよくない。",                en:["(", {i:0,ans:"Eating"}, ") too much is not good."]},
+      {jp:"私の仕事はウェブサイトの製作です。",  en:["My job is (", {i:0,ans:"making"}, ") websites."]},
+      {jp:"アランは漢字を書く練習をした。",      en:["Alan practiced (", {i:0,ans:"writing"}, ") ", {em:"kanji"}, "."]},
+      {jp:"私は空港で働くことに興味がある。",    en:["I'm interested in (", {i:0,ans:"working"}, ") at an airport."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"テレビゲームをしているベンにお母さんが声をかけています。[ ]内の語句を並べ替え，一文を書こう。文頭の語は大文字で始めること。",
+    order:true,
+    lines:[
+      {who:"Mom", parts:["Dinner is ready."]},
+      {who:"Mom", tokens:["playing","that video game","stop"], answer:"Stop playing that video game",
+       prefix:"", suffix:"."},
+      {who:"Ben", parts:["OK. I'm coming."]},
+      {who:"Mom", tokens:["before","your hands","eating"], answer:"before eating your hands",
+       prefix:"Oh, Ben. Wash ", suffix:"."}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.54 / p.56",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "I'm Morita Yuko, a facility dog handler. Do you know about hospital facility dogs? They work in hospitals as members of medical teams. Their job is giving emotional ",
+        {n:1, letter:"s", ans:"support"},
+        " to children in hospitals. Sometimes medical treatments are tough. Children feel pain and ",
+        {n:2, letter:"s", ans:"stress"},
+        ". The dogs comfort them by ",
+        {n:3, letter:"s", ans:"staying"},
+        " with them."
+      ],
+      [
+        "As handlers, we work with hospital facility dogs. We also take care of them. We are always ",
+        {n:4, letter:"t", ans:"together"},
+        " with them, even at home."
+      ],
+      [
+        "There are some important things for handlers. First, we must keep facility dogs ",
+        {n:5, letter:"c", ans:"clean"},
+        " because they work in hospitals. We brush our dogs' hair and teeth carefully every morning."
+      ],
+      [
+        "Second, handlers should always be ",
+        {n:6, letter:"h", ans:"happy"},
+        ". Dogs are very sensitive. If we are sad or nervous, they may feel the ",
+        {n:7, letter:"s", ans:"same"},
+        ". Then they cannot enjoy working."
+      ],
+      [
+        "In addition, handlers and dogs should ",
+        {n:8, letter:"u", ans:"understand"},
+        " each other. We are together twenty-four seven, so we have a strong bond!"
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 06 ================================= */
+{
+  id:"L06", num:"06",
+  en:"Convenience Stores: Keys to Their Success",
+  jp:"コンビニエンスストア：その成功のかぎ",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.70",
+      honbun:[
+        {n:1, en:`Hello, everyone.`, jp:`こんにちは，皆さん。`},
+        {n:2, en:`<u>I</u> <b>think</b> that you often use convenience stores.`, jp:`皆さんはよくコンビニエンスストアを利用していると思います。`},
+        {n:3, en:`Today, <u>I</u> <b>will talk</b> about three keys to their success.`, jp:`今日，私はその成功のかぎとなる3つのことについて話します。`},
+        {n:4, en:`<u>The first</u> <b>is</b> the display of goods.`, jp:`1つ目は商品の陳列です。`},
+        {n:5, en:`<b>Look at</b> this picture.`, jp:`この写真を見てください。`},
+        {n:6, en:`<u>Many people</u> <b>visit</b> convenience stores to buy drinks or <em>bentos</em>.`, jp:`多くの人が飲み物やお弁当を買いにコンビニエンスストアを訪れます。`},
+        {n:7, en:`However, <u>these items</u> <b>are</b> usually at the back of the store.`, jp:`しかし，これらの商品はたいてい店の奥にあります。`},
+        {n:8, en:`Why?`, jp:`なぜでしょうか。`},
+        {n:9, en:`Because then <u>the customers</u> <b>have to walk</b> through the store.`, jp:`それはお客が店内を歩いて通らなければならないからです。`},
+        {n:10, en:`<u>They</u> <b>see</b> many other goods along the way.`, jp:`彼らは途中でほかの多くの商品を目にします。`},
+        {n:11, en:`As a result, <u>they</u> <b>feel like</b> buying more.`, jp:`その結果，彼らはもっと買いたい気持ちになるのです。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:3, w:"key",     ans:"かぎ"},
+          {n:3, w:"success", ans:"成功"},
+          {n:4, w:"display", ans:"陳列"},
+          {n:4, w:"goods",   ans:"品物"},
+          {n:7, w:"item",    ans:"商品"},
+          {n:9, w:"customer",ans:"客"}
+        ],
+        bank:["品物","商品","成功","陳列","客","かぎ"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"その湖へ行くには森の中を通って歩かなければならない。", ref:"9",
+           parts:["We have to (", {i:0,ans:"walk"}, ") (", {i:1,ans:"through"}, ") the woods to reach the lake."]},
+          {jp:"途中で本屋さんに立ち寄ってもいいよ。", ref:"10",
+           parts:["You can stop at the bookstore (", {i:0,ans:"along"}, ") (", {i:1,ans:"the"}, ") (", {i:2,ans:"way"}, ")."]},
+          {jp:"テッドは毎日一生懸命勉強しました。その結果，試験に合格しました。", ref:"11",
+           parts:["Ted studied hard every day. (", {i:0,ans:"As"}, ") (", {i:1,ans:"a"}, ") (", {i:2,ans:"result"}, "), he passed the test."]},
+          {jp:"今日は何もする気がしない[←何かをしたい気がしない]。", ref:"11",
+           parts:["I don't (", {i:0,ans:"feel"}, ") (", {i:1,ans:"like"}, ") doing anything today."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，次の質問に答えよう。",
+        qa:[
+          {q:"1) 多くの人がコンビニエンスストアで購入するものとして，本文に合うものをすべて選ぼう。",
+           multi:[
+             {label:"a. 雑誌", correct:false},
+             {label:"b. 弁当", correct:true},
+             {label:"c. お菓子", correct:false},
+             {label:"d. 新聞", correct:false},
+             {label:"e. 飲み物", correct:true}
+           ]},
+          {q:"2) 1) で選んだ商品は，たいてい店内のどこにありますか。",
+           parts:["(", {i:0,ans:"店の奥"}, ")"]}
+        ]
+      },
+      seiri2:{
+        instr:"商品の陳列を工夫することによる利点は何ですか。本文の内容に合うように，（　）に適切な語を入れよう。",
+        parts:[
+          "Customers feel like (", {i:0,ans:"buying"}, ") (", {i:1,ans:"more"},
+          ") because they have to walk through the store, and see many other goods along the way."
+        ]
+      },
+      seiriQ:"コンビニエンスストアの1つ目の成功のかぎとは何でしょうか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.72",
+      honbun:[
+        {n:12, en:`<u>The second key</u> <b>is</b> the bright lights.`, jp:`2つ目のかぎは，明るい照明です。`},
+        {n:13, en:`Thanks to these lights, <u>people</u> <b>feel</b> that the stores are clean and safe.`, jp:`この照明のおかげで，人々は店が清潔で安全だと感じます。`},
+        {n:14, en:`Also, <u>they</u> <b>can find</b> the stores easily, even at night.`, jp:`また，夜でも簡単に店を見つけることができます。`},
+        {n:15, en:`So, <u>they</u> <b>often go</b> inside.`, jp:`そのため，人々はよく店内に入ります。`},
+        {n:16, en:`<u>The third key</u> <b>is</b> the shelves.`, jp:`3つ目のかぎは棚です。`},
+        {n:17, en:`In this picture, <u>the shelves</u> <b>are</b> different sizes.`, jp:`この写真では，棚がさまざまな大きさです。`},
+        {n:18, en:`This way, <u>customers</u> <b>can see</b> all the goods well, from top to bottom.`, jp:`この方法により，お客は上から下まで，すべての商品をよく見ることができます。`},
+        {n:19, en:`<u>These ideas</u> <b>support</b> convenience store sales.`, jp:`これらの工夫がコンビニエンスストアの売り上げを支えています。`},
+        {n:20, en:`Why <b>don&rsquo;t</b> <u>you</u> <b>find out</b> for yourself?`, jp:`自分で確かめてみてはどうですか。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:12,w:"bright",         ans:"明るい"},
+          {n:15,w:"inside",         ans:"中に"},
+          {n:16,w:"shelf＞shelves", ans:"棚"},
+          {n:18,w:"bottom",         ans:"最下部"},
+          {n:19,w:"sales",          ans:"売上高"}
+        ],
+        bank:["最下部","中に","棚","売上高","明るい"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"リクのおかげで，そのサッカーチームは試合に勝利した。", ref:"13",
+           parts:["(", {i:0,ans:"Thanks"}, ") (", {i:1,ans:"to"}, ") Riku, the soccer team won the game."]},
+          {jp:"このようにして，駅へ着くことができます。", ref:"18",
+           parts:["(", {i:0,ans:"This"}, ") (", {i:1,ans:"way"}, "), you can get to the station."]},
+          {jp:"このわくわくする映画を見てみたらどうですか。", ref:"20",
+           parts:["(", {i:0,ans:"Why"}, ") (", {i:1,ans:"don't"}, ") (", {i:2,ans:"you"}, ") watch this exciting movie?"]},
+          {jp:"私は自分でその情報を調べることができた。", ref:"20",
+           parts:["I was able to (", {i:0,ans:"find"}, ") (", {i:1,ans:"out"}, ") the information (", {i:2,ans:"for"}, ") (", {i:3,ans:"myself"}, ")."]}
+        ]
+      },
+      seiri1:{
+        instr:"コンビニエンスストアに関する内容について，本文と一致するものをすべて選ぼう。",
+        multi:[
+          {label:"a. 照明が明るいので，夜でも簡単に店を見つけられる。", correct:true},
+          {label:"b. お客さんには，上から下まで棚の商品がよく見える。", correct:true},
+          {label:"c. 商品の豊富さがコンビニエンスストアの売上高を支えている。", correct:false}
+        ]
+      },
+      seiri2:{
+        instr:"2つ目，3つ目の成功のかぎの具体的な内容について，本文の内容に合うように表を完成させよう。",
+        table2:{
+          rows:[
+            {h:"the second key",   parts:["( 1. ", {i:0,ans:"bright"}, " ) ( 2. ", {i:1,ans:"lights"}, " )"]},
+            {h:"the third key",    parts:["shelves of ( 3. ", {i:0,ans:"different"}, " ) ( 4. ", {i:1,ans:"sizes"}, " )"]}
+          ]
+        }
+      },
+      seiriQ:"コンビニエンスストアの2つ目と3つ目の成功のかぎは何でしょうか。"
+    }
+  ],
+  grammar:{
+    term:"that節",
+    rule:"〈that S（主語）+V（動詞）〉で「S が V する[である]ということ」という意味になります。",
+    subrule:"※この that には「あれは」の意味はありません。　※この that は省略されることがあります。",
+    patterns:[
+      {n:1, desc:"", ex:"People say (<b>that</b>) Paris is a beautiful city.", jp:"人々は言う（that）パリは美しい都市だ（ということ）"},
+      {n:2, desc:"", ex:"Jim told me (<b>that</b>) I should practice more.", jp:"ジムは言った 私に（that）もっと練習するべきだ（ということ）"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"英文中のいずれか正しい位置の（　）に that を入れよう。", type:"bank",
+     items:[
+      {jp:"私たちはその試合に勝つと私は信じています。",
+       en:["I believe (", {i:0,ans:"that"}, ") we (", {i:1,ans:""}, ") will (", {i:2,ans:""}, ") win the game."]},
+      {jp:"ケンはいつも私に早く起きるべきだと言う。",
+       en:["Ken always (", {i:0,ans:""}, ") tells me (", {i:1,ans:"that"}, ") I should (", {i:2,ans:""}, ") get up early."]},
+      {jp:"カオリはリョウが親切だと感じた。",
+       en:["Kaori (", {i:0,ans:""}, ") felt (", {i:1,ans:"that"}, ") Ryo (", {i:2,ans:""}, ") was kind."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）あなたは正しいと私は思う。[think] ( I ) ( think ) ( that ) you are right.", type:"bank",
+     items:[
+      {jp:"私たちは田中さんが入院していることを知っている。［know］",
+       en:["(", {i:0,ans:"We"}, ") (", {i:1,ans:"know"}, ") (", {i:2,ans:"that"}, ") Mr. Tanaka is in the hospital."]},
+      {jp:"私はあなたの夢が叶うことを願っている。［hope］",
+       en:["(", {i:0,ans:"I"}, ") (", {i:1,ans:"hope"}, ") (", {i:2,ans:"that"}, ") your dream will come true."]},
+      {jp:"ジョンは私に祖母が大好きだと言った。［told］",
+       en:["John (", {i:0,ans:"told"}, ") (", {i:1,ans:"me"}, ") (", {i:2,ans:"that"}, ") he loved his grandmother."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"トモキとアオイがお気に入りのバンド「COMET7」について，休み時間中に話しています。[ ]内の語を並べ替えて対話を完成させよう。",
+    order:true,
+    lines:[
+      {who:"Tomoki", tokens:["got","you","that"], answer:"that you got",
+       prefix:"Aoi, I heard ", suffix:" a concert ticket for \u201CCOMET7.\u201D"},
+      {who:"Aoi", parts:["My uncle gave me the ticket yesterday. I'm lucky!"]},
+      {who:"Tomoki", tokens:["enjoy","hope","you'll"], answer:"hope you'll enjoy",
+       prefix:"Good for you. I ", suffix:" yourself at the concert."}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.70 / p.72",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "Hello, everyone. I think that you often use convenience stores. Today, I will talk about three ",
+        {n:1, letter:"k", ans:"keys"},
+        " to their success. The first is the ",
+        {n:2, letter:"d", ans:"display"},
+        " of goods. Look at this picture. Many people visit convenience stores to buy drinks or ",
+        {em:"bentos"}, ". However, these items are usually at the ",
+        {n:3, letter:"b", ans:"back"},
+        " of the store."
+      ],
+      [
+        "Why? Because then the customers have to walk through the store. They see many other ",
+        {n:4, letter:"g", ans:"goods"},
+        " along the way. As a result, they feel like ",
+        {n:5, letter:"b", ans:"buying"},
+        " more."
+      ],
+      [
+        "The second key is the bright lights. Thanks to these lights, people feel that the stores are ",
+        {n:6, letter:"c", ans:"clean"},
+        " and safe. Also, they can find the stores easily, even at ",
+        {n:7, letter:"n", ans:"night"},
+        ". So, they often go inside."
+      ],
+      [
+        "The third key is the ",
+        {n:8, letter:"s", ans:"shelves"},
+        ". In this picture, the shelves are ",
+        {n:9, letter:"d", ans:"different"},
+        " sizes. This way, customers can see all the goods well, from top to bottom. These ideas ",
+        {n:10, letter:"s", ans:"support"},
+        " convenience store sales. Why don't you find out for yourself?"
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 07 ================================= */
+{
+  id:"L07", num:"07",
+  en:"High School Beekeepers",
+  jp:"高校生養蜂家",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.80",
+      dateHead:"Saturday, June 27",
+      honbun:[
+        {n:1, en:`Today, <u>I</u> <b>harvested</b> honey for the first time.`, jp:`今日，私は初めてはちみつを収穫しました。`},
+        {n:2, en:`<u>We</u> <b>used</b> a special tool to collect it from the honeycomb.`, jp:`私たちは特別な道具を使って，ミツバチの巣からはちみつを集めました。`},
+        {n:3, en:`<u>The fresh honey</u> <b>was</b> shiny and golden.`, jp:`新鮮なはちみつは輝いていて金色でした。`},
+        {n:4, en:`<u>I</u> <b>was fascinated</b> by its beauty.`, jp:`私はその美しさに魅了されました。`},
+        {n:5, en:`<u>We</u> <b>have sold</b> our honey to a Japanese sweets shop for years.`, jp:`私たちは長年，日本の和菓子屋にはちみつを売っています。`},
+        {n:6, en:`<u>The shop</u> <b>uses</b> it to make <em>dorayaki</em>.`, jp:`その店ははちみつをどら焼きを作るのに使います。`},
+        {n:7, en:`<u>We</u> <b>plan to sell</b> the &ldquo;honey <em>dorayaki</em>&rdquo; at our next school festival.`, jp:`私たちは次の学園祭で「はちみつどら焼き」を売る予定です。`},
+        {n:8, en:`<u>I</u> <b>hope</b> everyone likes it.`, jp:`皆に気に入ってもらえるといいです。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1, w:"harvest",   ans:"〜を収穫する"},
+          {n:1, w:"honey",     ans:"はちみつ"},
+          {n:2, w:"tool",      ans:"器具"},
+          {n:2, w:"honeycomb", ans:"ミツバチの巣"},
+          {n:3, w:"shiny",     ans:"輝く"},
+          {n:3, w:"golden",    ans:"金色の"},
+          {n:4, w:"fascinated",ans:"魅了された"},
+          {n:4, w:"beauty",    ans:"美しさ"}
+        ],
+        bank:["美しさ","魅了された","金色の","〜を収穫する","はちみつ","ミツバチの巣","輝く","器具"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"スズは昨夜，初めてコンサートに行った。", ref:"1",
+           parts:["Suzu went to a concert (", {i:0,ans:"for"}, ") (", {i:1,ans:"the"}, ") (", {i:2,ans:"first"}, ") (", {i:3,ans:"time"}, ") last night."]},
+          {jp:"私たちは何年もの間友だちです。", ref:"5",
+           parts:["We have been friends (", {i:0,ans:"for"}, ") (", {i:1,ans:"years"}, ")."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文はナナミの日記です。本文の内容と一致するものをすべて選ぼう。",
+        multi:[
+          {label:"a. ナナミは6月27日に初めてはちみつを収穫した。", correct:true},
+          {label:"b. 和菓子屋は養蜂部からはちみつを買っている。", correct:true},
+          {label:"c. ナナミは，自分たちで作ったどら焼きを皆に気に入ってほしい。", correct:true}
+        ]
+      },
+      seiri2:{
+        instr:"養蜂部とナナミについて説明するのに，（　）に適切な語を入れよう。",
+        multiparts:[
+          {label:"1.", parts:["The (", {i:0,ans:"special"}, ") (", {i:1,ans:"tool"}, ") is useful for collecting honey from the honeycomb."]},
+          {label:"2.", parts:["Nanami was (", {i:0,ans:"fascinated"}, ") by the beauty of the honey."]},
+          {label:"3.", parts:["They have sold their honey to a Japanese (", {i:0,ans:"sweets"}, ") (", {i:1,ans:"shop"}, ") for years."]},
+          {label:"4.", parts:["They plan to sell \u201Choney ", {em:"dorayaki"}, "\u201D at the next (", {i:0,ans:"school"}, ") (", {i:1,ans:"festival"}, ")."]}
+        ]
+      },
+      seiriQ:"養蜂部は収穫したはちみつをどうしますか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.82",
+      dateHead:"Tuesday, December 8",
+      honbun:[
+        {n:9, en:`Today, <u>I</u> <b>planted</b> some flowers at school.`, jp:`今日，私は学校で花を植えました。`},
+        {n:10, en:`At first, <u>I</u> <b>didn&rsquo;t think</b> that gardening was our job.`, jp:`最初，私は園芸が自分たちの仕事だとは思っていませんでした。`},
+        {n:11, en:`But now, <u>I</u> <b>have learned</b> its importance.`, jp:`しかし今は，その重要性を学びました。`},
+        {n:12, en:`<u>Honeybees</u> <b>need</b> flowers to live.`, jp:`ミツバチは生きるために花が必要です。`},
+        {n:13, en:`<u>They</u> <b>eat</b> pollen and nectar.`, jp:`彼らは花粉と蜜を食べます。`},
+        {n:14, en:`<u>I</u> <b>want to make</b> a good environment for our bees.`, jp:`私はミツバチのためによい環境を作りたいです。`},
+        {n:15, en:`<u>I</u> <b>checked</b> our beehives too.`, jp:`私はミツバチの巣箱も点検しました。`},
+        {n:16, en:`<u>The bees</u> <b>didn&rsquo;t look</b> well.`, jp:`ミツバチの調子はよくありませんでした。`},
+        {n:17, en:`Unfortunately, there <b>are</b> <u>no doctors</u> for honeybees.`, jp:`残念なことに，ミツバチには医者がいません。`},
+        {n:18, en:`So, <u>we</u> <b>have to care for</b> them by ourselves.`, jp:`だから私たちが自分たちでミツバチの世話をしなくてはなりません。`},
+        {n:19, en:`<u>I</u> <b>have</b> a lot to learn about honeybees.`, jp:`私にはミツバチについて学ぶことがたくさんあります。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。（意味は1度ずつ選ぶこと。）",
+        words:[
+          {n:10,w:"gardening",    ans:"園芸"},
+          {n:11,w:"importance",   ans:"重要性"},
+          {n:12,w:"honeybee",     ans:"ミツバチ"},
+          {n:13,w:"pollen",       ans:"花粉"},
+          {n:13,w:"nectar",       ans:"蜜"},
+          {n:14,w:"bee",          ans:"ハチ"},
+          {n:17,w:"unfortunately",ans:"残念なことに"}
+        ],
+        bank:["ハチ","園芸","ミツバチ","重要性","蜜","花粉","残念なことに"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"最初，私はコーヒーが好きではありませんでしたが，今では大好きです。", ref:"10",
+           parts:["(", {i:0,ans:"At"}, ") (", {i:1,ans:"first"}, "), I didn't like coffee, but now I love it."]},
+          {jp:"両親が忙しいとき，私は弟の面倒を見ます。", ref:"18",
+           parts:["I (", {i:0,ans:"care"}, ") (", {i:1,ans:"for"}, ") my little brother when my parents are busy."]},
+          {jp:"私と兄は自分たちで夕食を作りました。", ref:"18",
+           parts:["My brother and I cooked dinner (", {i:0,ans:"by"}, ") (", {i:1,ans:"ourselves"}, ")."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文はナナミの日記です。本文の内容と一致するものをすべて選ぼう。",
+        multi:[
+          {label:"a. ナナミは最初，園芸が養蜂部の仕事だとは思っていなかった。", correct:true},
+          {label:"b. ミツバチは花粉と蜜を食べるため，養蜂部は花を育てる必要がある。", correct:true},
+          {label:"c. ナナミはミツバチ専門の医者になることを目標としている。", correct:false}
+        ]
+      },
+      seiri2:{
+        instr:"次の英文は本文をまとめたものです。（　）に適切な語を入れて完成させよう。",
+        parts:[
+          "Today, I planted some (", {i:0,ans:"flowers"}, ") at school. At first, I didn't think that gardening was important, but now I realize its (",
+          {i:1,ans:"importance"}, "). Honeybees need flowers to get (",
+          {i:2,ans:"pollen"}, ") and nectar. We must also care for honeybees because there are no (",
+          {i:3,ans:"doctors"}, ") for them."
+        ]
+      },
+      seiriQ:"ナナミは，ミツバチのために何がしたいと考えていますか。"
+    }
+  ],
+  grammar:{
+    term:"現在完了形",
+    rule:"have[has]+過去分詞で，過去から現在へのつながりを表現する文になります。この表現には主に3つの意味があります。",
+    patterns:[
+      {n:1, desc:"「（今まで）ずっと〜している」〈継続〉",
+       ex:"Paul <b>has worked</b> here for a year.", jp:"ポールは1年間ここで働いている。"},
+      {n:2, desc:"「（今までに）〜したことがある」〈経験〉",
+       ex:"I <b>have visited</b> Okinawa once.", jp:"私は1度沖縄を訪れたことがある。"},
+      {n:3, desc:"「もう〜してしまった，今〜したところである」〈完了〉",
+       ex:"The bus <b>has</b> already <b>left</b>.", jp:"バスはもう出てしまった。",
+       ex2:"Yumi <b>has</b> just <b>come</b> home.", jp2:"ユミはちょうど帰ってきたところです。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"[ ]内の語のうち，正しいものを○で囲もう。", type:"pick",
+     items:[
+      {jp:"", en:["We [", {choice:["has","have"], ans:1}, "] [", {choice:["want","wanting","wanted"], ans:2}, "] to go to India for years."]},
+      {jp:"", en:["I [", {choice:["has","have"], ans:1}, "] already [", {choice:["clean","cleaning","cleaned"], ans:2}, "] my room."]},
+      {jp:"", en:["[", {choice:["Has","Have"], ans:1}, "] you ever [", {choice:["took","taken","take"], ans:1}, "] a trip abroad?"]},
+      {jp:"", en:["Jim [", {choice:["has","have"], ans:0}, "] [", {choice:["seen","saw","see"], ans:0}, "] the movie three times."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。", type:"bank",
+     items:[
+      {jp:"私たちはちょうど昼食を食べたところだ。［eat］",
+       en:["We (", {i:0,ans:"have"}, ") just (", {i:1,ans:"eaten"}, ") lunch."]},
+      {jp:"私はかさをなくしてしまった。［lose］",
+       en:["I (", {i:0,ans:"have"}, ") (", {i:1,ans:"lost"}, ") my umbrella."]},
+      {jp:"私は以前ラグビーをしたことがある。［play］",
+       en:["I (", {i:0,ans:"have"}, ") (", {i:1,ans:"played"}, ") rugby before."]},
+      {jp:"キムはもう寝てしまいましたか。［go］",
+       en:["(", {i:0,ans:"Has"}, ") Kim (", {i:1,ans:"gone"}, ") to bed yet?"]},
+      {jp:"あの女の子は1時間ずっとここにいる。［be］",
+       en:["That girl (", {i:0,ans:"has"}, ") (", {i:1,ans:"been"}, ") here for an hour."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"アオイとチカが休み時間に話しています。アオイは「COMET7」というバンドの大ファンです。[ ]内の語を並べ替えて対話を完成させよう。",
+    order:true,
+    lines:[
+      {who:"Aoi", parts:["I went to a \u201CCOMET7\u201D concert yesterday. It was so cool!"]},
+      {who:"Chika", tokens:["liked","you","have"], answer:"have you liked",
+       prefix:"How long ", suffix:" the band?"},
+      {who:"Aoi", tokens:["to","have","been"], answer:"have been to",
+       prefix:"For ten years. I ", suffix:" their concerts many times."}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.80 / p.82",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "Saturday, June 27"
+      ],
+      [
+        "Today, I ",
+        {n:1, letter:"h", ans:"harvested"},
+        " honey for the first time. We used a special ",
+        {n:2, letter:"t", ans:"tool"},
+        " to collect it from the honeycomb. The fresh honey was shiny and golden. I was fascinated by its beauty."
+      ],
+      [
+        "We have ",
+        {n:3, letter:"s", ans:"sold"},
+        " our honey to a Japanese sweets shop for years. The shop uses it to make ",{em:"dorayaki"},". We plan to ",
+        {n:4, letter:"s", ans:"sell"},
+        " the \u201Choney ",{em:"dorayaki"},"\u201D at our next school festival. I ",
+        {n:5, letter:"h", ans:"hope"},
+        " everyone likes it."
+      ],
+      [
+        "Tuesday, December 8"
+      ],
+      [
+        "Today, I planted some flowers at school. At first, I didn't think that ",
+        {n:6, letter:"g", ans:"gardening"},
+        " was our job. But now, I have learned its importance. Honeybees need flowers to live. They eat ",
+        {n:7, letter:"p", ans:"pollen"},
+        " and nectar. I want to make a good ",
+        {n:8, letter:"e", ans:"environment"},
+        " for our bees. I checked our beehives too. The bees didn't ",
+        {n:9, letter:"l", ans:"look"},
+        " well. Unfortunately, there are no doctors for honeybees. So, we have to care for them by ",
+        {n:10, letter:"o", ans:"ourselves"},
+        ". I have a lot to learn about honeybees."
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 08 ================================= */
+{
+  id:"L08", num:"08",
+  en:"Smart Farming",
+  jp:"スマート農業",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.90",
+      honbun:[
+        {n:1, en:`What <b>do</b> <u>you</u> <b>see</b> in this picture?`, jp:`この写真の中に何が見えますか。`},
+        {n:2, en:`<u>A robot</u> <b>is picking</b> tomatoes.`, jp:`ロボットがトマトを摘んでいます。`},
+        {n:3, en:`With cameras and sensors, <u>it</u> <b>picks</b> only red tomatoes.`, jp:`カメラとセンサーによって，そのロボットは赤いトマトだけを摘みます。`},
+        {n:4, en:`<u>This</u> <b>is</b> an example of &ldquo;smart farming.&rdquo;`, jp:`これは「スマート農業」の一例です。`},
+        {n:5, en:`<u>It</u> <b>uses</b> &ldquo;smart&rdquo; technology such as robots and ICT.`, jp:`それはロボットやICTのような「スマート」な科学技術を使います。`},
+        {n:6, en:`<u>Let</u>&rsquo;s look at other examples.`, jp:`他の例を見てみましょう。`},
+        {n:7, en:`<u>Some farmers in Chiba</u> <b>monitor</b> their fields with their smartphones.`, jp:`千葉県の農家の中には，スマートフォンで畑を監視する人たちがいます。`},
+        {n:8, en:`<u>They</u> <b>can collect</b> data and <b>check</b> the condition of their crops from home.`, jp:`彼らはデータを集めて，家から作物の状態を確認することができます。`},
+        {n:9, en:`On some Hokkaido farms, <u>drones</u> <b>are used</b> to spray fertilizer on the rice fields.`, jp:`北海道のいくつかの農場では，ドローンが田に肥料を散布するために使われています。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:3, w:"sensor",    ans:"センサー"},
+          {n:4, w:"farming",   ans:"農業"},
+          {n:5, w:"technology",ans:"科学技術"},
+          {n:7, w:"monitor",   ans:"〜を監視する"},
+          {n:8, w:"data",      ans:"データ"},
+          {n:8, w:"condition", ans:"状態"},
+          {n:8, w:"crop",      ans:"作物"},
+          {n:9, w:"spray",     ans:"〜を噴霧する"}
+        ],
+        bank:["データ","センサー","〜を噴霧する","農業","作物","科学技術","〜を監視する","状態"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"私は赤や黄色のような明るい色が好きだ。", ref:"5",
+           parts:["I like bright colors (", {i:0,ans:"such"}, ") (", {i:1,ans:"as"}, ") red and yellow."]}
+        ]
+      },
+      seiri1:{
+        instr:"スマート農業の例について，本文の内容に合うように（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"1. ロボットは（", ans:"赤い", post:"）トマトだけを（"},
+          {pre:"", ans:"収穫する", post:"）ことができる。"},
+          {pre:"2. スマートフォンを使うと，データを収集して（", ans:"家", post:"）から作物の（"},
+          {pre:"", ans:"状態", post:"）を確認できる。"}
+        ]
+      },
+      seiri2:{
+        instr:"それぞれの機器は農業でどのように使われていますか。（　）に当てはまるものをそれぞれ1つずつ枠内から選ぼう。",
+        matchbox:{
+          items:[
+            {label:"1. Robots are used",       ans:"c"},
+            {label:"2. Smartphones are used",  ans:"b"},
+            {label:"3. Drones are used",       ans:"a"}
+          ],
+          options:[
+            {k:"a", v:"to spray fertilizer on fields"},
+            {k:"b", v:"to monitor the fields"},
+            {k:"c", v:"to harvest vegetables"}
+          ]
+        }
+      },
+      seiriQ:"スマート農業とはどのようなものでしょうか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.92",
+      honbun:[
+        {n:10, en:`<u>Farming</u> <b>is</b> important for our lives, but <u>it</u> <b>is not</b> an easy job.`, jp:`農業は私たちの生活にとって重要ですが，簡単な仕事ではありません。`},
+        {n:11, en:`<u>Farmers</u> <b>have to work</b> long hard hours.`, jp:`農家は長時間の重労働をしなくてはなりません。`},
+        {n:12, en:`Sometimes, <u>harvests</u> <b>are affected</b> by bad weather.`, jp:`時に，収穫は悪天候に影響を受けます。`},
+        {n:13, en:`<u>Smart farming</u> <b>is changing</b> this situation.`, jp:`スマート農業はこの状況を変えつつあります。`},
+        {n:14, en:`By using advanced technology, <u>farmers</u> <b>can save</b> time and effort.`, jp:`高度な科学技術を使うことで，農家は時間と労力を節約できます。`},
+        {n:15, en:`<u>They</u> <b>can</b> also <b>improve</b> both crop quality and quantity.`, jp:`彼らは作物の品質と量の両方も向上させることができます。`},
+        {n:16, en:`These days, <u>more and more people</u> <b>are interested in</b> farming.`, jp:`近頃，ますます多くの人々が農業に興味をもっています。`},
+        {n:17, en:`<u>Smart farming</u> <b>is</b> an important key to today&rsquo;s agriculture.`, jp:`スマート農業は今日の農業にとって重要なかぎです。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:12,w:"harvest",    ans:"収穫"},
+          {n:12,w:"affect",     ans:"〜に影響を与える"},
+          {n:14,w:"advanced",   ans:"高度な"},
+          {n:15,w:"quality",    ans:"品質"},
+          {n:15,w:"quantity",   ans:"量"},
+          {n:17,w:"agriculture",ans:"農業"}
+        ],
+        bank:["高度な","農業","〜に影響を与える","収穫","品質","量"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"私はおもしろいから数学と科学の両方が好きです。", ref:"15",
+           parts:["I like (", {i:0,ans:"both"}, ") math (", {i:1,ans:"and"}, ") science because they are interesting."]},
+          {jp:"近頃，私はピアノを練習している。", ref:"16",
+           parts:["(", {i:0,ans:"These"}, ") (", {i:1,ans:"days"}, "), I practice the piano."]},
+          {jp:"毎年，富士山を訪れる海外からの旅行者が増え続けている[←ますます多くの海外からの旅行者が富士山を訪れている]。", ref:"16",
+           parts:["(", {i:0,ans:"More"}, ") (", {i:1,ans:"and"}, ") (", {i:2,ans:"more"}, ") foreign tourists are visiting Mt. Fuji every year."]}
+        ]
+      },
+      seiri1:{
+        instr:"農業の説明として本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"農業は私たちの(1.", ans:"生活", post:")にとって(2."},
+          {pre:"", ans:"重要", post:")であるが，"},
+          {pre:"(3.", ans:"簡単な", post:")仕事ではない。"}
+        ]
+      },
+      seiri2:{
+        instr:"次の a〜d は，farming と smart farming のどちらを説明していますか。本文の内容に合うように，表に適切な記号を入れよう。",
+        table2col:{
+          headers:["farming","smart farming"],
+          options:[
+            {k:"a", v:"Farmers save time and effort.",    col:1},
+            {k:"b", v:"Bad weather affects harvests.",     col:0},
+            {k:"c", v:"Farmers work long hard hours.",    col:0},
+            {k:"d", v:"Advanced technology helps farmers.",col:1}
+          ]
+        }
+      },
+      seiriQ:"スマート農業によってどのようなことができますか。"
+    }
+  ],
+  grammar:{
+    term:"受け身",
+    rule:"be動詞+過去分詞で，「（主語）は〜される」という意味の文（❶）になります。また，be動詞に not をつけて否定形にすると否定文（❷）に，be動詞を文頭におくと疑問文（❸）になります。",
+    patterns:[
+      {n:1, desc:"", ex:"The room <b>is cleaned</b> on Sundays.",       jp:"その部屋は日曜日にそうじされる。"},
+      {n:2, desc:"", ex:"The room <b>is not [isn't] cleaned</b> on Sundays.", jp:"その部屋は日曜日にそうじされない。"},
+      {n:3, desc:"", ex:"<b>Is</b> the room <b>cleaned</b> on Sundays?", jp:"その部屋は日曜日にそうじされますか。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"（　）に入るものとして，適切なものを1つ選ぼう。", type:"pick",
+     items:[
+      {jp:"", en:["This song (", {choice:["sang","is singing","is sung"], ans:2}, ") by a lot of young people."]},
+      {jp:"", en:["The words of this song (", {choice:["wrote","are written","are writing"], ans:1}, ") in English."]},
+      {jp:"", en:["The music festival (", {choice:["wasn't hold","wasn't held","wasn't holding"], ans:1}, ") this year."]},
+      {jp:"", en:["The music hall (", {choice:["close","was closed","been closed"], ans:1}, ") in winter."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。", type:"bank",
+     items:[
+      {jp:"清水寺には多くの観光客が訪れる。［訪れる：visit］",
+       en:["Kiyomizu Temple (", {i:0,ans:"is"}, ") (", {i:1,ans:"visited"}, ") by many tourists."]},
+      {jp:"この本では難しいことばは使われていない。［使う：use］",
+       en:["Difficult words (", {i:0,ans:"are"}, ") (", {i:1,ans:"not"}, ") (", {i:2,ans:"used"}, ") in this book."]},
+      {jp:"その本は多くの高校生に読まれている。［読む：read］",
+       en:["The book is (", {i:0,ans:"read"}, ") (", {i:1,ans:"by"}, ") many high school students."]},
+      {jp:"シンガポールでは何語を話しますか[←何語が話されますか]。［話す：speak］",
+       en:["What languages (", {i:0,ans:"are"}, ") (", {i:1,ans:"spoken"}, ") in Singapore?"]},
+      {jp:"私の財布はきのう電車で見つかった。［見つける：find］",
+       en:["My wallet (", {i:0,ans:"was"}, ") (", {i:1,ans:"found"}, ") on the train yesterday."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"ナナとユキが「ベストシンガー賞」に選出された歌手，サラ（Sarah）について話しています。〈　〉内の動詞をそれぞれ適切な形に変えて，空所に入れよう。",
+    bank:["chosen","surprised","loved"],
+    lines:[
+      {who:"Nana", parts:["Sarah ",{i:0,ans:"was chosen"}," for the \u201CBest Singer Award\u201D last week."]},
+      {who:"Yuki", parts:["Yeah! I'm always ",{i:0,ans:"surprised"}," by her performance."]},
+      {who:"Nana", parts:["She ",{i:0,ans:"is loved"}," by people of all ages."]}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.90 / p.92",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "What do you see in this picture? A robot is ",
+        {n:1, letter:"p", ans:"picking"},
+        " tomatoes. With cameras and sensors, it picks only red tomatoes. This is an example of \u201Csmart farming.\u201D It uses \u201Csmart\u201D ",
+        {n:2, letter:"t", ans:"technology"},
+        " such as robots and ICT."
+      ],
+      [
+        "Let's look at other examples. Some farmers in Chiba monitor their fields with their ",
+        {n:3, letter:"s", ans:"smartphones"},
+        ". They can collect data and ",
+        {n:4, letter:"c", ans:"check"},
+        " the condition of their crops from home. On some Hokkaido farms, drones are ",
+        {n:5, letter:"u", ans:"used"},
+        " to spray fertilizer on the rice fields."
+      ],
+      [
+        "Farming is important for our lives, but it is not an ",
+        {n:6, letter:"e", ans:"easy"},
+        " job. Farmers have to work long hard hours. Sometimes, harvests are ",
+        {n:7, letter:"a", ans:"affected"},
+        " by bad weather."
+      ],
+      [
+        "Smart farming is ",
+        {n:8, letter:"c", ans:"changing"},
+        " this situation. By using advanced technology, farmers can save ",
+        {n:9, letter:"t", ans:"time"},
+        " and effort. They can also improve both crop quality and quantity. These days, more and more people are interested in farming. Smart farming is an important ",
+        {n:10, letter:"k", ans:"key"},
+        " to today's agriculture."
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 09 ================================= */
+{
+  id:"L09", num:"09",
+  en:"Fashion Waste",
+  jp:"衣料廃棄",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.102",
+      honbun:[
+        {n:1, en:`<b>Do</b> <u>you</u> <b>like</b> fashion?`, jp:`あなたはファッションが好きですか。`},
+        {n:2, en:`How often <b>do</b> <u>you</u> <b>buy</b> clothes?`, jp:`あなたはどのくらいの頻度で服を買いますか。`},
+        {n:3, en:`At stores, <u>we</u> <b>see</b> clothes with all colors and designs.`, jp:`店では，私たちはあらゆる色やデザインの服を目にします。`},
+        {n:4, en:`In Japan, about 800,000 tons of new clothes a year <b>are sold</b>.`, jp:`日本では，毎年約80万トンの新しい服が売られています。`},
+        {n:5, en:`At the same time, around 500,000 tons of clothes <b>are thrown away</b>.`, jp:`同時に，およそ50万トンの服が捨てられています。`},
+        {n:6, en:`<u>We</u> <b>need</b> 130 large trucks each day to carry this amount.`, jp:`私たちはこの量を運ぶために毎日130台の大型トラックを必要とします。`},
+        {n:7, en:`<u>Many clothes</u> <b>are produced</b> and <b>sold</b>, but <b>thrown away</b> in the end.`, jp:`多くの服が生産され，売られますが，最後には捨てられます。`},
+        {n:8, en:`&ldquo;<u>Fast fashion</u>&rdquo; <b>is</b> one reason for this cycle.`, jp:`「ファストファッション」がこのサイクルの1つの理由です。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1, w:"fashion", ans:"ファッション"},
+          {n:4, w:"ton",     ans:"トン"},
+          {n:6, w:"truck",   ans:"トラック"},
+          {n:6, w:"amount",  ans:"量"},
+          {n:8, w:"cycle",   ans:"サイクル"}
+        ],
+        bank:["量","サイクル","ファッション","トン","トラック"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"1年に一度，大きな文化祭があります。", ref:"4",
+           parts:["A big school festival is held once (", {i:0,ans:"a"}, ") (", {i:1,ans:"year"}, ")."]},
+          {jp:"私たちは2人とも同時に先生の質問に答えました。", ref:"5",
+           parts:["We both answered the teacher's question (", {i:0,ans:"at"}, ") (", {i:1,ans:"the"}, ") (", {i:2,ans:"same"}, ") (", {i:3,ans:"time"}, ")."]},
+          {jp:"ケイは古い自転車を捨てたくなかったのだが，最終的に売った。", ref:"5 7",
+           parts:["Kei didn't want to (", {i:0,ans:"throw"}, ") (", {i:1,ans:"away"}, ") his old bike, but (", {i:2,ans:"in"}, ") (", {i:3,ans:"the"}, ") (", {i:4,ans:"end"}, "), he sold it."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容と一致するものをすべて選ぼう。",
+        multi:[
+          {label:"a. 衣料品店に行けば，あらゆる色やデザインの商品が見つかる。", correct:true},
+          {label:"b. 新しい服が売られる一方で，年間約80万トンの服が寄付される。", correct:false},
+          {label:"c. 「ファストファッション」は，服がたくさん廃棄される理由の1つである。", correct:true}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容に合うように，[ ]内の語を使って英文を完成させよう。",
+        bank:["throw","produced","500,000","year","sold","130"],
+        multiparts:[
+          {label:"1.", parts:["A lot of new clothes are (", {i:0,ans:"produced"}, ") and (", {i:1,ans:"sold"}, ") every year in Japan."]},
+          {label:"2.", parts:["We (", {i:0,ans:"throw"}, ") away about 500,000 tons of clothes a (", {i:1,ans:"year"}, ")."]},
+          {label:"3.", parts:["We need (", {i:0,ans:"130"}, ") large trucks each day to carry about (", {i:1,ans:"500,000"}, ") tons of clothes."]}
+        ]
+      },
+      seiriQ:"日本では年間どのくらいの量の服が廃棄されていますか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.104",
+      honbun:[
+        {n:9, en:`<u>Fast fashion companies</u> <b>produce</b> a large amount of clothes.`, jp:`ファストファッション企業は大量の服を生産します。`},
+        {n:10, en:`Thanks to this, <u>their products</u> <b>are</b> cheaper than other companies&rsquo; products.`, jp:`そのおかげで，彼らの製品は他社の製品よりも安いです。`},
+        {n:11, en:`Also, <u>they</u> <b>make</b> clothes quickly to keep up with the trends.`, jp:`また，彼らは流行についていくために素早く服を作ります。`},
+        {n:12, en:`As a result, <u>we</u> <b>can enjoy</b> the newest styles.`, jp:`その結果，私たちは最新のスタイルを楽しむことができます。`},
+        {n:13, en:`However, <u>fashion trends</u> often <b>change</b>, so <u>the companies</u> <b>are</b> always <b>producing</b> new clothes.`, jp:`しかし，ファッションの流行はしばしば変わるので，企業は常に新しい服を生産し続けています。`},
+        {n:14, en:`Sooner or later, <u>unsold clothes</u> <b>become</b> waste.`, jp:`遅かれ早かれ，売れ残った服は廃棄物となります。`},
+        {n:15, en:`<u>Fashion waste</u> <b>is</b> a consumer problem too.`, jp:`ファッションの廃棄物は消費者の問題でもあります。`},
+        {n:16, en:`<u>We</u> easily <b>buy</b> new clothes and <b>throw away</b> old ones because they are cheap.`, jp:`私たちは安いからと，簡単に新しい服を買っては古い服を捨てます。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:11,w:"trend",    ans:"流行"},
+          {n:12,w:"style",    ans:"スタイル"},
+          {n:14,w:"unsold",   ans:"売れ残りの"},
+          {n:14,w:"waste",    ans:"廃棄物"},
+          {n:15,w:"consumer", ans:"消費者"}
+        ],
+        bank:["消費者","スタイル","流行","売れ残りの","廃棄物"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"私は姉の誕生パーティーのために，大量の食べ物を用意しました。", ref:"9",
+           parts:["I prepared (", {i:0,ans:"a"}, ") (", {i:1,ans:"large"}, ") (", {i:2,ans:"amount"}, ") of food for my sister's birthday party."]},
+          {jp:"すべてのニュースに遅れずについていくのは難しい。", ref:"11",
+           parts:["It's hard to (", {i:0,ans:"keep"}, ") (", {i:1,ans:"up"}, ") (", {i:2,ans:"with"}, ") all the news."]},
+          {jp:"遅かれ早かれ，健康の重要性がわかるでしょう。", ref:"14",
+           parts:["(", {i:0,ans:"Sooner"}, ") (", {i:1,ans:"or"}, ") (", {i:2,ans:"later"}, "), you will understand the importance of good health."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容と一致するものをすべて選ぼう。",
+        multi:[
+          {label:"a. ファストファッションの会社の服が，なぜ安いのかはわかっていない。", correct:false},
+          {label:"b. 流行はよく変わるため，常に新しい服が生産される。", correct:true},
+          {label:"c. 衣料廃棄は消費者の問題でもある。", correct:true}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものには○，一致しないものには×を書こう。",
+        truefalse:[
+          {t:"a. Fast fashion companies make a lot of cheap clothes.", ans:"○"},
+          {t:"b. Fashion trends change quickly, so fast fashion companies don't follow them.", ans:"×"},
+          {t:"c. We can buy and throw away fast fashion clothes easily because they aren't expensive.", ans:"×"}
+        ]
+      },
+      seiriQ:"なぜ大量の服が廃棄されるのでしょうか。"
+    },
+    /* ---------- Part ③ ---------- */
+    {
+      label:"③", kyou:"p.106",
+      honbun:[
+        {n:17, en:`<u>The fashion industry</u> <b>is trying to reduce</b> fashion waste.`, jp:`ファッション業界はファッションの廃棄物を減らそうとしています。`},
+        {n:18, en:`<u>Some companies</u> <b>collect</b> used clothes for recycling.`, jp:`リサイクルのために使用済みの服を集める企業もあります。`},
+        {n:19, en:`<u>Others</u> <b>offer</b> a repair service to their customers.`, jp:`客に修理サービスを提供する企業もあります。`},
+        {n:20, en:`With this service, <u>they</u> <b>can wear</b> their clothes longer.`, jp:`このサービスによって，彼らは服をより長く着ることができます。`},
+        {n:21, en:`As consumers, what <b>can</b> <u>we</u> <b>do</b> about this waste problem?`, jp:`消費者として，この廃棄物の問題について私たちは何ができるでしょうか。`},
+        {n:22, en:`<u>We</u> <b>should avoid</b> throwing away clothes so easily.`, jp:`私たちは簡単に服を捨てるのを避けるべきです。`},
+        {n:23, en:`If we wear our clothes for just one more year, <u>we</u> <b>can reduce</b> about 40,000 tons of waste.`, jp:`もし私たちが服をたった1年でも長く着るなら，およそ4万トンの廃棄物を減らすことができます。`},
+        {n:24, en:`<b>Enjoy</b> fashion but <b>love</b> your clothes!`, jp:`ファッションを楽しみつつ，自分の服を大切にしましょう！`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:17,w:"industry", ans:"業界"},
+          {n:17,w:"reduce",   ans:"〜を減らす"},
+          {n:18,w:"recycling",ans:"リサイクル"},
+          {n:19,w:"offer",    ans:"〜を提供する"},
+          {n:19,w:"repair",   ans:"修理"},
+          {n:19,w:"service",  ans:"サービス"},
+          {n:22,w:"avoid",    ans:"〜を避ける"}
+        ],
+        bank:["サービス","修理","〜を減らす","リサイクル","〜を提供する","業界","〜を避ける"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"ケンは毎週末に英語の本を読もうとしている。", ref:"17",
+           parts:["Ken is (", {i:0,ans:"trying"}, ") (", {i:1,ans:"to"}, ") read English books every weekend."]},
+          {jp:"歩いて学校に通う生徒がいる。駅からバスに乗る生徒もいる。", ref:"18 19",
+           parts:["(", {i:0,ans:"Some"}, ") students walk to school. (", {i:1,ans:"Others"}, ") take the bus from the station."]},
+          {jp:"寝る前にスマホを使うのを避けたほうがよい。", ref:"22",
+           parts:["It is better to (", {i:0,ans:"avoid"}, ") (", {i:1,ans:"using"}, ") smartphones before going to bed."]}
+        ]
+      },
+      seiri1:{
+        instr:"衣料廃棄の説明として本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"廃棄物を減らす取り組みとして，リサイクルのために（1.", ans:"使用済みの服", post:"）を集める企業がある。"},
+          {pre:"また，（2.", ans:"修理サービス", post:"）を提供する企業もある。消費者として，私たちは服を簡単に"},
+          {pre:"（3.", ans:"捨てる", post:"）ことを避けるべきである。"}
+        ]
+      },
+      seiri2:{
+        instr:"私たち消費者がすべきことについて，正しいものを2つ選ぼう。",
+        multi:[
+          {label:"a. We should think about using a repair service before throwing away old clothes.", correct:true},
+          {label:"b. We should buy new clothes for every season to keep up with trends.", correct:false},
+          {label:"c. We should wear our clothes longer to reduce fashion waste.", correct:true}
+        ]
+      },
+      seiriQ:"服の廃棄を減らすために，どんな取り組みがなされていますか。"
+    }
+  ],
+  grammar:{
+    term:"比較級 / 最上級",
+    rule:"比較級：2つの物を比べるときは比較級を使います。／最上級：ある物が「最も〜」「いちばん〜」などと言うときは最上級を使います。",
+    subrule:"❶ 比較級（-er）+ than …「…より〜である」／ 最上級：the + 最上級（-est）「（…の中で）最も〜である」　❷ 長い語には more / the most。　❸ good, bad などは不規則変化。",
+    patterns:[
+      {n:1, desc:"比較級", ex:"Osaka is <b>smaller than</b> Tokyo.",       jp:"大阪は東京より小さい。"},
+      {n:2, desc:"比較級", ex:"Writing is <b>more difficult than</b> reading.", jp:"書くことは読むことより難しい。"},
+      {n:3, desc:"比較級", ex:"This new model is <b>better than</b> the old one.", jp:"この新モデルは旧モデルよりよい。"},
+      {n:4, desc:"比較級", ex:"Today's weather is <b>worse than</b> yesterday's.", jp:"今日の天気はきのうよりひどい。"},
+      {n:5, desc:"最上級", ex:"This stadium is <b>the largest</b> in Japan.", jp:"この競技場は日本で最大だ。"},
+      {n:6, desc:"最上級", ex:"This question is <b>the most difficult</b> of all.", jp:"この問題はすべての中で最も難しい。"},
+      {n:7, desc:"最上級", ex:"Tom is <b>the best</b> actor in this drama.", jp:"トムはこのドラマでいちばんよい俳優だ。"},
+      {n:8, desc:"最上級", ex:"This is <b>the worst</b> movie of all.", jp:"これはすべての中で最もひどい映画だ。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"左の例にならって，各単語を比較級にしよう。", type:"bank",
+     items:[
+      {jp:"1) long — longer   short — (      )", en:["short — (", {i:0,ans:"shorter"}, ")"]},
+      {jp:"   new — (      )",                    en:["new — (", {i:0,ans:"newer"}, ")"]},
+      {jp:"2) nice — nicer   safe — (      )",   en:["safe — (", {i:0,ans:"safer"}, ")"]},
+      {jp:"   wise — (      )",                  en:["wise — (", {i:0,ans:"wiser"}, ")"]},
+      {jp:"3) big — bigger   hot — (      )",    en:["hot — (", {i:0,ans:"hotter"}, ")"]},
+      {jp:"   sad — (      )",                    en:["sad — (", {i:0,ans:"sadder"}, ")"]},
+      {jp:"4) easy — easier   busy — (      )",  en:["busy — (", {i:0,ans:"busier"}, ")"]},
+      {jp:"   happy — (      )",                 en:["happy — (", {i:0,ans:"happier"}, ")"]},
+      {jp:"5) beautiful — more beautiful   careful — (      )", en:["careful — (", {i:0,ans:"more careful"}, ")"]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）このコートはあれより長い。[long] This coat is ( longer ) ( than ) that one.", type:"bank",
+     items:[
+      {jp:"1) この通りはあの通りよりも幅が広い。［wide］",
+       en:["This street is (", {i:0,ans:"wider"}, ") (", {i:1,ans:"than"}, ") that one."]},
+      {jp:"2) 私の通学用かばんはあなたのものよりも重い。［heavy］",
+       en:["My schoolbag is (", {i:0,ans:"heavier"}, ") (", {i:1,ans:"than"}, ") yours."]},
+      {jp:"3) 今日はきのうより寒い。［cold］",
+       en:["Today is (", {i:0,ans:"colder"}, ") (", {i:1,ans:"than"}, ") yesterday."]},
+      {jp:"4) 安全性のほうが速さより重要だ。［important］",
+       en:["Safety is (", {i:0,ans:"more"}, ") (", {i:1,ans:"important"}, ") (", {i:2,ans:"than"}, ") speed."]}
+    ]},
+    {n:3, instr:"左の例にならって，各単語を最上級にしよう。", type:"bank",
+     items:[
+      {jp:"1) long — the longest   short — (      )", en:["short — (", {i:0,ans:"the shortest"}, ")"]},
+      {jp:"   new — (      )",                        en:["new — (", {i:0,ans:"the newest"}, ")"]},
+      {jp:"2) nice — the nicest    safe — (      )", en:["safe — (", {i:0,ans:"the safest"}, ")"]},
+      {jp:"   wise — (      )",                      en:["wise — (", {i:0,ans:"the wisest"}, ")"]},
+      {jp:"3) big — the biggest    hot — (      )",  en:["hot — (", {i:0,ans:"the hottest"}, ")"]},
+      {jp:"   sad — (      )",                       en:["sad — (", {i:0,ans:"the saddest"}, ")"]},
+      {jp:"4) easy — the easiest   busy — (      )", en:["busy — (", {i:0,ans:"the busiest"}, ")"]},
+      {jp:"   happy — (      )",                     en:["happy — (", {i:0,ans:"the happiest"}, ")"]},
+      {jp:"5) beautiful — the most beautiful   careful — (      )", en:["careful — (", {i:0,ans:"the most careful"}, ")"]}
+    ]},
+    {n:4, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）このスマートフォンは3つの中で最も軽い。[light] This smartphone is ( the ) ( lightest ) of the three.", type:"bank",
+     items:[
+      {jp:"1) このジャケットは店の中で最も人気だ。［popular］",
+       en:["This jacket is (", {i:0,ans:"the"}, ") (", {i:1,ans:"most"}, ") (", {i:2,ans:"popular"}, ") in the shop."]},
+      {jp:"2) ケンはそのバンドメンバーの中で最年長だ。［old］",
+       en:["Ken is (", {i:0,ans:"the"}, ") (", {i:1,ans:"oldest"}, ") of all the band members."]},
+      {jp:"3) マイケルはすべての歌手の中で最も有名だ。［famous］",
+       en:["Michael is (", {i:0,ans:"the"}, ") (", {i:1,ans:"most"}, ") (", {i:2,ans:"famous"}, ") of all the singers."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"新居を探しているトムとユイの夫婦は，部屋AとBを検討しています。（　）に入る語を large, good, expensive から選び，必要に応じて適切な形に直して入れよう。／ロンとエマは，エマの兄が出場するバスケットボールの試合を見に来ました。（　）に入る語を good, tall, young から選び，それぞれ適切な形に直して入れよう。",
+    bank:["larger","better","more expensive","tallest","youngest","best"],
+    lines:[
+      {who:"Tom",   parts:["I want to live in room A. It is ",{i:0,ans:"larger"}," than room B."]},
+      {who:"Yui",   parts:["Yes, and the design of room A is ",{i:0,ans:"better"}," than B's."]},
+      {who:"Tom",   parts:["But room A is more ",{i:0,ans:"expensive"}," than B."]},
+      {who:"Ron",   parts:["All the players are tall, but your brother is the ",{i:0,ans:"tallest"},"!"]},
+      {who:"Emma",  parts:["Yes, but he is the ",{i:0,ans:"youngest"},"."]},
+      {who:"Ron",   parts:["Oh, really? I think he is the ",{i:0,ans:"best"}," player on the team."]},
+      {who:"Emma",  parts:["Wow. Thanks for that!"]}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.102 / p.104 / p.106",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "Do you like ",
+        {n:1, letter:"f", ans:"fashion"},
+        "? How often do you buy clothes? At stores, we see clothes with all colors and ",
+        {n:2, letter:"d", ans:"designs"},
+        ". In Japan, about 800,000 tons of new clothes a year are sold. At the same time, around 500,000 tons of clothes are thrown away. We need 130 large trucks each day to carry this ",
+        {n:3, letter:"a", ans:"amount"},
+        ". Many clothes are produced and sold, but thrown away in the end. \u201CFast fashion\u201D is one reason for this ",
+        {n:4, letter:"c", ans:"cycle"},
+        "."
+      ],
+      [
+        "Fast fashion companies produce a large amount of clothes. Thanks to this, their products are ",
+        {n:5, letter:"c", ans:"cheaper"},
+        " than other companies' products. Also, they make clothes quickly to keep up with the trends. As a result, we can enjoy the ",
+        {n:6, letter:"n", ans:"newest"},
+        " styles. However, fashion trends often ",
+        {n:7, letter:"c", ans:"change"},
+        ", so the companies are always producing new clothes. Sooner or later, unsold clothes become ",
+        {n:8, letter:"w", ans:"waste"},
+        ". Fashion waste is a consumer problem too. We easily ",
+        {n:9, letter:"b", ans:"buy"},
+        " new clothes and throw away old ones because they are cheap."
+      ],
+      [
+        "The fashion industry is trying to reduce fashion waste. Some companies ",
+        {n:10, letter:"c", ans:"collect"},
+        " used clothes for recycling. Others offer a ",
+        {n:11, letter:"r", ans:"repair"},
+        " service to their customers. With this service, they can wear their clothes ",
+        {n:12, letter:"l", ans:"longer"},
+        ". As consumers, what can we do about this waste problem? We should ",
+        {n:13, letter:"a", ans:"avoid"},
+        " throwing away clothes so easily. If we wear our clothes for just one more year, we can ",
+        {n:14, letter:"r", ans:"reduce"},
+        " about 40,000 tons of waste. Enjoy fashion but love your clothes!"
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 10 ================================= */
+{
+  id:"L10", num:"10",
+  en:"William and His Windmill",
+  jp:"ウィリアムの風車",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.114",
+      honbun:[
+        {n:1, en:`<u>William Kamkwamba</u> <b>lived</b> in a small African village.`, jp:`ウィリアム・カムクワンバはアフリカの小さな村に住んでいました。`},
+        {n:2, en:`When he was fourteen, <u>he</u> <b>had to leave</b> school.`, jp:`彼は14歳のとき，学校をやめなければなりませんでした。`},
+        {n:3, en:`<u>His family</u> <b>didn&rsquo;t have</b> enough money.`, jp:`彼の家族には十分なお金がありませんでした。`},
+        {n:4, en:`Because of a terrible drought, <u>they</u> <b>could not grow</b> crops.`, jp:`ひどい干ばつのために，彼らは作物を育てることができませんでした。`},
+        {n:5, en:`However, <u>William</u> <b>did not give up</b> studying.`, jp:`しかし，ウィリアムは勉強することをあきらめませんでした。`},
+        {n:6, en:`<u>He</u> <b>went</b> to the library in the village every day.`, jp:`彼は毎日，村の図書館へ通いました。`},
+        {n:7, en:`One day, <u>he</u> <b>found</b> a science book.`, jp:`ある日，彼は科学の本を見つけました。`},
+        {n:8, en:`<u>It</u> <b>showed</b> windmills which could generate electricity.`, jp:`それには電気を生み出すことのできる風車が載っていました。`},
+        {n:9, en:`<u>His village</u> <b>had</b> no electricity.`, jp:`彼の村には電気がありませんでした。`},
+        {n:10, en:`<u>He</u> <b>decided</b>, &ldquo;<u>I</u> <b>will build</b> a windmill!&rdquo;`, jp:`彼は決心しました，「僕は風車を作ろう！」`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1, w:"African",    ans:"アフリカの"},
+          {n:4, w:"terrible",   ans:"ひどい"},
+          {n:4, w:"drought",    ans:"干ばつ"},
+          {n:8, w:"windmill",   ans:"風車"},
+          {n:8, w:"generate",   ans:"〜を生み出す"},
+          {n:8, w:"electricity",ans:"電気"}
+        ],
+        bank:["電気","干ばつ","ひどい","アフリカの","風車","〜を生み出す"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"きのうは雨のため，私は家にいました。", ref:"4",
+           parts:["I stayed home (", {i:0,ans:"because"}, ") (", {i:1,ans:"of"}, ") the rain yesterday."]},
+          {jp:"シンジは失くしたかぎを探すのをやめた。", ref:"5",
+           parts:["Shinji (", {i:0,ans:"gave"}, ") (", {i:1,ans:"up"}, ") looking for his lost key."]},
+          {jp:"ある日，私は自宅の前で担任の先生に出会った。", ref:"7",
+           parts:["(", {i:0,ans:"One"}, ") (", {i:1,ans:"day"}, "), I met my homeroom teacher in front of my house."]}
+        ]
+      },
+      seiri1:{
+        instr:"本文の内容に合うように，次の質問に答えよう。",
+        qa:[
+          {q:"1) ウィリアムはどこに住んでいましたか。",
+           parts:["(", {i:0,ans:"アフリカ"}, ")の小さな村"]},
+          {q:"2) ウィリアムが14歳で学校をやめることになった理由は何でしょうか。",
+           parts:["(1. ", {i:0,ans:"ひどい干ばつ"}, ")のため (2. ", {i:1,ans:"作物"},
+                  ")を育てることができず，家に十分な (3. ", {i:2,ans:"お金"}, ")がなかったから。"]},
+          {q:"3) ウィリアムは学校をやめたあと，毎日何をしましたか。",
+           parts:["(1. ", {i:0,ans:"勉強"}, ")するのをやめずに，(2. ", {i:1,ans:"図書館"}, ")に通った。"]}
+        ]
+      },
+      seiri2:{
+        instr:"ウィリアムはある本を読み，どんな決心をしましたか。（　）に適切な語を入れよう。",
+        parts:[
+          "He decided to (", {i:0,ans:"build"}, ") a (", {i:1,ans:"windmill"},
+          ") because his village had no (", {i:2,ans:"electricity"}, ")."
+        ]
+      },
+      seiriQ:"ウィリアムは図書館でどんな本を見つけましたか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.116",
+      honbun:[
+        {n:11, en:`<u>William</u> <b>visited</b> the local junkyard every day.`, jp:`ウィリアムは毎日，地元の廃品置き場を訪れました。`},
+        {n:12, en:`<u>He</u> <b>collected</b> materials for his windmill there.`, jp:`彼はそこで風車のための資材を集めました。`},
+        {n:13, en:`<u>People</u> <b>laughed at</b> him and <b>said</b>, &ldquo;<u>He</u> <b>is</b> crazy!&rdquo;`, jp:`人々は彼を笑って言いました，「彼はどうかしている！」`},
+        {n:14, en:`Even so, <u>William</u> <b>did not change</b> his mind.`, jp:`それでも，ウィリアムは考えを変えませんでした。`},
+        {n:15, en:`<u>He</u> <b>built</b> his windmill with wood, bicycle parts, and other junk.`, jp:`彼は木材，自転車の部品，その他のがらくたで風車を作り上げました。`},
+        {n:16, en:`<u>The day of the windmill test</u> <b>arrived</b>.`, jp:`風車の試運転の日がやって来ました。`},
+        {n:17, en:`<u>The villagers</u> who came to see it <b>were</b> still <b>laughing</b>.`, jp:`それを見に来た村人たちは，まだ笑っていました。`},
+        {n:18, en:`Then <u>the wind</u> <b>began to blow</b>.`, jp:`そのとき風が吹き始めました。`},
+        {n:19, en:`<u>The blades</u> <b>moved</b>, and <u>a lightbulb</u> <b>started to glow</b>.`, jp:`羽根が動き，電球が輝き始めました。`},
+        {n:20, en:`<u>He</u> <b>did</b> it! `, jp:`彼はやり遂げました！`},
+        {n:21, en:`<u>Nobody</u> <b>was laughing</b> any more.`, jp:`もはや誰も笑っていませんでした。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:11,w:"junkyard", ans:"廃品置き場"},
+          {n:12,w:"material", ans:"資材"},
+          {n:13,w:"crazy",    ans:"ばかげた"},
+          {n:15,w:"junk",     ans:"がらくた"},
+          {n:17,w:"villager", ans:"村人"},
+          {n:18,w:"blow",     ans:"吹く"},
+          {n:19,w:"blade",    ans:"羽根"},
+          {n:19,w:"lightbulb",ans:"電球"},
+          {n:19,w:"glow",     ans:"輝く"}
+        ],
+        bank:["ばかげた","電球","羽根","がらくた","資材","村人","廃品置き場","輝く","吹く"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"子どもたちはあなたのジョークに笑った。", ref:"13",
+           parts:["The children (", {i:0,ans:"laughed"}, ") (", {i:1,ans:"at"}, ") your jokes."]},
+          {jp:"映画はとても長かった。それでも私はとても楽しんだ。", ref:"14",
+           parts:["The movie was very long. (", {i:0,ans:"Even"}, ") (", {i:1,ans:"so"}, "), I enjoyed it a lot."]},
+          {jp:"「とうとう仕事が決まりました。」「おお，よくやった！」", ref:"20",
+           parts:["\u201CI finally got a job.\u201D \u201CWow, you (", {i:0,ans:"did"}, ") (", {i:1,ans:"it"}, ")!\u201D"]}
+        ]
+      },
+      seiri1:{
+        instr:"ウィリアムの風車作りについて，本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"ウィリアムは，風車を作るために廃品置き場に通い，（1.", ans:"資材", post:"）を集めた。"},
+          {pre:"人々は彼のことを笑ったが，彼は（2.", ans:"考え", post:"）を変えず，風車を完成させた。"}
+        ]
+      },
+      seiri2:{
+        instr:"次の英文は，風車の試運転の日の出来事を順に述べたものです。本文の内容に合うように，（　）に適切な語を入れよう。",
+        multiparts:[
+          {label:"1.", parts:["The villagers who came to see the test were still (", {i:0,ans:"laughing"}, ") at William."]},
+          {label:"2.", parts:["When the wind blew, the windmill turned, and a (", {i:0,ans:"lightbulb"}, ") glowed."]},
+          {label:"3.", parts:["The villagers who saw the scene did not (", {i:0,ans:"laugh"}, ") any more."]}
+        ]
+      },
+      seiriQ:"ウィリアムはどんなもので風車を作りましたか。"
+    },
+    /* ---------- Part ③ ---------- */
+    {
+      label:"③", kyou:"p.118",
+      honbun:[
+        {n:22, en:`In 2007, <u>William</u> <b>was invited</b> to an international conference in Tanzania.`, jp:`2007年に，ウィリアムはタンザニアで開催された国際会議に招かれました。`},
+        {n:23, en:`On the stage, <u>he</u> <b>was interviewed</b> in English.`, jp:`ステージ上で，彼は英語でインタビューを受けました。`},
+        {n:24, en:`<u>The interviewer</u> <b>asked</b>, &ldquo;How <b>did</b> <u>you</u> <b>realize</b> your dream?&rdquo;`, jp:`インタビュアーは尋ねました，「あなたはどのようにして夢を実現しましたか。」`},
+        {n:25, en:`<u>William</u> <b>replied</b>, &ldquo;<u>I</u> <b>went</b> to library, and <u>I</u> <b>get</b> information about windmill ... and <u>I</u> <b>try</b>, and <u>I</u> <b>made</b> it.&rdquo;`, jp:`ウィリアムは答えました，「僕は図書館に行き，そして風車について情報を得て…そして挑戦して，そしてやり遂げました。」`},
+        {n:26, en:`<u>William&rsquo;s English</u> <b>was not</b> perfect.`, jp:`ウィリアムの英語は完璧ではありませんでした。`},
+        {n:27, en:`<u>He</u> <b>expected</b> the audience to laugh at him.`, jp:`彼は聴衆が自分を笑うだろうと思っていました。`},
+        {n:28, en:`Instead, <u>he</u> <b>heard</b> only clapping and cheering.`, jp:`その代わりに，彼は拍手と歓声だけを耳にしました。`},
+        {n:29, en:`<u>William</u> <b>felt</b> that his efforts were finally recognized.`, jp:`ウィリアムは自分の努力がついに認められたと感じました。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:22,w:"conference", ans:"会議"},
+          {n:24,w:"interviewer",ans:"インタビュアー"},
+          {n:25,w:"reply",      ans:"返事をする"},
+          {n:27,w:"expect",     ans:"〜するだろうと思う"},
+          {n:27,w:"audience",   ans:"聴衆"},
+          {n:28,w:"instead",    ans:"その代わりに"},
+          {n:29,w:"recognize",  ans:"〜を認める"}
+        ],
+        bank:["〜を認める","返事をする","インタビュアー","会議","聴衆","その代わりに","〜するだろうと思う"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"息子がエベレストの頂上に到達した。彼はやり遂げた！", ref:"25",
+           parts:["My son reached the top of Mt. Everest. He (", {i:0,ans:"made"}, ") (", {i:1,ans:"it"}, ")!"]},
+          {jp:"明日試験があるので，両親は私が一日中勉強をするだろうと思っている。", ref:"27",
+           parts:["I have a test tomorrow, so my parents (", {i:0,ans:"expect"}, ") me (", {i:1,ans:"to"}, ") study all day."]}
+        ]
+      },
+      seiri1:{
+        instr:"インタビューでは，どのようなことを質問されましたか。",
+        parts:[
+          "ウィリアムが自分の(1. ", {i:0,ans:"夢"}, ")を(2. ", {i:1,ans:"実現"}, ")させた方法。"
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものを2つ選ぼう。",
+        multi:[
+          {label:"a. An international conference was held in Tanzania in 2007.", correct:true},
+          {label:"b. William said to the interviewer, \u201CThe villagers gave me information.\u201D", correct:false},
+          {label:"c. William's English was perfect in the interview.", correct:false},
+          {label:"d. Instead of laughing at William, the audience clapped and cheered.", correct:true}
+        ]
+      },
+      seiriQ:"インタビューに答えたウィリアムにどのようなことが起こりましたか。"
+    }
+  ],
+  grammar:{
+    term:"関係代名詞",
+    rule:"関係代名詞を使って直前の名詞（先行詞）を説明できます。",
+    subrule:"❶ 先行詞が「人」の場合は who を用います。　❷「人以外」の場合は which/that を用います。　※ that は「人」にも使えますが，一般的には who が好まれます。",
+    patterns:[
+      {n:1, desc:"", ex:"I met a student <b>who</b> spoke three languages.",     jp:"3か国語を話す生徒に会いました。〔I met a student. + The student spoke three languages.〕"},
+      {n:2, desc:"", ex:"This is the train <b>which[that]</b> goes to the airport.", jp:"空港へ行く列車だ。〔This is the train. + It(=The train) goes to the airport.〕"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"英語の日本語訳として正しく表されているものを選ぼう。", type:"pick",
+     items:[
+      {jp:"1) the man who was talking to you this morning",
+       en:["(", {choice:["今朝，あなたと話していた男性","今朝，男性があなたと話していた"], ans:0}, ")"]},
+      {jp:"2) a teacher who came from Canada last week",
+       en:["(", {choice:["先週，カナダから来た先生","先週，先生はカナダから来た"], ans:0}, ")"]},
+      {jp:"3) a town which has a lot of nature",
+       en:["(", {choice:["町には多くの自然がある","自然がたくさんある町"], ans:1}, ")"]}
+    ]},
+    {n:2, instr:"（　）に入るものとして，正しい関係代名詞を選ぼう。", type:"pick",
+     items:[
+      {jp:"1) I know a boy (      ) is a member of the basketball club.",
+       en:["I know a boy (", {choice:["who","which"], ans:0}, ") is a member of the basketball club."]},
+      {jp:"2) His father bought a house (      ) was built ten years ago.",
+       en:["His father bought a house (", {choice:["who","that"], ans:1}, ") was built ten years ago."]},
+      {jp:"3) His sister has some friends (      ) can dance very well.",
+       en:["His sister has some friends (", {choice:["who","which"], ans:0}, ") can dance very well."]},
+      {jp:"4) They have a dog (      ) can jump very high.",
+       en:["They have a dog (", {choice:["who","which"], ans:1}, ") can jump very high."]},
+      {jp:"5) I am reading a comic (      ) is loved by young people.",
+       en:["I am reading a comic (", {choice:["who","that"], ans:1}, ") is loved by young people."]}
+    ]},
+    {n:3, instr:"日本語を参考に，[ ]には下の語群から正しい名詞を，（　）には関係代名詞を入れよう。（例）She is the [girl] (who) came here this morning. (今朝ここに来た少女)", type:"bank",
+     bank:["girl","plane","grandmother","shop","woman"],
+     items:[
+      {jp:"1) きのう開店した店",
+       en:["This is the [", {i:0,ans:"shop"}, "] (", {i:1,ans:"which"}, ") opened yesterday."]},
+      {jp:"2) ここに最初に着いた女性",
+       en:["Yuka is the [", {i:0,ans:"woman"}, "] (", {i:1,ans:"who"}, ") arrived here first."]},
+      {jp:"3) パリ行きの飛行機",
+       en:["Shuji got on the [", {i:0,ans:"plane"}, "] (", {i:1,ans:"which"}, ") went to Paris."]},
+      {jp:"4) アメリカに住む祖母",
+       en:["I have a [", {i:0,ans:"grandmother"}, "] (", {i:1,ans:"who"}, ") lives in America."]}
+    ]},
+    {n:4, instr:"次の2文を，who または which を用いて1文にしよう。", type:"bank",
+     items:[
+      {jp:"1) We went to a bookstore. It had a cafe.",
+       en:["We went to a bookstore (", {i:0,ans:"which"}, ") (", {i:1,ans:"had"}, ") a cafe."]},
+      {jp:"2) I know a woman. She is a carpenter.",
+       en:["I know a woman (", {i:0,ans:"who"}, ") (", {i:1,ans:"is"}, ") a carpenter."]},
+      {jp:"3) This is a new drama. It started last week.",
+       en:["This is a new drama (", {i:0,ans:"which"}, ") (", {i:1,ans:"started"}, ") last week."]},
+      {jp:"4) I haven't met any boys. They are taller than me.",
+       en:["I haven't met any boys (", {i:0,ans:"who"}, ") (", {i:1,ans:"are"}, ") taller than me."]}
+    ]},
+    {n:5, instr:"日本語を参考に，（　）に適切な語を入れて文を完成させよう。（例）She is the girl ( who ) ( won ) the game. （試合に勝った少女）", type:"bank",
+     items:[
+      {jp:"1) 昨年映画になった本",
+       en:["This is the book (", {i:0,ans:"which"}, ") (", {i:1,ans:"became"}, ") a movie last year."]},
+      {jp:"2) スペイン語をじょうずに話す俳優",
+       en:["I know an actor (", {i:0,ans:"who"}, ") (", {i:1,ans:"speaks"}, ") Spanish well."]},
+      {jp:"3) 私のお気に入りのパンを売るパン屋さん",
+       en:["This is the bakery (", {i:0,ans:"which"}, ") (", {i:1,ans:"sells"}, ") my favorite bread."]},
+      {jp:"4) そのホテルへの道を示す地図",
+       en:["This is a map (", {i:0,ans:"which"}, ") (", {i:1,ans:"shows"}, ") the way to the hotel."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"リンが今日あった出来事をお母さんに話しています。[ ]内の語句を並べ替えて，対話を完成させよう。",
+    order:true,
+    lines:[
+      {who:"Rin",  tokens:["lost","who","her wallet"], answer:"who lost her wallet",
+       prefix:"I met a young girl ", suffix:". I took her to the police station."},
+      {who:"Mom",  parts:["Oh, poor girl. Did she find her wallet?"]},
+      {who:"Rin",  tokens:["her wallet","found","who"], answer:"who found her wallet",
+       prefix:"Yes. Someone ", suffix:" brought it there."},
+      {who:"Mom",  tokens:["which","wallet","had"], answer:"which had a name inside? Was it a red wallet",
+       prefix:"Oh, maybe it was me. Was it a red ", suffix:"?"}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.114 / p.116 / p.118",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "William Kamkwamba lived in a small African village. When he was fourteen, he had to ",
+        {n:1, letter:"l", ans:"leave"},
+        " school. His family didn't have enough money. Because of a terrible ",
+        {n:2, letter:"d", ans:"drought"},
+        ", they could not grow crops. However, William did not ",
+        {n:3, letter:"g", ans:"give"},
+        " up studying. He went to the library in the village every day. One day, he found a science book. It showed windmills which could generate ",
+        {n:4, letter:"e", ans:"electricity"},
+        ". His village had no electricity. He decided, \u201CI will build a windmill!\u201D"
+      ],
+      [
+        "William visited the local junkyard every day. He ",
+        {n:5, letter:"c", ans:"collected"},
+        " materials for his windmill there. People ",
+        {n:6, letter:"l", ans:"laughed"},
+        " at him and said, \u201CHe is crazy!\u201D Even so, William did not change his mind. He ",
+        {n:7, letter:"b", ans:"built"},
+        " his windmill with wood, bicycle parts, and other junk."
+      ],
+      [
+        "The day of the windmill test arrived. The ",
+        {n:8, letter:"v", ans:"villagers"},
+        " who came to see it were still laughing. Then the wind began to blow. The blades moved, and a lightbulb started to glow. He did it! Nobody was ",
+        {n:9, letter:"l", ans:"laughing"},
+        " any more."
+      ],
+      [
+        "In 2007, William was ",
+        {n:10, letter:"i", ans:"invited"},
+        " to an international conference in Tanzania. On the stage, he was interviewed in English. The interviewer asked, \u201CHow did you realize your ",
+        {n:11, letter:"d", ans:"dream"},
+        "?\u201D William replied, \u201CI went to library, and I get information about windmill ... and I try, and I made it.\u201D William's English was not ",
+        {n:12, letter:"p", ans:"perfect"},
+        ". He expected the audience to laugh at him. Instead, he heard only clapping and cheering. William felt that his ",
+        {n:13, letter:"e", ans:"efforts"},
+        " were finally recognized."
+      ]
+    ]
+  }
+}
+
+]; /* end LESSONS */
+
+/* =========================================================================
+   STATE + TAB SYSTEM (dynamic per lesson)
+   ========================================================================= */
+const STATE = {
+  currentLesson: null,
+  currentTab: 0,
+  zoom: 1.0,
+  answers: {},
+  results: {}
+};
+
+// Build the tab list for a given lesson. Each content part gets 2 tabs
+// (text + vocab/content), then grammar, then cloze.
+function tabsFor(L){
+  const tabs = [];
+  let idx = 1;
+  L.parts.forEach((p, i)=>{
+    const partSuf = L.parts.length>1 ? ` ${p.label}` : "";
+    tabs.push({kind:"text",  partIdx:i, label:`${romanChar(idx++)} 本文${partSuf}`});
+    tabs.push({kind:"vocab", partIdx:i, label:`${romanChar(idx++)} 単語・内容${partSuf}`});
+  });
+  if(L.grammar) tabs.push({kind:"grammar", label:`${romanChar(idx++)} 文法`});
+  if(L.cloze)   tabs.push({kind:"cloze",   label:`${romanChar(idx++)} 本文確認`});
+  return tabs;
+}
+function romanChar(n){
+  const chars = ["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫"];
+  return chars[n-1] || `(${n})`;
+}
+
+/* =========================================================================
+   RENDER: sidebar TOC
+   ========================================================================= */
+function renderTOC(){
+  const el = document.getElementById("toc");
+  el.innerHTML = LESSONS.map(L=>{
+    const enHtml = L.enItalic
+      ? `<span style="font-style:italic">${escapeHtml(L.en.split(" ")[0])}</span> ${escapeHtml(L.en.split(" ").slice(1).join(" "))}`
+      : escapeHtml(L.en);
+    return `<li><a href="#" data-id="${L.id}" onclick="pickLesson('${L.id}');return false">
+      <span class="num">${L.num}</span>
+      <span class="col">
+        <span class="title-en">${enHtml}</span>
+        <span class="title-jp">${escapeHtml(L.jp)}</span>
+      </span>
+    </a></li>`;
+  }).join("");
+}
+
+function pickLesson(id){
+  STATE.currentLesson = id;
+  STATE.currentTab = 0;
+  document.querySelectorAll("#toc a").forEach(a=>a.classList.toggle("active", a.dataset.id===id));
+  render();
+  if(window.innerWidth<=900) document.getElementById("sidebar").classList.remove("open");
+}
+
+/* =========================================================================
+   MAIN RENDER
+   ========================================================================= */
+function render(){
+  const L = LESSONS.find(x=>x.id===STATE.currentLesson);
+  const host = document.getElementById("pageHost");
+  const crumb = document.getElementById("crumb");
+  const tabsEl = document.getElementById("tabs");
+
+  if(!L){
+    crumb.innerHTML = "Lesson を選択してください";
+    tabsEl.innerHTML = "";
+    host.innerHTML = `
+      <div class="book" style="transform:scale(${STATE.zoom})">
+        <div class="page" data-foot="COMET 1 Basic Note" data-page="—">
+          <div style="text-align:center;padding:80px 20px;color:#8a7f60">
+            <div style="font-family:var(--font-jp);font-size:22px;color:#3a4a5c;margin-bottom:8px">左のメニューからレッスンを選んでください</div>
+            <div style="font-family:var(--font-en);font-size:14px">Select a lesson from the sidebar to begin.</div>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  crumb.innerHTML = `<b>Lesson ${L.num}</b> — ${L.enItalic?'<em>'+escapeHtml(L.en.split(" ")[0])+'</em> '+escapeHtml(L.en.split(" ").slice(1).join(" ")):escapeHtml(L.en)} &nbsp;·&nbsp; ${escapeHtml(L.jp)}`;
+
+  const tabs = tabsFor(L);
+  if(STATE.currentTab >= tabs.length) STATE.currentTab = 0;
+
+  tabsEl.innerHTML = tabs.map((t,i)=>`
+    <button class="tab ${i===STATE.currentTab?'active':''}" onclick="setTab(${i})">
+      <span class="dot"></span>${escapeHtml(t.label)}
+    </button>
+  `).join("");
+
+  const tab = tabs[STATE.currentTab];
+  let body = "";
+  if(tab.kind==="text")         body = renderText(L, tab.partIdx);
+  else if(tab.kind==="vocab")   body = renderVocab(L, tab.partIdx);
+  else if(tab.kind==="grammar") body = renderGrammar(L);
+  else if(tab.kind==="cloze")   body = renderCloze(L);
+
+  host.innerHTML = `<div class="book" style="transform:scale(${STATE.zoom})">${body}</div>`;
+  wireInteractions();
+}
+
+function setTab(i){ STATE.currentTab = i; render(); window.scrollTo({top:0, behavior:"smooth"}); }
+
+/* =========================================================================
+   PAGE RENDERERS
+   ========================================================================= */
+
+function renderLessonHeader(L, part){
+  const enTitle = L.enItalic
+    ? `<em>${escapeHtml(L.en.split(" ")[0])}</em> ${escapeHtml(L.en.split(" ").slice(1).join(" "))}`
+    : escapeHtml(L.en);
+  const kyou = part && part.kyou ? part.kyou : (L.parts && L.parts[0] && L.parts[0].kyou) || "";
+  const partBadge = part && part.label ? ` <span class="part-badge">${escapeHtml(part.label)}</span>` : "";
+  return `
+  <div class="lesson-header">
+    <div class="lesson-badge">
+      <div class="lb1">Lesson</div>
+      <div class="lb2">${L.num}</div>
+    </div>
+    <div class="lesson-title">
+      <div class="en">${enTitle}</div>
+      <div><span class="kyoukasho">教科書 ${escapeHtml(kyou)}</span><span class="jp">${escapeHtml(L.jp)}${partBadge}</span></div>
+    </div>
+  </div>`;
+}
+
+/* ---- Text-only page (本文) ---- */
+/* ---- Text-only page (本文): translation exercise
+       Displays English sentences; click each row to reveal the Japanese translation. ---- */
+function renderText(L, idx){
+  const P = L.parts[idx];
+  return `
+  <div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L, idx*2)}">
+    ${renderLessonHeader(L, P)}
+    ${P.dateHead?`<div class="date-head">${escapeHtml(P.dateHead)}</div>`:""}
+
+    <div class="subsec">本文 — 和訳練習</div>
+
+    <ol class="honbun translate">
+      ${P.honbun.map((x,i)=>`
+        <li onclick="this.classList.toggle('revealed')">
+          <div class="row">
+            ${x.n>0?`<span class="n">${x.n}</span>`:`<span class="n" style="border:none;background:none"></span>`}
+            <span class="en-row">${x.en}</span>
+          </div>
+          <div class="jp-answer">${escapeHtml(x.jp)}</div>
+        </li>
+      `).join("")}
+    </ol>
+
+    <div class="translate-toolbar">
+      <span class="info">英文をクリックすると日本語訳が表示されます。まず自分で訳してから確認しましょう。</span>
+      <button onclick="revealAllTranslations()">すべての和訳を表示</button>
+      <button class="secondary" onclick="hideAllTranslations()">すべて隠す</button>
+      <button class="next-btn" onclick="nextTab()">次へ ›</button>
+    </div>
+  </div>`;
+}
+
+function revealAllTranslations(){
+  document.querySelectorAll(".honbun.translate li").forEach(li=>li.classList.add("revealed"));
+}
+function hideAllTranslations(){
+  document.querySelectorAll(".honbun.translate li").forEach(li=>li.classList.remove("revealed"));
+}
+
+/* ---- Vocab + Content page (単語・熟語 + 内容整理) ---- */
+function renderVocab(L, idx){
+  const P = L.parts[idx];
+  const pfx = `${L.id}.p${idx}`;
+  return `
+  <div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L, idx*2+1)}">
+    ${renderLessonHeader(L, P)}
+
+    <div class="section-bar"><span class="ico">✓</span>単語・熟語をチェック</div>
+
+    <div class="ex">
+      <div class="ex-instr"><span class="ex-num">1</span>${escapeHtml(P.check1.instr)}</div>
+      <ul class="ex-list">
+        ${P.check1.words.map((w,i)=>`
+          <li>
+            <span class="idx">${w.n}</span>
+            <span class="en" style="min-width:150px"><b>${escapeHtml(w.w)}</b></span>
+            <span>[ <input class="fillin" data-k="${pfx}.c1w.${i}" data-ans="${escapeHtml(w.ans)}"> ]${revealBtn(`${pfx}.c1w.${i}`)}</span>
+          </li>`).join("")}
+      </ul>
+      <div class="wordbank center">${P.check1.bank.map(b=>`<span>${escapeHtml(b)}</span>`).join(`<span class="sep">/</span>`)}</div>
+    </div>
+
+    ${P.check2?`<div class="ex">
+      <div class="ex-instr"><span class="ex-num">2</span>${escapeHtml(P.check2.instr)}</div>
+      <ul class="ex-list stack">
+        ${P.check2.items.map((it,ii)=>`
+          <li>
+            <div><span class="idx">${ii+1}.</span><span class="jp">${escapeHtml(it.jp)}</span>${it.ref?` <span style="color:#c94a3c">→ ${escapeHtml(it.ref)}</span>`:""}${revealBtn(`${pfx}.c2.${ii}`, true)}</div>
+            <div class="en">${renderParts(it.parts, `${pfx}.c2.${ii}`)}</div>
+          </li>`).join("")}
+      </ul>
+    </div>`:""}
+
+    <div class="section-bar"><span class="ico">▤</span>内容を整理しよう</div>
+
+    ${P.seiri1?`<div class="ex">
+      <div class="ex-instr"><span class="ex-num">1</span>${escapeHtml(P.seiri1.instr)}${revealBtn(`${pfx}.s1`, true)}</div>
+      ${renderSeiriGeneric(P.seiri1, `${pfx}.s1`)}
+    </div>`:""}
+
+    ${P.seiri2?`<div class="ex">
+      <div class="ex-instr"><span class="ex-num">2</span>${escapeHtml(P.seiri2.instr)}${revealBtn(`${pfx}.s2`, true)}</div>
+      ${renderSeiriGeneric(P.seiri2, `${pfx}.s2`)}
+    </div>`:""}
+
+    ${P.seiriQ?`<div class="ex">
+      <div style="font-family:var(--font-jp-sans);font-size:13.5px"><span class="diamond">◆</span>${escapeHtml(P.seiriQ)}</div>
+      <textarea style="width:100%;min-height:60px;margin-top:8px;border:1px solid #c8bfa8;border-radius:6px;padding:8px;font-family:var(--font-jp);font-size:14px" placeholder="自分の答えを書きましょう…" data-k="${pfx}.seiriQ"></textarea>
+    </div>`:""}
+
+    ${renderActions(L)}
+  </div>`;
+}
+
+/* Small "解答" button — reveals answer(s) for keys that start with the given prefix */
+function revealBtn(keyPrefix, groupPrefix){
+  return `<button class="reveal-btn" onclick="revealPrefix('${keyPrefix}',${groupPrefix?'true':'false'})" title="この問題の解答を表示">解答</button>`;
+}
+
+/* Generic seiri renderer — handles items[], fills[], choices[], truefalse[], parts[], multi[], qa[], table, matchbox, table2, table2col, multiparts */
+function renderSeiriGeneric(s, keyBase){
+  let out = "";
+  if(s.items){
+    out += `<ul class="ex-list stack">${s.items.map((it,ii)=>`
+      <li><span class="jp" style="font-weight:700">${escapeHtml(it.label||'')}</span>
+        <span class="jp" style="min-width:0">${it.jpTemplate.map((seg,si)=>{
+          if(seg.t) return escapeHtml(seg.t);
+          const key = `${keyBase}.${ii}.${si}`;
+          return `<span class="jp-choice" data-k="${key}" data-ans="${seg.ans}">${seg.choice.map((c,ci)=>`<button data-i="${ci}">${escapeHtml(c)}</button>`).join("")}</span>`;
+        }).join(" ")}</span>
+      </li>`).join("")}</ul>`;
+  }
+  if(s.fills){
+    out += `<div style="font-family:var(--font-jp);font-size:14px;line-height:2;background:#fff;border:1px solid #e2dcc8;border-radius:6px;padding:12px 16px">${
+      s.fills.map((f,fi)=>`${escapeHtml(f.pre)}<input class="fillin" style="min-width:110px" data-k="${keyBase}.f${fi}" data-ans="${escapeHtml(f.ans)}">${escapeHtml(f.post)}`).join("")
+    }</div>`;
+  }
+  if(s.choices){
+    out += `<div>${s.choices.map((c,i)=>`
+      <div style="padding:4px 0;font-family:var(--font-en);font-size:14.5px">
+        <label style="cursor:pointer">
+          <input type="radio" name="${keyBase}_r" data-k="${keyBase}.r" data-ans="${s.ans}" data-i="${i}">
+          ${escapeHtml(c)}
+        </label>
+      </div>`).join("")}</div>`;
+  }
+  if(s.truefalse){
+    out += `<ul class="ex-list stack">${s.truefalse.map((t,ti)=>`
+      <li>
+        <div class="en" style="width:100%">${escapeHtml(t.t)}
+          <span class="jp-choice" data-k="${keyBase}.tf.${ti}" data-ans="${t.ans==='○'?0:1}" style="margin-left:10px">
+            <button data-i="0">○</button><button data-i="1">×</button>
+          </span>
+        </div>
+      </li>`).join("")}</ul>`;
+  }
+  if(s.parts){
+    out += `<div style="font-family:var(--font-en);font-size:14.5px;background:#fff;border:1px solid #e2dcc8;border-radius:6px;padding:12px 16px;line-height:2">
+      ${renderParts(s.parts, `${keyBase}.p`)}
+    </div>`;
+  }
+  if(s.multi){
+    out += `<div style="background:#fff;border:1px solid #e2dcc8;border-radius:6px;padding:10px 14px">
+      ${s.multi.map((m,mi)=>`
+        <div style="padding:3px 0;font-family:var(--font-jp);font-size:13.5px">
+          <label style="cursor:pointer;display:flex;gap:8px;align-items:flex-start">
+            <input type="checkbox" data-k="${keyBase}.m.${mi}" data-ans="${m.correct?1:0}" style="margin-top:3px">
+            <span>${escapeHtml(m.label)}</span>
+          </label>
+        </div>`).join("")}
+    </div>`;
+  }
+  if(s.qa){
+    out += s.qa.map((q,qi)=>`
+      <div style="margin:8px 0;padding:8px 12px;background:#fff;border:1px solid #e2dcc8;border-radius:6px">
+        <div style="font-family:var(--font-jp-sans);font-size:13px;color:#3a4a5c;margin-bottom:6px">${escapeHtml(q.q)}</div>
+        ${q.parts?`<div style="font-family:var(--font-en);font-size:14px;line-height:2">${renderParts(q.parts, `${keyBase}.qa${qi}`)}</div>`:""}
+        ${q.multi?`<div>${q.multi.map((m,mi)=>`
+          <div style="padding:2px 0;font-family:var(--font-jp);font-size:13px">
+            <label style="cursor:pointer;display:flex;gap:8px;align-items:flex-start">
+              <input type="checkbox" data-k="${keyBase}.qa${qi}m${mi}" data-ans="${m.correct?1:0}" style="margin-top:3px">
+              <span>${escapeHtml(m.label)}</span>
+            </label>
+          </div>`).join("")}</div>`:""}
+      </div>`).join("");
+  }
+  if(s.table){
+    // Multi-check table (Picture A/B style)
+    out += `<div style="overflow-x:auto"><table class="ck-table">
+      <thead><tr><th></th>${s.table.headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${s.table.options.map((o,oi)=>`<tr>
+          <td>${escapeHtml(o.label)}</td>
+          ${s.table.headers.map(h=>`<td style="text-align:center">
+            <input type="checkbox" data-k="${keyBase}.t.${oi}.${h}" data-ans="${o.cols.includes(h)?1:0}">
+          </td>`).join("")}
+        </tr>`).join("")}
+      </tbody>
+    </table></div>`;
+  }
+  if(s.matchbox){
+    out += `<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+      <div style="flex:1;min-width:220px">
+        ${s.matchbox.items.map((it,ii)=>`
+          <div style="padding:6px 0;font-family:var(--font-en);font-size:14px">
+            ${escapeHtml(it.label)} (
+            <span class="choice" data-k="${keyBase}.mb.${ii}" data-ans="${['a','b','c','d','e'].indexOf(it.ans)}">
+              ${s.matchbox.options.map((o,oi)=>`<button data-i="${oi}">${escapeHtml(o.k)}</button>`).join("")}
+            </span>
+            )
+          </div>`).join("")}
+      </div>
+      <div style="border:1px solid #3a4a5c;padding:8px 12px;font-family:var(--font-en);font-size:13.5px;background:#fff;border-radius:6px">
+        ${s.matchbox.options.map(o=>`<div>${escapeHtml(o.k)}. ${escapeHtml(o.v)}</div>`).join("")}
+      </div>
+    </div>`;
+  }
+  if(s.multiparts){
+    out += `<ul class="ex-list stack">${s.multiparts.map((m,mi)=>`
+      <li>
+        <div class="en" style="width:100%"><span class="idx">${escapeHtml(m.label)}</span>${renderParts(m.parts, `${keyBase}.mp${mi}`)}</div>
+      </li>`).join("")}</ul>`;
+  }
+  if(s.table2){
+    out += `<table class="ck-table">
+      <tbody>
+        ${s.table2.rows.map((r,ri)=>`<tr>
+          <th style="text-align:left">${escapeHtml(r.h)}</th>
+          <td>${renderParts(r.parts, `${keyBase}.t2r${ri}`)}</td>
+        </tr>`).join("")}
+      </tbody>
+    </table>`;
+  }
+  if(s.table2col){
+    out += `<div>
+      ${s.table2col.options.map((o,oi)=>`<div style="padding:4px 0;font-family:var(--font-en);font-size:14px">
+        <b>${escapeHtml(o.k)}.</b> ${escapeHtml(o.v)}
+        <span class="choice" data-k="${keyBase}.t2c.${oi}" data-ans="${o.col}" style="margin-left:10px">
+          ${s.table2col.headers.map((h,hi)=>`<button data-i="${hi}">${escapeHtml(h)}</button>`).join("")}
+        </span>
+      </div>`).join("")}
+    </div>`;
+  }
+  return out;
+}
+
+/* ---- Grammar page ---- */
+function renderGrammar(L){
+  const G = L.grammar;
+  let gbox = `<div class="grammar-box">
+    <div class="gtitle"><span class="term">${escapeHtml(G.term)}</span>… ${escapeHtml(G.rule)}</div>`;
+  if(G.subrule) gbox += `<div style="text-align:right;font-family:var(--font-jp);font-size:11.5px;color:#6a6152;margin-top:2px">${escapeHtml(G.subrule)}</div>`;
+  if(G.tables){
+    gbox += G.tables.map(t=>{
+      if(t.left && t.right){
+        const leftCells = `
+          ${t.left.cols.map(c=>`<div class="h">${escapeHtml(c)}</div>`).join("")}
+          ${t.left.rows.map(r=>r.map(c=>`<div>${escapeHtml(c)}</div>`).join("")).join("")}
+        `;
+        const rightRows = t.right.map(r=>`
+          <div class="gt-r-h">${escapeHtml(r.h)}</div>
+          <div class="gt-r-b">${escapeHtml(r.body)}</div>
+        `).join("");
+        return `
+          <div class="gt-title">${escapeHtml(t.title)}</div>
+          <div class="gt-split">
+            <div class="gt-left" style="grid-template-columns:repeat(${t.left.cols.length},1fr)">${leftCells}</div>
+            <div class="gt-right">${rightRows}</div>
+          </div>`;
+      }
+      return "";
+    }).join("");
+  }
+  if(G.patterns){
+    gbox += G.patterns.map(p=>`
+      <div style="margin:12px 0 4px;display:flex;align-items:baseline;gap:10px">
+        <span class="patlabel">${p.n}</span>
+        <span class="patdesc">${escapeHtml(p.desc)}</span>
+      </div>
+      <div class="example">${p.ex} <span class="jp">${escapeHtml(p.jp)}</span></div>
+      ${p.ex2?`<div class="example">${p.ex2} <span class="jp">${escapeHtml(p.jp2)}</span></div>`:""}
+    `).join("");
+  }
+  gbox += `</div>`;
+
+  const exBlocks = L.grammarEx.map(ex=>{
+    let mainInstr = ex.instr, sample = "";
+    const m = ex.instr.match(/^(.*?)（例）(.+)$/);
+    if(m){ mainInstr = m[1].trim(); sample = m[2].trim(); }
+
+    let body = `<ul class="ex-list stack">${ex.items.map((it,ii)=>`
+      <li>
+        ${it.jp?`<div><span class="idx">${ii+1})</span><span class="jp">${escapeHtml(it.jp)}</span>${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`:`<div style="text-align:right">${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`}
+        <div class="en">${renderParts(it.en, `${L.id}.g${ex.n}.${ii}`)}</div>
+      </li>`).join("")}</ul>`;
+    let bank = ex.bank?`<div class="wordbank center">[ ${ex.bank.join(" / ")} ]</div>`:"";
+    return `<div class="ex">
+      <div class="ex-instr"><span class="ex-num">${ex.n}</span>${escapeHtml(mainInstr)}</div>
+      ${sample?`<div class="sample-line"><span class="sample-tag">例</span>${escapeHtml(sample)}</div>`:""}
+      ${body}
+      ${bank}
+    </div>`;
+  }).join("");
+
+  let tryBlock = "";
+  if(L.tryEx){
+    const T = L.tryEx;
+    if(T.order){
+      tryBlock = `<div class="try">
+        <div><span class="try-tag">Try!</span></div>
+        <div class="try-instr">${escapeHtml(T.instr)}</div>
+        ${T.lines.map((ln,li)=>{
+          if(ln.tokens){
+            return `<div class="dial">
+              <span class="who">${escapeHtml(ln.who)}:</span>
+              ${escapeHtml(ln.prefix||"")}
+              <input class="fillin long" data-k="${L.id}.try.${li}" data-ans="${escapeHtml(ln.answer)}" placeholder="[ ${ln.tokens.join(" / ")} ]">
+              ${escapeHtml(ln.suffix||"")}
+              ${revealBtn(`${L.id}.try.${li}`)}
+            </div>`;
+          }
+          return `<div class="dial"><span class="who">${escapeHtml(ln.who)}:</span> ${escapeHtml(ln.parts.join(""))}</div>`;
+        }).join("")}
+      </div>`;
+    } else {
+      tryBlock = `<div class="try">
+        <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:260px">
+            <div><span class="try-tag">Try!</span></div>
+            <div class="try-instr">${escapeHtml(T.instr)}</div>
+            ${T.lines.map((ln,li)=>`
+              <div class="dial">
+                <span class="who">${escapeHtml(ln.who)}:</span>
+                ${renderParts(ln.parts, `${L.id}.try.${li}`)}
+                ${revealBtn(`${L.id}.try.${li}`, true)}
+              </div>`).join("")}
+          </div>
+          ${T.bank?`<div class="rightbank">${T.bank.map(b=>`<div>${escapeHtml(b)}</div>`).join("")}</div>`:""}
+        </div>
+      </div>`;
+    }
+  }
+
+  return `<div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L,'g')}">
+    ${renderLessonHeader(L)}
+    <div class="section-bar"><span class="ico">🔍</span>文法を確認しよう</div>
+    ${gbox}
+    ${exBlocks}
+    ${tryBlock}
+    ${renderActions(L)}
+  </div>`;
+}
+
+/* ---- Cloze page ---- */
+function renderCloze(L){
+  const C = L.cloze;
+  const body = C.paragraphs.map((para)=>{
+    return `<p>${para.map(seg=>{
+      if(typeof seg==="string") return escapeHtml(seg);
+      if(seg.em) return `<em>${escapeHtml(seg.em)}</em>`;
+      if(seg.letter!=null){
+        return `<span class="cloze-num">${seg.n})</span><input class="fillin" data-k="${L.id}.cloze.${seg.n}" data-ans="${escapeHtml(seg.ans)}" placeholder="${seg.letter}…" style="min-width:130px">${revealBtn(`${L.id}.cloze.${seg.n}`)}`;
+      }
+      return "";
+    }).join("")}</p>`;
+  }).join("");
+
+  return `<div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L,'c')}">
+    ${renderLessonHeader(L)}
+    <div class="section-bar"><span class="ico">📖</span>本文を確認しよう</div>
+    <div style="font-family:var(--font-jp-sans);font-size:13.5px;margin:6px 0 10px">${escapeHtml(C.instr)}</div>
+    <div class="kyou-p">${escapeHtml(C.kyou)}</div>
+    <div class="cloze">${body}</div>
+    ${renderActions(L)}
+  </div>`;
+}
+
+/* =========================================================================
+   PARTS RENDERER — turns [strings, {choice}, {i,ans}, {em}, {br}] into inline inputs
+   ========================================================================= */
+function renderParts(parts, keyBase){
+  let inputIdx = 0, choiceIdx = 0;
+  return parts.map(p=>{
+    if(typeof p==="string") return escapeHtml(p);
+    if(p.em) return `<em>${escapeHtml(p.em)}</em>`;
+    if(p.br) return `<br>`;
+    if(p.choice){
+      const key = `${keyBase}.c${choiceIdx++}`;
+      return `<span class="choice" data-k="${key}" data-ans="${p.ans}">${p.choice.map((c,ci)=>`<button data-i="${ci}">${escapeHtml(c)}</button>`).join("")}</span>`;
+    }
+    const key = `${keyBase}.i${inputIdx++}`;
+    return `<input class="fillin" data-k="${key}" data-ans="${escapeHtml(p.ans)}">`;
+  }).join("");
+}
+
+/* =========================================================================
+   INTERACTIONS
+   ========================================================================= */
+function wireInteractions(){
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const k = el.dataset.k;
+    const saved = STATE.answers[k];
+    if(saved==null) return;
+    if(el.tagName==="INPUT" && el.type==="checkbox"){
+      el.checked = !!saved;
+    } else if(el.tagName==="INPUT" && el.type!=="radio"){
+      el.value = saved;
+    } else if(el.tagName==="TEXTAREA"){
+      el.value = saved;
+    } else if(el.classList.contains("choice") || el.classList.contains("jp-choice")){
+      el.querySelectorAll("button").forEach(b=>b.classList.toggle("picked", +b.dataset.i===+saved));
+    } else if(el.type==="radio"){
+      if(+el.dataset.i===+saved) el.checked = true;
+    }
+    if(STATE.results[k]==="correct" && el.tagName==="INPUT" && el.type!=="radio" && el.type!=="checkbox") el.classList.add("correct");
+    if(STATE.results[k]==="wrong"   && el.tagName==="INPUT" && el.type!=="radio" && el.type!=="checkbox") el.classList.add("wrong");
+  });
+
+  document.querySelectorAll("input.fillin, textarea").forEach(el=>{
+    el.addEventListener("input", ()=>{
+      const k = el.dataset.k;
+      STATE.answers[k] = el.value;
+      el.classList.remove("correct","wrong");
+      delete STATE.results[k];
+    });
+  });
+
+  document.querySelectorAll("input[type=checkbox][data-k]").forEach(el=>{
+    el.addEventListener("change", ()=>{
+      STATE.answers[el.dataset.k] = el.checked ? 1 : 0;
+      delete STATE.results[el.dataset.k];
+    });
+  });
+
+  document.querySelectorAll(".choice, .jp-choice").forEach(el=>{
+    el.querySelectorAll("button").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const idx = +b.dataset.i;
+        const k = el.dataset.k;
+        STATE.answers[k] = idx;
+        el.querySelectorAll("button").forEach(bb=>bb.classList.remove("picked","correct","wrong"));
+        b.classList.add("picked");
+        delete STATE.results[k];
+      });
+    });
+  });
+
+  document.querySelectorAll('input[type=radio][data-k]').forEach(r=>{
+    r.addEventListener("change", ()=>{
+      STATE.answers[r.dataset.k] = +r.dataset.i;
+    });
+  });
+}
+
+function checkAnswers(){
+  let total=0, ok=0;
+  const seenRadio = {};
+  document.querySelectorAll("[data-ans]").forEach(el=>{
+    const k = el.dataset.k;
+    const expected = el.dataset.ans;
+
+    if(el.type==="radio"){
+      // count once per radio group
+      if(seenRadio[k]) return;
+      seenRadio[k] = true;
+      total++;
+      const got = STATE.answers[k];
+      const correct = String(got)===expected;
+      if(correct) ok++;
+      STATE.results[k] = correct?"correct":"wrong";
+      return;
+    }
+    if(el.type==="checkbox"){
+      total++;
+      const got = STATE.answers[k]||0;
+      const correct = String(got)===expected;
+      el.style.outline = correct?"2px solid #2f8f4f":"2px solid #c94a3c";
+      if(correct) ok++;
+      STATE.results[k] = correct?"correct":"wrong";
+      return;
+    }
+    total++;
+    const got = STATE.answers[k];
+    let correct = false;
+    if(el.tagName==="INPUT"){
+      correct = ansMatches(got||"", expected);
+      el.classList.remove("correct","wrong");
+      el.classList.add(correct?"correct":"wrong");
+    } else if(el.classList.contains("choice") || el.classList.contains("jp-choice")){
+      correct = String(got) === expected;
+      el.querySelectorAll("button").forEach(b=>{
+        b.classList.remove("correct","wrong");
+        if(b.classList.contains("picked")) b.classList.add(correct?"correct":"wrong");
+      });
+    }
+    STATE.results[k] = correct?"correct":"wrong";
+    if(correct) ok++;
+  });
+  const status = document.querySelector(".status");
+  if(status){
+    status.classList.remove("good","bad");
+    status.classList.add(ok===total?"good":"bad");
+    status.textContent = ok===total ? `全問正解！ ${ok} / ${total}` : `${ok} / ${total} 正解`;
+  }
+  if(ok===total && total>0){
+    const t = document.querySelectorAll(".tab")[STATE.currentTab];
+    if(t) t.classList.add("done");
+  }
+}
+
+function clearAnswers(){
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const k = el.dataset.k;
+    delete STATE.answers[k];
+    delete STATE.results[k];
+    if(el.type==="checkbox"){ el.checked=false; el.style.outline=""; }
+    else if(el.tagName==="INPUT" && el.type!=="radio"){ el.value=""; el.classList.remove("correct","wrong"); }
+    else if(el.tagName==="TEXTAREA"){ el.value=""; }
+    else if(el.type==="radio"){ el.checked=false; }
+    else if(el.classList.contains("choice") || el.classList.contains("jp-choice")){
+      el.querySelectorAll("button").forEach(b=>b.classList.remove("picked","correct","wrong"));
+    }
+  });
+  const status = document.querySelector(".status");
+  if(status){ status.textContent=""; status.classList.remove("good","bad"); }
+}
+
+/* Reveal answers for any data-k that starts with the given prefix (or matches exactly if groupPrefix=false) */
+function revealPrefix(prefix, groupPrefix){
+  const test = el => {
+    const k = el.dataset.k;
+    if(!k) return false;
+    return groupPrefix ? (k===prefix || k.startsWith(prefix+".")) : k===prefix;
+  };
+  document.querySelectorAll("input.fillin[data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    el.value = el.dataset.ans;
+    el.classList.remove("wrong"); el.classList.add("correct");
+    STATE.answers[el.dataset.k] = el.dataset.ans;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll(".choice[data-ans], .jp-choice[data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    const idx = +el.dataset.ans;
+    el.querySelectorAll("button").forEach(b=>b.classList.remove("picked","correct","wrong"));
+    const b = el.querySelector(`button[data-i="${idx}"]`);
+    if(b){ b.classList.add("picked","correct"); }
+    STATE.answers[el.dataset.k] = idx;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll("input[type=checkbox][data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    const want = el.dataset.ans==="1";
+    el.checked = want;
+    el.style.outline = "2px solid #2f8f4f";
+    STATE.answers[el.dataset.k] = want?1:0;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll("input[type=radio][data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    if(String(el.dataset.i) === String(el.dataset.ans)){
+      el.checked = true;
+      STATE.answers[el.dataset.k] = +el.dataset.i;
+      STATE.results[el.dataset.k] = "correct";
+    }
+  });
+}
+
+function showAnswers(){
+  document.querySelectorAll("input.fillin[data-ans]").forEach(el=>{
+    el.value = el.dataset.ans;
+    el.classList.remove("wrong"); el.classList.add("correct");
+    STATE.answers[el.dataset.k] = el.dataset.ans;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll(".choice[data-ans], .jp-choice[data-ans]").forEach(el=>{
+    const idx = +el.dataset.ans;
+    el.querySelectorAll("button").forEach(b=>b.classList.remove("picked","correct","wrong"));
+    const b = el.querySelector(`button[data-i="${idx}"]`);
+    if(b){ b.classList.add("picked","correct"); }
+    STATE.answers[el.dataset.k] = idx;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll("input[type=checkbox][data-ans]").forEach(el=>{
+    const want = el.dataset.ans==="1";
+    el.checked = want;
+    el.style.outline = "2px solid #2f8f4f";
+    STATE.answers[el.dataset.k] = want?1:0;
+    STATE.results[el.dataset.k] = "correct";
+  });
+}
+
+function nextTab(){
+  const L = LESSONS.find(x=>x.id===STATE.currentLesson);
+  if(!L) return;
+  const tabs = tabsFor(L);
+  if(STATE.currentTab < tabs.length-1){ setTab(STATE.currentTab+1); }
+  else {
+    const idx = LESSONS.findIndex(l=>l.id===STATE.currentLesson);
+    if(idx>=0 && idx<LESSONS.length-1){ pickLesson(LESSONS[idx+1].id); }
+  }
+}
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+function renderActions(L){
+  return `<div class="actions">
+    <button class="btn" onclick="checkAnswers()">答え合わせ</button>
+    <button class="btn secondary" onclick="clearAnswers()">クリア</button>
+    <button class="btn secondary" onclick="showAnswers()">解答を表示</button>
+    <button class="btn warn" onclick="nextTab()">次へ ›</button>
+    <div class="status"></div>
+  </div>`;
+}
+function pageLabel(L, ident){
+  // Rough page ranges from the PDF
+  const bases = {"01":2,"02":6,"03":10,"04":14,"05":20,"06":26,"07":32,"08":38,"09":44,"10":54};
+  const b = bases[L.num];
+  if(!b) return "—";
+  if(typeof ident==="number") return `${b + ident*2}〜${b + ident*2 + 1}`;
+  if(ident==="g"){
+    // grammar page — after all content parts
+    const off = L.parts.length*2;
+    return `${b+off}`;
+  }
+  if(ident==="c"){
+    const off = L.parts.length*2+1;
+    return `${b+off}`;
+  }
+  return "—";
+}
+function normalize(s){
+  return String(s).trim().toLowerCase()
+    .replace(/[。、，．,\.\?!]/g," ")
+    .replace(/[’‘`´]/g,"'")
+    .replace(/[“”]/g,'"')
+    .replace(/\s+/g," ")
+    .replace(/\s*'\s*/g,"'")
+    .trim();
+}
+function ansMatches(got, expected){
+  const g = normalize(got), e = normalize(expected);
+  if(g === e) return true;
+  if(g.replace(/'/g,"") === e.replace(/'/g,"")) return true;
+  return false;
+}
+function escapeHtml(s){
+  return String(s==null?"":s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+/* =========================================================================
+   SIDEBAR TOGGLE
+   ========================================================================= */
+function toggleSidebar(){
+  const app = document.getElementById("app");
+  if(window.innerWidth<=900){
+    // mobile: use existing off-canvas .open behavior
+    document.getElementById("sidebar").classList.toggle("open");
+  } else {
+    app.classList.toggle("side-collapsed");
+  }
+}
+
+/* =========================================================================
+   ZOOM
+   ========================================================================= */
+function zoom(delta, reset){
+  if(reset) STATE.zoom = 1.0;
+  else STATE.zoom = Math.max(0.6, Math.min(1.5, STATE.zoom + delta));
+  document.getElementById("zoomLabel").textContent = Math.round(STATE.zoom*100)+"%";
+  const book = document.querySelector(".book");
+  if(book) book.style.transform = `scale(${STATE.zoom})`;
+}
+
+/* =========================================================================
+   BOOT
+   ========================================================================= */
+document.addEventListener("DOMContentLoaded", ()=>{
+  renderTOC();
+  render();
+  document.addEventListener("keydown", (e)=>{
+    if(e.target.tagName==="INPUT" || e.target.tagName==="TEXTAREA") return;
+    if(e.key==="ArrowRight") nextTab();
+    if(e.key==="ArrowLeft" && STATE.currentTab>0){ setTab(STATE.currentTab-1); }
+  });
+});
+</script>
+
+<style>
+/* Additional styles for new elements */
+.date-head{
+  font-family:var(--font-en);font-weight:700;font-size:15px;color:#1a2733;
+  border-bottom:1px solid #b8ad8f;padding-bottom:4px;margin:0 0 14px;
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;
+}
+.part-badge{
+  display:inline-block;background:#c94a3c;color:#fff;font-family:var(--font-en);
+  font-weight:700;font-size:12px;padding:2px 10px;border-radius:999px;margin-left:8px;
+}
+.ck-table{
+  border-collapse:collapse;width:100%;margin:8px 0;background:#fff;
+  font-family:var(--font-en);font-size:13.5px;
+}
+.ck-table th, .ck-table td{
+  border:1px solid #c8bfa8;padding:6px 10px;
+}
+.ck-table th{
+  background:#f0ede4;font-family:var(--font-jp-sans);font-size:12px;font-weight:700;
+}
+</style>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a51eec2d35d2fd',t:'MTc4MzkxMjUwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
