@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3014,7 +3013,7 @@ function renderWordChangeGrid(L, ex){
     ["2) nice — nicer", ["safe", "safer"], ["wise", "wiser"]],
     ["3) big — bigger", ["hot", "hotter"], ["sad", "sadder"]],
     ["4) easy — easier", ["busy", "busier"], ["happy", "happier"]],
-    ["5) beautiful — more beautiful ", ["careful", "more careful", true], null]
+    ["5) beautiful — more beautiful", ["careful", "more careful", true], null]
   ] : [
     ["1) long — the longest", ["short", "the shortest"], ["new", "the newest"]],
     ["2) nice — the nicest", ["safe", "the safest"], ["wise", "the wisest"]],
@@ -3033,6 +3032,61 @@ function renderWordChangeGrid(L, ex){
     ${cell(r[2], `${L.id}.g${ex.n}.r${ri}.b`)}
     <div>${revealBtn(`${L.id}.g${ex.n}.r${ri}`, true)}</div>
   `).join("")}</div>`;
+}
+
+
+/* ---- Grammar exercise block helper ---- */
+function renderGrammarExBlock(L, ex){
+  let mainInstr = ex.instr, sample = "";
+  const m = ex.instr.match(/^(.*?)（例）(.+)$/);
+  if(m){ mainInstr = m[1].trim(); sample = m[2].trim(); }
+
+  let body = (L.id==="L09" && (ex.n===1 || ex.n===3))
+    ? renderWordChangeGrid(L, ex)
+    : `<ul class="ex-list stack">${ex.items.map((it,ii)=>`
+    <li>
+      ${it.jp?`<div>${itemHasPdfNumbering(it.jp)?"":`<span class="idx">${ii+1})</span>`}<span class="jp">${escapeHtml(it.jp)}</span>${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`:`<div style="text-align:right">${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`}
+      <div class="en">${renderParts(it.en, `${L.id}.g${ex.n}.${ii}`)}</div>
+    </li>`).join("")}</ul>`;
+  let bank = ex.bank?`<div class="wordbank center">[ ${ex.bank.join(" / ")} ]</div>`:"";
+  return `<div class="ex">
+    <div class="ex-instr"><span class="ex-num">${ex.n}</span>${escapeHtml(mainInstr)}</div>
+    ${sample?`<div class="sample-line"><span class="sample-tag">例</span>${escapeHtml(sample)}</div>`:""}
+    ${body}
+    ${bank}
+  </div>`;
+}
+
+/* PDF order for Lesson 09 grammar: comparative drills + Try, then superlative drills + Try. */
+function renderTryLinesBlock(L, instr, entries){
+  return `<div class="try">
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <div><span class="try-tag">Try!</span></div>
+        <div class="try-instr">${escapeHtml(instr)}</div>
+        ${entries.map(([li,ln])=>`
+          <div class="dial">
+            <span class="who">${escapeHtml(ln.who)}:</span>
+            ${ln.parts?renderParts(ln.parts, `${L.id}.try.${li}`):escapeHtml((ln.tokens||[]).join(" / "))}
+            ${ln.parts&&ln.parts.some(p=>typeof p!=="string")?revealBtn(`${L.id}.try.${li}`, true):""}
+          </div>`).join("")}
+      </div>
+    </div>
+  </div>`;
+}
+function renderLesson09GrammarBlocks(L){
+  const T = L.tryEx || {lines:[]};
+  const try1Instr = "新居を探しているトムとユイの夫婦は，部屋AとBを検討しています。（　）に入る語を large, good, expensive から選び，必要に応じて適切な形に直して入れよう。";
+  const try2Instr = "ロンとエマは，エマの兄が出場するバスケットボールの試合を見に来ました。（　）に入る語を good, tall, young から選び，それぞれ適切な形に直して入れよう。";
+  return [
+    renderGrammarExBlock(L, L.grammarEx[0]),
+    renderGrammarExBlock(L, L.grammarEx[1]),
+    renderTryLinesBlock(L, try1Instr, [[0,T.lines[0]],[1,T.lines[1]],[2,T.lines[2]]].filter(x=>x[1])),
+    `<div style="height:10px;border-top:1px dashed #d0c8ae;margin:16px 0 6px"></div>`,
+    renderGrammarExBlock(L, L.grammarEx[2]),
+    renderGrammarExBlock(L, L.grammarEx[3]),
+    renderTryLinesBlock(L, try2Instr, [[3,T.lines[3]],[4,T.lines[4]],[5,T.lines[5]],[6,T.lines[6]]].filter(x=>x[1]))
+  ].join("");
 }
 
 /* ---- Grammar page ---- */
@@ -3074,29 +3128,12 @@ function renderGrammar(L){
   }
   gbox += `</div>`;
 
-  const exBlocks = L.grammarEx.map(ex=>{
-    let mainInstr = ex.instr, sample = "";
-    const m = ex.instr.match(/^(.*?)（例）(.+)$/);
-    if(m){ mainInstr = m[1].trim(); sample = m[2].trim(); }
-
-    let body = (L.id==="L09" && (ex.n===1 || ex.n===3))
-      ? renderWordChangeGrid(L, ex)
-      : `<ul class="ex-list stack">${ex.items.map((it,ii)=>`
-      <li>
-        ${it.jp?`<div>${itemHasPdfNumbering(it.jp)?"":`<span class="idx">${ii+1})</span>`}<span class="jp">${escapeHtml(it.jp)}</span>${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`:`<div style="text-align:right">${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`}
-        <div class="en">${renderParts(it.en, `${L.id}.g${ex.n}.${ii}`)}</div>
-      </li>`).join("")}</ul>`;
-    let bank = ex.bank?`<div class="wordbank center">[ ${ex.bank.join(" / ")} ]</div>`:"";
-    return `<div class="ex">
-      <div class="ex-instr"><span class="ex-num">${ex.n}</span>${escapeHtml(mainInstr)}</div>
-      ${sample?`<div class="sample-line"><span class="sample-tag">例</span>${escapeHtml(sample)}</div>`:""}
-      ${body}
-      ${bank}
-    </div>`;
-  }).join("");
+  const exBlocks = L.id==="L09"
+    ? renderLesson09GrammarBlocks(L)
+    : L.grammarEx.map(ex=>renderGrammarExBlock(L, ex)).join("");
 
   let tryBlock = "";
-  if(L.tryEx){
+  if(L.tryEx && L.id!=="L09"){
     const T = L.tryEx;
     if(T.order){
       tryBlock = `<div class="try">
@@ -3526,6 +3563,5 @@ document.addEventListener("DOMContentLoaded", ()=>{
   background:#f0ede4;font-family:var(--font-jp-sans);font-size:12px;font-weight:700;
 }
 </style>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a51eec2d35d2fd',t:'MTc4MzkxMjUwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a5f0f46b3ad771',t:'MTc4MzkyMTEwNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a51eec2d35d2fd',t:'MTc4MzkxMjUwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a5fc38882dd771',t:'MTc4MzkyMTU2NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
