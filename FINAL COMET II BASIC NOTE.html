@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMET English Communication II ベーシックノート</title>
+<style>
+  /* =========================================================
+     COMET 1 Basic Note – Interactive Textbook Edition
+     Single-file HTML. No external deps. UTF-8.
+     ========================================================= */
+  :root{
+    --ink:#1a2733;
+    --ink-soft:#3a4a5c;
+    --paper:#fbfaf5;
+    --paper-warm:#f5f0e1;
+    --cream:#fff8e8;
+    --cyan:#0e5f7a;
+    --cyan-soft:#e6f2f6;
+    --cyan-bar:#123846;
+    --rule:#c8bfa8;
+    --rule-soft:#e2dcc8;
+    --accent:#c94a3c;
+    --good:#2f8f4f;
+    --bad:#c94a3c;
+    --shadow: 0 2px 6px rgba(0,0,0,0.08);
+    --font-jp: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", "Noto Serif JP", serif;
+    --font-jp-sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+    --font-en: "Georgia", "Times New Roman", "Noto Serif", serif;
+    --font-ui: "Helvetica Neue", "Segoe UI", "Yu Gothic UI", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e8e2d1;color:var(--ink);font-family:var(--font-ui);height:100%}
+  body{overflow:hidden}
+
+  /* ---------- Splash ---------- */
+  #splash{
+    position:fixed;inset:0;z-index:1000;
+    background:radial-gradient(ellipse at top,#1c4b60,#0a2530);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    transition:opacity .5s;
+  }
+  #splash.hide{opacity:0;pointer-events:none}
+  .splash-card{
+    text-align:center;padding:48px 56px;max-width:640px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:16px;backdrop-filter:blur(6px);
+  }
+  .splash-brand{font-family:var(--font-en);font-weight:700;font-size:56px;letter-spacing:6px;margin:0}
+  .splash-brand small{display:block;font-size:16px;letter-spacing:3px;font-weight:400;opacity:.85;margin-top:6px}
+  .splash-jp{font-family:var(--font-jp);font-size:28px;margin:22px 0 8px;letter-spacing:.15em}
+  .splash-sub{font-size:14px;opacity:.85;margin:0 0 28px}
+  .splash-btn{
+    background:#f5c14b;color:#1a2733;border:none;
+    font-size:16px;font-weight:700;letter-spacing:.15em;
+    padding:14px 36px;border-radius:999px;cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+    transition:transform .15s;
+  }
+  .splash-btn:hover{transform:translateY(-2px)}
+  .splash-authors{font-size:12px;opacity:.7;margin-top:24px;letter-spacing:.05em}
+
+  /* ---------- App shell ---------- */
+  #app{display:grid;grid-template-columns:280px 1fr;height:100vh;transition:grid-template-columns .25s ease}
+  #app.side-collapsed{grid-template-columns:0 1fr}
+  #app.side-collapsed aside#sidebar{transform:translateX(-100%);pointer-events:none}
+  aside#sidebar{
+    background:#123846;color:#e6f2f6;overflow-y:auto;
+    border-right:1px solid #082530;
+    transition:transform .25s ease;
+  }
+  .side-collapse-btn{
+    background:#123846;color:#fff;border:none;
+    width:34px;height:34px;border-radius:8px;font-size:18px;cursor:pointer;
+    flex-shrink:0;box-shadow:var(--shadow);
+  }
+  .side-collapse-btn:hover{filter:brightness(1.15)}
+
+  /* Reveal (per-question) button */
+  .reveal-btn{
+    background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8;
+    font-family:var(--font-jp-sans);font-size:10.5px;font-weight:700;
+    padding:1px 8px;border-radius:999px;cursor:pointer;
+    margin-left:6px;vertical-align:middle;letter-spacing:.05em;
+  }
+  .reveal-btn:hover{background:#f5c14b;color:#1a2733;border-color:#c19a2a}
+  .side-head{
+    padding:20px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  .side-head .brand{font-family:var(--font-en);font-weight:700;font-size:22px;letter-spacing:3px}
+  .side-head .brand small{display:block;font-size:11px;letter-spacing:2px;opacity:.7;font-weight:400}
+  .side-head .brand-jp{font-family:var(--font-jp);font-size:14px;opacity:.85;margin-top:6px;letter-spacing:.1em}
+  .toc{list-style:none;padding:12px 0;margin:0}
+  .toc li{margin:0}
+  .toc a{
+    display:block;padding:11px 20px;color:#cfe3ea;text-decoration:none;
+    font-size:14px;border-left:3px solid transparent;
+    display:flex;align-items:center;gap:10px;
+  }
+  .toc a:hover{background:rgba(255,255,255,0.06)}
+  .toc a.active{background:rgba(245,193,75,0.14);border-left-color:#f5c14b;color:#fff}
+  .toc a .num{
+    font-family:var(--font-en);font-weight:700;
+    background:#f5c14b;color:#123846;
+    width:26px;height:26px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;flex-shrink:0;
+  }
+  .toc a.active .num{background:#fff}
+  .toc a .title-en{display:block;font-family:var(--font-en);font-weight:600;font-size:13.5px;line-height:1.25}
+  .toc a .title-jp{display:block;font-family:var(--font-jp);font-size:11px;opacity:.75;margin-top:2px;letter-spacing:.05em}
+  .toc a .col{display:flex;flex-direction:column;min-width:0}
+
+  .side-foot{padding:14px 20px;font-size:11px;opacity:.6;border-top:1px solid rgba(255,255,255,0.1)}
+
+  /* ---------- Main area ---------- */
+  main#stage{
+    position:relative;overflow-y:auto;
+    background:
+      linear-gradient(#e8e2d1,#d9d1b8);
+    padding:24px 24px 80px;
+  }
+  .topbar{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:#fff;border:1px solid var(--rule);border-radius:10px;
+    padding:10px 16px;margin-bottom:18px;box-shadow:var(--shadow);
+  }
+  .topbar .crumb{
+    font-family:var(--font-jp-sans);font-size:13px;color:var(--ink-soft);
+    flex:1;min-width:200px;
+  }
+  .topbar .crumb b{color:var(--cyan);font-weight:700}
+  .topbar .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{
+    background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8;
+    padding:7px 14px;border-radius:999px;font-size:12.5px;cursor:pointer;
+    font-family:var(--font-jp-sans);white-space:nowrap;
+  }
+  .tab:hover{background:#e6ecdd}
+  .tab.active{background:#123846;color:#fff;border-color:#123846}
+  .tab .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#c94a3c;margin-right:6px;opacity:0}
+  .tab.done .dot{opacity:1;background:#2f8f4f}
+
+  .zoom{display:flex;gap:4px;align-items:center;font-size:12px;color:#3a4a5c}
+  .zoom button{
+    background:#fff;border:1px solid #c8bfa8;width:28px;height:28px;
+    border-radius:6px;cursor:pointer;font-weight:700;color:#3a4a5c;
+  }
+  .zoom button:hover{background:#f0ede4}
+
+  /* ---------- Textbook page ---------- */
+  .book{
+    max-width:920px;margin:0 auto;background:var(--paper);
+    box-shadow:0 4px 20px rgba(0,0,0,.15);
+    border:1px solid #b8ad8f;
+    border-radius:4px;overflow:hidden;
+    transform-origin:top center;transition:transform .2s;
+  }
+  .page{padding:34px 44px 44px;min-height:600px;position:relative}
+  .page::before{
+    content:attr(data-foot);position:absolute;bottom:14px;left:44px;
+    font-family:var(--font-jp-sans);font-size:11px;color:#8a7f60;letter-spacing:.1em;
+  }
+  .page::after{
+    content:attr(data-page);position:absolute;bottom:14px;right:44px;
+    font-family:var(--font-en);font-size:12px;color:#8a7f60;font-weight:600;
+  }
+
+  /* ---- Lesson header ---- */
+  .lesson-header{
+    display:flex;align-items:center;gap:18px;margin-bottom:22px;
+    border-bottom:2px solid #3a4a5c;padding-bottom:14px;
+  }
+  .lesson-badge{
+    flex-shrink:0;width:78px;height:78px;border-radius:50%;
+    background:#e8e2d1;color:#3a4a5c;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:var(--font-en);border:1px solid #b8ad8f;
+  }
+  .lesson-badge .lb1{font-size:11px;letter-spacing:.15em;margin-top:4px}
+  .lesson-badge .lb2{font-family:var(--font-en);font-size:30px;font-weight:700;line-height:1;margin-top:-2px}
+  .lesson-title{flex:1;min-width:0}
+  .lesson-title .en{
+    font-family:var(--font-en);font-weight:700;font-size:30px;color:#1a2733;
+    line-height:1.15;margin:0 0 6px;
+  }
+  .lesson-title .em{font-style:italic}
+  .kyoukasho{
+    display:inline-block;background:#3a4a5c;color:#fff;
+    font-family:var(--font-jp-sans);font-size:11px;
+    padding:2px 8px;border-radius:3px;margin-right:8px;
+  }
+  .lesson-title .jp{
+    font-family:var(--font-jp);font-size:15px;color:var(--ink-soft);
+    letter-spacing:.05em;
+  }
+
+  /* ---- Section bar (cyan-ish black bar in the book) ---- */
+  .section-bar{
+    background:linear-gradient(#1a2f3a,#0d1e26);
+    color:#fff;
+    border-radius:999px;
+    padding:9px 22px;
+    font-family:var(--font-jp-sans);font-size:14.5px;font-weight:700;
+    display:inline-flex;align-items:center;gap:10px;
+    margin:22px 0 14px;letter-spacing:.06em;
+    box-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .section-bar .ico{
+    width:22px;height:22px;background:#fff;color:#123846;
+    border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:700;
+  }
+
+  .subsec{
+    background:#eef1ea;border-radius:999px;
+    padding:5px 16px;display:inline-block;
+    font-family:var(--font-jp-sans);font-size:13px;font-weight:700;color:#1a2733;
+    margin:14px 0 8px;
+  }
+
+  /* ---- Numbered main-text lines (本文) ---- */
+  .honbun{list-style:none;padding:0;margin:0}
+  .honbun li{
+    display:flex;align-items:baseline;gap:12px;
+    border-bottom:1px solid #b8ad8f;padding:12px 4px 14px;
+    font-family:var(--font-en);font-size:16px;line-height:1.5;
+  }
+  .honbun .n{
+    flex-shrink:0;font-family:var(--font-en);font-weight:700;
+    width:26px;height:22px;border:1.5px solid #3a4a5c;border-radius:6px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#3a4a5c;
+    background:#fff;
+  }
+  .honbun .txt{flex:1}
+  /* underline = subject (solid) */
+  .honbun u{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+  /* dotted underline for extras */
+  .honbun .du{border-bottom:1px dotted #3a4a5c;padding-bottom:1px}
+  .honbun b{font-weight:700}
+  .honbun em{font-style:italic}
+
+  /* Translation-exercise honbun: click sentence to reveal Japanese translation */
+  .honbun.translate li{
+    flex-direction:column;align-items:stretch;gap:6px;cursor:pointer;
+    transition:background .15s;
+  }
+  .honbun.translate li:hover{background:#fff8e8}
+  .honbun.translate li .row{
+    display:flex;align-items:baseline;gap:12px;
+  }
+  .honbun.translate .en-row{font-family:var(--font-en);font-size:16px;line-height:1.5}
+  .honbun.translate .tap-hint{
+    font-family:var(--font-jp-sans);font-size:10.5px;color:#8a7f60;
+    background:#f0ede4;padding:1px 8px;border-radius:999px;
+    margin-left:6px;align-self:center;
+  }
+  .honbun.translate li.revealed .tap-hint{background:#c94a3c;color:#fff}
+  .honbun.translate .jp-answer{
+    display:none;font-family:var(--font-jp);font-size:14.5px;color:#0e5f7a;
+    background:#f7fbe6;border-left:3px solid #7aa832;border-radius:0 6px 6px 0;
+    padding:8px 14px;margin:2px 0 0 38px;line-height:1.7;
+  }
+  .honbun.translate li.revealed .jp-answer{display:block}
+  .translate-toolbar{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    margin:6px 0 10px;padding:8px 14px;
+    background:#eef1ea;border:1px solid #c8bfa8;border-radius:8px;
+    font-family:var(--font-jp-sans);font-size:12.5px;color:#3a4a5c;
+  }
+  .translate-toolbar .info{flex:1;min-width:200px}
+  .translate-toolbar button{
+    background:#123846;color:#fff;border:none;padding:6px 14px;border-radius:6px;
+    font-family:var(--font-jp-sans);font-size:12px;font-weight:700;cursor:pointer;
+  }
+  .translate-toolbar button.secondary{background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8}
+  .translate-toolbar button.next-btn{background:#c94a3c;margin-left:auto}
+  .translate-toolbar button:hover{filter:brightness(1.1)}
+
+  /* (Date/WPM/QR head-side removed per instructor request) */
+
+  /* ---- Vocab bank pill row (word bank) ---- */
+  .wordbank{
+    background:#fff;border:1.5px dashed #8a9aab;border-radius:8px;
+    padding:8px 14px;margin:10px auto;display:inline-block;
+    font-family:var(--font-jp);font-size:14px;letter-spacing:.05em;
+    color:#1a2733;
+  }
+  .wordbank.center{display:block;text-align:center;max-width:520px}
+  .wordbank .sep{color:#8a9aab;margin:0 8px}
+
+  /* ---- Exercise blocks ---- */
+  .ex{margin:10px 0 18px}
+  .ex-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;background:#3a4a5c;color:#fff;
+    border-radius:4px;font-family:var(--font-en);font-weight:700;font-size:12px;
+    margin-right:6px;vertical-align:-2px;
+  }
+  .ex-instr{
+    font-family:var(--font-jp-sans);font-size:13.5px;color:#1a2733;
+    margin:6px 0 10px;line-height:1.5;
+  }
+  .ex-list{list-style:none;padding:0;margin:6px 0 0}
+  .ex-list > li{
+    display:flex;align-items:baseline;gap:8px;padding:6px 0;
+    font-family:var(--font-en);font-size:15px;line-height:1.6;
+  }
+  .ex-list > li .idx{
+    font-family:var(--font-jp);font-size:12px;color:#3a4a5c;flex-shrink:0;min-width:20px;
+  }
+  .ex-list > li .jp{font-family:var(--font-jp);font-size:13.5px;color:#3a4a5c;min-width:230px;display:inline-block}
+  .ex-list > li .en{font-family:var(--font-en);font-size:14.5px;color:#1a2733;flex:1}
+  .ex-list.stack > li{flex-direction:column;align-items:flex-start;gap:2px;border-bottom:1px dotted #d0c8ae;padding:8px 0}
+  .ex-list.stack > li .en{width:100%}
+
+  /* ---- Inputs / choices ---- */
+  .fillin{
+    display:inline-block;min-width:110px;
+    border:none;border-bottom:1.5px solid #3a4a5c;
+    background:transparent;font-family:var(--font-en);font-size:14.5px;
+    padding:2px 4px;margin:0 3px;color:#0e5f7a;
+  }
+  .fillin:focus{outline:none;background:#fff8d6;border-bottom-color:#c94a3c}
+  .fillin.correct{background:#e2f4e6;border-bottom-color:#2f8f4f;color:#2f8f4f}
+  .fillin.wrong{background:#fbe4e2;border-bottom-color:#c94a3c;color:#c94a3c}
+  .fillin.short{min-width:70px}
+  .fillin.long{min-width:170px}
+
+  .choice{
+    display:inline-flex;gap:0;border:1px solid #3a4a5c;border-radius:6px;overflow:hidden;
+    margin:0 3px;vertical-align:-2px;
+  }
+  .choice button{
+    background:#fff;border:none;padding:3px 10px;font-family:var(--font-en);font-size:13.5px;
+    cursor:pointer;color:#1a2733;border-right:1px solid #c8bfa8;
+  }
+  .choice button:last-child{border-right:none}
+  .choice button:hover{background:#f0ede4}
+  .choice button.picked{background:#123846;color:#fff}
+  .choice button.picked.correct{background:#2f8f4f}
+  .choice button.picked.wrong{background:#c94a3c}
+
+  .jp-choice{
+    display:inline-flex;gap:0;border:1px solid #3a4a5c;border-radius:6px;overflow:hidden;margin:0 4px;
+  }
+  .jp-choice button{
+    background:#fff;border:none;padding:2px 10px;font-family:var(--font-jp);font-size:13.5px;
+    cursor:pointer;color:#1a2733;border-right:1px solid #c8bfa8;
+  }
+  .jp-choice button:last-child{border-right:none}
+  .jp-choice button:hover{background:#f0ede4}
+  .jp-choice button.picked{background:#123846;color:#fff}
+  .jp-choice button.picked.correct{background:#2f8f4f}
+  .jp-choice button.picked.wrong{background:#c94a3c}
+
+  .letter-hint{
+    display:inline-block;font-family:var(--font-en);font-style:italic;color:#3a4a5c;
+    border-bottom:1.5px solid #3a4a5c;padding:0 4px 1px;min-width:10px;
+  }
+  .cloze-num{
+    font-family:var(--font-en);font-size:10px;color:#3a4a5c;vertical-align:sub;margin-right:2px;
+  }
+
+  /* ---- Grammar formula box ---- */
+  .grammar-box{
+    background:#fff;border:1.5px solid #3a4a5c;border-radius:14px;
+    padding:14px 20px;margin:10px 0 18px;position:relative;
+  }
+  .grammar-box .gtitle{
+    font-family:var(--font-jp-sans);font-weight:700;color:#1a2733;
+    font-size:14.5px;margin-bottom:10px;
+  }
+  .grammar-box .gtitle .term{
+    color:#c94a3c;font-weight:700;margin-right:8px;
+  }
+  .grammar-box .rule{
+    font-family:var(--font-jp);font-size:12.5px;color:#3a4a5c;
+    text-align:right;margin-top:2px;
+  }
+  .grammar-box .pat{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin:8px 0;
+    font-family:var(--font-en);font-size:14.5px;
+  }
+  .grammar-box .patlabel{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;background:#1a2733;color:#fff;border-radius:50%;
+    font-family:var(--font-en);font-size:12px;font-weight:700;flex-shrink:0;
+  }
+  .grammar-box .patdesc{font-family:var(--font-jp);color:#c94a3c;font-size:13px;font-weight:700}
+  .grammar-box .example{font-family:var(--font-en);font-size:14px;margin:2px 0 4px 30px}
+  .grammar-box .example .jp{color:#3a4a5c;font-family:var(--font-jp);font-size:12.5px;margin-left:12px}
+  .grammar-table{
+    display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:0;
+    border:1px solid #3a4a5c;border-radius:6px;overflow:hidden;
+    font-family:var(--font-en);font-size:13px;margin:8px 0;
+  }
+  .grammar-table > div{padding:5px 10px;border-right:1px solid #c8bfa8;border-bottom:1px solid #c8bfa8;background:#fff;text-align:center}
+  .grammar-table > div:nth-child(3n){border-right:none}
+  .grammar-table > div.h{background:#f0ede4;font-weight:700;font-family:var(--font-jp-sans);font-size:12px}
+  .gt-title{
+    text-align:center;font-family:var(--font-jp-sans);font-size:12px;font-weight:700;
+    background:#3a4a5c;color:#fff;padding:3px;margin:12px 0 0;border-radius:4px 4px 0 0;
+    max-width:none;
+  }
+  .gt-split{
+    display:grid;grid-template-columns:1fr 1.15fr;gap:0;
+    border:1px solid #3a4a5c;border-top:none;border-radius:0 0 6px 6px;overflow:hidden;
+    background:#fff;
+  }
+  .gt-left{display:grid;font-family:var(--font-en);font-size:13px;border-right:1px solid #3a4a5c}
+  .gt-left > div{
+    padding:5px 6px;border-right:1px solid #c8bfa8;border-bottom:1px solid #c8bfa8;
+    text-align:center;background:#fff;
+  }
+  .gt-left > div.h{background:#f0ede4;font-weight:700;font-family:var(--font-jp-sans);font-size:11.5px}
+  .gt-right{display:flex;flex-direction:column;font-family:var(--font-jp-sans);font-size:12px}
+  .gt-r-h{background:#f0ede4;padding:4px 10px;font-weight:700;border-bottom:1px solid #c8bfa8}
+  .gt-r-b{padding:6px 10px;font-family:var(--font-en);font-size:12.5px;border-bottom:1px solid #c8bfa8;background:#fff}
+  .gt-r-b:last-child, .gt-right > div:last-child{border-bottom:none}
+  @media (max-width:720px){ .gt-split{grid-template-columns:1fr} .gt-left{border-right:none;border-bottom:1px solid #3a4a5c} }
+
+  /* ---- Try box ---- */
+  .try{
+    background:#fff;border-left:5px solid #c94a3c;
+    padding:12px 16px;margin:14px 0;border-radius:0 8px 8px 0;
+  }
+  .try .try-tag{
+    display:inline-block;background:#c94a3c;color:#fff;
+    font-family:var(--font-en);font-weight:700;font-size:12px;
+    padding:1px 10px;border-radius:999px;margin-right:8px;
+  }
+  .try .try-instr{font-family:var(--font-jp-sans);font-size:13px;color:#1a2733;margin:6px 0 10px}
+  .try .dial{margin:6px 0;font-family:var(--font-en);font-size:14.5px}
+  .try .dial .who{font-weight:700;margin-right:6px}
+  .try .rightbank{
+    float:right;border:1.5px dashed #8a9aab;border-radius:6px;
+    padding:6px 12px;background:#fff;font-family:var(--font-en);font-size:13.5px;
+    text-align:center;margin:0 0 8px 12px;
+  }
+  .clr{clear:both}
+
+  /* Sample / example line under an ex-instr */
+  .sample-line{
+    background:#fff8e8;border:1px solid #e8dcb2;border-radius:6px;
+    padding:6px 12px;margin:4px 0 10px;
+    font-family:var(--font-jp-sans);font-size:12.5px;color:#5a4a20;
+    display:flex;align-items:flex-start;gap:8px;
+  }
+  .sample-tag{
+    background:#c94a3c;color:#fff;font-family:var(--font-jp-sans);font-size:11px;
+    font-weight:700;padding:1px 8px;border-radius:3px;flex-shrink:0;
+  }
+
+  /* ---- Cloze passage ---- */
+  .cloze{
+    font-family:var(--font-en);font-size:15.5px;line-height:2.0;
+    background:#fff;border:1px solid #e2dcc8;border-radius:8px;
+    padding:22px 24px;color:#1a2733;text-indent:1.4em;
+  }
+  .cloze p{margin:0 0 12px;text-indent:1.4em}
+  .cloze .fillin{min-width:120px}
+  .kyou-p{
+    background:#c94a3c;color:#fff;font-family:var(--font-jp-sans);
+    display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:700;
+    margin-bottom:8px;
+  }
+  .kyou-p::before{content:"→ "}
+
+  /* ---- Note area (メモ欄) ---- */
+  .note-area{
+    background:#fff;border:1px solid #e2dcc8;border-radius:8px;
+    padding:14px 16px;margin-top:12px;
+  }
+  .note-area .note-head{
+    font-family:var(--font-jp-sans);font-size:12px;color:#8a7f60;
+    display:flex;align-items:center;gap:6px;margin-bottom:6px;
+  }
+  .note-area textarea{
+    width:100%;min-height:140px;border:none;resize:vertical;
+    font-family:var(--font-jp);font-size:14px;line-height:1.9;color:#1a2733;
+    background:repeating-linear-gradient(#fff 0,#fff 27px,#e2dcc8 28px);
+    outline:none;padding:2px 4px;
+  }
+
+  /* ---- Focus / open triangle for content ordering ---- */
+  .diamond{color:#c94a3c;font-weight:700;margin-right:6px}
+
+  /* ---- Action bar ---- */
+  .actions{
+    display:flex;gap:10px;margin:22px 0 0;flex-wrap:wrap;
+    padding-top:16px;border-top:1px dashed #c8bfa8;
+  }
+  .btn{
+    background:#123846;color:#fff;border:none;
+    padding:9px 20px;border-radius:6px;cursor:pointer;
+    font-family:var(--font-jp-sans);font-size:13px;font-weight:700;
+    box-shadow:var(--shadow);letter-spacing:.05em;
+  }
+  .btn.secondary{background:#eef1ea;color:#3a4a5c;border:1px solid #c8bfa8}
+  .btn.warn{background:#c94a3c}
+  .btn:hover{filter:brightness(1.1)}
+  .status{
+    margin-left:auto;font-family:var(--font-jp-sans);font-size:13px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .status.good{color:#2f8f4f}
+  .status.bad{color:#c94a3c}
+
+  /* ---- 2-column layout (left main text, right vocab/content) ---- */
+  .spread{display:grid;grid-template-columns:1.05fr 1fr;gap:26px;align-items:start}
+  @media (max-width:840px){
+    .spread{grid-template-columns:1fr}
+  }
+
+  /* ---- Sidebar toggle for mobile ---- */
+  /* Old floating sidebar toggle superseded by topbar .side-collapse-btn */
+  #sideToggle{display:none !important}
+  @media (max-width:900px){
+    #app{grid-template-columns:1fr}
+    aside#sidebar{
+      position:fixed;inset:0 auto 0 0;width:280px;z-index:50;
+      transform:translateX(-100%);transition:transform .25s;
+    }
+    aside#sidebar.open{transform:translateX(0)}
+    main#stage{padding:24px 12px 60px}
+    .page{padding:22px 20px 40px}
+    .lesson-title .en{font-size:22px}
+  }
+
+  /* Print helper */
+  @media print{
+    #splash,#sidebar,.topbar,.actions,#sideToggle{display:none!important}
+    #app{grid-template-columns:1fr}
+    main#stage{overflow:visible;background:#fff;padding:0}
+    .book{box-shadow:none;border:none}
+  }
+
+  /* Focus visible */
+  button:focus-visible,input:focus-visible,a:focus-visible{
+    outline:2px solid #f5c14b;outline-offset:2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH ============ -->
+<div id="splash">
+  <div class="splash-card">
+    <h1 class="splash-brand">COMET<small>English Communication II</small></h1>
+    <div class="splash-jp">ベーシックノート</div>
+    <p class="splash-sub">COMET English Communication II 準拠 授業用ノート</p>
+    <button class="splash-btn" onclick="document.getElementById('splash').classList.add('hide')">
+      はじめる &nbsp;›
+    </button>
+    <div class="splash-authors">監修：縄稚 亜矢子 先生 / Mark Campana 先生</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<button id="sideToggle" aria-label="menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<div id="app">
+  <aside id="sidebar" aria-label="Lessons">
+    <div class="side-head">
+      <div class="brand">COMET<small>English Communication Ⅱ</small></div>
+      <div class="brand-jp">目次 — ベーシックノート</div>
+    </div>
+    <ul class="toc" id="toc"></ul>
+    <div class="side-foot">© 数研出版 · Digital Rebuild 2026 · COMET II</div>
+  </aside>
+
+  <main id="stage">
+    <div class="topbar">
+      <button class="side-collapse-btn" onclick="toggleSidebar()" title="サイドバーの表示/非表示" aria-label="サイドバー切り替え">☰</button>
+      <div class="crumb" id="crumb">Lesson を選択してください</div>
+      <div class="tabs" id="tabs"></div>
+      <div class="zoom">
+        <button onclick="zoom(-0.1)" aria-label="zoom out">−</button>
+        <span id="zoomLabel">100%</span>
+        <button onclick="zoom(0.1)" aria-label="zoom in">+</button>
+        <button onclick="zoom(0,true)" aria-label="reset zoom" title="reset">⟲</button>
+      </div>
+    </div>
+    <div id="pageHost"></div>
+  </main>
+</div>
+
+<script>
+/* =========================================================================
+   DATA MODEL
+   Every string here comes from COMET II Basic Note PDF, verified against
+   the scanned images page-by-page. No content generated, no paraphrase.
+   ========================================================================= */
+
+/* =========================================================================
+   NEW MULTI-PART DATA MODEL
+   Every string verified against COMET II Basic Note PDF images page-by-page.
+   Lesson.parts[] = one entry per 2-page content spread (①②③④).
+   Each part contains: honbun, check1, check2, seiri1, seiri2, seiriQ.
+   Lesson.grammar / grammarEx / tryEx / cloze are shared at the lesson level.
+   ========================================================================= */
+
+/* =========================================================================
+   COMET II Basic Note — data
+   Sentences transcribed from PDF images; Japanese translations composed
+   as reference answers (not printed in the PDF).
+   ========================================================================= */
+const LESSONS = [
+
+/* ================================= LESSON 01 ================================= */
+{
+  id:"L01", num:"01",
+  en:"Places Worth Visiting",
+  jp:"行ってみたい場所",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.8",
+      honbun:[
+        {n:1, en:`Dear Ela,`, jp:`エラへ、`},
+        {n:2, en:`How <b>are</b> <u>you</u> <b>doing</b> these days?`,
+              jp:`最近，元気にしていますか。`},
+        {n:3, en:`<u>I</u> <b>traveled</b> to Yakushima during the spring vacation.`,
+              jp:`私は春休みに屋久島へ旅行しました。`},
+        {n:4, en:`<u>I</u> really <b>wanted to go</b>, so <u>I</u> <b>asked</b> my parents to take me there.`,
+              jp:`私はどうしても行きたかったので，両親にそこへ連れて行ってくれるよう頼みました。`},
+        {n:5, en:`<u>We</u> <b>went</b> trekking through mysterious mossy forests.`,
+              jp:`私たちは神秘的でこけに覆われた森をトレッキングしました。`},
+        {n:6, en:`<u>I</u> <b>was overwhelmed</b> by the natural beauty.`,
+              jp:`私はその自然の美しさに圧倒されました。`},
+        {n:7, en:`<em><u>Yakusugi</u></em>, ancient giant cedar trees, <b>are</b> the symbol of the island.`,
+              jp:`大昔からある巨大なスギの木「屋久杉」は，島の象徴です。`},
+        {n:8, en:`<u>Some of them</u> <b>are</b> over 2000 years old!`,
+              jp:`そのうちのいくつかは樹齢2000年を超えています！`},
+        {n:9, en:`<u>I</u> <b>attached</b> some photos.`,
+              jp:`写真を何枚か添付しました。`},
+        {n:10,en:`<u>I</u> <b>hope</b> you like them.`,
+              jp:`あなたが気に入ってくれるといいのですが。`},
+        {n:11,en:`Your friend, Daiki`,
+              jp:`あなたの友人，ダイキより`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:5, w:"trek",       ans:"トレッキングをする"},
+          {n:5, w:"mysterious", ans:"神秘的な"},
+          {n:5, w:"mossy",      ans:"こけで覆われた"},
+          {n:6, w:"overwhelm",  ans:"〜を圧倒する"},
+          {n:6, w:"beauty",     ans:"美しさ"},
+          {n:7, w:"ancient",    ans:"大昔からある"},
+          {n:7, w:"giant",      ans:"巨大な"},
+          {n:7, w:"cedar",      ans:"スギ"},
+          {n:9, w:"attach",     ans:"〜を添付する"}
+        ],
+        bank:["神秘的な","〜を圧倒する","大昔からある","〜を添付する","美しさ","こけで覆われた","巨大な","スギ","トレッキングをする"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"今週末，友だちと買い物に行きたいです。", ref:"5",
+           parts:["I want to (", {i:0,ans:"go"}, ") (", {i:1,ans:"shopping"}, ") with my friends this weekend."]}
+        ]
+      },
+      seiri1:{
+        instr:"ダイキは屋久島でどのような経験をしましたか。本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"こけで覆われた（1.", ans:"神秘的", post:"）な森にトレッキングに行き，（2."},
+          {pre:"", ans:"自然", post:"）の美しさに（3."},
+          {pre:"", ans:"圧倒", post:"）された。"}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものを2つ選ぼう。",
+        multi:[
+          {label:"a. Daiki really wanted to visit Yakushima with Ela.", correct:false},
+          {label:"b. Daiki's parents went to Yakushima with him.", correct:true},
+          {label:"c. Some cedar trees in Yakushima are over 2000 years old.", correct:true},
+          {label:"d. Ela got some photos and videos from Daiki.", correct:false}
+        ]
+      },
+      seiriQ:"ダイキは屋久島で何をしましたか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.10",
+      honbun:[
+        {n:12,en:`Hi Daiki.`, jp:`こんにちは，ダイキ。`},
+        {n:13,en:`<b>Thank</b> you for your email and photos.`,
+              jp:`メールと写真をありがとう。`},
+        {n:14,en:`<u>The forests</u> <b>are</b> beautiful!`,
+              jp:`森が美しいですね！`},
+        {n:15,en:`<u>I</u> <b>want</b> you to see my photos of Cappadocia.`,
+              jp:`私のカッパドキアの写真をあなたに見てほしいです。`},
+        {n:16,en:`<u>I</u> <b>went</b> there last month.`,
+              jp:`私は先月そこへ行きました。`},
+        {n:17,en:`<u>The area</u> <b>is</b> famous for its landscape.`,
+              jp:`その地域は景色で有名です。`},
+        {n:18,en:`<u>I</u> <b>saw</b> lots of strange-shaped rocks.`,
+              jp:`私は奇妙な形をした岩をたくさん見ました。`},
+        {n:19,en:`<u>Some of them</u> <b>were used</b> as churches and houses.`,
+              jp:`そのうちのいくつかは教会や家として使われていました。`},
+        {n:20,en:`<u>I</u> also <b>visited</b> one of the underground cities there.`,
+              jp:`私はそこで地下都市のひとつも訪れました。`},
+        {n:21,en:`Ancient Christians <b>built</b> them to hide from invaders.`,
+              jp:`古代のキリスト教徒が侵略者から隠れるためにそれらを造りました。`},
+        {n:22,en:`Why <b>don't</b> <u>we</u> <b>go</b> there someday?`,
+              jp:`いつかそこへいっしょに行きませんか。`},
+        {n:23,en:`Bye, Ela`,
+              jp:`さようなら，エラより`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:17,w:"landscape",     ans:"景色"},
+          {n:18,w:"strange-shaped",ans:"奇妙な形の"},
+          {n:18,w:"rock",          ans:"岩"},
+          {n:20,w:"underground",   ans:"地下の"},
+          {n:21,w:"Christian",     ans:"キリスト教徒"},
+          {n:21,w:"hide",          ans:"隠れる"},
+          {n:21,w:"invader",       ans:"侵略者"}
+        ],
+        bank:["奇妙な形の","地下の","侵略者","景色","隠れる","キリスト教徒","岩"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"三井寺の鐘は美しい音色で有名です。", ref:"17",
+           parts:["The bell of Mii dera Temple (", {i:0,ans:"is"}, ") (", {i:1,ans:"famous"}, ") (", {i:2,ans:"for"}, ") its beautiful sound."]},
+          {jp:"今週末そこへいっしょに行きませんか。", ref:"22",
+           parts:["(", {i:0,ans:"Why"}, ") (", {i:1,ans:"don't"}, ") (", {i:2,ans:"we"}, ") go there this weekend?"]}
+        ]
+      },
+      seiri1:{
+        instr:"エラはカッパドキアでどのようなことをしましたか。本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        multiparts:[
+          {label:"a.", parts:["(", {i:0,ans:"教会"}, ")や家にも使われている奇妙な形をした(", {i:1,ans:"岩"}, ")をたくさん見た。"]},
+          {label:"b.", parts:["古代の(", {i:0,ans:"キリスト教徒"}, ")によって作られた(", {i:1,ans:"地下都市"}, ")のひとつを訪れた。"]}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものには○，一致しないものには×を入れよう。",
+        truefalse:[
+          {t:"a. Ela thought that the forests in Yakushima were beautiful.", ans:"○"},
+          {t:"b. Ela went to Cappadocia a few months ago.", ans:"×"},
+          {t:"c. Ela thinks that invaders built some of the cities in Cappadocia.", ans:"×"},
+          {t:"d. Ela wants to go to Cappadocia with Daiki someday.", ans:"○"}
+        ]
+      },
+      seiriQ:"エラはカッパドキアでどんな体験をしましたか。"
+    }
+  ],
+  grammar:{
+    term:"want / ask / tell +（人）+ to+動詞の原形",
+    rule:"人に行動を求める表現です。",
+    patterns:[
+      {n:1, desc:"want +（人）+ to+動詞の原形「（人）に…してほしい」",
+       ex:"I <b>want</b> you <b>to join</b> the birthday party.",
+       jp:"私はあなたにその誕生日会に参加してほしい。"},
+      {n:2, desc:"ask +（人）+ to+動詞の原形「（人）に…するように頼む」",
+       ex:"I'll <b>ask</b> Mai <b>to play</b> the drums.",
+       jp:"私はマイにドラムをやるよう頼むつもりだ。"},
+      {n:3, desc:"tell +（人）+ to+動詞の原形「（人）に…するように言う」",
+       ex:"My father <b>told</b> me <b>to clean</b> my room.",
+       jp:"父は私に部屋をそうじするように言った。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"日本文に合うように，[ ]内の語を使って，英文を完成させよう。（例）ニックは私にその本を読むように言った。[read] Nick ( told ) me ( to ) ( read ) the book.", type:"bank",
+     items:[
+      {jp:"1) 私は弟に人気役者になってほしい。［become］",
+       en:["I (", {i:0,ans:"want"}, ") my brother (", {i:1,ans:"to"}, ") (", {i:2,ans:"become"}, ") a popular actor."]},
+      {jp:"2) 医者は彼によく寝るように言った。［sleep］",
+       en:["The doctor (", {i:0,ans:"told"}, ") him (", {i:1,ans:"to"}, ") (", {i:2,ans:"sleep"}, ") well."]},
+      {jp:"3) ジムに英語を教えてくれるよう頼むつもりだ。［teach］",
+       en:["I will (", {i:0,ans:"ask"}, ") Jim (", {i:1,ans:"to"}, ") (", {i:2,ans:"teach"}, ") me English."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語句を正しい順に並べ替えて，全文を書こう。", type:"bank",
+     items:[
+      {jp:"1) きのう私は，母に制服を洗濯するよう頼んだ。 I [ wash / to / asked / my mother ] my uniform yesterday.",
+       en:["I (", {i:0,ans:"asked"}, ") (", {i:1,ans:"my mother"}, ") (", {i:2,ans:"to"}, ") (", {i:3,ans:"wash"}, ") my uniform yesterday."]},
+      {jp:"2) アミに私たちのバンドでギターを弾いてほしい。 I [ play / Ami / want / to ] the guitar in our band.",
+       en:["I (", {i:0,ans:"want"}, ") (", {i:1,ans:"Ami"}, ") (", {i:2,ans:"to"}, ") (", {i:3,ans:"play"}, ") the guitar in our band."]}
+    ]}
+  ],
+  tryEx:{
+    instr:"サクラが隣のクラスのコウキに廊下で頼みごとをしています。[ ]内の語を正しい順に並べ替えて，対話を完成させよう。",
+    order:true,
+    lines:[
+      {who:"Sakura", tokens:["to","teach","want","you"], answer:"want you to teach",
+       prefix:"I ", suffix:" me math after school."},
+      {who:"Koki", parts:["Do you want to study for tomorrow's math test?"]},
+      {who:"Sakura", tokens:["study","told","to","me"], answer:"told me to study",
+       prefix:"Yes. My math teacher ", suffix:" harder this time."}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.8 / p.10",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "Dear Ela,"
+      ],
+      [
+        "How are you doing these days? I ",
+        {n:1, letter:"t", ans:"traveled"},
+        " to Yakushima during the spring vacation. I really wanted to go, so I asked my ",
+        {n:2, letter:"p", ans:"parents"},
+        " to take me there. We went trekking through mysterious mossy forests. I was ",
+        {n:3, letter:"o", ans:"overwhelmed"},
+        " by the natural beauty. ", {em:"Yakusugi"}, ", ancient giant cedar trees, are the ",
+        {n:4, letter:"s", ans:"symbol"},
+        " of the island. Some of them are over 2000 years old! I ",
+        {n:5, letter:"a", ans:"attached"},
+        " some photos. I hope you like them."
+      ],
+      [
+        "Your friend,", {br:true}, "Daiki"
+      ],
+      [
+        "Hi Daiki."
+      ],
+      [
+        "Thank you for your email and photos. The forests are beautiful! I ",
+        {n:1, letter:"w", ans:"want"},
+        " you to see my photos of Cappadocia. I went there last month. The area is famous for its ",
+        {n:2, letter:"l", ans:"landscape"},
+        ". I saw lots of strange-shaped ",
+        {n:3, letter:"r", ans:"rocks"},
+        ". Some of them were used as ",
+        {n:4, letter:"c", ans:"churches"},
+        " and houses. I also visited one of the underground cities there. Ancient Christians built them to hide from invaders. Why don't ",
+        {n:5, letter:"w", ans:"we"},
+        " go there someday?"
+      ],
+      [
+        "Bye,", {br:true}, "Ela"
+      ]
+    ]
+  }
+},
+
+/* ================================= LESSON 02 ================================= */
+{
+  id:"L02", num:"02",
+  en:"Iwago Mitsuaki: Animal Photographer",
+  jp:"動物写真家 岩合光昭",
+  parts:[
+    /* ---------- Part ① ---------- */
+    {
+      label:"①", kyou:"p.18",
+      honbun:[
+        {n:1, en:`When I was 32, <u>I</u> <b>moved</b> to Africa to photograph wildlife.`,
+              jp:`私は32歳のとき，野生生物を写真に撮るためにアフリカへ移住しました。`},
+        {n:2, en:`At first, <u>I</u> <b>didn't</b> really <b>understand</b> how to take impressive pictures.`,
+              jp:`最初，私は印象的な写真をどのように撮ればよいか本当にわかりませんでした。`},
+        {n:3, en:`Actually, <u>I</u> <b>was</b> just <b>trying to take</b> photos of dramatic scenes, like lions hunting.`,
+              jp:`実は，私はライオンが狩りをしている場面など，劇的な場面の写真を撮ろうとしていただけでした。`},
+        {n:4, en:`One day, <u>a giraffe</u> <b>was eating</b> leaves from a tree.`,
+              jp:`ある日，一頭のキリンが木の葉を食べていました。`},
+        {n:5, en:`<u>This</u> <b>is</b> an ordinary scene in Africa.`,
+              jp:`これはアフリカではふつうの場面です。`},
+        {n:6, en:`However, <u>the scene</u> <b>caught</b> my attention.`,
+              jp:`しかし，その場面が私の注意を引きました。`},
+        {n:7, en:`Then <u>I</u> <b>realized</b> an important thing:`,
+              jp:`そのとき私は大切なことに気づきました。`},
+        {n:0, en:`<b>See</b> the world as it is, and <b>shoot</b> it.`,
+              jp:`世界をありのままに見て，それを撮影しなさい。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1, w:"photograph", ans:"〜を写真に撮る"},
+          {n:1, w:"wildlife",   ans:"野生生物"},
+          {n:2, w:"impressive", ans:"印象的な"},
+          {n:3, w:"dramatic",   ans:"劇的な"},
+          {n:3, w:"hunt",       ans:"狩りをする"},
+          {n:4, w:"giraffe",    ans:"キリン"},
+          {n:4, w:"leaf > leaves", ans:"葉"},
+          {n:5, w:"ordinary",   ans:"ふつうの"},
+          {n:6, w:"attention",  ans:"注意"},
+          {n:7, w:"shoot",      ans:"（写真・映画など）を撮影する"}
+        ],
+        bank:["印象的な","劇的な","狩りをする","（写真・映画など）を撮影する","キリン","野生生物","ふつうの","注意","葉","〜を写真に撮る"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"リクは私たちに何か言おうとしたが，言えなかった。", ref:"3",
+           parts:["Riku (", {i:0,ans:"was"}, ") (", {i:1,ans:"trying to"}, ") say something to us, but he couldn't."]},
+          {jp:"ミキはある日叔父の家に行きました。", ref:"4",
+           parts:["Miki went to her uncle's house (", {i:0,ans:"one"}, ") (", {i:1,ans:"day"}, ")."]},
+          {jp:"新聞に載っていたある写真が私の注意を引きました。", ref:"6",
+           parts:["A photo in the newspaper (", {i:0,ans:"caught"}, ") (", {i:1,ans:"my"}, ") (", {i:2,ans:"attention"}, ")."]},
+          {jp:"担任が来るまで全部そのままにしておきなさい。", ref:"7",
+           parts:["Leave everything (", {i:0,ans:"as"}, ") (", {i:1,ans:"it"}, ") (", {i:2,ans:"is"}, ") until our homeroom teacher comes."]}
+        ]
+      },
+      seiri1:{
+        instr:"アフリカへ渡った岩合さんについて，本文の内容に合うように，（　）に適切な日本語を入れよう。",
+        fills:[
+          {pre:"（1.", ans:"野生生物", post:"）の写真を撮るためにアフリカに移住したが，最初は（2."},
+          {pre:"", ans:"印象的", post:"）な写真の撮り方がわからず，（3."},
+          {pre:"", ans:"劇的", post:"）な場面を撮影しようとしていた。"}
+        ]
+      },
+      seiri2:{
+        instr:"岩合さんの注意を引いた場面として，本文の内容と一致するものを1つ選ぼう。",
+        choices:[
+          "a. Some lions were hunting.",
+          "b. A giraffe was eating leaves.",
+          "c. A giraffe was walking by a tree."
+        ],
+        ans:1
+      },
+      seiriQ:"岩合さんは，撮影において何が重要だと気づきましたか。"
+    },
+    /* ---------- Part ② ---------- */
+    {
+      label:"②", kyou:"p.20",
+      honbun:[
+        {n:8, en:`<u>I</u> <b>like</b> cats, and <u>photographing them</u> <b>is</b> my lifework.`,
+              jp:`私はネコが好きで，ネコを写真に撮ることが私の一生の仕事です。`},
+        {n:9, en:`Here <b>are</b> some tips for taking pictures of them.`,
+              jp:`ここにネコの写真を撮るためのコツがいくつかあります。`},
+        {n:10,en:`First, <b>think about</b> the angle.`,
+              jp:`まず，角度について考えなさい。`},
+        {n:11,en:`<b>Lie down</b> and <b>place</b> the camera at the level of the cat's eyes.`,
+              jp:`寝そべって，カメラをネコの目の高さに置きなさい。`},
+        {n:12,en:`This way, <u>you</u> <b>can photograph</b> the cats as they really are.`,
+              jp:`このようにすれば，ネコをありのままに写真に撮ることができます。`},
+        {n:13,en:`Second, <u>the composition</u> <b>is</b> essential.`,
+              jp:`次に，構図が最も重要です。`},
+        {n:14,en:`<b>Don't</b> just <b>focus on</b> the cats.`,
+              jp:`ネコにばかり集中してはいけません。`},
+        {n:15,en:`<b>Pay attention to</b> the background and <b>decide</b> what to include in the picture.`,
+              jp:`背景にも注意を払い，写真に何を含めるかを決めなさい。`},
+        {n:16,en:`<b>Look at</b> the photo below.`,
+              jp:`下の写真を見なさい。`},
+        {n:17,en:`By including the cow, <u>the cat</u> <b>looks</b> more attractive.`,
+              jp:`ウシを入れることによって，ネコがより魅力的に見えます。`}
+      ],
+      check1:{
+        instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:8, w:"lifework",   ans:"一生の仕事"},
+          {n:9, w:"tip",        ans:"コツ"},
+          {n:10,w:"angle",      ans:"角度"},
+          {n:11,w:"level",      ans:"高さ"},
+          {n:13,w:"composition",ans:"構図"},
+          {n:13,w:"essential",  ans:"最も重要な"},
+          {n:14,w:"focus",      ans:"（注意などを）集中させる"},
+          {n:15,w:"background", ans:"背景"},
+          {n:17,w:"cow",        ans:"ウシ"},
+          {n:17,w:"attractive", ans:"魅力的な"}
+        ],
+        bank:["背景","角度","構図","一生の仕事","魅力的な","ウシ","（注意などを）集中させる","コツ","高さ","最も重要な"]
+      },
+      check2:{
+        instr:"日本文に合うように，（　）に適切な語を入れよう。",
+        items:[
+          {jp:"ここに英文メールの例があります。", ref:"9",
+           parts:["(", {i:0,ans:"Here"}, ") (", {i:1,ans:"are"}, ") some examples of emails in English."]},
+          {jp:"このようにして折り紙で船が作れます。", ref:"12",
+           parts:["You can make a ship with origami paper (", {i:0,ans:"this"}, ") (", {i:1,ans:"way"}, ")."]},
+          {jp:"どうしてその絵画に注目したのですか。", ref:"14",
+           parts:["Why did you (", {i:0,ans:"focus"}, ") (", {i:1,ans:"on"}, ") that painting?"]},
+          {jp:"車を運転するときは，道路標識に注意を払ってください。", ref:"15",
+           parts:["(", {i:0,ans:"Pay"}, ") (", {i:1,ans:"attention"}, ") (", {i:2,ans:"to"}, ") the road signs when driving a car."]}
+        ]
+      },
+      seiri1:{
+        instr:"岩合さんのネコを撮影するコツについて，本文の内容と一致しないものをすべて選ぼう。",
+        multi:[
+          {label:"a. ネコの目線にカメラを合わせる。", correct:false},
+          {label:"b. ネコの何気ない日常にカメラを向ける。", correct:true},
+          {label:"c. 美しい景色を背景にする。", correct:true},
+          {label:"d. 写真に何を含めるかを考える。", correct:false}
+        ]
+      },
+      seiri2:{
+        instr:"本文の内容と一致するものを1つ選ぼう。",
+        choices:[
+          "a. Mr. Iwago likes cats, and taking pictures of them.",
+          "b. The angle is more important than the composition.",
+          "c. Cats always look more attractive in front of a cow."
+        ],
+        ans:0
+      },
+      seiriQ:"ネコを撮影するコツにはどんなものがありますか。"
+    }
+  ],
+  grammar:{
+    term:"疑問詞+to-不定詞",
+    rule:"「どのように[何をなど]〜すればよいか」の意味を表します。",
+    patterns:[
+      {n:1, desc:"how+to+動詞の原形「どのように〜すればよいか，〜のやり方」",
+       ex:"I don't know <b>how to study</b>.",
+       jp:"私はどのように勉強すればよいか[勉強のやり方]がわかりません。"},
+      {n:2, desc:"what+to+動詞の原形「何を〜すればよいか」",
+       ex:"I don't know <b>what to study</b>.",
+       jp:"私は何を勉強すればよいかわかりません。"},
+      {n:3, desc:"when+to+動詞の原形「いつ〜すればよいか」",
+       ex:"I don't know <b>when to study</b>.",
+       jp:"私はいつ勉強すればよいかわかりません。"},
+      {n:4, desc:"where+to+動詞の原形「どこで[に]〜すればよいか」",
+       ex:"I don't know <b>where to study</b>.",
+       jp:"私はどこで勉強すればよいかわかりません。"}
+    ]
+  },
+  grammarEx:[
+    {n:1, instr:"日本文に合うように，（　）に適切な語を入れよう。", type:"bank",
+     items:[
+      {jp:"1) 先生は子どもたちにどこに座ればよいか伝えた。",
+       en:["The teacher told the children (", {i:0,ans:"where"}, ") (", {i:1,ans:"to"}, ") (", {i:2,ans:"sit"}, ")."]},
+      {jp:"2) 私はミーティングで何を言えばよいかがわからなかった。",
+       en:["I didn't know (", {i:0,ans:"what"}, ") (", {i:1,ans:"to"}, ") (", {i:2,ans:"say"}, ") at the meeting."]},
+      {jp:"3) このパソコンの使い方を教えていただけますか。",
+       en:["Will you show me (", {i:0,ans:"how"}, ") (", {i:1,ans:"to"}, ") (", {i:2,ans:"use"}, ") this PC?"]},
+      {jp:"4) いつここに来ればよいか，教えてください。",
+       en:["Please tell me (", {i:0,ans:"when"}, ") (", {i:1,ans:"to"}, ") (", {i:2,ans:"come"}, ") here."]}
+    ]},
+    {n:2, instr:"日本文に合うように，[ ]内の語句を正しい順に並べ替えて，全文を書こう。", type:"bank",
+     items:[
+      {jp:"1) メールに何を書けばよいかわからない。 I don't know [ to / what / write ] in an email.",
+       en:["I don't know (", {i:0,ans:"what"}, ") (", {i:1,ans:"to"}, ") (", {i:2,ans:"write"}, ") in an email."]},
+      {jp:"2) あなたは着物の着方を知っていますか。 Do you know [ wear / to / a kimono / how ]?",
+       en:["Do you know (", {i:0,ans:"how"}, ") (", {i:1,ans:"to"}, ") (", {i:2,ans:"wear"}, ") (", {i:3,ans:"a kimono"}, ")?"]}
+    ]}
+  ],
+  tryEx:{
+    instr:"アキとサムが夏休みについて話しています。（　）に当てはまる最も適切な語句をそれぞれ選びなさい。",
+    lines:[
+      {who:"Aki", parts:["I can't decide ",{choice:["where to go","what to do"], ans:0}," during the summer vacation."]},
+      {who:"Sam", parts:["How about taking a trip?"]},
+      {who:"Aki", parts:["Sounds good, but I can't decide ",{choice:["where to go","when to do"], ans:0}," then."]},
+      {who:"Sam", parts:["Hokkaido is always a good choice in summer."]}
+    ]
+  },
+  cloze:{
+    kyou:"教科書 p.18 / p.20",
+    instr:"空所を埋めて本文を完成させ，声に出して読もう。",
+    paragraphs:[
+      [
+        "When I was 32, I ",
+        {n:1, letter:"m", ans:"moved"},
+        " to Africa to photograph wildlife. At first, I didn't really understand how to take ",
+        {n:2, letter:"i", ans:"impressive"},
+        " pictures. Actually, I was just ",
+        {n:3, letter:"t", ans:"trying"},
+        " to take photos of dramatic scenes, like lions hunting."
+      ],
+      [
+        "One day, a giraffe was eating leaves from a tree. This is an ",
+        {n:4, letter:"o", ans:"ordinary"},
+        " scene in Africa. However, the scene caught my attention. Then I realized an important thing: ",
+        {n:5, letter:"S", ans:"See"},
+        " the world as it is, and shoot it."
+      ],
+      [
+        "I like cats, and photographing them is my ",
+        {n:1, letter:"l", ans:"lifework"},
+        ". Here are some tips for taking pictures of them. First, think about the ",
+        {n:2, letter:"a", ans:"angle"},
+        ". Lie down and place the camera at the level of the cat's eyes. This way, you can photograph the cats ",
+        {n:3, letter:"a", ans:"as"},
+        " they really are."
+      ],
+      [
+        "Second, the composition is ",
+        {n:4, letter:"e", ans:"essential"},
+        ". Don't just focus on the cats. Pay attention to the background and decide what to include in the picture. Look at the photo below. By ",
+        {n:5, letter:"i", ans:"including"},
+        " the cow, the cat looks more attractive."
+      ]
+    ]
+  }
+},
+
+/* ---------- Lessons 03-12: to be transcribed in follow-up turns ---------- */
+/* ================================= LESSON 03 ================================= */
+{
+  id:"L03", num:"03", en:"The Haka", jp:"ハカ",
+  parts:[
+    {
+      label:"①", kyou:"p.30",
+      honbun:[
+        {n:1, en:`Today <u>I</u> <b>would like to talk</b> about the haka.`, jp:`今日，私はハカについて話したいと思います。`},
+        {n:2, en:`<u>This</u> <b>is</b> a traditional dance performed by the Māori, the native people of New Zealand.`, jp:`これはニュージーランドの先住民族であるマオリ族によって踊られる伝統的な踊りです。`},
+        {n:3, en:`<u>Māori warriors</u> <b>did</b> the haka before a battle.`, jp:`マオリ族の戦士たちは戦闘の前にハカを踊りました。`},
+        {n:4, en:`During the performance, <u>they</u> <b>stomped</b> their feet and <b>slapped</b> their bodies violently.`, jp:`踊りの間，彼らは激しく足を踏み鳴らし，体を叩きました。`},
+        {n:5, en:`<u>They</u> <b>made</b> scary facial expressions too.`, jp:`彼らは怖い表情もつくりました。`},
+        {n:6, en:`<u>The dance</u> <b>gave</b> them courage and <b>scared</b> their enemies.`, jp:`その踊りは彼らに勇気を与え，敵を怖がらせました。`},
+        {n:7, en:`These days, <u>we</u> <b>can see</b> the haka in team sports.`, jp:`最近では，チームスポーツでハカを見ることができます。`},
+        {n:8, en:`<u>Players</u> <b>do</b> the dance before a game.`, jp:`選手たちは試合の前にその踊りを踊ります。`},
+        {n:9, en:`<u>They</u> <b>try to raise</b> their spirits through the performance.`, jp:`彼らはその演技を通して士気を高めようとします。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:2,w:"perform",ans:"〜を演じる"},{n:2,w:"native",ans:"先住の"},
+          {n:3,w:"warrior",ans:"戦士"},{n:3,w:"battle",ans:"戦闘"},
+          {n:4,w:"stomp",ans:"(足)を踏み鳴らす"},{n:4,w:"slap",ans:"〜をぴしゃりとたたく"},
+          {n:4,w:"violently",ans:"激しく"},{n:5,w:"scary",ans:"おそろしい"},
+          {n:5,w:"facial",ans:"顔の"},{n:5,w:"expression",ans:"表情"},
+          {n:6,w:"scare",ans:"〜を怖がらせる"},{n:6,w:"enemy",ans:"敵"}
+        ],
+        bank:["先住の","顔の","戦士","おそろしい","表情","〜を怖がらせる","戦闘","敵","〜をぴしゃりとたたく","激しく","〜を演じる","(足)を踏み鳴らす"]
+      }
+    },
+    {
+      label:"②", kyou:"p.32",
+      honbun:[
+        {n:10,en:`<u>The Māori</u> also <b>performed</b> the haka to entertain their guests.`, jp:`マオリ族は客をもてなすためにもハカを踊りました。`},
+        {n:11,en:`Nowadays, <u>the haka</u> <b>is seen</b> at birthday parties, weddings, and graduation ceremonies.`, jp:`今日では，ハカは誕生日パーティー，結婚式，卒業式典で見られます。`},
+        {n:12,en:`<u>We</u> <b>do</b> it in order to celebrate or to give thanks.`, jp:`私たちは祝うためや感謝を伝えるためにそれを行います。`},
+        {n:13,en:`<u>People watching it</u> <b>feel</b> as one.`, jp:`それを見ている人々は一体感を感じます。`},
+        {n:14,en:`In New Zealand, <u>many children</u> <b>learn</b> the haka in elementary school.`, jp:`ニュージーランドでは，多くの子どもたちが小学校でハカを学びます。`},
+        {n:15,en:`<u>I</u> really <b>loved</b> our haka class.`, jp:`私は自分たちのハカの授業がとても大好きでした。`},
+        {n:16,en:`<u>Some schools</u> even <b>have</b> their own "school haka."`, jp:`独自の「学校ハカ」を持つ学校さえあります。`},
+        {n:17,en:`<u>The haka</u> <b>is</b> very important to New Zealanders.`, jp:`ハカはニュージーランド人にとってとても大切なものです。`},
+        {n:18,en:`<u>It</u> <b>shows</b> our unity, pride, and respect.`, jp:`それは私たちの結束，誇り，そして敬意を表しています。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:10,w:"entertain",ans:"〜を楽しませる"},{n:10,w:"guest",ans:"客"},
+          {n:11,w:"nowadays",ans:"今日では"},{n:11,w:"wedding",ans:"結婚式"},
+          {n:11,w:"graduation",ans:"卒業"},{n:11,w:"ceremony",ans:"式典"},
+          {n:12,w:"celebrate",ans:"祝う"},{n:18,w:"unity",ans:"結束"},
+          {n:18,w:"pride",ans:"誇り"}
+        ],
+        bank:["誇り","今日では","卒業","客","式典","〜を楽しませる","結束","結婚式","祝う"]
+      }
+    }
+  ],
+  grammar:{
+      term:"分詞",
+      rule:"❶ 現在分詞(〜ing)は，「〜している[する]…」の意味で，❷ 過去分詞(〜edなど)は，「〜された…」の意味で，前後の名詞を説明します。",
+      subrule:"現在分詞，過去分詞が1語で名詞を説明するときは，名詞の前に置かれます。",
+      patterns:[
+        {n:1, desc:"現在分詞（〜ing）", ex:`The boy <b>singing</b> over there is my friend.`, jp:"あそこで歌っている少年は私の友だちだ。"},
+        {n:2, desc:"過去分詞（〜edなど）", ex:`This is the novel <b>written</b> by my aunt.`, jp:"これは私のおばによって書かれた小説だ。"},
+        {n:1, desc:"名詞の前（1語）", ex:`<b>flying</b> birds`, jp:"飛んでいる鳥"},
+        {n:2, desc:"名詞の前（1語）", ex:`a <b>broken</b> glass`, jp:"割れたコップ"},
+      ]
+    }
+},
+
+/* ================================= LESSON 04 ================================= */
+{
+  id:"L04", num:"04", en:"Digital Detox", jp:"デジタルデトックス",
+  parts:[
+    {
+      label:"①", kyou:"p.40",
+      honbun:[
+        {n:1, en:`<u>Many people</u> <b>use</b> digital devices such as smartphones and tablets every day.`, jp:`多くの人々がスマートフォンやタブレットのようなデジタル機器を毎日使っています。`},
+        {n:2, en:`<u>They</u> <b>are</b> very useful.`, jp:`それらはとても便利です。`},
+        {n:3, en:`However, <u>using them too much</u> <b>can harm</b> you physically and mentally.`, jp:`しかし，それらを使いすぎることはあなたを身体的にも精神的にも害する可能性があります。`},
+        {n:4, en:`For example, <u>your eyes</u> <b>get tired from</b> looking at a screen for a long time.`, jp:`例えば，長時間画面を見ることであなたの目は疲れます。`},
+        {n:5, en:`<u>You</u> <b>cannot sleep</b> well.`, jp:`あなたはよく眠れません。`},
+        {n:6, en:`In addition, <u>overusing digital devices</u> <b>puts</b> a lot of stress on your brain.`, jp:`さらに，デジタル機器を使いすぎることはあなたの脳に多くのストレスをかけます。`},
+        {n:7, en:`<u>You</u> <b>may have</b> memory problems or <b>become</b> too emotional.`, jp:`あなたは記憶の問題を抱えたり，感情的になりすぎたりするかもしれません。`},
+        {n:8, en:`These days, <u>some people</u> <b>stop</b> using digital devices for a certain period.`, jp:`最近，ある期間デジタル機器を使うのをやめる人もいます。`},
+        {n:9, en:`<u>This</u> <b>is called</b> a "digital detox."`, jp:`これは「デジタルデトックス」と呼ばれています。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1,w:"digital",ans:"デジタル(式)の"},{n:1,w:"device",ans:"機器"},
+          {n:1,w:"tablet",ans:"タブレット"},{n:3,w:"harm",ans:"〜を害する"},
+          {n:3,w:"physically",ans:"身体的に"},{n:3,w:"mentally",ans:"精神的に"},
+          {n:4,w:"screen",ans:"画面"},{n:6,w:"overuse",ans:"〜を使いすぎる"},
+          {n:6,w:"brain",ans:"脳"},{n:8,w:"certain",ans:"ある程度の"},
+          {n:9,w:"detox",ans:"デトックス"}
+        ],
+        bank:["機器","〜を使いすぎる","デトックス","〜を害する","脳","身体的に","デジタル(式)の","精神的に","タブレット","画面","ある程度の"]
+      }
+    },
+    {
+      label:"②", kyou:"p.42",
+      honbun:[
+        {n:10,en:`During a digital detox, <u>people</u> <b>spend</b> time without using their digital devices.`, jp:`デジタルデトックスの間，人々はデジタル機器を使わずに時間を過ごします。`},
+        {n:11,en:`<u>They</u> <b>put</b> them away and <b>read</b> books, or <b>talk</b> with friends and family.`, jp:`彼らはそれらを片付けて，本を読んだり，友人や家族と話したりします。`},
+        {n:12,en:`<u>Digital detox camps</u> <b>are becoming</b> popular too.`, jp:`デジタルデトックスキャンプも人気になりつつあります。`},
+        {n:13,en:`<u>One participant of a two-day camp</u> <b>said</b>, "At first, <u>I</u> <b>didn't know</b> if I could do without my smartphone.`, jp:`ある2日間のキャンプの参加者は言いました，「最初，スマートフォンなしでやっていけるかどうかわかりませんでした。`},
+        {n:14,en:`<u>I</u> <b>got</b> uneasy and irritated.`, jp:`私は不安になり，いらいらしました。`},
+        {n:15,en:`However, <u>I</u> gradually <b>relaxed</b>.`, jp:`しかし，私はだんだんとくつろぎました。`},
+        {n:16,en:`<u>I</u> <b>enjoyed</b> spending time outdoors with the other participants.`, jp:`私はほかの参加者たちと戸外で時間を過ごすのを楽しみました。`},
+        {n:17,en:`<u>I</u> <b>slept</b> well at night."`, jp:`夜はよく眠れました。」`},
+        {n:18,en:`If you feel addicted to your digital devices, why <b>don't</b> <u>you</u> <b>try</b> a digital detox?`, jp:`もしデジタル機器に依存していると感じるなら，デジタルデトックスを試してみてはどうでしょうか。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:13,w:"participant",ans:"参加者"},{n:14,w:"uneasy",ans:"不安な"},
+          {n:14,w:"irritated",ans:"いらいらした"},{n:15,w:"gradually",ans:"だんだんと"},
+          {n:15,w:"relax",ans:"くつろぐ"},{n:16,w:"outdoors",ans:"戸外で"},
+          {n:18,w:"addicted",ans:"依存している"}
+        ],
+        bank:["参加者","だんだんと","依存している","くつろぐ","不安な","戸外で","いらいらした"]
+      }
+    },
+    {
+      label:"③", kyou:"p.44",
+      honbun:[
+        {n:19,en:`Haruka: A digital detox <b>sounds</b> fascinating.`, jp:`ハルカ：デジタルデトックスは魅力的に聞こえます。`},
+        {n:20,en:`<u>I</u> <b>spend</b> a lot of time on social media every day.`, jp:`私は毎日ソーシャルメディアに多くの時間を費やしています。`},
+        {n:21,en:`<u>I</u> <b>wonder</b> why I can't stop checking my phone.`, jp:`なぜスマートフォンを確認するのをやめられないのか疑問に思います。`},
+        {n:22,en:`These days, <u>I</u> <b>feel</b> stressed.`, jp:`最近，私はストレスを感じています。`},
+        {n:23,en:`Maybe <u>it</u>'s time to try a digital detox.`, jp:`たぶんデジタルデトックスを試すときです。`},
+        {n:24,en:`Daiki: <u>I</u> <b>doubt</b> if a digital detox works.`, jp:`ダイキ：デジタルデトックスが効果があるかどうか疑問です。`},
+        {n:25,en:`<u>Nothing</u> <b>will change</b> if you disconnect from your digital devices for just a few days.`, jp:`ほんの数日デジタル機器から切断しても，何も変わりません。`},
+        {n:26,en:`<u>You</u> <b>may use</b> them even more after that.`, jp:`そのあと，あなたはそれらをさらに使うかもしれません。`},
+        {n:27,en:`<u>Digital devices</u> <b>are</b> a part of our lives.`, jp:`デジタル機器は私たちの生活の一部です。`},
+        {n:28,en:`<u>It</u>'s pointless to <b>limit</b> their use.`, jp:`その使用を制限するのは無意味です。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:19,w:"fascinating",ans:"魅力的な"},{n:20,w:"social",ans:"社交のための"},
+          {n:20,w:"media",ans:"情報伝達手段"},{n:22,w:"stressed",ans:"ストレスで疲れた"},
+          {n:24,w:"doubt",ans:"〜を疑う"},{n:25,w:"disconnect",ans:"(接続を)切る"},
+          {n:28,w:"pointless",ans:"無意味な"},{n:28,w:"limit",ans:"〜を制限する"}
+        ],
+        bank:["情報伝達手段","魅力的な","(接続を)切る","ストレスで疲れた","〜を疑う","社交のための","無意味な","〜を制限する"]
+      }
+    }
+  ],
+  grammar:{
+      term:"if節・疑問詞節",
+      rule:"文中で〈主語+動詞〉をもつまとまりを節といいます。ifと疑問詞を使って以下のような節を作ることができます。",
+      patterns:[
+        {n:1, desc:"if節：〈if+主語+動詞〉「〜かどうか」", ex:`I don't know <b>if</b> she likes Japanese food.`, jp:"彼女が日本食を好きかどうかわからない。"},
+        {n:2, desc:"if節", ex:`I wonder <b>if</b> they will come here.`, jp:"彼らはここに来るだろうか[来るかどうか考える]。"},
+        {n:3, desc:"疑問詞節：〈why(when/where etc)+主語+動詞〉「なぜ(いつ／どこで など)〜か」", ex:`Please tell me <b>why</b> you missed the bus.`, jp:"なぜバスに乗り遅れたのか教えてください。"},
+        {n:4, desc:"疑問詞節", ex:`I don't know <b>when</b> his birthday is.`, jp:"私は彼の誕生日がいつか知らない。"},
+        {n:5, desc:"疑問詞節", ex:`Mika asked me <b>where</b> I went yesterday.`, jp:"ミカはきのう私がどこへ行ったのか私に尋ねた。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 05 ================================= */
+{
+  id:"L05", num:"05", en:"Goal Setting", jp:"目標設定",
+  parts:[
+    {
+      label:"①", kyou:"p.54",
+      honbun:[
+        {n:1, en:`<b>Do</b> <u>you</u> <b>have</b> any goals?`, jp:`あなたは目標をもっていますか。`},
+        {n:2, en:`If you know a good way to set your goal, <u>you</u> <b>can achieve</b> it more easily.`, jp:`目標を設定するよい方法を知っていれば，より簡単に達成することができます。`},
+        {n:3, en:`<u>Otani Shohei</u> <b>set</b> a challenging goal when he was a high school student.`, jp:`大谷翔平は高校生のとき，やりがいのある目標を設定しました。`},
+        {n:4, en:`<u>It</u> <b>was</b> to become a professional baseball player.`, jp:`それはプロ野球選手になることでした。`},
+        {n:5, en:`Then <u>he</u> <b>thought of</b> what to do and <b>wrote</b> everything <b>down</b> on a chart.`, jp:`それから彼は何をすべきかを考え，すべてを表に書き留めました。`},
+        {n:6, en:`By doing this, <u>he</u> <b>could recognize</b> the necessary things for achieving his goal.`, jp:`これをすることによって，彼は目標を達成するために必要なことを認識できました。`},
+        {n:7, en:`<u>This</u> <b>is</b> one example of good goal setting.`, jp:`これはよい目標設定の一例です。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:2,w:"achieve",ans:"〜を達成する"},{n:3,w:"challenging",ans:"やりがいのある"},
+          {n:4,w:"professional",ans:"プロの"},{n:5,w:"chart",ans:"表"}
+        ],
+        bank:["〜を達成する","表","プロの","やりがいのある"]
+      }
+    },
+    {
+      label:"②", kyou:"p.56",
+      honbun:[
+        {n:8, en:`When you set a goal, <u>you</u> <b>should think</b> clearly about "what" and "when."`, jp:`目標を設定するときは，「何を」と「いつまでに」について明確に考えるべきです。`},
+        {n:9, en:`<b>Imagine</b> that you are a member of the school band.`, jp:`あなたが吹奏楽部の一員だと想像してください。`},
+        {n:10,en:`<u>Your goal</u> <b>may be</b> "to become an excellent flute player someday," but this <b>is not</b> clear enough.`, jp:`あなたの目標は「いつかすばらしいフルート奏者になる」かもしれませんが，これは十分に明確ではありません。`},
+        {n:11,en:`"To play a solo part in a concert in a year" or "to master a new tune by September" — these <b>seem to be</b> better goals because they specify "what" and "when."`, jp:`「1年以内にコンサートでソロパートを演奏する」または「9月までに新しい曲をマスターする」——これらは「何を」と「いつまでに」を明確に示しているので，より良い目標だといえます。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:10,w:"excellent",ans:"優れた"},{n:11,w:"flute",ans:"フルート"},
+          {n:11,w:"solo",ans:"ソロの"},{n:11,w:"master",ans:"〜をマスターする"},
+          {n:11,w:"tune",ans:"曲"},{n:11,w:"specify",ans:"〜を明確に示す"}
+        ],
+        bank:["ソロの","〜を明確に示す","フルート","曲","優れた","〜をマスターする"]
+      }
+    },
+    {
+      label:"③", kyou:"p.58",
+      honbun:[
+        {n:12,en:`<u>Another important point</u> <b>is</b> to plan "backward" from your future goal to the present.`, jp:`もう一つの重要な点は，将来の目標から現在へと「さかのぼって」計画することです。`},
+        {n:13,en:`<b>Let</b>'s say your goal is to become a baker.`, jp:`あなたの目標がパン職人になることだとしましょう。`},
+        {n:14,en:`As a step toward this goal, <u>you</u> <b>will have to learn</b> how to make bread in a bakery.`, jp:`この目標に向かうステップとして，あなたはパン屋でパンの作り方を学ばなければならないでしょう。`},
+        {n:15,en:`Now as a student, <u>you</u> <b>can visit</b> many bakeries and <b>find</b> the ideal place to work.`, jp:`学生である今，多くのパン屋を訪ねて，理想的な働き場所を見つけることができます。`},
+        {n:16,en:`In this way, <b>set</b> your final goal first, then <b>take</b> small steps backward.`, jp:`このようにして，まず最終目標を設定し，それから小さなステップをさかのぼってとりなさい。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:12,w:"backward",ans:"さかのぼって"},{n:12,w:"present",ans:"現在"},
+          {n:13,w:"baker",ans:"パン職人"},{n:14,w:"toward",ans:"〜に向けて"},
+          {n:14,w:"bakery",ans:"パン屋"},{n:15,w:"ideal",ans:"理想の"}
+        ],
+        bank:["現在","パン屋","さかのぼって","理想の","〜に向けて","パン職人"]
+      }
+    }
+  ],
+  grammar:{
+      term:"seem",
+      rule:"「〜のようだ，〜らしい」という意味で，話し手の印象や判断を表すときに使う表現です。〈主語+seem(s) to+動詞の原形〉と，〈It seems that+主語+動詞〉の形で使われます。",
+      patterns:[
+        {n:1, desc:"", ex:`Yumi <b>seems to</b> belong to the drama club.`, jp:"ユミは演劇部に入っているようだ。"},
+        {n:2, desc:"", ex:`<b>It seems that</b> Yumi belongs to the drama club.`, jp:"ユミは演劇部に入っているようだ。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 06 ================================= */
+{
+  id:"L06", num:"06", en:"The High School Hair Salon", jp:"高校生美容室",
+  parts:[
+    {
+      label:"① Kenta", kyou:"p.66",
+      honbun:[
+        {n:1, en:`<u>I</u> <b>visited</b> a hair salon three years ago.`, jp:`私は3年前に美容室を訪れました。`},
+        {n:2, en:`<u>It</u> <b>left</b> a big impression on me.`, jp:`それは私に強い印象を残しました。`},
+        {n:3, en:`<u>A hairdresser there</u> <b>changed</b> my hairstyle completely, like magic.`, jp:`そこの美容師が魔法のように私の髪型を完全に変えました。`},
+        {n:4, en:`<u>I</u> <b>loved</b> the new look, and <u>it</u> <b>gave</b> me confidence.`, jp:`私はその新しい見た目が大好きで，それは私に自信を与えてくれました。`},
+        {n:5, en:`<u>I</u> <b>wanted</b> other people to experience this, so <u>I</u> <b>decided to become</b> a hairdresser like him.`, jp:`私はほかの人々にもこれを体験してほしいと思い，彼のような美容師になることを決心しました。`},
+        {n:6, en:`<u>That</u>'s why <u>I</u> <b>joined</b> this club.`, jp:`だから私はこの部に入りました。`},
+        {n:7, en:`Here <u>we</u> <b>learn</b> how to shampoo, cut, perm, and color hair.`, jp:`ここで私たちはシャンプー，カット，パーマ，そしてカラーリングの仕方を学びます。`},
+        {n:8, en:`The other day, <u>we</u> <b>practiced</b> winding perm rods.`, jp:`先日，私たちはパーマ用ロッドを巻く練習をしました。`},
+        {n:9, en:`<u>My friend</u> <b>did</b> it better than I.`, jp:`私の友人は私よりもうまくやりました。`},
+        {n:10,en:`<u>He</u> <b>must have practiced</b> a lot.`, jp:`彼はたくさん練習したにちがいありません。`},
+        {n:11,en:`Now, <u>I</u> <b>work</b> harder than ever before.`, jp:`今，私は以前よりも一生懸命努力しています。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:2,w:"impression",ans:"印象"},{n:3,w:"hairdresser",ans:"美容師"},
+          {n:3,w:"hairstyle",ans:"髪型"},{n:3,w:"completely",ans:"完全に"},
+          {n:3,w:"magic",ans:"魔法"},{n:4,w:"confidence",ans:"自信"},
+          {n:7,w:"shampoo (動)",ans:"〜をシャンプーで洗う"},{n:7,w:"perm (動)",ans:"(髪)にパーマをかける"},
+          {n:8,w:"wind",ans:"〜を巻く"},{n:8,w:"perm (名)",ans:"パーマ"}
+        ],
+        bank:["美容師","自信","髪型","〜をシャンプーで洗う","魔法","(髪)にパーマをかける","完全に","〜を巻く","パーマ","印象"]
+      }
+    },
+    {
+      label:"② Yui", kyou:"p.68",
+      honbun:[
+        {n:12,en:`<u>Hairdressers</u> often <b>suffer from</b> dry hands, so <u>we</u> <b>decided to produce</b> a moisturizing gel.`, jp:`美容師はしばしば手が乾燥することに苦しむので，私たちは保湿ジェルを作ることに決めました。`},
+        {n:13,en:`<u>We</u> <b>found</b> local plants with skin-friendly ingredients.`, jp:`私たちは肌にやさしい成分を含む地元の植物を見つけました。`},
+        {n:14,en:`<u>We</u> <b>tried to use</b> all of them, but <u>some</u> <b>were</b> too expensive.`, jp:`私たちはそれらすべてを使おうとしましたが，いくつかは高すぎました。`},
+        {n:15,en:`<u>We</u> <b>wanted to offer</b> the gel at a reasonable price.`, jp:`私たちはそのジェルを手ごろな価格で提供したかったのです。`},
+        {n:16,en:`<u>It</u> <b>was</b> challenging to balance the quality and the cost.`, jp:`品質と費用を釣り合わせるのは難しいことでした。`},
+        {n:17,en:`At first, <u>I</u> <b>wanted to be</b> a hairdresser.`, jp:`最初，私は美容師になりたいと思っていました。`},
+        {n:18,en:`Now, <u>I</u>'m more <b>interested in</b> product development.`, jp:`今，私は製品開発により興味をもっています。`},
+        {n:19,en:`<u>I</u> <b>feel</b> great when people are happy with our gels, soaps, and shampoos.`, jp:`人々が私たちのジェル，せっけん，シャンプーで喜んでくれると気持ちが最高です。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:12,w:"dry",ans:"乾燥した"},{n:13,w:"ingredient",ans:"成分"},
+          {n:15,w:"offer",ans:"〜を提供する"},{n:15,w:"reasonable",ans:"手ごろな"},
+          {n:15,w:"price",ans:"値段"},{n:16,w:"balance",ans:"〜を釣り合わせる"},
+          {n:16,w:"cost",ans:"費用"},{n:18,w:"product",ans:"製品"},
+          {n:18,w:"development",ans:"開発"},{n:19,w:"soap",ans:"せっけん"},
+          {n:19,w:"shampoo (名)",ans:"シャンプー"}
+        ],
+        bank:["乾燥した","せっけん","手ごろな","〜を釣り合わせる","成分","開発","〜を提供する","製品","シャンプー","値段","費用"]
+      }
+    },
+    {
+      label:"③ Misaki", kyou:"p.70",
+      honbun:[
+        {n:20,en:`When <u>I</u> started working as an assistant, <u>I</u> just <b>listened to</b> the customers.`, jp:`アシスタントとして働き始めたとき，私はただお客さんの話を聞いていました。`},
+        {n:21,en:`Sometimes, <u>I</u> <b>didn't understand</b> what style they really wanted.`, jp:`ときどき，彼らが本当にどんなスタイルを望んでいるのかわかりませんでした。`},
+        {n:22,en:`<u>I</u> <b>should have communicated</b> with them more.`, jp:`もっと彼らと交流するべきでした。`},
+        {n:23,en:`These days, <u>I</u> <b>try to understand</b> the customers' needs by asking questions.`, jp:`最近では，質問することでお客さんのニーズを理解しようとしています。`},
+        {n:24,en:`<u>I</u> even <b>suggest</b> styles that may suit them.`, jp:`彼らに似合いそうなスタイルを提案することさえします。`},
+        {n:25,en:`<u>I</u>'m very happy when they like my suggestions.`, jp:`彼らが私の提案を気に入ってくれるととても嬉しいです。`},
+        {n:26,en:`<u>I</u> <b>used to think</b> that a hairdresser only needed to know how to cut, perm, or color hair.`, jp:`私は以前，美容師は髪をカット，パーマ，カラーリングする方法だけを知っていればよいと思っていました。`},
+        {n:27,en:`Through working at the salon, <u>I</u> <b>realized</b> that communication skills are also necessary.`, jp:`美容室で働くことを通して，コミュニケーションのスキルも必要だと気づきました。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:20,w:"assistant",ans:"アシスタント"},{n:22,w:"communicate",ans:"交流する"},
+          {n:24,w:"suggest",ans:"〜を提案する"},{n:24,w:"suit",ans:"〜に似合う"},
+          {n:25,w:"suggestion",ans:"提案"}
+        ],
+        bank:["アシスタント","〜を提案する","交流する","提案","〜に似合う"]
+      }
+    }
+  ],
+  grammar:{
+      term:"助動詞+have+過去分詞",
+      rule:"過去のことに対する推測や，過去の行動に対する後悔・非難を表すことができます。",
+      patterns:[
+        {n:1, desc:"must have+過去分詞「〜したにちがいない」", ex:`She <b>must have forgotten</b> her homework.`, jp:"彼女は宿題を忘れたにちがいない。"},
+        {n:2, desc:"may have+過去分詞「〜したかもしれない」", ex:`We <b>may have taken</b> the wrong way.`, jp:"私たちは道を間違えたのかもしれない。"},
+        {n:3, desc:"should have+過去分詞「〜すべきだったのに」", ex:`I <b>should have studied</b> math harder.`, jp:"もっと数学を一生懸命勉強するべきだったのに。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 07 ================================= */
+{
+  id:"L07", num:"07", en:"You Can Make a Difference", jp:"バリのレジ袋撤廃運動",
+  parts:[
+    {
+      label:"①", kyou:"p.78",
+      honbun:[
+        {n:1, en:`<u>Melati and Isabel</u> <b>are</b> sisters who live on Bali.`, jp:`メラティとイザベルはバリ島に住む姉妹です。`},
+        {n:2, en:`<u>The island</u> <b>has</b> beautiful beaches, and <u>it</u> <b>is called</b> a paradise on earth.`, jp:`その島には美しいビーチがあり，地上の楽園と呼ばれています。`},
+        {n:3, en:`However, when Melati was 12 and Isabel 10, <u>they</u> <b>realized</b> a surprising fact about their island:`, jp:`しかし，メラティが12歳，イザベルが10歳のとき，彼女たちは自分たちの島についての驚くべき事実に気づきました：`},
+        {n:0, en:`<u>It</u> <b>produced</b> 680 cubic meters of plastic garbage a day.`, jp:`それは1日あたり680立方メートルのプラスチックごみを出していたのです。`},
+        {n:4, en:`<u>Bali</u> <b>was turning into</b> an island of plastic garbage.`, jp:`バリはプラスチックごみの島に変わりつつありました。`},
+        {n:5, en:`<u>The sisters</u> <b>thought</b>, "We <b>have to do</b> something. What <b>can</b> <u>we</u> <b>do</b> right now?"`, jp:`姉妹は思いました，「何かをしなければならない。今すぐ何ができるだろう。」`},
+        {n:6, en:`<u>They</u> <b>discussed</b> it many times and <b>came up with</b> an idea — "<b>Say</b> NO to plastic bags!"`, jp:`彼女たちは何度もそれを議論し，あるアイデアを思いつきました——「レジ袋にノーと言おう！」`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:2,w:"paradise",ans:"楽園"},{n:3,w:"cubic",ans:"立方の"},
+          {n:6,w:"discuss",ans:"〜を議論する"}
+        ],
+        bank:["楽園","〜を議論する","立方の"]
+      }
+    },
+    {
+      label:"②", kyou:"p.80",
+      honbun:[
+        {n:7, en:`In 2013, <u>Melati and Isabel</u> <b>started</b> the "Bye Bye Plastic Bags" project.`, jp:`2013年，メラティとイザベルは「Bye Bye Plastic Bags」計画を始めました。`},
+        {n:8, en:`At that time, <u>people in Bali</u> <b>got</b> plastic bags at most shops.`, jp:`当時，バリの人々はほとんどの店でレジ袋をもらっていました。`},
+        {n:9, en:`<u>Many of them</u> <b>threw</b> the bags <b>away</b>.`, jp:`その多くの人がレジ袋を捨てていました。`},
+        {n:10,en:`<u>They</u> <b>got</b> another one when they went shopping again.`, jp:`彼らはまた買い物に行くと別のレジ袋をもらいました。`},
+        {n:11,en:`<u>The sisters</u> <b>talked</b> to their classmates about the project.`, jp:`姉妹は同級生たちにこの計画について話しました。`},
+        {n:12,en:`<u>They</u> <b>shared</b> their ideas through social media too.`, jp:`彼女たちはソーシャルメディアを通しても自分たちのアイデアを共有しました。`},
+        {n:13,en:`Before this, <u>most people in Bali</u> <b>had never thought</b> about the plastic bag problem.`, jp:`これまで，バリのほとんどの人はレジ袋の問題について考えたことがありませんでした。`},
+        {n:14,en:`Soon, however, <u>people throughout the island</u> <b>joined</b> the project.`, jp:`しかし，まもなく島中の人々がこの計画に参加しました。`},
+        {n:15,en:`<u>The project team</u> <b>made</b> original reusable bags, and <b>asked</b> people to use them.`, jp:`プロジェクトチームは独自の再利用可能な袋を作り，人々にそれらを使うよう頼みました。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:7,w:"project",ans:"計画"},{n:14,w:"throughout",ans:"〜の至る所に"},
+          {n:15,w:"original",ans:"独自の"},{n:15,w:"reusable",ans:"再利用可能な"}
+        ],
+        bank:["〜の至る所に","再利用可能な","独自の","計画"]
+      }
+    },
+    {
+      label:"③", kyou:"p.82",
+      honbun:[
+        {n:16,en:`<u>Melati and Isabel</u> <b>appealed</b> to the local government of Bali for support.`, jp:`メラティとイザベルはバリの地方政府に支援を求めました。`},
+        {n:17,en:`At first, <u>their attempts</u> <b>failed</b> but <u>they</u> <b>did not give up</b>.`, jp:`最初，彼女たちの試みは失敗しましたが，彼女たちは諦めませんでした。`},
+        {n:18,en:`<u>They</u> <b>began</b> a campaign to collect a million signatures of support.`, jp:`彼女たちは100万人の署名を集めるキャンペーンを始めました。`},
+        {n:19,en:`<u>They</u> even <b>started</b> a hunger strike.`, jp:`彼女たちはハンガーストライキさえ始めました。`},
+        {n:20,en:`Finally, <u>the governor</u> <b>promised to help out with</b> their movement.`, jp:`ついに，知事は彼女たちの運動を支援することを約束しました。`},
+        {n:21,en:`In 2019, <u>the Balinese government</u> <b>banned</b> the use of plastic bags.`, jp:`2019年，バリの政府はレジ袋の使用を禁止しました。`},
+        {n:22,en:`<u>The sisters</u> <b>say</b>, "<u>You</u> <b>don't have to wait</b> until you are older.`, jp:`姉妹は言います，「大人になるまで待つ必要はありません。`},
+        {n:23,en:`<u>You</u> <b>can make</b> a difference now."`, jp:`あなたは今，変化を起こすことができます。」`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:17,w:"attempt",ans:"試み"},{n:17,w:"fail",ans:"失敗する"},
+          {n:18,w:"campaign",ans:"キャンペーン"},{n:18,w:"signature",ans:"署名"},
+          {n:19,w:"strike",ans:"ストライキ"},{n:20,w:"promise",ans:"〜を約束する"},
+          {n:20,w:"governor",ans:"知事"},{n:20,w:"movement",ans:"運動"},
+          {n:21,w:"ban",ans:"〜を禁止する"}
+        ],
+        bank:["失敗する","署名","〜を約束する","知事","キャンペーン","運動","〜を禁止する","試み","ストライキ"]
+      }
+    }
+  ],
+  grammar:{
+      term:"過去完了形",
+      rule:"had+過去分詞で過去のある時点までの ❶〈経験〉，❷〈完了〉，❸〈継続〉を表します。過去完了形は現在完了形を過去にずらしたものと考えましょう。",
+      patterns:[
+        {n:1, desc:"現在完了〈経験〉との対比", ex:`He <b>has been to</b> Nagoya before.`, jp:"彼は以前名古屋に行ったことがあります。"},
+        {n:2, desc:"過去完了〈経験〉", ex:`He <b>had been to</b> Nagoya before he went there on a school trip.`, jp:"彼は修学旅行で行く前に，名古屋に行ったことがありました。"},
+        {n:3, desc:"「大過去」（過去より前の出来事）", ex:`My father told me that he <b>had heard</b> the news on the radio.`, jp:"父はラジオでそのニュースを聞いたと私に言いました。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 08 ================================= */
+{
+  id:"L08", num:"08", en:"Nudge", jp:"小さな工夫で人を動かす",
+  parts:[
+    {
+      label:"①", kyou:"p.92",
+      honbun:[
+        {n:1, en:`When you are in a store, <u>you</u> sometimes <b>see</b> footprint markers on the floor.`, jp:`店にいるとき，床に足跡の目印が見えることがあります。`},
+        {n:2, en:`<u>Nobody</u> <b>is telling</b> you to stand there, but <u>you</u> <b>do</b> it anyway and <b>wait</b> your turn at the register.`, jp:`誰もそこに立つように言っていませんが，あなたはとにかくそうしてレジで順番を待ちます。`},
+        {n:3, en:`<u>This</u> <b>is</b> an example of a "nudge."`, jp:`これは「ナッジ」の一例です。`},
+        {n:4, en:`<u>You</u> <b>are doing</b> what the store wants you to do.`, jp:`あなたは店があなたにしてほしいことをしているのです。`},
+        {n:5, en:`<u>A "nudge"</u> <b>encourages</b> you to make better decisions, but <b>does not limit</b> your freedom of choice.`, jp:`「ナッジ」はあなたがより良い決定をするよう促しますが，選択の自由を制限しません。`},
+        {n:6, en:`<u>You</u> <b>can find</b> "nudges" in various situations all around you.`, jp:`あなたはさまざまな状況で自分の周りに「ナッジ」を見つけることができます。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1,w:"footprint",ans:"足跡"},{n:1,w:"marker",ans:"目印"},
+          {n:2,w:"register",ans:"レジ"},{n:5,w:"encourage",ans:"〜を促す"},
+          {n:5,w:"decision",ans:"決定"},{n:5,w:"freedom",ans:"自由"}
+        ],
+        bank:["足跡","決定","レジ","自由","目印","〜を促す"]
+      }
+    },
+    {
+      label:"②", kyou:"p.94",
+      honbun:[
+        {n:7, en:`<b>Imagine</b> that you are a city government official.`, jp:`あなたが市役所の職員だと想像してください。`},
+        {n:8, en:`<u>You</u> <b>have to run</b> a campaign to save energy.`, jp:`あなたはエネルギーを節約するためのキャンペーンを行わなければなりません。`},
+        {n:9, en:`<u>You</u> <b>have</b> two ideas for a slogan.`, jp:`あなたには2つのスローガンのアイデアがあります。`},
+        {n:10,en:`<u>One</u> <b>is</b>, "If you take energy-saving measures, you can save up to 40,000 yen a year."`, jp:`1つ目は，「省エネ対策をとれば，1年につき4万円まで節約できます。」`},
+        {n:11,en:`<u>The other one</u> <b>is</b>, "If you don't take energy-saving measures, you may lose as much as 40,000 yen a year."`, jp:`もう1つは，「省エネ対策をとらなければ，1年につき4万円も失うかもしれません。」`},
+        {n:12,en:`<u>Most people</u> <b>will take</b> the second one more seriously and <b>start</b> using less energy.`, jp:`ほとんどの人は2つ目のほうを真剣に受け止め，より少ないエネルギーを使い始めるでしょう。`},
+        {n:13,en:`Basically, <u>people</u> <b>like to keep</b> what they have.`, jp:`基本的に，人々はもっているものを維持したいのです。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:7,w:"official",ans:"職員"},{n:9,w:"slogan",ans:"スローガン"},
+          {n:10,w:"energy-saving",ans:"省エネの"},{n:10,w:"measure",ans:"対策"},
+          {n:12,w:"seriously",ans:"真剣に"},{n:12,w:"less",ans:"より少ない"},
+          {n:13,w:"basically",ans:"基本的に"}
+        ],
+        bank:["スローガン","対策","真剣に","より少ない","基本的に","省エネの","職員"]
+      }
+    },
+    {
+      label:"③", kyou:"p.96",
+      honbun:[
+        {n:14,en:`<u>Another example of a "nudge"</u> <b>is</b> a "handwashing with soap" campaign in the UK.`, jp:`「ナッジ」のもう1つの例は，イギリスでの「せっけんでの手洗い」キャンペーンです。`},
+        {n:15,en:`<u>Everyone</u> <b>knew</b> that this was important, but <u>many</u> <b>did not do</b> it.`, jp:`誰もがそれが重要だと知っていましたが，多くの人がそれをしませんでした。`},
+        {n:16,en:`However, <u>a sign in a public toilet</u> <b>changed</b> the users' behavior.`, jp:`しかし，公共トイレのある掲示が利用者の行動を変えました。`},
+        {n:17,en:`<u>It</u> <b>said</b>, "<b>Is</b> the person next to you <b>using</b> soap?"`, jp:`それには「あなたのとなりの人はせっけんを使っていますか？」と書いてありました。`},
+        {n:18,en:`<u>The unwritten message</u> <b>was</b>, "<u>Others</u> <b>are looking at</b> you."`, jp:`書かれていないメッセージは，「ほかの人があなたを見ています」でした。`},
+        {n:19,en:`<u>This</u> <b>worked</b> well, and <u>more users</u> <b>began</b> washing their hands with soap.`, jp:`これはうまくいき，より多くの利用者がせっけんで手を洗い始めました。`},
+        {n:20,en:`As you see, <u>a "nudge"</u> <b>can encourage</b> people to improve their behavior.`, jp:`ご覧のとおり，「ナッジ」は人々が行動を改善するよう促すことができます。`},
+        {n:21,en:`<u>It</u> <b>can help</b> you find a simple solution to a problem around you.`, jp:`それはあなたの周りの問題に対する簡単な解決策を見つける助けとなります。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:14,w:"handwashing",ans:"手洗い"},{n:16,w:"toilet",ans:"トイレ"},
+          {n:16,w:"user",ans:"利用者"},{n:16,w:"behavior",ans:"行動"},
+          {n:18,w:"unwritten",ans:"書かれていない"},{n:21,w:"solution",ans:"解決策"}
+        ],
+        bank:["解決策","利用者","手洗い","トイレ","書かれていない","行動"]
+      }
+    }
+  ],
+  grammar:{
+      term:"関係代名詞 what",
+      rule:"the thing(s) that と同じ意味を表し，「〜するもの，〜すること」という意味になります。what S+V は，文全体の中で ❶ 目的語，❷ 補語，❸ 主語 の働きをします。",
+      patterns:[
+        {n:1, desc:"目的語", ex:`You can say <b>what</b> you like.`, jp:"君は好きなことを言えばよい。"},
+        {n:2, desc:"補語", ex:`This is <b>what</b> I want.`, jp:"これが私のほしいものだ。"},
+        {n:3, desc:"主語", ex:`<b>What</b> I need is time.`, jp:"私に必要なものは時間です。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 09 ================================= */
+{
+  id:"L09", num:"09", en:"The Father of Braille Blocks", jp:"点字ブロックの父",
+  parts:[
+    {
+      label:"①", kyou:"p.104",
+      honbun:[
+        {n:1, en:`<u>We</u> often <b>see</b> bumpy yellow lines on sidewalks and station platforms.`, jp:`私たちはよく歩道や駅のホームででこぼこした黄色い線を目にします。`},
+        {n:2, en:`<u>These lines</u> <b>guide</b> visually-impaired people.`, jp:`これらの線は視覚障がいのある人々を導きます。`},
+        {n:3, en:`<u>They</u> <b>are called</b> braille blocks.`, jp:`それらは点字ブロックと呼ばれています。`},
+        {n:4, en:`<u>They</u> <b>are seen</b> in many countries, but <u>the place where they first appeared</u> <b>was</b> Japan.`, jp:`それらは多くの国で見られますが，最初に現れた場所は日本でした。`},
+        {n:5, en:`<u>Miyake Seiichi</u>, an inventor in Okayama, <b>created</b> them in the 1960s.`, jp:`岡山の発明家である三宅精一が，1960年代にそれらを創り出しました。`},
+        {n:6, en:`One day, <u>he</u> <b>saw</b> a dangerous situation: A man with a white cane <b>was crossing</b> the road.`, jp:`ある日，彼は危険な状況を目にしました：白いつえを持つ男性が道を横断していたのです。`},
+        {n:7, en:`Suddenly <u>a car</u> <b>came by</b> and almost <b>hit</b> him.`, jp:`突然，車がやって来て彼にほとんど当たりそうになりました。`},
+        {n:8, en:`<u>Miyake</u> <b>was shocked</b>, and <b>wondered</b> if he could do something.`, jp:`三宅はショックを受け，何かできないかと考えました。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1,w:"bumpy",ans:"でこぼこの"},{n:1,w:"sidewalk",ans:"歩道"},
+          {n:1,w:"platform",ans:"ホーム"},{n:2,w:"visually-impaired",ans:"視覚障がいのある"},
+          {n:4,w:"appear",ans:"現れる"},{n:5,w:"inventor",ans:"発明家"},
+          {n:6,w:"cane",ans:"つえ"},{n:6,w:"cross",ans:"〜を横断する"},
+          {n:8,w:"shocked",ans:"ショックを受けた"}
+        ],
+        bank:["現れる","でこぼこの","歩道","つえ","視覚障がいのある","発明家","〜を横断する","ショックを受けた","ホーム"]
+      }
+    },
+    {
+      label:"②", kyou:"p.106",
+      honbun:[
+        {n:9, en:`<u>Miyake Seiichi</u> <b>had</b> a friend who was losing his sight.`, jp:`三宅精一には視力を失いつつある友人がいました。`},
+        {n:10,en:`One day <u>the friend</u> <b>said</b>, "<u>We</u> <b>can 'see'</b> the ground through our feet."`, jp:`ある日その友人は言いました，「私たちは足を通して地面を『見る』ことができる。」`},
+        {n:11,en:`<u>That</u> <b>was</b> the moment when Miyake got the idea of blocks with bumpy surfaces.`, jp:`それが三宅がでこぼこした表面のブロックのアイデアを思いついた瞬間でした。`},
+        {n:12,en:`<u>Miyake</u> <b>began to develop</b> blocks for visually-impaired people.`, jp:`三宅は視覚障がいのある人々のためのブロックを開発し始めました。`},
+        {n:13,en:`<u>His younger brother Saburo</u> <b>worked with</b> him and <b>drew</b> the blueprints for the blocks.`, jp:`彼の弟である三郎が彼と共に働き，ブロックの設計図を描きました。`},
+        {n:14,en:`In 1967, <u>the first braille blocks</u> <b>were installed</b> on a street in Okayama.`, jp:`1967年，最初の点字ブロックが岡山の通りに設置されました。`},
+        {n:15,en:`<u>It</u> <b>was</b> near a school for visually-impaired students.`, jp:`それは視覚障がいのある生徒のための学校の近くでした。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:9,w:"sight",ans:"視力"},{n:11,w:"moment",ans:"瞬間"},
+          {n:11,w:"surface",ans:"表面"},{n:12,w:"develop",ans:"〜を開発する"},
+          {n:13,w:"blueprint",ans:"設計図"},{n:14,w:"install",ans:"〜を設置する"}
+        ],
+        bank:["瞬間","〜を設置する","視力","〜を開発する","設計図","表面"]
+      }
+    },
+    {
+      label:"③", kyou:"p.108",
+      honbun:[
+        {n:16,en:`<u>Miyake</u> <b>wanted to install</b> braille blocks on streets all over Japan.`, jp:`三宅は日本中の通りに点字ブロックを設置したいと思っていました。`},
+        {n:17,en:`To increase public awareness, <u>he</u> <b>donated</b> his product to many cities and towns.`, jp:`世間の関心を高めるために，彼は自分の製品を多くの市や町に寄付しました。`},
+        {n:18,en:`At first <u>he</u> <b>got</b> no response, but <u>that</u> <b>did not stop</b> him.`, jp:`最初，彼には何の反応もありませんでしたが，それは彼を止めませんでした。`},
+        {n:19,en:`<u>He</u> <b>kept on telling</b> people the purpose of his blocks.`, jp:`彼は自分のブロックの目的を人々に伝え続けました。`},
+        {n:20,en:`<u>Miyake</u> <b>got</b> sick and <b>died</b> in 1982.`, jp:`三宅は病気になり，1982年に亡くなりました。`},
+        {n:21,en:`<u>His brother Saburo</u> <b>continued to work on</b> the project.`, jp:`彼の弟三郎はその計画に取り組み続けました。`},
+        {n:22,en:`<u>He</u> <b>improved</b> and <b>promoted</b> the blocks.`, jp:`彼はブロックを改善し，広めました。`},
+        {n:23,en:`In 2001, <u>their blocks</u> <b>became</b> the standard in Japan.`, jp:`2001年，彼らのブロックは日本の基準となりました。`},
+        {n:24,en:`Today, <u>they</u> <b>are used</b> globally.`, jp:`今日では，それらは世界的に使われています。`},
+        {n:25,en:`Thanks to the Miyake brothers, <u>the world</u> <b>is</b> a safer place.`, jp:`三宅兄弟のおかげで，世界はより安全な場所になっています。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:17,w:"awareness",ans:"関心"},{n:17,w:"donate",ans:"〜を寄付する"},
+          {n:18,w:"response",ans:"反応"},{n:22,w:"promote",ans:"〜を広める"},
+          {n:23,w:"standard",ans:"基準"},{n:24,w:"globally",ans:"世界的に"}
+        ],
+        bank:["関心","世界的に","反応","基準","〜を広める","〜を寄付する"]
+      }
+    }
+  ],
+  grammar:{
+      term:"関係副詞",
+      rule:"関係副詞は，直前の名詞とその名詞を説明する文をつなぐ働きをします。❶「場所」に関する名詞は where を使って，❷「時」に関する名詞は when を使って説明する文をつなぐことができます。",
+      patterns:[
+        {n:1, desc:"「場所」を表す関係副詞 where", ex:`This is the house <b>where</b> Nick lives.`, jp:"これはニックが住んでいる家だ。"},
+        {n:2, desc:"「時」を表す関係副詞 when", ex:`February is the month <b>when</b> we have a lot of snow.`, jp:"2月は雪の多い月だ。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 10 ================================= */
+{
+  id:"L10", num:"10", en:"Do We Need That?", jp:"そのサービスは必要ですか",
+  parts:[
+    {
+      label:"①", kyou:"p.116",
+      honbun:[
+        {n:1, en:`Matt: There <b>is</b> too much packaging in Japan.`, jp:`マット：日本には過剰包装が多すぎます。`},
+        {n:2, en:`The other day, <u>I</u> <b>bought</b> a box of cookies at a cake shop.`, jp:`先日，私はケーキ屋で1箱のクッキーを買いました。`},
+        {n:3, en:`<u>Each cookie</u> <b>was wrapped</b> in a plastic package.`, jp:`それぞれのクッキーがビニール包装されていました。`},
+        {n:4, en:`To my surprise, <u>the clerk</u> first <b>wrapped</b> the box in paper, then <b>put</b> the box in a paper bag!`, jp:`驚いたことに，店員はまず箱を包装紙で包み，それから箱を紙袋に入れました！`},
+        {n:5, en:`<u>Such over-wrapping</u> <b>is</b> a waste of labor and materials.`, jp:`このような過剰包装は労働と資材の無駄です。`},
+        {n:6, en:`Aisha: <u>I</u> <b>have</b> a different opinion.`, jp:`アイシャ：私は違う意見をもっています。`},
+        {n:7, en:`<u>I</u> <b>like</b> this service because it shows gratitude to the customers.`, jp:`このサービスはお客への感謝を示すので，私は好きです。`},
+        {n:8, en:`<u>Careful packaging</u> <b>is</b> an expression of Japanese warmth and consideration.`, jp:`丁寧な包装は日本の温かさと思いやりの表現です。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1,w:"packaging",ans:"包装(すること)"},{n:3,w:"package",ans:"包装"},
+          {n:4,w:"surprise",ans:"驚くべきこと"},{n:5,w:"labor",ans:"労働"},
+          {n:7,w:"service",ans:"サービス"},{n:7,w:"gratitude",ans:"感謝"},
+          {n:8,w:"warmth",ans:"(気持ちなどの)温かさ"},{n:8,w:"consideration",ans:"思いやり"}
+        ],
+        bank:["驚くべきこと","労働","(気持ちなどの)温かさ","思いやり","包装(すること)","包装","サービス","感謝"]
+      }
+    },
+    {
+      label:"②", kyou:"p.118",
+      honbun:[
+        {n:9, en:`Bella: <u>Japanese vending machines</u> <b>are</b> very convenient.`, jp:`ベラ：日本の自動販売機はとても便利です。`},
+        {n:10,en:`<u>We</u> <b>can get</b> a wide variety of drinks anytime, anywhere.`, jp:`私たちはいつでもどこでも多種多様な飲み物を手に入れることができます。`},
+        {n:11,en:`In addition, <u>vending machines in this country</u> <b>are</b> very advanced.`, jp:`さらに，この国の自動販売機は非常に進歩しています。`},
+        {n:12,en:`<u>The same machine</u> <b>can offer</b> both hot and cold drinks.`, jp:`同じ機械が温かい飲み物も冷たい飲み物も提供できます。`},
+        {n:13,en:`<u>I</u> <b>love</b> Japanese vending machines!`, jp:`私は日本の自動販売機が大好きです！`},
+        {n:14,en:`Wei: <u>I</u> <b>see</b> your point, but there <b>are</b> too many vending machines.`, jp:`ウェイ：あなたの言い分はわかりますが，自動販売機が多すぎます。`},
+        {n:15,en:`<u>They</u> <b>use</b> a lot of electricity.`, jp:`それらは多くの電気を使います。`},
+        {n:16,en:`There <b>is</b> <u>a garbage problem</u> too.`, jp:`ごみの問題もあります。`},
+        {n:17,en:`Sometimes <u>we</u> <b>see</b> empty cans and bottles around the machines.`, jp:`ときどき機械の周りに空の缶やボトルが見えます。`},
+        {n:18,en:`<u>They</u> <b>make</b> our town look dirty.`, jp:`それらは私たちの町を汚らしく見せます。`},
+        {n:19,en:`<b>Do</b> <u>we</u> really <b>need</b> a vending machine on every street?`, jp:`本当にすべての通りに自動販売機が必要でしょうか。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:9,w:"vending machine",ans:"自動販売機"},{n:10,w:"anytime",ans:"いつでも"},
+          {n:10,w:"anywhere",ans:"どこでも"},{n:17,w:"empty",ans:"からの"},
+          {n:18,w:"dirty",ans:"汚れた"}
+        ],
+        bank:["自動販売機","いつでも","汚れた","からの","どこでも"]
+      }
+    }
+  ],
+  grammar:{
+      term:"使役動詞 make / let / have",
+      rule:"人に何かをさせるとき，使役動詞 make / let / have を使います。あとには目的語にあたる「人」が入り，その人の行為は動詞の原形で表します。",
+      patterns:[
+        {n:1, desc:"make「（相手の意志にかかわらず）〜させる」", ex:`They <b>made</b> her wait for hours.`, jp:"彼らは彼女を何時間も待たせた。"},
+        {n:2, desc:"let「（許可を与えて）〜させてやる」", ex:`I <b>let</b> my sister use my video game.`, jp:"私は妹にテレビゲームを使わせてやった。"},
+        {n:3, desc:"have「（立場上当然のことを）〜してもらう，させる」", ex:`He <b>had</b> the dentist check his teeth.`, jp:"彼は歯医者に歯を検査してもらった。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 11 ================================= */
+{
+  id:"L11", num:"11", en:"The Vancouver Asahi", jp:"バンクーバー朝日",
+  parts:[
+    {
+      label:"①", kyou:"p.130",
+      honbun:[
+        {n:1, en:`<u>Japanese people</u> <b>began</b> moving to Canada in the 1870s.`, jp:`日本人は1870年代にカナダへ移住し始めました。`},
+        {n:2, en:`<u>They</u> <b>hoped</b> for a better future, but <u>their life in Canada</u> <b>was not</b> easy.`, jp:`彼らはよりよい未来を望みましたが，カナダでの彼らの生活は楽ではありませんでした。`},
+        {n:3, en:`<u>They</u> <b>had to work</b> long hard hours for low pay.`, jp:`彼らは低賃金で長時間の重労働をしなければなりませんでした。`},
+        {n:4, en:`During these hard times, <u>the biggest joy for many Japanese immigrants and their families</u> <b>was</b> baseball.`, jp:`このつらい時代の中で，多くの日本人移民とその家族にとっての最大の楽しみは野球でした。`},
+        {n:5, en:`<u>One Japanese-Canadian baseball team, the Vancouver Asahi,</u> <b>was founded</b> in 1914.`, jp:`日系カナダ人の一つの野球チーム，バンクーバー朝日は1914年に設立されました。`},
+        {n:6, en:`In the beginning, <u>the Asahi</u> <b>was</b> a weak team.`, jp:`最初，朝日は弱いチームでした。`},
+        {n:7, en:`<u>The players</u> <b>spent</b> day and night practicing and playing games.`, jp:`選手たちは昼も夜も練習や試合を行うことに費やしました。`},
+        {n:8, en:`Within a few years, <u>the Asahi</u> <b>became</b> the top Japanese-Canadian team.`, jp:`数年以内に，朝日は最高の日系カナダ人チームになりました。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:4,w:"immigrant",ans:"移民"},{n:5,w:"found",ans:"〜を設立する"},
+          {n:6,w:"beginning",ans:"最初"},{n:8,w:"within",ans:"〜以内に"}
+        ],
+        bank:["〜を設立する","〜以内に","最初","移民"]
+      }
+    },
+    {
+      label:"②", kyou:"p.132",
+      honbun:[
+        {n:9, en:`<u>The Asahi</u> <b>joined</b> an amateur league in 1918 and <b>played</b> games against white teams.`, jp:`朝日は1918年にアマチュアリーグに参加し，白人チームと試合をしました。`},
+        {n:10,en:`<u>The baseball fans</u> <b>watched</b> the Asahi play smart on the field.`, jp:`野球ファンは朝日がフィールドで賢くプレーするのを見ました。`},
+        {n:11,en:`<u>The players</u> <b>used</b> bunting and base-stealing to compete against the more powerful white players.`, jp:`選手たちはより力のある白人選手たちと競うためにバントや盗塁を使いました。`},
+        {n:12,en:`<u>Their playing style</u> <b>was called</b> "Brain Ball."`, jp:`彼らのプレースタイルは「ブレインボール」と呼ばれました。`},
+        {n:13,en:`<u>The Asahi</u> <b>did not play</b> dirty.`, jp:`朝日は汚いプレーをしませんでした。`},
+        {n:14,en:`<u>They</u> <b>did not fight back against</b> rough play.`, jp:`彼らは荒っぽいプレーに反撃しませんでした。`},
+        {n:15,en:`<u>They</u> never <b>protested</b> against unfair umpires.`, jp:`彼らは不公平な審判に決して抗議しませんでした。`},
+        {n:16,en:`<u>Their performance</u> gradually <b>earned</b> the respect of all the baseball fans.`, jp:`彼らのプレーはだんだんとすべての野球ファンからの尊敬を得ました。`},
+        {n:17,en:`<u>The Asahi</u> <b>won</b> the championship in 1926.`, jp:`朝日は1926年に優勝を勝ち取りました。`},
+        {n:18,en:`<u>Japanese-Canadians</u> <b>were</b> really proud of the team.`, jp:`日系カナダ人は本当にそのチームを誇りに思いました。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:9,w:"amateur",ans:"アマチュアの"},{n:9,w:"league",ans:"リーグ"},
+          {n:11,w:"compete",ans:"競争する"},{n:14,w:"rough",ans:"荒っぽい"},
+          {n:15,w:"protest",ans:"抗議する"},{n:15,w:"umpire",ans:"審判"},
+          {n:16,w:"earn",ans:"〜を得る"},{n:17,w:"championship",ans:"大会"},
+          {n:18,w:"proud",ans:"誇りに思う"}
+        ],
+        bank:["〜を得る","誇りに思う","アマチュアの","抗議する","競争する","荒っぽい","大会","審判","リーグ"]
+      }
+    },
+    {
+      label:"③", kyou:"p.134",
+      honbun:[
+        {n:19,en:`<u>The Pacific War</u> <b>started</b> in 1941, and <u>everything</u> <b>changed</b>.`, jp:`太平洋戦争が1941年に始まり，すべてが変わりました。`},
+        {n:20,en:`Suddenly <u>Japanese-Canadians</u> <b>became</b> enemies of Canada.`, jp:`突然，日系カナダ人はカナダの敵となりました。`},
+        {n:21,en:`<u>They</u> <b>lost</b> their property, and <u>many</u> <b>were sent</b> to camps.`, jp:`彼らは財産を失い，多くの人がキャンプに送られました。`},
+        {n:22,en:`<u>The Asahi</u> <b>suffered</b> the same fate.`, jp:`朝日も同じ運命に苦しみました。`},
+        {n:23,en:`<u>The team</u> no longer <b>existed</b>.`, jp:`そのチームはもはや存在しませんでした。`},
+        {n:24,en:`<u>Many years</u> <b>passed</b>, but <u>Canadian baseball fans</u> never <b>forgot</b> the Asahi.`, jp:`長い年月が過ぎましたが，カナダの野球ファンは決して朝日を忘れませんでした。`},
+        {n:25,en:`In 2003, <u>the team</u> <b>was inducted</b> into the Canadian Baseball Hall of Fame.`, jp:`2003年，そのチームはカナダ野球殿堂に就任させられました。`},
+        {n:26,en:`<u>Five former players</u> <b>attended</b> the ceremony.`, jp:`5人の元選手たちが式典に出席しました。`},
+        {n:27,en:`<u>They</u> <b>were</b> all over eighty.`, jp:`彼らは皆80歳を超えていました。`},
+        {n:28,en:`"The Vancouver Asahi!"`, jp:`「バンクーバー朝日！」`},
+        {n:29,en:`When they were called, <u>they</u> <b>saw</b> everyone standing and applauding.`, jp:`名前を呼ばれたとき，彼らは皆が立ち上がって拍手しているのを見ました。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:21,w:"property",ans:"財産"},{n:22,w:"fate",ans:"運命"},
+          {n:23,w:"exist",ans:"存在する"},{n:24,w:"Canadian",ans:"カナダ(人)の"},
+          {n:25,w:"induct",ans:"〜を就任させる"},{n:26,w:"former",ans:"かつての"},
+          {n:26,w:"attend",ans:"〜に出席する"},{n:29,w:"applaud",ans:"拍手する"}
+        ],
+        bank:["〜を就任させる","〜に出席する","かつての","財産","存在する","カナダ(人)の","拍手する","運命"]
+      }
+    }
+  ],
+  grammar:{
+      term:"知覚動詞",
+      rule:"何かを見たり聞いたり感じたりするときに使われる see, watch, hear, feel などの動詞を知覚動詞と呼びます。ほかに notice(〜に気がつく)，smell(〜のにおいがする)などがあります。〈主語+see[hear, feel, etc.]+目的語+❶動詞の原形／❷〜ing〉「SはOが❶〜する／❷〜している のを見る[聞く, 感じる, etc.]」",
+      patterns:[
+        {n:1, desc:"動作の一部始終（弾き終わるまで）を見た", ex:`I <b>saw</b> her <b>play</b> the piano.`, jp:"私は彼女がピアノを弾くのを見た。"},
+        {n:2, desc:"進行中の動作の一部（弾いている途中）を見た", ex:`I <b>saw</b> her <b>playing</b> the piano.`, jp:"私は彼女がピアノを弾いているのを見た。"},
+      ]
+    }
+},
+
+/* ================================= LESSON 12 ================================= */
+{
+  id:"L12", num:"12", en:"From Small Companies to the World", jp:"小さな会社から世界へ",
+  parts:[
+    {
+      label:"①", kyou:"p.142",
+      honbun:[
+        {n:1, en:`<u>Japanese companies</u> <b>are</b> famous for innovation.`, jp:`日本の会社は革新で有名です。`},
+        {n:2, en:`Not only big companies but also <u>small ones</u> <b>create</b> revolutionary products.`, jp:`大きな会社だけでなく，小さな会社も画期的な製品を作り出します。`},
+        {n:3, en:`<u>One factory in Chiba</u> <b>invented</b> "the thinnest medical needle in the world."`, jp:`千葉県のあるIS工場が「世界一細い医療用の針」を発明しました。`},
+        {n:4, en:`<u>Some blood vessels in our bodies</u> <b>are</b> very small.`, jp:`私たちの体の一部の血管はとても細いのです。`},
+        {n:5, en:`At the time, however, <u>the needles</u> <b>were</b> too thick.`, jp:`しかし当時，針は太すぎました。`},
+        {n:6, en:`As a result, <u>doctors</u> <b>could not perform</b> some surgeries.`, jp:`その結果，医者は一部の手術を行うことができませんでした。`},
+        {n:7, en:`<u>They</u> <b>thought</b>, "If we had a thinner needle, we could perform high-level microsurgery."`, jp:`彼らは思いました，「もっと細い針があれば，高度な顕微手術を行えるだろう。」`},
+        {n:8, en:`Now <u>they</u> <b>have</b> one.`, jp:`今，彼らはそれを持っています。`},
+        {n:9, en:`<u>The needle</u> <b>is</b> 0.03 mm in diameter, half the size of a hair.`, jp:`その針は直径0.03ミリで，髪の毛の半分の大きさです。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:1,w:"innovation",ans:"革新"},{n:2,w:"revolutionary",ans:"画期的な"},
+          {n:3,w:"factory",ans:"工場"},{n:3,w:"invent",ans:"〜を発明する"},
+          {n:3,w:"thin > thinnest",ans:"細い"},{n:3,w:"needle",ans:"針"},
+          {n:4,w:"blood vessel",ans:"血管"},{n:5,w:"thick",ans:"太い，厚い"},
+          {n:7,w:"high-level",ans:"高度な"},{n:9,w:"diameter",ans:"直径"}
+        ],
+        bank:["直径","太い，厚い","画期的な","高度な","革新","工場","血管","針","〜を発明する","細い"]
+      }
+    },
+    {
+      label:"②", kyou:"p.144",
+      honbun:[
+        {n:10,en:`<u>A factory in Kagawa</u> <b>created</b> the world's largest acrylic panels for aquarium water tanks.`, jp:`香川県のある工場が水族館の水槽用に世界最大のアクリルパネルを作りました。`},
+        {n:11,en:`<u>The panels</u> <b>need to be</b> clear enough for visitors to see the fish inside.`, jp:`パネルは訪問者が内側の魚を見るのに十分透明である必要があります。`},
+        {n:12,en:`At the same time, <u>they</u> <b>must be</b> thick enough to withstand high water pressure.`, jp:`同時に，高い水圧に耐えられるほど十分に厚くなければなりません。`},
+        {n:13,en:`Generally, <u>thicker panels</u> <b>are</b> less clear, but <u>the factory's special panels</u> <b>keep</b> both their clarity and thickness.`, jp:`一般的に，より厚いパネルはあまり透明ではありませんが，その工場の特別なパネルは透明さと厚みの両方を保っています。`},
+        {n:14,en:`Thanks to these panels, <u>aquariums</u> <b>can offer</b> panoramic views of fish in giant water tanks.`, jp:`これらのパネルのおかげで，水族館は巨大な水槽で全景が見渡せる魚の眺めを提供できます。`},
+        {n:15,en:`<u>The factory's acrylic panels</u> <b>are</b> now <b>used</b> in over 60 countries around the world.`, jp:`その工場のアクリルパネルは今，世界60か国以上で使われています。`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:12,w:"withstand",ans:"〜に耐える"},{n:12,w:"pressure",ans:"圧力"},
+          {n:13,w:"generally",ans:"一般的に"},{n:13,w:"clarity",ans:"透明さ"},
+          {n:13,w:"thickness",ans:"厚さ"},{n:14,w:"panoramic",ans:"全景が見渡せる"}
+        ],
+        bank:["一般的に","全景が見渡せる","厚さ","圧力","〜に耐える","透明さ"]
+      }
+    },
+    {
+      label:"③", kyou:"p.146",
+      honbun:[
+        {n:16,en:`As we have seen, <u>small companies</u> <b>can make</b> great products and <b>achieve</b> success.`, jp:`これまで見てきたように，小さな会社は素晴らしい製品を作り成功を収めることができます。`},
+        {n:17,en:`<u>The head of the needle factory</u> <b>says</b>, "The market for ultra-thin needles <b>was not</b> big, and <u>large companies</u> <b>didn't pay</b> much attention.`, jp:`針工場の代表は言います，「極細針の市場は大きくなく，大企業はあまり注意を払いませんでした。`},
+        {n:18,en:`Still, there <b>were</b> <u>people who needed them</u>.`, jp:`それでも，それを必要とする人々がいました。`},
+        {n:19,en:`So, <u>we</u> really <b>wanted to develop</b> this product."`, jp:`だから，私たちは本当にこの製品を開発したかったのです。」`},
+        {n:20,en:`<u>The president of the acrylic panels company</u> <b>says</b>, "<u>We</u> <b>are</b> a small company and <b>had</b> little chance of success in Japan.`, jp:`アクリルパネル会社の社長は言います，「私たちは小さな会社で，日本での成功の可能性はほとんどありませんでした。`},
+        {n:21,en:`So <u>we</u> <b>moved</b> into overseas markets and <b>got</b> many contracts.`, jp:`だから，私たちは海外市場に進出し，多くの契約を得ました。`},
+        {n:22,en:`If we had been afraid of taking risks, <u>we</u> <b>could not have achieved</b> today's success."`, jp:`もしリスクを負うことを恐れていたら，今日の成功を得ることはできなかったでしょう。」`}
+      ],
+      check1:{instr:"新出単語の意味を枠内から選び，[ ]に書き入れよう。",
+        words:[
+          {n:17,w:"market",ans:"市場"},{n:20,w:"president",ans:"社長"},
+          {n:21,w:"contract",ans:"契約"},{n:22,w:"risk",ans:"リスク"}
+        ],
+        bank:["市場","リスク","契約","社長"]
+      }
+    }
+  ],
+  grammar:{
+    term:"仮定法過去 / 仮定法過去完了",
+    rule:"仮定法過去：「現在の事実と違うことや実際に起こりそうにないこと」を仮定する表現で，〈If+S+動詞の過去形〜, S'+would[could, might]+動詞の原形…〉の形になります。／仮定法過去完了：「過去の事実と違うこと」を仮定する表現で，〈If+S+had+過去分詞〜, S'+would[could, might]+have+過去分詞…〉の形になります。",
+    patterns:[
+      {n:1, desc:"仮定法過去", ex:`<b>If</b> I <b>were [was]</b> you, I <b>would buy</b> a new car.`, jp:"もし私が君なら，新しい車を買うだろう。"},
+      {n:2, desc:"仮定法過去完了", ex:`<b>If</b> he <b>had come</b> early, he <b>could have seen</b> her.`, jp:"もし彼が早く来ていたら，彼女に会えたのに。"}
+    ]
+  }
+}
+]; /* end LESSONS */
+
+/* =========================================================================
+   STATE + TAB SYSTEM (dynamic per lesson)
+   ========================================================================= */
+const STATE = {
+  currentLesson: null,
+  currentTab: 0,
+  zoom: 1.0,
+  answers: {},
+  results: {}
+};
+
+// Build the tab list for a given lesson. Each content part gets 2 tabs
+// (text + vocab/content), then grammar, then cloze.
+function tabsFor(L){
+  const tabs = [];
+  if(L.pending) return tabs;
+  let idx = 1;
+  L.parts.forEach((p, i)=>{
+    const partSuf = L.parts.length>1 ? ` ${p.label}` : "";
+    tabs.push({kind:"text",  partIdx:i, label:`${romanChar(idx++)} 本文${partSuf}`});
+    tabs.push({kind:"vocab", partIdx:i, label:`${romanChar(idx++)} 単語・内容${partSuf}`});
+  });
+  if(L.grammar) tabs.push({kind:"grammar", label:`${romanChar(idx++)} 文法`});
+  if(L.cloze)   tabs.push({kind:"cloze",   label:`${romanChar(idx++)} 本文確認`});
+  return tabs;
+}
+function romanChar(n){
+  const chars = ["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫"];
+  return chars[n-1] || `(${n})`;
+}
+
+/* =========================================================================
+   RENDER: sidebar TOC
+   ========================================================================= */
+function renderTOC(){
+  const el = document.getElementById("toc");
+  el.innerHTML = LESSONS.map(L=>{
+    const enHtml = L.enItalic
+      ? `<span style="font-style:italic">${escapeHtml(L.en.split(" ")[0])}</span> ${escapeHtml(L.en.split(" ").slice(1).join(" "))}`
+      : escapeHtml(L.en);
+    return `<li><a href="#" data-id="${L.id}" onclick="pickLesson('${L.id}');return false">
+      <span class="num">${L.num}</span>
+      <span class="col">
+        <span class="title-en">${enHtml}</span>
+        <span class="title-jp">${escapeHtml(L.jp)}</span>
+      </span>
+    </a></li>`;
+  }).join("");
+}
+
+function pickLesson(id){
+  STATE.currentLesson = id;
+  STATE.currentTab = 0;
+  document.querySelectorAll("#toc a").forEach(a=>a.classList.toggle("active", a.dataset.id===id));
+  render();
+  if(window.innerWidth<=900) document.getElementById("sidebar").classList.remove("open");
+}
+
+/* =========================================================================
+   MAIN RENDER
+   ========================================================================= */
+function render(){
+  const L = LESSONS.find(x=>x.id===STATE.currentLesson);
+  const host = document.getElementById("pageHost");
+  const crumb = document.getElementById("crumb");
+  const tabsEl = document.getElementById("tabs");
+
+  if(!L){
+    crumb.innerHTML = "Lesson を選択してください";
+    tabsEl.innerHTML = "";
+    host.innerHTML = `
+      <div class="book" style="transform:scale(${STATE.zoom})">
+        <div class="page" data-foot="COMET II Basic Note" data-page="—">
+          <div style="text-align:center;padding:80px 20px;color:#8a7f60">
+            <div style="font-family:var(--font-jp);font-size:22px;color:#3a4a5c;margin-bottom:8px">左のメニューからレッスンを選んでください</div>
+            <div style="font-family:var(--font-en);font-size:14px">Select a lesson from the sidebar to begin.</div>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  crumb.innerHTML = `<b>Lesson ${L.num}</b> — ${L.enItalic?'<em>'+escapeHtml(L.en.split(" ")[0])+'</em> '+escapeHtml(L.en.split(" ").slice(1).join(" ")):escapeHtml(L.en)} &nbsp;·&nbsp; ${escapeHtml(L.jp)}`;
+
+  if(L.pending){
+    tabsEl.innerHTML = "";
+    host.innerHTML = `<div class="book" style="transform:scale(${STATE.zoom})">
+      <div class="page" data-foot="Lesson ${L.num}" data-page="—">
+        ${renderLessonHeader(L)}
+        <div style="background:#fff8e8;border:1px dashed #c8bfa8;border-radius:10px;padding:32px;text-align:center;color:#6a6152;margin-top:20px">
+          <div style="font-family:var(--font-jp);font-size:20px;margin-bottom:10px">このレッスンは準備中です。</div>
+          <div style="font-family:var(--font-en);font-size:13.5px;line-height:1.6">
+            This lesson is being transcribed sentence-by-sentence from the PDF<br>
+            (English + a composed Japanese translation for each numbered line)<br>
+            to guarantee accuracy of every Japanese character. Coming in the next update.
+          </div>
+          <div style="font-family:var(--font-jp-sans);font-size:12px;color:#8a7f60;margin-top:16px">教科書 ${escapeHtml(L.kyou)}</div>
+        </div>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const tabs = tabsFor(L);
+  if(STATE.currentTab >= tabs.length) STATE.currentTab = 0;
+
+  tabsEl.innerHTML = tabs.map((t,i)=>`
+    <button class="tab ${i===STATE.currentTab?'active':''}" onclick="setTab(${i})">
+      <span class="dot"></span>${escapeHtml(t.label)}
+    </button>
+  `).join("");
+
+  const tab = tabs[STATE.currentTab];
+  let body = "";
+  if(tab.kind==="text")         body = renderText(L, tab.partIdx);
+  else if(tab.kind==="vocab")   body = renderVocab(L, tab.partIdx);
+  else if(tab.kind==="grammar") body = renderGrammar(L);
+  else if(tab.kind==="cloze")   body = renderCloze(L);
+
+  host.innerHTML = `<div class="book" style="transform:scale(${STATE.zoom})">${body}</div>`;
+  wireInteractions();
+}
+
+function setTab(i){ STATE.currentTab = i; render(); window.scrollTo({top:0, behavior:"smooth"}); }
+
+/* =========================================================================
+   PAGE RENDERERS
+   ========================================================================= */
+
+function renderLessonHeader(L, part){
+  const enTitle = L.enItalic
+    ? `<em>${escapeHtml(L.en.split(" ")[0])}</em> ${escapeHtml(L.en.split(" ").slice(1).join(" "))}`
+    : escapeHtml(L.en);
+  const kyou = part && part.kyou ? part.kyou : (L.parts && L.parts[0] && L.parts[0].kyou) || "";
+  const partBadge = part && part.label ? ` <span class="part-badge">${escapeHtml(part.label)}</span>` : "";
+  return `
+  <div class="lesson-header">
+    <div class="lesson-badge">
+      <div class="lb1">Lesson</div>
+      <div class="lb2">${L.num}</div>
+    </div>
+    <div class="lesson-title">
+      <div class="en">${enTitle}</div>
+      <div><span class="kyoukasho">教科書 ${escapeHtml(kyou)}</span><span class="jp">${escapeHtml(L.jp)}${partBadge}</span></div>
+    </div>
+  </div>`;
+}
+
+/* ---- Text-only page (本文): translation exercise
+       Displays English sentences; click each row to reveal the Japanese translation. ---- */
+function renderText(L, idx){
+  const P = L.parts[idx];
+  const total = P.honbun.length;
+  return `
+  <div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L, idx*2)}">
+    ${renderLessonHeader(L, P)}
+    ${P.dateHead?`<div class="date-head">${escapeHtml(P.dateHead)}</div>`:""}
+
+    <div class="subsec">本文 — 和訳練習</div>
+
+    <ol class="honbun translate">
+      ${P.honbun.map((x,i)=>`
+        <li onclick="this.classList.toggle('revealed')">
+          <div class="row">
+            ${x.n>0?`<span class="n">${x.n}</span>`:`<span class="n" style="border:none;background:none"></span>`}
+            <span class="en-row">${x.en}</span>
+          </div>
+          <div class="jp-answer">${escapeHtml(x.jp)}</div>
+        </li>
+      `).join("")}
+    </ol>
+
+    <div class="translate-toolbar">
+      <span class="info">英文をクリックすると日本語訳が表示されます。まず自分で訳してから確認しましょう。</span>
+      <button onclick="revealAllTranslations()">すべての和訳を表示</button>
+      <button class="secondary" onclick="hideAllTranslations()">すべて隠す</button>
+      <button class="next-btn" onclick="nextTab()">次へ ›</button>
+    </div>
+  </div>`;
+}
+
+function revealAllTranslations(){
+  document.querySelectorAll(".honbun.translate li").forEach(li=>li.classList.add("revealed"));
+}
+function hideAllTranslations(){
+  document.querySelectorAll(".honbun.translate li").forEach(li=>li.classList.remove("revealed"));
+}
+
+/* ---- Vocab + Content page (単語・熟語 + 内容整理) ---- */
+function renderVocab(L, idx){
+  const P = L.parts[idx];
+  const pfx = `${L.id}.p${idx}`;
+  return `
+  <div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L, idx*2+1)}">
+    ${renderLessonHeader(L, P)}
+
+    <div class="section-bar"><span class="ico">✓</span>単語・熟語をチェック</div>
+
+    <div class="ex">
+      <div class="ex-instr"><span class="ex-num">1</span>${escapeHtml(P.check1.instr)}</div>
+      <ul class="ex-list">
+        ${P.check1.words.map((w,i)=>`
+          <li>
+            <span class="idx">${w.n}</span>
+            <span class="en" style="min-width:150px"><b>${escapeHtml(w.w)}</b></span>
+            <span>[ <input class="fillin" data-k="${pfx}.c1w.${i}" data-ans="${escapeHtml(w.ans)}"> ]${revealBtn(`${pfx}.c1w.${i}`)}</span>
+          </li>`).join("")}
+      </ul>
+      <div class="wordbank center">${P.check1.bank.map(b=>`<span>${escapeHtml(b)}</span>`).join(`<span class="sep">/</span>`)}</div>
+    </div>
+
+    ${P.check2?`<div class="ex">
+      <div class="ex-instr"><span class="ex-num">2</span>${escapeHtml(P.check2.instr)}</div>
+      <ul class="ex-list stack">
+        ${P.check2.items.map((it,ii)=>`
+          <li>
+            <div><span class="idx">${ii+1}.</span><span class="jp">${escapeHtml(it.jp)}</span>${it.ref?` <span style="color:#c94a3c">→ ${escapeHtml(it.ref)}</span>`:""}${revealBtn(`${pfx}.c2.${ii}`, true)}</div>
+            <div class="en">${renderParts(it.parts, `${pfx}.c2.${ii}`)}</div>
+          </li>`).join("")}
+      </ul>
+    </div>`:""}
+
+    <div class="section-bar"><span class="ico">▤</span>内容を整理しよう</div>
+
+    ${P.seiri1?`<div class="ex">
+      <div class="ex-instr"><span class="ex-num">1</span>${escapeHtml(P.seiri1.instr)}${revealBtn(`${pfx}.s1`, true)}</div>
+      ${renderSeiriGeneric(P.seiri1, `${pfx}.s1`)}
+    </div>`:""}
+
+    ${P.seiri2?`<div class="ex">
+      <div class="ex-instr"><span class="ex-num">2</span>${escapeHtml(P.seiri2.instr)}${revealBtn(`${pfx}.s2`, true)}</div>
+      ${renderSeiriGeneric(P.seiri2, `${pfx}.s2`)}
+    </div>`:""}
+
+    ${P.seiriQ?`<div class="ex">
+      <div style="font-family:var(--font-jp-sans);font-size:13.5px"><span class="diamond">◆</span>${escapeHtml(P.seiriQ)}</div>
+      <textarea style="width:100%;min-height:60px;margin-top:8px;border:1px solid #c8bfa8;border-radius:6px;padding:8px;font-family:var(--font-jp);font-size:14px" placeholder="自分の答えを書きましょう…" data-k="${pfx}.seiriQ"></textarea>
+    </div>`:""}
+
+    ${renderActions(L)}
+  </div>`;
+}
+
+/* Small "解答" button — reveals answer(s) for keys that start with the given prefix */
+function revealBtn(keyPrefix, groupPrefix){
+  return `<button class="reveal-btn" onclick="revealPrefix('${keyPrefix}',${groupPrefix?'true':'false'})" title="この問題の解答を表示">解答</button>`;
+}
+
+/* Generic seiri renderer — handles items[], fills[], choices[], truefalse[], parts[], multi[], qa[], table, matchbox, table2, table2col, multiparts */
+function renderSeiriGeneric(s, keyBase){
+  let out = "";
+  if(s.items){
+    out += `<ul class="ex-list stack">${s.items.map((it,ii)=>`
+      <li><span class="jp" style="font-weight:700">${escapeHtml(it.label||'')}</span>
+        <span class="jp" style="min-width:0">${it.jpTemplate.map((seg,si)=>{
+          if(seg.t) return escapeHtml(seg.t);
+          const key = `${keyBase}.${ii}.${si}`;
+          return `<span class="jp-choice" data-k="${key}" data-ans="${seg.ans}">${seg.choice.map((c,ci)=>`<button data-i="${ci}">${escapeHtml(c)}</button>`).join("")}</span>`;
+        }).join(" ")}</span>
+      </li>`).join("")}</ul>`;
+  }
+  if(s.fills){
+    out += `<div style="font-family:var(--font-jp);font-size:14px;line-height:2;background:#fff;border:1px solid #e2dcc8;border-radius:6px;padding:12px 16px">${
+      s.fills.map((f,fi)=>`${escapeHtml(f.pre)}<input class="fillin" style="min-width:110px" data-k="${keyBase}.f${fi}" data-ans="${escapeHtml(f.ans)}">${escapeHtml(f.post)}`).join("")
+    }</div>`;
+  }
+  if(s.choices){
+    out += `<div>${s.choices.map((c,i)=>`
+      <div style="padding:4px 0;font-family:var(--font-en);font-size:14.5px">
+        <label style="cursor:pointer">
+          <input type="radio" name="${keyBase}_r" data-k="${keyBase}.r" data-ans="${s.ans}" data-i="${i}">
+          ${escapeHtml(c)}
+        </label>
+      </div>`).join("")}</div>`;
+  }
+  if(s.truefalse){
+    out += `<ul class="ex-list stack">${s.truefalse.map((t,ti)=>`
+      <li>
+        <div class="en" style="width:100%">${escapeHtml(t.t)}
+          <span class="jp-choice" data-k="${keyBase}.tf.${ti}" data-ans="${t.ans==='○'?0:1}" style="margin-left:10px">
+            <button data-i="0">○</button><button data-i="1">×</button>
+          </span>
+        </div>
+      </li>`).join("")}</ul>`;
+  }
+  if(s.parts){
+    out += `<div style="font-family:var(--font-en);font-size:14.5px;background:#fff;border:1px solid #e2dcc8;border-radius:6px;padding:12px 16px;line-height:2">
+      ${renderParts(s.parts, `${keyBase}.p`)}
+    </div>`;
+  }
+  if(s.multi){
+    out += `<div style="background:#fff;border:1px solid #e2dcc8;border-radius:6px;padding:10px 14px">
+      ${s.multi.map((m,mi)=>`
+        <div style="padding:3px 0;font-family:var(--font-jp);font-size:13.5px">
+          <label style="cursor:pointer;display:flex;gap:8px;align-items:flex-start">
+            <input type="checkbox" data-k="${keyBase}.m.${mi}" data-ans="${m.correct?1:0}" style="margin-top:3px">
+            <span>${escapeHtml(m.label)}</span>
+          </label>
+        </div>`).join("")}
+    </div>`;
+  }
+  if(s.qa){
+    out += s.qa.map((q,qi)=>`
+      <div style="margin:8px 0;padding:8px 12px;background:#fff;border:1px solid #e2dcc8;border-radius:6px">
+        <div style="font-family:var(--font-jp-sans);font-size:13px;color:#3a4a5c;margin-bottom:6px">${escapeHtml(q.q)}</div>
+        ${q.parts?`<div style="font-family:var(--font-en);font-size:14px;line-height:2">${renderParts(q.parts, `${keyBase}.qa${qi}`)}</div>`:""}
+        ${q.multi?`<div>${q.multi.map((m,mi)=>`
+          <div style="padding:2px 0;font-family:var(--font-jp);font-size:13px">
+            <label style="cursor:pointer;display:flex;gap:8px;align-items:flex-start">
+              <input type="checkbox" data-k="${keyBase}.qa${qi}m${mi}" data-ans="${m.correct?1:0}" style="margin-top:3px">
+              <span>${escapeHtml(m.label)}</span>
+            </label>
+          </div>`).join("")}</div>`:""}
+      </div>`).join("");
+  }
+  if(s.table){
+    // Multi-check table (Picture A/B style)
+    out += `<div style="overflow-x:auto"><table class="ck-table">
+      <thead><tr><th></th>${s.table.headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${s.table.options.map((o,oi)=>`<tr>
+          <td>${escapeHtml(o.label)}</td>
+          ${s.table.headers.map(h=>`<td style="text-align:center">
+            <input type="checkbox" data-k="${keyBase}.t.${oi}.${h}" data-ans="${o.cols.includes(h)?1:0}">
+          </td>`).join("")}
+        </tr>`).join("")}
+      </tbody>
+    </table></div>`;
+  }
+  if(s.matchbox){
+    out += `<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+      <div style="flex:1;min-width:220px">
+        ${s.matchbox.items.map((it,ii)=>`
+          <div style="padding:6px 0;font-family:var(--font-en);font-size:14px">
+            ${escapeHtml(it.label)} (
+            <span class="choice" data-k="${keyBase}.mb.${ii}" data-ans="${['a','b','c','d','e'].indexOf(it.ans)}">
+              ${s.matchbox.options.map((o,oi)=>`<button data-i="${oi}">${escapeHtml(o.k)}</button>`).join("")}
+            </span>
+            )
+          </div>`).join("")}
+      </div>
+      <div style="border:1px solid #3a4a5c;padding:8px 12px;font-family:var(--font-en);font-size:13.5px;background:#fff;border-radius:6px">
+        ${s.matchbox.options.map(o=>`<div>${escapeHtml(o.k)}. ${escapeHtml(o.v)}</div>`).join("")}
+      </div>
+    </div>`;
+  }
+  if(s.multiparts){
+    out += `<ul class="ex-list stack">${s.multiparts.map((m,mi)=>`
+      <li>
+        <div class="en" style="width:100%"><span class="idx">${escapeHtml(m.label)}</span>${renderParts(m.parts, `${keyBase}.mp${mi}`)}</div>
+      </li>`).join("")}</ul>`;
+  }
+  if(s.table2){
+    out += `<table class="ck-table">
+      <tbody>
+        ${s.table2.rows.map((r,ri)=>`<tr>
+          <th style="text-align:left">${escapeHtml(r.h)}</th>
+          <td>${renderParts(r.parts, `${keyBase}.t2r${ri}`)}</td>
+        </tr>`).join("")}
+      </tbody>
+    </table>`;
+  }
+  if(s.table2col){
+    out += `<div>
+      ${s.table2col.options.map((o,oi)=>`<div style="padding:4px 0;font-family:var(--font-en);font-size:14px">
+        <b>${escapeHtml(o.k)}.</b> ${escapeHtml(o.v)}
+        <span class="choice" data-k="${keyBase}.t2c.${oi}" data-ans="${o.col}" style="margin-left:10px">
+          ${s.table2col.headers.map((h,hi)=>`<button data-i="${hi}">${escapeHtml(h)}</button>`).join("")}
+        </span>
+      </div>`).join("")}
+    </div>`;
+  }
+  return out;
+}
+
+/* ---- Grammar page ---- */
+function renderGrammar(L){
+  const G = L.grammar;
+  let gbox = `<div class="grammar-box">
+    <div class="gtitle"><span class="term">${escapeHtml(G.term)}</span>… ${escapeHtml(G.rule)}</div>`;
+  if(G.subrule) gbox += `<div style="text-align:right;font-family:var(--font-jp);font-size:11.5px;color:#6a6152;margin-top:2px">${escapeHtml(G.subrule)}</div>`;
+  if(G.tables){
+    gbox += G.tables.map(t=>{
+      if(t.left && t.right){
+        const leftCells = `
+          ${t.left.cols.map(c=>`<div class="h">${escapeHtml(c)}</div>`).join("")}
+          ${t.left.rows.map(r=>r.map(c=>`<div>${escapeHtml(c)}</div>`).join("")).join("")}
+        `;
+        const rightRows = t.right.map(r=>`
+          <div class="gt-r-h">${escapeHtml(r.h)}</div>
+          <div class="gt-r-b">${escapeHtml(r.body)}</div>
+        `).join("");
+        return `
+          <div class="gt-title">${escapeHtml(t.title)}</div>
+          <div class="gt-split">
+            <div class="gt-left" style="grid-template-columns:repeat(${t.left.cols.length},1fr)">${leftCells}</div>
+            <div class="gt-right">${rightRows}</div>
+          </div>`;
+      }
+      return "";
+    }).join("");
+  }
+  if(G.patterns){
+    gbox += G.patterns.map(p=>`
+      <div style="margin:12px 0 4px;display:flex;align-items:baseline;gap:10px">
+        <span class="patlabel">${p.n}</span>
+        <span class="patdesc">${escapeHtml(p.desc)}</span>
+      </div>
+      <div class="example">${p.ex} <span class="jp">${escapeHtml(p.jp)}</span></div>
+      ${p.ex2?`<div class="example">${p.ex2} <span class="jp">${escapeHtml(p.jp2)}</span></div>`:""}
+    `).join("");
+  }
+  gbox += `</div>`;
+
+  const exBlocks = (L.grammarEx || []).map(ex=>{
+    let mainInstr = ex.instr, sample = "";
+    const m = ex.instr.match(/^(.*?)（例）(.+)$/);
+    if(m){ mainInstr = m[1].trim(); sample = m[2].trim(); }
+
+    let body = `<ul class="ex-list stack">${ex.items.map((it,ii)=>`
+      <li>
+        ${it.jp?`<div><span class="idx">${ii+1})</span><span class="jp">${escapeHtml(it.jp)}</span>${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`:`<div style="text-align:right">${revealBtn(`${L.id}.g${ex.n}.${ii}`, true)}</div>`}
+        <div class="en">${renderParts(it.en, `${L.id}.g${ex.n}.${ii}`)}</div>
+      </li>`).join("")}</ul>`;
+    let bank = ex.bank?`<div class="wordbank center">[ ${ex.bank.join(" / ")} ]</div>`:"";
+    return `<div class="ex">
+      <div class="ex-instr"><span class="ex-num">${ex.n}</span>${escapeHtml(mainInstr)}</div>
+      ${sample?`<div class="sample-line"><span class="sample-tag">例</span>${escapeHtml(sample)}</div>`:""}
+      ${body}
+      ${bank}
+    </div>`;
+  }).join("");
+
+  let tryBlock = "";
+  if(L.tryEx){
+    const T = L.tryEx;
+    if(T.order){
+      tryBlock = `<div class="try">
+        <div><span class="try-tag">Try!</span></div>
+        <div class="try-instr">${escapeHtml(T.instr)}</div>
+        ${T.lines.map((ln,li)=>{
+          if(ln.tokens){
+            return `<div class="dial">
+              <span class="who">${escapeHtml(ln.who)}:</span>
+              ${escapeHtml(ln.prefix||"")}
+              <input class="fillin long" data-k="${L.id}.try.${li}" data-ans="${escapeHtml(ln.answer)}" placeholder="[ ${ln.tokens.join(" / ")} ]">
+              ${escapeHtml(ln.suffix||"")}
+              ${revealBtn(`${L.id}.try.${li}`)}
+            </div>`;
+          }
+          return `<div class="dial"><span class="who">${escapeHtml(ln.who)}:</span> ${escapeHtml(ln.parts.join(""))}</div>`;
+        }).join("")}
+      </div>`;
+    } else {
+      tryBlock = `<div class="try">
+        <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:260px">
+            <div><span class="try-tag">Try!</span></div>
+            <div class="try-instr">${escapeHtml(T.instr)}</div>
+            ${T.lines.map((ln,li)=>`
+              <div class="dial">
+                <span class="who">${escapeHtml(ln.who)}:</span>
+                ${renderParts(ln.parts, `${L.id}.try.${li}`)}
+                ${revealBtn(`${L.id}.try.${li}`, true)}
+              </div>`).join("")}
+          </div>
+          ${T.bank?`<div class="rightbank">${T.bank.map(b=>`<div>${escapeHtml(b)}</div>`).join("")}</div>`:""}
+        </div>
+      </div>`;
+    }
+  }
+
+  return `<div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L,'g')}">
+    ${renderLessonHeader(L)}
+    <div class="section-bar"><span class="ico">🔍</span>文法を確認しよう</div>
+    ${gbox}
+    ${exBlocks}
+    ${tryBlock}
+    ${(!L.grammarEx || L.grammarEx.length===0) ? `<div style="background:#fff8e8;border:1px dashed #c8bfa8;border-radius:8px;padding:16px;text-align:center;color:#6a6152;font-family:var(--font-jp-sans);font-size:13px;margin:10px 0">
+      文法練習問題（1・2・Try!）は次回更新で追加されます。<br>
+      <span style="font-size:11.5px;color:#8a7f60">Grammar practice exercises will be added in the next update.</span>
+    </div>`:""}
+    ${renderActions(L)}
+  </div>`;
+}
+
+/* ---- Cloze page ---- */
+function renderCloze(L){
+  const C = L.cloze;
+  const body = C.paragraphs.map((para)=>{
+    return `<p>${para.map(seg=>{
+      if(typeof seg==="string") return escapeHtml(seg);
+      if(seg.em) return `<em>${escapeHtml(seg.em)}</em>`;
+      if(seg.letter!=null){
+        return `<span class="cloze-num">${seg.n})</span><input class="fillin" data-k="${L.id}.cloze.${seg.n}" data-ans="${escapeHtml(seg.ans)}" placeholder="${seg.letter}…" style="min-width:130px">${revealBtn(`${L.id}.cloze.${seg.n}`)}`;
+      }
+      return "";
+    }).join("")}</p>`;
+  }).join("");
+
+  return `<div class="page" data-foot="Lesson ${L.num}" data-page="${pageLabel(L,'c')}">
+    ${renderLessonHeader(L)}
+    <div class="section-bar"><span class="ico">📖</span>本文を確認しよう</div>
+    <div style="font-family:var(--font-jp-sans);font-size:13.5px;margin:6px 0 10px">${escapeHtml(C.instr)}</div>
+    <div class="kyou-p">${escapeHtml(C.kyou)}</div>
+    <div class="cloze">${body}</div>
+    ${renderActions(L)}
+  </div>`;
+}
+
+/* =========================================================================
+   PARTS RENDERER — turns [strings, {choice}, {i,ans}, {em}, {br}] into inline inputs
+   ========================================================================= */
+function renderParts(parts, keyBase){
+  let inputIdx = 0, choiceIdx = 0;
+  return parts.map(p=>{
+    if(typeof p==="string") return escapeHtml(p);
+    if(p.em) return `<em>${escapeHtml(p.em)}</em>`;
+    if(p.br) return `<br>`;
+    if(p.choice){
+      const key = `${keyBase}.c${choiceIdx++}`;
+      return `<span class="choice" data-k="${key}" data-ans="${p.ans}">${p.choice.map((c,ci)=>`<button data-i="${ci}">${escapeHtml(c)}</button>`).join("")}</span>`;
+    }
+    const key = `${keyBase}.i${inputIdx++}`;
+    return `<input class="fillin" data-k="${key}" data-ans="${escapeHtml(p.ans)}">`;
+  }).join("");
+}
+
+/* =========================================================================
+   INTERACTIONS
+   ========================================================================= */
+function wireInteractions(){
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const k = el.dataset.k;
+    const saved = STATE.answers[k];
+    if(saved==null) return;
+    if(el.tagName==="INPUT" && el.type==="checkbox"){
+      el.checked = !!saved;
+    } else if(el.tagName==="INPUT" && el.type!=="radio"){
+      el.value = saved;
+    } else if(el.tagName==="TEXTAREA"){
+      el.value = saved;
+    } else if(el.classList.contains("choice") || el.classList.contains("jp-choice")){
+      el.querySelectorAll("button").forEach(b=>b.classList.toggle("picked", +b.dataset.i===+saved));
+    } else if(el.type==="radio"){
+      if(+el.dataset.i===+saved) el.checked = true;
+    }
+    if(STATE.results[k]==="correct" && el.tagName==="INPUT" && el.type!=="radio" && el.type!=="checkbox") el.classList.add("correct");
+    if(STATE.results[k]==="wrong"   && el.tagName==="INPUT" && el.type!=="radio" && el.type!=="checkbox") el.classList.add("wrong");
+  });
+
+  document.querySelectorAll("input.fillin, textarea").forEach(el=>{
+    el.addEventListener("input", ()=>{
+      const k = el.dataset.k;
+      STATE.answers[k] = el.value;
+      el.classList.remove("correct","wrong");
+      delete STATE.results[k];
+    });
+  });
+
+  document.querySelectorAll("input[type=checkbox][data-k]").forEach(el=>{
+    el.addEventListener("change", ()=>{
+      STATE.answers[el.dataset.k] = el.checked ? 1 : 0;
+      delete STATE.results[el.dataset.k];
+    });
+  });
+
+  document.querySelectorAll(".choice, .jp-choice").forEach(el=>{
+    el.querySelectorAll("button").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const idx = +b.dataset.i;
+        const k = el.dataset.k;
+        STATE.answers[k] = idx;
+        el.querySelectorAll("button").forEach(bb=>bb.classList.remove("picked","correct","wrong"));
+        b.classList.add("picked");
+        delete STATE.results[k];
+      });
+    });
+  });
+
+  document.querySelectorAll('input[type=radio][data-k]').forEach(r=>{
+    r.addEventListener("change", ()=>{
+      STATE.answers[r.dataset.k] = +r.dataset.i;
+    });
+  });
+}
+
+function checkAnswers(){
+  let total=0, ok=0;
+  const seenRadio = {};
+  document.querySelectorAll("[data-ans]").forEach(el=>{
+    const k = el.dataset.k;
+    const expected = el.dataset.ans;
+
+    if(el.type==="radio"){
+      // count once per radio group
+      if(seenRadio[k]) return;
+      seenRadio[k] = true;
+      total++;
+      const got = STATE.answers[k];
+      const correct = String(got)===expected;
+      if(correct) ok++;
+      STATE.results[k] = correct?"correct":"wrong";
+      return;
+    }
+    if(el.type==="checkbox"){
+      total++;
+      const got = STATE.answers[k]||0;
+      const correct = String(got)===expected;
+      el.style.outline = correct?"2px solid #2f8f4f":"2px solid #c94a3c";
+      if(correct) ok++;
+      STATE.results[k] = correct?"correct":"wrong";
+      return;
+    }
+    total++;
+    const got = STATE.answers[k];
+    let correct = false;
+    if(el.tagName==="INPUT"){
+      correct = ansMatches(got||"", expected);
+      el.classList.remove("correct","wrong");
+      el.classList.add(correct?"correct":"wrong");
+    } else if(el.classList.contains("choice") || el.classList.contains("jp-choice")){
+      correct = String(got) === expected;
+      el.querySelectorAll("button").forEach(b=>{
+        b.classList.remove("correct","wrong");
+        if(b.classList.contains("picked")) b.classList.add(correct?"correct":"wrong");
+      });
+    }
+    STATE.results[k] = correct?"correct":"wrong";
+    if(correct) ok++;
+  });
+  const status = document.querySelector(".status");
+  if(status){
+    status.classList.remove("good","bad");
+    status.classList.add(ok===total?"good":"bad");
+    status.textContent = ok===total ? `全問正解！ ${ok} / ${total}` : `${ok} / ${total} 正解`;
+  }
+  if(ok===total && total>0){
+    const t = document.querySelectorAll(".tab")[STATE.currentTab];
+    if(t) t.classList.add("done");
+  }
+}
+
+function clearAnswers(){
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const k = el.dataset.k;
+    delete STATE.answers[k];
+    delete STATE.results[k];
+    if(el.type==="checkbox"){ el.checked=false; el.style.outline=""; }
+    else if(el.tagName==="INPUT" && el.type!=="radio"){ el.value=""; el.classList.remove("correct","wrong"); }
+    else if(el.tagName==="TEXTAREA"){ el.value=""; }
+    else if(el.type==="radio"){ el.checked=false; }
+    else if(el.classList.contains("choice") || el.classList.contains("jp-choice")){
+      el.querySelectorAll("button").forEach(b=>b.classList.remove("picked","correct","wrong"));
+    }
+  });
+  const status = document.querySelector(".status");
+  if(status){ status.textContent=""; status.classList.remove("good","bad"); }
+}
+
+/* Reveal answers for any data-k that starts with the given prefix (or matches exactly if groupPrefix=false) */
+function revealPrefix(prefix, groupPrefix){
+  const test = el => {
+    const k = el.dataset.k;
+    if(!k) return false;
+    return groupPrefix ? (k===prefix || k.startsWith(prefix+".")) : k===prefix;
+  };
+  document.querySelectorAll("input.fillin[data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    el.value = el.dataset.ans;
+    el.classList.remove("wrong"); el.classList.add("correct");
+    STATE.answers[el.dataset.k] = el.dataset.ans;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll(".choice[data-ans], .jp-choice[data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    const idx = +el.dataset.ans;
+    el.querySelectorAll("button").forEach(b=>b.classList.remove("picked","correct","wrong"));
+    const b = el.querySelector(`button[data-i="${idx}"]`);
+    if(b){ b.classList.add("picked","correct"); }
+    STATE.answers[el.dataset.k] = idx;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll("input[type=checkbox][data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    const want = el.dataset.ans==="1";
+    el.checked = want;
+    el.style.outline = "2px solid #2f8f4f";
+    STATE.answers[el.dataset.k] = want?1:0;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll("input[type=radio][data-ans]").forEach(el=>{
+    if(!test(el)) return;
+    if(String(el.dataset.i) === String(el.dataset.ans)){
+      el.checked = true;
+      STATE.answers[el.dataset.k] = +el.dataset.i;
+      STATE.results[el.dataset.k] = "correct";
+    }
+  });
+}
+
+function showAnswers(){
+  document.querySelectorAll("input.fillin[data-ans]").forEach(el=>{
+    el.value = el.dataset.ans;
+    el.classList.remove("wrong"); el.classList.add("correct");
+    STATE.answers[el.dataset.k] = el.dataset.ans;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll(".choice[data-ans], .jp-choice[data-ans]").forEach(el=>{
+    const idx = +el.dataset.ans;
+    el.querySelectorAll("button").forEach(b=>b.classList.remove("picked","correct","wrong"));
+    const b = el.querySelector(`button[data-i="${idx}"]`);
+    if(b){ b.classList.add("picked","correct"); }
+    STATE.answers[el.dataset.k] = idx;
+    STATE.results[el.dataset.k] = "correct";
+  });
+  document.querySelectorAll("input[type=checkbox][data-ans]").forEach(el=>{
+    const want = el.dataset.ans==="1";
+    el.checked = want;
+    el.style.outline = "2px solid #2f8f4f";
+    STATE.answers[el.dataset.k] = want?1:0;
+    STATE.results[el.dataset.k] = "correct";
+  });
+}
+
+function nextTab(){
+  const L = LESSONS.find(x=>x.id===STATE.currentLesson);
+  if(!L) return;
+  const tabs = tabsFor(L);
+  if(STATE.currentTab < tabs.length-1){ setTab(STATE.currentTab+1); }
+  else {
+    const idx = LESSONS.findIndex(l=>l.id===STATE.currentLesson);
+    if(idx>=0 && idx<LESSONS.length-1){ pickLesson(LESSONS[idx+1].id); }
+  }
+}
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+function renderActions(L){
+  return `<div class="actions">
+    <button class="btn" onclick="checkAnswers()">答え合わせ</button>
+    <button class="btn secondary" onclick="clearAnswers()">クリア</button>
+    <button class="btn secondary" onclick="showAnswers()">解答を表示</button>
+    <button class="btn warn" onclick="nextTab()">次へ ›</button>
+    <div class="status"></div>
+  </div>`;
+}
+function pageLabel(L, ident){
+  // Rough page ranges from the PDF
+  const bases = {"01":2,"02":6,"03":10,"04":14,"05":20,"06":26,"07":32,"08":38,"09":44,"10":54};
+  const b = bases[L.num];
+  if(!b) return "—";
+  if(typeof ident==="number") return `${b + ident*2}〜${b + ident*2 + 1}`;
+  if(ident==="g"){
+    // grammar page — after all content parts
+    const off = L.parts.length*2;
+    return `${b+off}`;
+  }
+  if(ident==="c"){
+    const off = L.parts.length*2+1;
+    return `${b+off}`;
+  }
+  return "—";
+}
+function normalize(s){
+  return String(s).trim().toLowerCase()
+    .replace(/[。、，．,\.\?!]/g," ")
+    .replace(/[’‘`´]/g,"'")
+    .replace(/[“”]/g,'"')
+    .replace(/\s+/g," ")
+    .replace(/\s*'\s*/g,"'")
+    .trim();
+}
+function ansMatches(got, expected){
+  const g = normalize(got), e = normalize(expected);
+  if(g === e) return true;
+  if(g.replace(/'/g,"") === e.replace(/'/g,"")) return true;
+  return false;
+}
+function escapeHtml(s){
+  return String(s==null?"":s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+/* =========================================================================
+   SIDEBAR TOGGLE
+   ========================================================================= */
+function toggleSidebar(){
+  const app = document.getElementById("app");
+  if(window.innerWidth<=900){
+    // mobile: use existing off-canvas .open behavior
+    document.getElementById("sidebar").classList.toggle("open");
+  } else {
+    app.classList.toggle("side-collapsed");
+  }
+}
+
+/* =========================================================================
+   ZOOM
+   ========================================================================= */
+function zoom(delta, reset){
+  if(reset) STATE.zoom = 1.0;
+  else STATE.zoom = Math.max(0.6, Math.min(1.5, STATE.zoom + delta));
+  document.getElementById("zoomLabel").textContent = Math.round(STATE.zoom*100)+"%";
+  const book = document.querySelector(".book");
+  if(book) book.style.transform = `scale(${STATE.zoom})`;
+}
+
+/* =========================================================================
+   BOOT
+   ========================================================================= */
+document.addEventListener("DOMContentLoaded", ()=>{
+  renderTOC();
+  render();
+  document.addEventListener("keydown", (e)=>{
+    if(e.target.tagName==="INPUT" || e.target.tagName==="TEXTAREA") return;
+    if(e.key==="ArrowRight") nextTab();
+    if(e.key==="ArrowLeft" && STATE.currentTab>0){ setTab(STATE.currentTab-1); }
+  });
+});
+</script>
+
+<style>
+/* Additional styles for new elements */
+.date-head{
+  font-family:var(--font-en);font-weight:700;font-size:15px;color:#1a2733;
+  border-bottom:1px solid #b8ad8f;padding-bottom:4px;margin:0 0 14px;
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;
+}
+.part-badge{
+  display:inline-block;background:#c94a3c;color:#fff;font-family:var(--font-en);
+  font-weight:700;font-size:12px;padding:2px 10px;border-radius:999px;margin-left:8px;
+}
+.ck-table{
+  border-collapse:collapse;width:100%;margin:8px 0;background:#fff;
+  font-family:var(--font-en);font-size:13.5px;
+}
+.ck-table th, .ck-table td{
+  border:1px solid #c8bfa8;padding:6px 10px;
+}
+.ck-table th{
+  background:#f0ede4;font-family:var(--font-jp-sans);font-size:12px;font-weight:700;
+}
+</style>
+</body>
+</html>
