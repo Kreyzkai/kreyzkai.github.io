@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -201,11 +200,28 @@ mark.evidence-hl{background:#fef08a;color:#854d0e;font-weight:700;text-decoratio
 body.sidebar-collapsed #sidebar{display:none}
 body.sidebar-collapsed #sidebar-toggle-open{display:flex}
 
+/* Content zoom */
+#main{zoom:var(--zoom,1)}
+body.zoom-1{--zoom:.8}
+body.zoom-2{--zoom:.9}
+body.zoom-3{--zoom:1}
+body.zoom-4{--zoom:1.15}
+body.zoom-5{--zoom:1.3}
+#zoom-controls{position:fixed;top:14px;right:14px;z-index:1000;display:flex;gap:6px;background:rgba(255,255,255,.9);padding:4px;border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+#zoom-controls button{width:30px;height:30px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:16px;font-weight:bold;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#zoom-controls button:hover{opacity:.9}
+#zoom-controls button:disabled{opacity:.4;cursor:not-allowed}
+
 </style>
 </head>
 <body>
 
 <button id="sidebar-toggle-open" onclick="toggleSidebar(false)" title="サイドバーを開く">☰</button>
+
+<div id="zoom-controls">
+  <button id="zoom-out" onclick="zoomOut()" title="縮小">−</button>
+  <button id="zoom-in" onclick="zoomIn()" title="拡大">+</button>
+</div>
 
 <div id="sidebar">
   <div id="sidebar-header">
@@ -235,6 +251,32 @@ function toggleSidebar(collapse){
       document.body.classList.add('sidebar-collapsed');
     }
   }catch(e){}
+})();
+
+// ======================= ZOOM CONTROLS =======================
+var ZOOM_LEVELS = [0.8, 0.9, 1, 1.15, 1.3];
+var zoomIndex = 2; // default = 100%
+function applyZoom(){
+  document.body.classList.remove('zoom-1','zoom-2','zoom-3','zoom-4','zoom-5');
+  document.body.classList.add('zoom-' + (zoomIndex + 1));
+  document.getElementById('zoom-out').disabled = (zoomIndex === 0);
+  document.getElementById('zoom-in').disabled = (zoomIndex === ZOOM_LEVELS.length - 1);
+  try{ localStorage.setItem('wl_zoom_index', zoomIndex); }catch(e){}
+}
+function zoomIn(){
+  if(zoomIndex < ZOOM_LEVELS.length - 1){ zoomIndex++; applyZoom(); }
+}
+function zoomOut(){
+  if(zoomIndex > 0){ zoomIndex--; applyZoom(); }
+}
+(function(){
+  try{
+    var saved = localStorage.getItem('wl_zoom_index');
+    if(saved !== null && ZOOM_LEVELS[parseInt(saved,10)] !== undefined){
+      zoomIndex = parseInt(saved, 10);
+    }
+  }catch(e){}
+  applyZoom();
 })();
 
 // ======================= UNIT DATA =======================
