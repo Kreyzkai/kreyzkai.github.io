@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -191,12 +192,24 @@ body{background:linear-gradient(135deg,#eaf4ff 0%,#f8fafc 42%,#eefdf7 100%);colo
 mark.evidence-hl{background:#fef08a;color:#854d0e;font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;padding:0 2px;border-radius:3px;box-shadow:inset 0 -2px 0 rgba(234,179,8,.45)}
 .comprehension-q.answered .explanation{display:block}
 
+/* Collapsible sidebar */
+#sidebar-header{position:relative}
+#sidebar-toggle-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#sidebar-toggle-close:hover{background:rgba(255,255,255,.32)}
+#sidebar-toggle-open{position:fixed;top:14px;left:14px;z-index:1000;width:34px;height:34px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:15px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+#sidebar-toggle-open:hover{opacity:.9}
+body.sidebar-collapsed #sidebar{display:none}
+body.sidebar-collapsed #sidebar-toggle-open{display:flex}
+
 </style>
 </head>
 <body>
 
+<button id="sidebar-toggle-open" onclick="toggleSidebar(false)" title="サイドバーを開く">☰</button>
+
 <div id="sidebar">
   <div id="sidebar-header">
+    <button id="sidebar-toggle-close" onclick="toggleSidebar(true)" title="サイドバーを閉じる">✕</button>
     <h1>Let's Write!</h1>
     <p>Learn English — From Sentence to Paragraph<br>Kadoyama &amp; Hawthorne (Seibido)</p>
   </div>
@@ -211,6 +224,19 @@ mark.evidence-hl{background:#fef08a;color:#854d0e;font-weight:700;text-decoratio
 </div>
 
 <script>
+// ======================= SIDEBAR TOGGLE =======================
+function toggleSidebar(collapse){
+  document.body.classList.toggle('sidebar-collapsed', collapse);
+  try{ localStorage.setItem('wl_sidebar_collapsed', collapse ? '1' : '0'); }catch(e){}
+}
+(function(){
+  try{
+    if(localStorage.getItem('wl_sidebar_collapsed') === '1'){
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }catch(e){}
+})();
+
 // ======================= UNIT DATA =======================
 const UNITS = [
 // ===================== UNIT 01 =====================
