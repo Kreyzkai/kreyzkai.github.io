@@ -200,8 +200,8 @@ mark.evidence-hl{background:#fef08a;color:#854d0e;font-weight:700;text-decoratio
 body.sidebar-collapsed #sidebar{display:none}
 body.sidebar-collapsed #sidebar-toggle-open{display:flex}
 
-/* Content zoom */
-#main{zoom:var(--zoom,1)}
+/* Content zoom (header & tabs stay fixed size so they don't eat into lesson space) */
+#content{zoom:var(--zoom,1)}
 body.zoom-1{--zoom:.8}
 body.zoom-2{--zoom:.9}
 body.zoom-3{--zoom:1}
