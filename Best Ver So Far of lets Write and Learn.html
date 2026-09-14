@@ -804,7 +804,7 @@ const UNITS = [
     words:[
       {w:"drive",jp:"（自動車を）運転する、ドライブ（に行く）",opt:"g"},
       {w:"invite",jp:"招待する",opt:"e"},
-      {w:"oversleep",jp:"寝過ごす",opt:"c"},
+      {w:"oversleep",jp:"寝過ごす",opt:"j"},
       {w:"afraid",jp:"怖がって",opt:"h"},
       {w:"delicious",jp:"とてもおいしい",opt:"i"},
       {w:"housework",jp:"家事",opt:"a"},
@@ -814,9 +814,9 @@ const UNITS = [
       {w:"clothes",jp:"洋服",opt:"b"}
     ],
     options:[
-      "a. 家事","b. 洋服","c. 寝過ごす","d. 洗濯（すること）",
+      "a. 家事","b. 洋服","c. 夜遅くまで起きている","d. 洗濯（すること）",
       "e. 招待する","f. のんびりする、くつろぐ","g. （自動車を）運転する、ドライブ（に行く）",
-      "h. 怖がって","i. とてもおいしい","j. 夜遅くまで起きている"
+      "h. 怖がって","i. とてもおいしい","j. 寝過ごす"
     ],
     beat:"ビートに乗って1〜10の語句を発音してみましょう。"
   },
@@ -931,7 +931,7 @@ const UNITS = [
     instr:"ヒロミが書いた次のパッセージを読み、その内容について1〜3の質問に答えましょう。",
     cd:"10",
     passageTitle:"My weekend",
-    passage:"I had a wonderful weekend. Last Saturday, I went for a drive with some good old friends from junior high school. I got a driver's license last month, so I invited them to join me. I really enjoyed driving along the coast, but they said that they were a little afraid. Maybe I drove too fast! We stopped at the beach and had a barbecue there. Everything was delicious, and we talked about a lot of things, such as our new school life and clubs. I really enjoyed spending time with them, and we plan to drive to Lake Biwa next month. I usually get up at six, but I slept in until 11 last Sunday.",
+    passage:"I had a wonderful weekend. Last Saturday, I went for a drive with some good old friends from junior high school. I got a driver's license last month, so I invited them to join me. I really enjoyed driving along the coast, but they said that they were a little afraid. Maybe I drove too fast! We stopped at the beach and had a barbecue there. Everything was delicious, and we talked about a lot of things, such as our new school life and clubs. I really enjoyed spending time with them, and we plan to drive to Lake Biwa next month.",
     notes:"[Notes] such as ...：例えば〜など　　Lake Biwa：琵琶湖　　*sleep in：遅くまで寝ている",
     questions:[
       {q:"1. What did Hiromi do last month?",
@@ -1057,12 +1057,12 @@ UNITS.push({
   vocab:{
     instr:"1〜10の語句の意味を a〜j から選びましょう。",
     words:[
-      {w:"various",jp:"様々な",opt:"c"},{w:"used to",jp:"以前は〜だった",opt:"j"},{w:"tutor",jp:"家庭教師",opt:"f"},
-      {w:"manager",jp:"経営者、管理者",opt:"a"},{w:"look for",jp:"〜を探す",opt:"d"},{w:"server",jp:"給仕人、給仕係",opt:"b"},
-      {w:"waiter",jp:"（レストランの）給仕",opt:"—"},{w:"work part-time",jp:"アルバイトをする",opt:"e"},
-      {w:"customer",jp:"お客さん",opt:"i"},{w:"shift",jp:"交代勤務時間",opt:"h"}
+      {w:"various",jp:"様々な",opt:"c"},{w:"used to",jp:"〜に慣れて",opt:"f"},{w:"tutor",jp:"家庭教師",opt:"j"},
+      {w:"manager",jp:"経営者、管理者",opt:"a"},{w:"look for",jp:"〜を探す",opt:"d"},{w:"friendly",jp:"優しい、親切な",opt:"i"},
+      {w:"part-time job",jp:"アルバイト",opt:"e"},{w:"server",jp:"給仕人、給仕係",opt:"b"},
+      {w:"work part-time",jp:"アルバイトをする",opt:"g"},{w:"shift",jp:"交代勤務時間",opt:"h"}
     ],
-    options:["a. 経営者、管理者","b. 給仕人、給仕係","c. 様々な","d. 〜を探す","e. アルバイトをする","f. 家庭教師","g. —","h. 交代勤務時間","i. お客さん","j. 以前は〜だった"],
+    options:["a. 経営者、管理者","b. 給仕人、給仕係","c. 様々な","d. 〜を探す","e. アルバイト","f. 〜に慣れて","g. アルバイトをする","h. 交代勤務時間","i. 優しい、親切な","j. 家庭教師"],
     beat:"ビートに乗って発音しましょう。"
   },
   grammar:{
@@ -1090,26 +1090,25 @@ UNITS.push({
   },
   grammarEx:{
     title:"Grammar A・B・C",badge:"文法に強くなろう！",
-    A:{instr:"適切な動詞の形を選びましょう。",example:{text:"例）",ans:""},
+    A:{instr:"例にならい、（　）内に適切な語（句）を適切な形で書き入れましょう。",example:{text:"Turn down the television. We ( are studying ) now.",ans:"are studying"},
       items:[
-        {num:"1.",text:"I (",blank:"am working",after:") part-time at a restaurant now.",ans:"am working"},
-        {num:"2.",text:"Look! Aya (",blank:"is serving",after:") customers over there.",ans:"is serving"},
-        {num:"3.",text:"When I entered the room, they (",blank:"were talking",after:") about the new manager.",ans:"were talking"},
-        {num:"4.",text:"I (",blank:"am meeting",after:") my boss after work today.",ans:"am meeting"}
+        {num:"1.",text:"Are you OK? Are you (",blank:"feeling",after:") sick or something?",ans:"feeling"},
+        {num:"2.",text:"Hiromi (",blank:"works",after:") as a server twice a week. She likes her work.",ans:"works"},
+        {num:"3.",text:"I (",blank:"was teaching",after:") English to a high school student when you called me.",ans:"was teaching"},
+        {num:"4.",text:"“Do you (",blank:"enjoy",after:") your part-time job?” “Yes, it’s great.”",ans:"enjoy"}
       ]},
-    B:{instr:"適切な形に変えましょう。",example:{text:"",ans:""},
+    B:{instr:"例にならい、各文を（　）の指示に従って進行形に書き換えましょう。",example:{text:"Hiromi works at a restaurant. → Hiromi is working at a restaurant.",ans:"is working"},
       items:[
-        {num:"1.",text:"I usually work from 6 to 10, but today I _____________ until 11.",verb:"(work)",ans:"am working"},
-        {num:"2.",text:"She _____________ for a new part-time job now.",verb:"(look)",ans:"is looking"},
-        {num:"3.",text:"When he called me, I _____________ on my homework.",verb:"(work)",ans:"was working"},
-        {num:"4.",text:"Don't disturb her. She _____________ a break.",verb:"(take)",ans:"is taking"}
+        {num:"1.",text:"Aya doesn't look for a part-time job. → Aya _____________ for a part-time job.",verb:"(現在進行形に)",ans:"isn't looking"},
+        {num:"2.",text:"Hiromi had difficulty finding a new job. → Hiromi _____________ difficulty finding a new job.",verb:"(現在進行形に)",ans:"is having"},
+        {num:"3.",text:"What do you save money for? → What _____________ money for?",verb:"(現在進行形に)",ans:"are you saving"},
+        {num:"4.",text:"Did Rob work as a private tutor? → _____________ as a private tutor?",verb:"(過去進行形に)",ans:"Was Rob working"}
       ]},
-    C:{instr:"並べ替えましょう。",
+    C:{instr:"例にならい、（　）内の語（句）を並べ替えて文を完成させましょう。",
       items:[
-        {num:"1.",jp:"私は今レストランで働いています。",words:"( at / I'm / restaurant / a / working ).",ans:"I'm working at a restaurant"},
-        {num:"2.",jp:"電話した時、何をしていましたか？",words:"( doing / when / you / called / were / I / what )?",ans:"What were you doing when I called"},
-        {num:"3.",jp:"両親が明日京都から来ます。",words:"( tomorrow / parents / Kyoto / coming / from / are / my ).",ans:"My parents are coming from Kyoto tomorrow"},
-        {num:"4.",jp:"彼女は今宿題をしているところです。",words:"( doing / now / she / her / is / homework ).",ans:"She is doing her homework now"}
+        {num:"1.",jp:"私はホテルで週2回働いています。",words:"( at / twice / I / work / working / a hotel )",after:" a week.",ans:"I work at a hotel twice"},
+        {num:"2.",jp:"あなたは今、アルバイトを探しているところですか？",words:"( looking / a / are / do / for / you )",after:" part-time job?",ans:"Are you looking for a"},
+        {num:"3.",jp:"あなたが電話をかけた時、私は仕事中でした。",words:"( working / I / called / you / was / did / when )",after:" me.",ans:"I was working when you called"}
       ]}
   },
   step1:{title:"Let's Write! Step 1",badge:"センテンスを書く練習をしよう！",instr:"日本文を英語にしましょう。",cd:"",items:[
@@ -1141,8 +1140,8 @@ UNITS.push({
     notes:"[Notes] get off：（仕事から）解放される",
     questions:[
       {q:"1. Hiromi started working ______.",options:[{text:"(A) last week",correct:false},{text:"(B) near her house",correct:false},{text:"(C) as a server",correct:true}],evidence:"I work as a server",explain:"「I work as a server」とあるので(C)が正解。"},
-      {q:"2. How many hours a week does Hiromi work?",options:[{text:"(A) 8 hours",correct:false},{text:"(B) 40 hours",correct:false},{text:"(C) 12 hours",correct:true}],explain:"3晩×4時間＝12時間なので(C)が正解。"},
-      {q:"3. Hiromi says that the job ______.",options:[{text:"(A) was hard at first",correct:true},{text:"(B) is still difficult",correct:false},{text:"(C) pays very little",correct:false}],evidence:"At first it was difficult",
+      {q:"2. How many hours a week does Hiromi work at a restaurant?",options:[{text:"(A) 8 hours",correct:false},{text:"(B) 10 hours",correct:false},{text:"(C) 12 hours",correct:true}],explain:"3晩×4時間＝12時間なので(C)が正解。"},
+      {q:"3. Hiromi says that the job ______.",options:[{text:"(A) was hard at first",correct:true},{text:"(B) is still difficult",correct:false},{text:"(C) is very easy",correct:false}],evidence:"At first it was difficult",
         explain:"「At first it was difficult」とあるので(A)が正解。"}
     ]},
   points:{title:"主なつなぎ言葉（1）",text:"パラグラフでは主題文に続き、時系列で説明する際、つなぎ言葉を使うとわかりやすくなります。",
@@ -1219,7 +1218,7 @@ const UNIT_TEMPLATES = [
    ue:["I'm going to get a driver's license this summer vacation.","I'll go back to my hometown and spend time with my family.","I'm going to Hawaii with my family this summer.","I don't have any plans in particular.","I'm going to take part in a short-term overseas study program."],
    model:"This summer, I'm going to get my driver's license and go on a trip to Okinawa with my family. I'm also planning to study English intensively for about two hours every day to prepare for my study abroad next year. I'm a little worried about the heat, but I'm really excited about the trip. I'm looking forward to eating delicious Okinawan food and swimming in the beautiful sea. I think this summer will be a great experience for me."},
   {n:"06",title:"Give Directions to Your House",jpSub:"自宅への道順を説明しましょう",grammar:"助動詞",
-   vWords:["direction 道順","miss 〜を見逃す","corner 角","walking distance 歩いて行ける距離","exit 出口","crosswalk 横断歩道","stranger 不案内な人","intersection 交差点","block 区画","subway 地下鉄"],
+   vWords:["direction 方向、（複数形で）道順","miss 〜を見逃す","hate 〜をひどく嫌う","walking distance 歩いて行ける距離","exit 出口","crosswalk 横断歩道","stranger （場所に）不慣れな人、不案内な人","intersection 交差点","lost 道に迷った","subway 地下鉄"],
    gEx:["can / could：〜できる","must / have to：〜しなければならない","may / might：〜かもしれない","should：〜すべき","must not：〜してはいけない","don't have to：〜する必要はない","would like：〜したい（丁寧）","shall：〜しましょうか"],
    reading:{title:"Directions to my apartment",
     text:"I'll give you the directions to my apartment. It's about a five-minute walk from Nakano Station. When you get to the station, come out of the North Exit. Cross the street at the crosswalk, and turn right. Then, walk down the street until you reach an intersection. If you turn left at the intersection, you'll see a convenience store on your left. You can ask for directions at the store if you're lost. Continue walking for about one minute, and you'll reach another intersection. My apartment building, Nakano Hills, is just on the other side of the crosswalk. My apartment is on the third floor, next to the elevator.",
@@ -1228,16 +1227,16 @@ const UNIT_TEMPLATES = [
    ue:["My house is within easy walking distance from XXX Station.","It takes about 10 minutes to get to my house from the station.","Turn right at the corner and go straight ahead.","It's on your right, next to the bakery.","Go two blocks along the street.","Then you'll find my house on your right."],
    model:"Let me give you the directions to my house from the nearest station. It takes about 10 minutes on foot from Seiseki-Sakuragaoka Station. When you get out of the South Exit, turn right and walk along the main street. You'll see a convenience store on your left. Continue walking for about three minutes, and you'll come to an intersection. Cross the intersection and turn left. My house is the second house on the right, next to a small bakery. It has a red roof, so you can't miss it."},
   {n:"07",title:"Write about Your Favorite Movie",jpSubtitle:"お気に入りの映画を紹介しましょう",grammar:"受動態",
-   vWords:["scene 場面、シーン","impressive 印象的な","bored 退屈した","based on 〜に基づく","last 続く","preview 試写会","sequel 続編","leading role 主役","star in （映画に）主演する","release 公開する"],
+   vWords:["scene （映画などの）場面、シーン","direct （映画など）を監督する","bored 退屈した","excellent 極めて良い","last 続く","preview （映画などの）試写会","sequel 続編","leading role 主役","star in 〜で主役を演じる","release （映画など）を封切りする、公開する"],
    gEx:["受動態＝ be動詞＋過去分詞（〜される）","〜によって：by 〜","時制変化：will be+過去分詞／is being+過去分詞（進行形受動態）"],
    reading:{title:"My favorite movie",
-    text:"My favorite movie is Top Gun: Maverick. This is the sequel to the 1986 Hollywood blockbuster action film Top Gun. It stars Tom Cruise. It is a story about a U.S. Navy test pilot called Pete \"Maverick\" Mitchell, and Maverick is ordered to train an elite group of pilots for an urgent mission. The film was directed by Joseph Kosinski, and he did an excellent job. There are many great action scenes, and it was a lot of fun. I never got bored. In fact, I went to the movie theater to watch this movie three times in a month! If you like the first movie, you'll like this one too.",
+    text:"My favorite movie is Top Gun: Maverick. This is the sequel to the 1986 Hollywood blockbuster action film Top Gun. It stars Tom Cruise. It is a story about a U.S. Navy test pilot called Pete \"Maverick\" Mitchell, and Maverick is ordered to train an elite group of pilots for an urgent mission. The film was directed by Joseph Kosinski, and he did an excellent job. There are many great action scenes, and it was a lot of fun. I never got bored. In fact, I went to the movie theater to watch this movie three times in a month! If you like the first Top Gun, you should see this movie. You'll never get bored!",
     qs:["映画の説明：続編","メインキャラクター","筆者の感想：面白かった"]},
    point:"感想の述べ方：I was moved by ... / It was exciting / I highly recommend ...",
    ue:["The best movie I've ever seen is Titanic (1997).","The special effects are surprisingly realistic.","The movie is based on a true story.","It was directed by ...","The leading role is played by ...","I was deeply moved by the story."],
    model:"My favorite movie is Spirited Away, directed by Hayao Miyazaki. It is an animated film about a young girl named Chihiro who gets lost in a strange spirit world. The animation is beautiful, and the story is very imaginative. I was deeply moved by Chihiro's courage and growth. Joe Hisaishi's music is also wonderful. I've watched this movie more than five times, and I still enjoy it every time. I highly recommend it."},
   {n:"08",title:"Write about Things You Enjoy",jpSubtitle:"自分が楽しんでいることを書きましょう",grammar:"現在完了形",
-   vWords:["particularly 特に","regular 定期的な","strategy 戦略","classical クラシックの","high-speed 高速の","browse あちこち見る","online オンラインの","already すでに","elementary 初歩の","concert コンサート"],
+   vWords:["surf （インターネットで情報を）あちこち見る","particularly 特に","regular いつもの、普通の","strategy 戦略","musical ミュージカル","high-spec 高性能の","classical クラシック（音楽）の","online オンラインの、インターネットで","already すでに","elementary 初歩の"],
    gEx:["have/has + 過去分詞：完了・結果・経験・継続","just/already/yet/ever/never/since/for が目印","現在完了進行形 have been doing"],
    reading:{title:"My favorite hobby",
     text:"I've been interested in classical music since I was in elementary school. I've already been to more than 20 concerts. I often browse online music shops looking for rare recordings. I particularly enjoy Beethoven's piano sonatas. I started playing the piano when I was six, and I've been playing for about 12 years. I usually practice for about an hour every day after finishing my homework. Playing the piano helps me relax after a long day of classes.",
@@ -1246,7 +1245,7 @@ const UNIT_TEMPLATES = [
    ue:["I've been interested in ... since ....","I've already ...","I've been to ... several times.","I've been playing ... for ... years.","... helps me relax."],
    model:"My favorite pastime is playing the guitar. I've been playing the guitar since I was 14 years old, so I've been playing for about five years. I usually practice for about two hours a day. I often play songs by my favorite rock bands. I've also started writing my own songs recently. Playing the guitar is a great way for me to express my feelings, and it always makes me feel better when I'm down."},
   {n:"09",title:"Write about Your Schoolwork",jpSubtitle:"学校の勉強について書きましょう",grammar:"比較",
-   vWords:["semester 学期","grade 成績","improve 上達する","final 期末の","subject 科目","schoolwork 勉強","midterm 中間試験","smart 利口な","disappointed がっかりした","report card 通知票","pass 合格する"],
+   vWords:["semester 学期","grade 成績、評点","final 期末試験","subject 科目","schoolwork 学業","midterm 中間試験","smart 利口な、賢い","disappointed がっかりした、失望した","report card 成績表","pass 合格する、受かる"],
    gEx:["as 〜 as ...：〜と同じくらい","比較級 -er / more 〜","最上級 the -est / the most 〜","不規則：good→better→best, bad→worse→worst, many/much→more→most, little→less→least"],
    reading:{title:"My schoolwork this semester",
     text:"This semester was harder than I expected. I'm as busy as a bee during exam week. The final was more difficult than I thought. I find English Presentation the most difficult of all the subjects, but my speaking skills are getting better than before. I got my report card yesterday and my grades were much better than in high school. I barely passed math, but I got the highest score in English. I'll study harder next semester.",
@@ -1255,7 +1254,7 @@ const UNIT_TEMPLATES = [
    ue:["I'm as busy as a bee.","The final was more difficult than I thought.","My grades were much better than before.","I barely passed the exam.","I find ... the most difficult of all."],
    model:"This semester was more difficult than I expected, but I really enjoyed my classes. The most difficult subject for me was math. I barely passed the midterm exam, so I studied very hard for the final. As a result, I got a much better grade on the final than on the midterm. My favorite subject was English Communication, because I had many chances to practice speaking with my classmates. Next semester I will study harder and try to get even better grades."},
   {n:"10",title:"How to Improve Your English",jpSubtitle:"英語上達法について書きましょう",grammar:"不定詞",
-   vWords:["effectively 効果的に","read aloud 音読する","suggest 提案する","improve 上達させる","practice 練習する","pronounce 発音する","tip コツ","memorize 暗記する","brush one's teeth 歯を磨く","habit 習慣"],
+   vWords:["effectively 効果的に","read aloud 音読する","suggest 提案する","improve 〜を上達させる","bother 〜に面倒をかける、〜の邪魔をする","pronounce 〜を発音する","tip ヒント、助言、コツ","memorize 〜を覚える、〜を暗記する","brush one's teeth 歯を磨く","habit 習慣、癖"],
    gEx:["to + 動詞の原形：名詞的用法（〜すること）、副詞的用法（〜するために／〜して）、形容詞的用法（〜すべき）","In order to / too 〜 to ... / enough to ..."],
    reading:{title:"How I study English",
     text:"I have some tips to improve your English. First, it's a good idea to practice reading aloud. I read my English textbook for 20 minutes every day after I brush my teeth in the morning. Second, I try to memorize at least 10 new words a day. Sarah was kind enough to show me some tips to remember words. Third, I watch movies in English with English subtitles. It's never too late to start. If you keep practicing, your English will definitely improve.",
@@ -1264,7 +1263,7 @@ const UNIT_TEMPLATES = [
    ue:["It's a good idea to practice reading aloud.","You should memorize new words every day.","I watch movies in English with English subtitles.","It's never too late to start.","Practice makes perfect."],
    model:"I have three tips to improve your English. First, you should read English aloud every day. I practice for 20 minutes every morning, and it really helps my pronunciation. Second, it's a good idea to memorize new words effectively using flashcards. I try to learn 10 new words every day. Third, you should watch movies or TV dramas in English with English subtitles. At first it may be difficult, but don't give up. If you keep practicing, your English will definitely get better."},
   {n:"11",title:"Explain Japanese Foods",jpSubtitle:"日本の食べ物を説明しましょう",grammar:"分詞",
-   vWords:["traditional 伝統的な","hesitate ためらう","benefit 利点、恩恵","recipe 料理法、レシピ","pack （弁当など）を詰める","microwave 電子レンジ","flour 小麦粉","raw 生の","deliver 配達する","thin 細い、薄い"],
+   vWords:["traditional 伝統的な","hesitate ためらう、躊躇する","benefit 利点、恩恵","recipe 料理法、レシピ","pack 〜を詰める","microwave 電子レンジ","flour 小麦粉","raw 生の","deliver 〜を届ける、配達する","thin 細い、薄い"],
    gEx:["現在分詞（〜している）：能動・進行の意味を添える形容詞的用法","過去分詞（〜された）：受動の意味を添える形容詞的用法","keep O + 現在分詞：Oをずっと〜させておく","have O + 過去分詞：Oを〜してもらう"],
    reading:{title:"Natto",
     text:"Natto is a traditional Japanese food made from fermented soybeans. It's often eaten for breakfast in Japan. I eat natto almost every day. Natto has a very distinctive and strong flavor, so people who haven't tried it sometimes hesitate to eat it. But it is really good for your health. It helps your blood flow smoothly, it is good for digestion, and it helps your bones become stronger. I often buy packed natto at the supermarket, and I usually eat it with rice and mustard.",
@@ -1273,7 +1272,7 @@ const UNIT_TEMPLATES = [
    ue:["... is a traditional Japanese ... dish.","It is made from/with ....","It is often eaten ....","It is good for your health.","If you haven't tried it yet, please give it a try."],
    model:"Sushi is one of the most famous traditional Japanese dishes. It is made with vinegared rice and various toppings, such as raw fish, seafood, and vegetables. There are many types of sushi, including nigiri, maki rolls, and chirashi sushi. Sushi is not only delicious but also very healthy because it uses fresh ingredients. In recent years, sushi has become popular all over the world, and many people enjoy eating it. If you haven't tried it yet, you should definitely give it a try."},
   {n:"12",title:"Give Your Ideas about Sports",jpSubtitle:"スポーツについて意見を述べましょう",grammar:"動名詞",
-   vWords:["competition 競争","violent 暴力的な","including 〜を含んでいる","pastime 娯楽","cooperate 協力する","competitive 競い合う","work out 運動する","cooperation 協力","injured 負傷した","prize 賞"],
+   vWords:["competition 競争","violent 暴力的な","including 〜を含んで","pastime 気晴らし、娯楽","against 〜に反対して","cooperation 協力","work out （スポーツジムなどで）運動する","interest 興味、関心","injured 負傷した","prize （勝者に与えられる）賞"],
    gEx:["動名詞（〜ing）：動詞を名詞化。主語・補語・目的語・前置詞の後に使う","動名詞をとる動詞：finish, enjoy, mind, stop, suggest, practice, avoid","不定詞をとる動詞：want, hope, learn, expect, decide","両方可能：begin, start, like, love, hate","be used to ...ing（〜に慣れている）／feel like ...ing（〜したい気がする）／How about ...ing?（〜してはどう？）／Would you mind ...ing?（〜していただけますか？）"],
    reading:{title:"Should everyone play sports?",
     text:"I don't think everyone should play sports. First of all, I have no interest in them. Some people, including my father, spend a lot of time watching sports, but it seems like a waste of time to me. Secondly, I'm not good at sports at all. Some people say that playing sports can develop a sense of teamwork, but I don't believe it's true. People play sports to win. Playing sports is about competition, not cooperation. You can also get injured when playing sports, and some sports are really violent. Therefore, I'm against the idea that everyone should play sports.",
@@ -1282,7 +1281,7 @@ const UNIT_TEMPLATES = [
    ue:["Playing sports has a lot of advantages.","Good health is a big advantage of playing sports.","Sports allow people to spend time with friends and meet new people.","Playing sports makes people feel good.","I'm for/against the idea that everyone should play sports."],
    model:"I believe everyone should play sports to some extent. First of all, playing sports is a great way to stay healthy. In my opinion, good health is the most important thing in life. Second, sports teach us the importance of teamwork and cooperation. When you play on a team, you have to communicate with your teammates and help each other. Of course, some sports can be competitive and even violent, but you can choose non-competitive sports like jogging or yoga. For these reasons, I think sports should be an important part of everyone's life."},
   {n:"13",title:"Give Your Ideas about Social Media",jpSubtitle:"SNSについて意見を述べましょう",grammar:"関係詞",
-   vWords:["social media SNS","compare 比較する","prevent （人が〜するのを）止める","anxiety 心配、不安","addicted 依存した","post 投稿する","focus 集中する","amount 量","report 報告する","cause 引き起こす"],
+   vWords:["social media ソーシャルメディア、SNS","compare 比較する","prevent （人が〜するのを）止める","anxiety 心配、不安","addicted 中毒になって、病みつきになって","post （インターネットに）投稿する","focus 〜に集中する","amount 量、額","report 〜を報告する","cause 〜の原因となる、〜を引き起こす"],
    gEx:["関係代名詞：who（人・主格）／whose（所有格）／which（物・主格/目的格）／that（人・物・主格/目的格）／whom（人・目的格）※目的格は省略可","what = the thing(s) which（〜なこと/もの）"],
    reading:{title:"Should we limit our time on social media?",
     text:"I believe we should limit our time on social media for two reasons. First, it causes you to compare yourself to others all the time. Studies have shown that people who spend a lot of time on social media report feelings of increased anxiety. Second, it often prevents us from focusing on what is actually happening in our daily lives. Let's say you go out for dinner with your friends. If they spend more time checking social media sites than actually talking, the dinner will become less enjoyable. That's why we should be careful when using social media.",
@@ -1291,7 +1290,7 @@ const UNIT_TEMPLATES = [
    ue:["We should make the most of social media.","Social media is useful and informative.","Social media is addictive and many people can't stop using it.","Social media can be stressful.","You should be careful about what you post online."],
    model:"I believe we should limit our time on social media. While social media is a useful tool to stay connected with friends and get information, it also has some negative aspects. First, spending too much time on social media can increase feelings of anxiety because people tend to compare themselves with others. Second, it can prevent us from focusing on our studies and face-to-face communication. For example, when we are with friends, we should talk with each other rather than looking at our phones. That's why I think we should set a time limit for using social media every day."},
   {n:"14",title:"Write to Yourself 10 Years from Now",jpSubtitle:"10年後の自分に手紙を書きましょう",grammar:"接続詞",
-   vWords:["give up あきらめる","come true （夢が）実現する","related 関連した","someday いつか","intention 意向","athlete スポーツ選手","get married 結婚する","start one's business 起業する","own 自分自身の","injury 怪我"],
+   vWords:["accountant 会計士","come true （夢などが）実現する、叶う","related 関連した","someday いつか","intention 意図","athlete スポーツ選手","get married 結婚する","start one's business 起業する","own 自分自身の、〜を所有する","injury 怪我"],
    gEx:["接続詞（節＋節をつなぐ）：because, if, when, before, after, while, as soon as, although, but, so, unless, as long as","前置詞（名詞句の前）：because of, during, in, on, at"],
    reading:{title:"To myself 10 years from now",
     text:"Dear Hiromi, How are you? By the time you read this letter, I hope you have become a certified public accountant. Are you enjoying your career? I hope it is as good as you expected. Where are you living now? I know you wanted to work in New York and enjoy Broadway musicals there. Have your dreams come true? Do you speak English well? Are you married? Do you have any children? I hope you're living with a family you love and are enjoying life with them 10 years from now. Looking forward to seeing you in 10 years. Sincerely, Hiromi",
@@ -2223,9 +2222,9 @@ const LESSONS_DATA = {
           "opt": "f"
         },
         {
-          "w": "corner",
-          "jp": "角",
-          "opt": "c"
+          "w": "hate",
+          "jp": "〜をひどく嫌う",
+          "opt": "h"
         },
         {
           "w": "walking distance",
@@ -2244,7 +2243,7 @@ const LESSONS_DATA = {
         },
         {
           "w": "stranger",
-          "jp": "（場所に）不案内な人",
+          "jp": "（場所に）不慣れな人、不案内な人",
           "opt": "d"
         },
         {
@@ -2255,7 +2254,7 @@ const LESSONS_DATA = {
         {
           "w": "lost",
           "jp": "道に迷った",
-          "opt": "h"
+          "opt": "c"
         },
         {
           "w": "subway",
@@ -2266,12 +2265,12 @@ const LESSONS_DATA = {
       "options": [
         "a. 出口",
         "b. 横断歩道",
-        "c. 角",
-        "d. （場所に）不案内な人",
+        "c. 道に迷った",
+        "d. （場所に）不慣れな人、不案内な人",
         "e. 地下鉄",
         "f. 〜を見逃す",
         "g. 方向、（複数形で）道順",
-        "h. 道に迷った",
+        "h. 〜をひどく嫌う",
         "i. 交差点",
         "j. 歩いて行ける距離"
       ],
@@ -2281,12 +2280,8 @@ const LESSONS_DATA = {
       "title": "助動詞",
       "introEx": [
         {
-          "en": "Excuse me, I'm afraid I'm lost. Could you help me?",
-          "jp": "すみません、道に迷ってしまったようです。手伝っていただけますか？"
-        },
-        {
           "en": "The house is on the corner; you can't miss it.",
-          "jp": "その家は角にあります。見逃すことはありません"
+          "jp": "その家は角にあります。見逃すことはないですよ"
         },
         {
           "en": "Hiromi should be here any moment.",
@@ -2576,7 +2571,7 @@ const LESSONS_DATA = {
       "instr": "ヒロミが書いた次のパッセージを読み、その内容について1〜3の質問に答えましょう。",
       "cd": "19",
       "passageTitle": "Directions to my apartment",
-      "passage": "I'll give you the directions to my apartment. It's about a five-minute walk from Nakano Station. When you get to the station, come out of the North Exit. Cross the street at the crosswalk, and turn right. Then, walk down the street until you reach an intersection. If you turn left at the intersection, you'll see a convenience store on your left. You can ask for directions at the store if you're lost. Continue walking for about one minute, and you'll reach another intersection. My apartment building, Nakano Hills, is just on the other side of the crosswalk. My apartment is on the third floor, next to the elevator.",
+      "passage": "I'll give you the directions to my apartment. It's about a five-minute walk from Nakano Station. When you get to the station, come out of the North Exit. Cross the street at the crosswalk, and turn right. Then, walk down the street until you reach an intersection. If you turn left at the intersection, you'll see a convenience store on your left. You can ask for directions at the store if you're lost. Continue walking for about one minute, and you'll reach another intersection. My apartment building, Nakano Hills is just on the other side of the crosswalk. My apartment is on the third floor, next to the elevator.",
       "notes": "[Notes] apartment building：アパートの建物　on the other side of：〜の反対側に",
       "questions": [
         {
@@ -2704,13 +2699,13 @@ const LESSONS_DATA = {
       "words": [
         {
           "w": "scene",
-          "jp": "場面、シーン",
-          "opt": "c"
+          "jp": "（映画などの）場面、シーン",
+          "opt": "i"
         },
         {
           "w": "direct",
-          "jp": "（映画を）監督する",
-          "opt": "d"
+          "jp": "（映画など）を監督する",
+          "opt": "g"
         },
         {
           "w": "bored",
@@ -2718,18 +2713,18 @@ const LESSONS_DATA = {
           "opt": "e"
         },
         {
-          "w": "based on",
-          "jp": "〜に基づく",
-          "opt": "f"
+          "w": "excellent",
+          "jp": "極めて良い",
+          "opt": "j"
         },
         {
           "w": "last",
           "jp": "続く",
-          "opt": "g"
+          "opt": "c"
         },
         {
           "w": "preview",
-          "jp": "（映画の）試写会",
+          "jp": "（映画などの）試写会",
           "opt": "a"
         },
         {
@@ -2744,26 +2739,26 @@ const LESSONS_DATA = {
         },
         {
           "w": "star in",
-          "jp": "（映画に）主演する",
-          "opt": "i"
+          "jp": "〜で主役を演じる",
+          "opt": "d"
         },
         {
           "w": "release",
-          "jp": "公開する",
-          "opt": "j"
+          "jp": "（映画など）を封切りする、公開する",
+          "opt": "f"
         }
       ],
       "options": [
-        "a. （映画の）試写会",
+        "a. （映画などの）試写会",
         "b. 続編",
-        "c. 場面、シーン",
-        "d. （映画を）監督する",
+        "c. 続く",
+        "d. 〜で主役を演じる",
         "e. 退屈した",
-        "f. 〜に基づく",
-        "g. 続く",
+        "f. （映画など）を封切りする、公開する",
+        "g. （映画など）を監督する",
         "h. 主役",
-        "i. （映画に）主演する",
-        "j. 公開する"
+        "i. （映画などの）場面、シーン",
+        "j. 極めて良い"
       ],
       "beat": "ビートに乗って1〜10の語句を発音してみましょう。"
     },
@@ -3064,7 +3059,7 @@ const LESSONS_DATA = {
           "q": "1. Which of the following is true about the movie Top Gun: Maverick?",
           "options": [
             {
-              "text": "(A) It was directed by Tom Cruise.",
+              "text": "(A) It was made in 1986.",
               "correct": false
             },
             {
@@ -3072,7 +3067,7 @@ const LESSONS_DATA = {
               "correct": true
             },
             {
-              "text": "(C) It was made in 1986.",
+              "text": "(C) It was directed by Tom Cruise.",
               "correct": false
             }
           ],
@@ -3083,19 +3078,19 @@ const LESSONS_DATA = {
           "q": "2. Hiromi says that Joseph Kosinski did a ______ job.",
           "options": [
             {
-              "text": "(A) poor",
-              "correct": false
-            },
-            {
-              "text": "(B) excellent",
+              "text": "(A) great",
               "correct": true
             },
             {
-              "text": "(C) boring",
+              "text": "(B) urgent",
+              "correct": false
+            },
+            {
+              "text": "(C) poor",
               "correct": false
             }
           ],
-          "explain": "「he did an excellent job」より(B)。",
+          "explain": "「he did an excellent job」より(A) great。",
           "evidence": "he did an excellent job"
         },
         {
@@ -3110,7 +3105,7 @@ const LESSONS_DATA = {
               "correct": false
             },
             {
-              "text": "(C) three times in a month",
+              "text": "(C) at least three times",
               "correct": true
             }
           ],
@@ -3158,7 +3153,9 @@ const LESSONS_DATA = {
         "My favorite thing about the movie is the story.（その映画で一番好きなのはストーリーです）",
         "The music and dance were fantastic.（音楽とダンスが素晴らしかったです）",
         "If you love romantic movies, you should see this movie.（ロマンチック映画が好きなら、この映画を見るべきです）",
-        "I recommend that you see the movie in a movie theater.（映画館で見ることをおすすめします）"
+        "I recommend that you see the movie in a movie theater.（映画館で見ることをおすすめします）",
+        "I was very impressed by the last scene.（最後の場面にとても感動しました）",
+        "The last scene was really impressive.（最後の場面は本当に印象的でした）"
       ],
       "hints": [
         "→主題文：何の映画か。",
@@ -3176,8 +3173,8 @@ const LESSONS_DATA = {
       "words": [
         {
           "w": "surf",
-          "jp": "（ネットを）見て回る",
-          "opt": "a"
+          "jp": "（インターネットで情報を）あちこち見る",
+          "opt": "g"
         },
         {
           "w": "particularly",
@@ -3186,7 +3183,7 @@ const LESSONS_DATA = {
         },
         {
           "w": "regular",
-          "jp": "普通の、定期的な",
+          "jp": "いつもの、普通の",
           "opt": "i"
         },
         {
@@ -3196,8 +3193,8 @@ const LESSONS_DATA = {
         },
         {
           "w": "musical",
-          "jp": "音楽の",
-          "opt": "b"
+          "jp": "ミュージカル",
+          "opt": "h"
         },
         {
           "w": "high-spec",
@@ -3206,18 +3203,18 @@ const LESSONS_DATA = {
         },
         {
           "w": "classical",
-          "jp": "クラシックの",
-          "opt": "e"
+          "jp": "クラシック（音楽）の",
+          "opt": "b"
         },
         {
           "w": "online",
-          "jp": "オンラインの",
-          "opt": "h"
+          "jp": "オンラインの、インターネットで",
+          "opt": "e"
         },
         {
           "w": "already",
           "jp": "すでに",
-          "opt": "g"
+          "opt": "a"
         },
         {
           "w": "elementary",
@@ -3226,15 +3223,15 @@ const LESSONS_DATA = {
         }
       ],
       "options": [
-        "a. （ネットを）見て回る",
-        "b. 音楽の",
+        "a. すでに",
+        "b. クラシック（音楽）の",
         "c. 高性能の",
         "d. 特に",
-        "e. クラシックの",
+        "e. オンラインの、インターネットで",
         "f. 初歩の、小学校の",
-        "g. すでに",
-        "h. オンラインの",
-        "i. 普通の、定期的な",
+        "g. （インターネットで情報を）あちこち見る",
+        "h. ミュージカル",
+        "i. いつもの、普通の",
         "j. 戦略"
       ],
       "beat": "ビートに乗って1〜10の語句を発音してみましょう。"
@@ -3613,7 +3610,7 @@ const LESSONS_DATA = {
       "writingTitle": "What I like to do",
       "usefulExpr": [
         "I really enjoy cooking, especially when it's for special occasions.（特別な機会の料理が特に好きです）",
-        "I like reading novels. I particularly like reading mysteries.（小説、特にミステリーが好きです）",
+        "I like reading novels. I like all kinds, but I particularly like reading mysteries.（小説を読むのが好きです。種類は問わず何でも読みますが、特にミステリーが好きです）",
         "Traveling is something I enjoy doing.（旅行を楽しんでいます）",
         "Music has always been a big part of my life.（音楽はいつも私の生活の大きな部分です）",
         "I enjoy going shopping for clothes.（洋服を買いに行くのが好きです）",
@@ -3665,35 +3662,35 @@ const LESSONS_DATA = {
         },
         {
           "w": "smart",
-          "jp": "利口な",
+          "jp": "利口な、賢い",
           "opt": "i"
         },
         {
           "w": "disappointed",
-          "jp": "がっかりして、失望して",
+          "jp": "がっかりした、失望した",
           "opt": "c"
         },
         {
           "w": "report card",
-          "jp": "通知票",
+          "jp": "成績表",
           "opt": "d"
         },
         {
           "w": "pass",
-          "jp": "合格する、通る",
+          "jp": "合格する、受かる",
           "opt": "g"
         }
       ],
       "options": [
         "a. 期末試験",
         "b. 学業",
-        "c. がっかりして、失望して",
-        "d. 通知票",
+        "c. がっかりした、失望した",
+        "d. 成績表",
         "e. 学期",
         "f. 成績、評点",
-        "g. 合格する、通る",
+        "g. 合格する、受かる",
         "h. 中間試験",
-        "i. 利口な",
+        "i. 利口な、賢い",
         "j. 科目"
       ],
       "beat": "ビートに乗って1〜10の語句を発音してみましょう。"
@@ -3701,6 +3698,14 @@ const LESSONS_DATA = {
     "grammar": {
       "title": "比較",
       "introEx": [
+        {
+          "en": "That was a very easy exam.",
+          "jp": "あれはとても簡単な試験でした（形容詞）"
+        },
+        {
+          "en": "I barely passed the exam.",
+          "jp": "私はかろうじてその試験に合格しました（副詞）"
+        },
         {
           "en": "I'm as busy as a bee during exam week.",
           "jp": "試験週間中は蜂のように忙しいです"
@@ -4094,6 +4099,7 @@ const LESSONS_DATA = {
         "I'm quite satisfied with my grades.（自分の成績にとても満足しています）",
         "I didn't expect that my grades would be that good.（成績がそんなに良いとは思っていませんでした）",
         "I studied very hard for the finals.（期末のために一生懸命勉強しました）",
+        "I stayed up all night preparing for my report.（レポートの準備で一晩中起きていました）",
         "I should have studied much harder for the finals.（期末のためにもっと勉強すべきでした）",
         "I forgot to submit my report.（レポートを提出し忘れました）"
       ],
@@ -4119,7 +4125,7 @@ const LESSONS_DATA = {
         {
           "w": "read aloud",
           "jp": "音読する",
-          "opt": "c"
+          "opt": "i"
         },
         {
           "w": "suggest",
@@ -4128,28 +4134,28 @@ const LESSONS_DATA = {
         },
         {
           "w": "improve",
-          "jp": "上達させる、改善する",
-          "opt": "b"
+          "jp": "〜を上達させる",
+          "opt": "j"
         },
         {
           "w": "bother",
-          "jp": "〜に面倒をかける、邪魔をする",
+          "jp": "〜に面倒をかける、〜の邪魔をする",
           "opt": "g"
         },
         {
           "w": "pronounce",
-          "jp": "発音する",
-          "opt": "i"
+          "jp": "〜を発音する",
+          "opt": "c"
         },
         {
           "w": "tip",
-          "jp": "コツ",
-          "opt": "a"
+          "jp": "ヒント、助言、コツ",
+          "opt": "b"
         },
         {
           "w": "memorize",
-          "jp": "〜を覚える、暗記する",
-          "opt": "j"
+          "jp": "〜を覚える、〜を暗記する",
+          "opt": "a"
         },
         {
           "w": "brush one's teeth",
@@ -4163,16 +4169,16 @@ const LESSONS_DATA = {
         }
       ],
       "options": [
-        "a. コツ",
-        "b. 上達させる、改善する",
-        "c. 音読する",
+        "a. 〜を覚える、〜を暗記する",
+        "b. ヒント、助言、コツ",
+        "c. 〜を発音する",
         "d. 歯を磨く",
         "e. 効果的に",
         "f. 習慣、癖",
-        "g. 〜に面倒をかける、邪魔をする",
+        "g. 〜に面倒をかける、〜の邪魔をする",
         "h. 提案する",
-        "i. 発音する",
-        "j. 〜を覚える、暗記する"
+        "i. 音読する",
+        "j. 〜を上達させる"
       ],
       "beat": "ビートに乗って1〜10の語句を発音してみましょう。"
     },
@@ -4465,7 +4471,7 @@ const LESSONS_DATA = {
       "instr": "ヒロミが書いた次のパッセージを読み、その内容について1〜3の質問に答えましょう。",
       "cd": "31",
       "passageTitle": "How can you be a good speaker of English?",
-      "passage": "You often hear people say, \"How can I speak English well?\" You may have the same question. I'd like to propose a simple and effective way: \"Speak into the mirror.\" You can do it when you brush your teeth in the morning and in the evening. In the morning, talk about your plans for the day. In the evening, talk about what you did today. The key to the success of learning is habit. If you can attach your learning to an existing habit, then it will become much easier. In a month or two, you'll find yourself much better at speaking English.",
+      "passage": "You often hear people say, \"How can I speak English well?\" You may have the same problem. I'd like to suggest one way to practice speaking English. It's called \"Speak into the mirror.\" It's very useful and really simple. You can do it when you brush your teeth in the morning and in the evening. In the morning, talk about your plans for the day. In the evening, talk about what you did today. The key to the success of learning is habit. If you can attach your learning to an existing habit, then it will become much easier. In a month or two, you'll find yourself much better at speaking English.",
       "notes": "[Notes] attach A to B：AをBに結び付ける　existing：既存の",
       "questions": [
         {
@@ -4485,7 +4491,7 @@ const LESSONS_DATA = {
             }
           ],
           "explain": "スピーキング上達法として鏡に向かって話す方法を提案しているので(C)。",
-          "evidence": "I'd like to propose a simple and effective way: \"Speak into the mirror.\""
+          "evidence": "I'd like to suggest one way to practice speaking English. It's called \"Speak into the mirror.\" It's very useful and really simple."
         },
         {
           "q": "2. The way called \"Speak into the mirror\" is ______.",
@@ -4654,10 +4660,6 @@ const LESSONS_DATA = {
         {
           "en": "Miso soup is a traditional Japanese soup made from soybean paste.",
           "jp": "味噌汁は大豆ペーストから作られる伝統的な日本のスープです（過去分詞）"
-        },
-        {
-          "en": "My bike broke down, so I had to have it repaired.",
-          "jp": "自転車が壊れたので、修理してもらわなければなりませんでした"
         }
       ],
       "explanation1": "現在分詞（-ing）は能動・進行の意味、過去分詞（-ed など）は受動の意味を添える形容詞的用法があります。1語の場合は名詞の前、他の語句が加わる場合は名詞の後に置きます。keep O + 現在分詞（Oをずっと〜させておく）、have O + 過去分詞（Oを〜してもらう）も重要です。感情を表す分詞（exciting/excited など）の使い分けに注意。",
@@ -4934,7 +4936,7 @@ const LESSONS_DATA = {
       "instr": "ヒロミが書いた次のパッセージを読み、その内容について1〜3の質問に答えましょう。",
       "cd": "34",
       "passageTitle": "Natto",
-      "passage": "Have you ever eaten natto? It's a traditional Japanese food made of fermented soybeans. It's sticky and has a strong smell. In many parts of Japan, natto is a popular choice for breakfast. In fact, I eat natto over rice every morning and I can't start my day without it. Natto is not only tasty but it also has a lot of health benefits. First, it's rich in protein, vitamins and minerals. Secondly, it improves your digestion. Thirdly, it contributes to stronger bones. Lastly, it helps your blood flow smoothly. Some people who haven't tried it may hesitate to try it, but why don't you give it a try? I think you'll love it!",
+      "passage": "Have you ever eaten natto? It's a traditional Japanese food made of fermented soybeans. It's sticky and has a strong smell. In many parts of Japan, natto is a popular choice for breakfast. In fact, I eat natto over rice every morning and I can't start my day without it. Natto is not only tasty but it also has a lot of health benefits. First, it's rich in protein, vitamins and minerals. Secondly, it improves your digestion. Thirdly, it contributes to stronger bones. Lastly, it helps your blood flow smoothly. Because of its distinct flavor, some people hesitate to try it, but why don't you give it a try? I think you'll love it!",
       "notes": "[Notes] fermented：発酵した　sticky：ねばねばした　digestion：消化　contribute to：〜に役立つ　distinctive flavor：独特の味",
       "questions": [
         {
@@ -5047,65 +5049,65 @@ const LESSONS_DATA = {
         {
           "w": "competition",
           "jp": "競争",
-          "opt": "a"
+          "opt": "f"
         },
         {
           "w": "violent",
           "jp": "暴力的な",
-          "opt": "b"
+          "opt": "i"
         },
         {
           "w": "including",
-          "jp": "〜を含んでいる",
-          "opt": "c"
+          "jp": "〜を含んで",
+          "opt": "g"
         },
         {
           "w": "pastime",
-          "jp": "娯楽",
-          "opt": "d"
+          "jp": "気晴らし、娯楽",
+          "opt": "b"
         },
         {
-          "w": "cooperate",
-          "jp": "協力する",
-          "opt": "e"
-        },
-        {
-          "w": "competitive",
-          "jp": "競い合う、競争の",
-          "opt": "f"
-        },
-        {
-          "w": "work out",
-          "jp": "運動する",
-          "opt": "g"
+          "w": "against",
+          "jp": "〜に反対して",
+          "opt": "j"
         },
         {
           "w": "cooperation",
           "jp": "協力",
-          "opt": "h"
+          "opt": "d"
+        },
+        {
+          "w": "work out",
+          "jp": "（スポーツジムなどで）運動する",
+          "opt": "c"
+        },
+        {
+          "w": "interest",
+          "jp": "興味、関心",
+          "opt": "e"
         },
         {
           "w": "injured",
           "jp": "負傷した",
-          "opt": "i"
+          "opt": "h"
         },
         {
           "w": "prize",
-          "jp": "賞",
-          "opt": "j"
+          "jp": "（勝者に与えられる）賞",
+          "opt": "a"
         }
       ],
       "options": [
-        "a. 競争",
-        "b. 暴力的な",
-        "c. 〜を含んでいる",
-        "d. 娯楽",
-        "e. 協力する",
-        "f. 競い合う、競争の",
-        "g. 運動する",
-        "h. 協力",
-        "i. 負傷した",
-        "j. 賞"
+        "a. （勝者に与えられる）賞",
+        "b. 気晴らし、娯楽",
+        "c. （スポーツジムなどで）運動する",
+        "d. 協力",
+        "e. 興味、関心",
+        "f. 競争",
+        "g. 〜を含んで",
+        "h. 負傷した",
+        "i. 暴力的な",
+        "j. 〜に反対して"
       ],
       "beat": "ビートに乗って1〜10の語句を発音してみましょう。"
     },
@@ -5397,18 +5399,18 @@ const LESSONS_DATA = {
       "instr": "ヒロミが書いた次のパッセージを読み、その内容について1〜3の質問に答えましょう。",
       "cd": "37",
       "passageTitle": "Should everyone play sports?",
-      "passage": "I don't think everyone should play sports. First of all, I have no interest in them. Some people, including my father, spend a lot of time watching sports, but it seems like a waste of time to me. Secondly, I'm not good at sports at all. Some people say that playing sports can develop a sense of teamwork, but I don't believe it's true. In other words, playing sports is about competition, not cooperation. Lastly, people often get injured when playing sports, and some sports are really violent. Therefore, I'm against the idea that everyone should play sports.",
+      "passage": "I don't think everyone should play sports. First of all, I have no interest in them. Some people, including my father, spend a lot of time watching sports, but it seems like a waste of time to me. Secondly, I'm not good at sports at all. Some people say that playing sports can develop a sense of teamwork, but I don't believe it's true. People play sports to win. [ ___ ], playing sports is about competition, not cooperation. Lastly, people often get injured when playing sports, and some sports are really violent. Therefore, I'm against the idea that everyone should play sports.",
       "notes": "[Notes] in other words：言い換えれば",
       "questions": [
         {
           "q": "1. Hiromi thinks that watching sports is ______.",
           "options": [
             {
-              "text": "(A) very good",
+              "text": "(A) a lot of fun",
               "correct": false
             },
             {
-              "text": "(B) a lot of fun",
+              "text": "(B) very good",
               "correct": false
             },
             {
@@ -5420,23 +5422,23 @@ const LESSONS_DATA = {
           "evidence": "waste of time"
         },
         {
-          "q": "2. The word or phrase that belongs in the blank (In other words / ...) shows ______.",
+          "q": "2. The word or phrase that belongs in the [ ___ ] in this passage is",
           "options": [
             {
-              "text": "(A) addition",
-              "correct": false
-            },
-            {
-              "text": "(B) restatement",
+              "text": "(A) In other words",
               "correct": true
             },
             {
-              "text": "(C) contrast only",
+              "text": "(B) However",
+              "correct": false
+            },
+            {
+              "text": "(C) Finally",
               "correct": false
             }
           ],
-          "explain": "「言い換え」なので restatement (B)。",
-          "evidence": "In other words"
+          "explain": "「People play sports to win.［ ___ ］, playing sports is about competition, not cooperation.」と、直前の文の言い換えとなる語句が入るので In other words。(A)が正解。",
+          "evidence": "People play sports to win. [ ___ ], playing sports is about competition, not cooperation."
         },
         {
           "q": "3. Hiromi ______ that by playing sports, you can develop a sense of teamwork.",
@@ -5446,15 +5448,15 @@ const LESSONS_DATA = {
               "correct": false
             },
             {
-              "text": "(B) suggests",
-              "correct": false
+              "text": "(B) denies",
+              "correct": true
             },
             {
-              "text": "(C) doesn't believe",
-              "correct": true
+              "text": "(C) suggests",
+              "correct": false
             }
           ],
-          "explain": "「I don't believe it's true」より(C)。",
+          "explain": "「I don't believe it's true」と否定しているので、deny（否定する）の(B)が正解。",
           "evidence": "I don't believe it's true"
         }
       ]
@@ -5489,8 +5491,9 @@ const LESSONS_DATA = {
       "usefulExpr": [
         "Playing sports has a lot of advantages.（スポーツにはたくさんの利点があります）",
         "Good health is a big advantage to playing sports.（健康はスポーツをする大きな利点です）",
-        "I'm for the idea that everyone should play sports.（全員がスポーツをすべきだという考えに賛成です）",
-        "I'm against the idea that everyone should play sports.（その考えに反対です）"
+        "Sports allow people to spend time with friends and meet new people.（スポーツは友人と過ごし、新しい人と出会う機会を与えてくれます）",
+        "Playing sports makes people feel good.（スポーツをすると気分が良くなります）",
+        "I'm for the idea that everyone should play sports.（全員がスポーツをすべきだという考えに賛成です）"
       ],
       "hints": [
         "→主題文：自分の立場を明確に。",
@@ -5508,7 +5511,7 @@ const LESSONS_DATA = {
       "words": [
         {
           "w": "social media",
-          "jp": "SNS、ソーシャルメディア",
+          "jp": "ソーシャルメディア、SNS",
           "opt": "h"
         },
         {
@@ -5528,12 +5531,12 @@ const LESSONS_DATA = {
         },
         {
           "w": "addicted",
-          "jp": "依存した",
+          "jp": "中毒になって、病みつきになって",
           "opt": "j"
         },
         {
           "w": "post",
-          "jp": "（を）投稿する",
+          "jp": "（インターネットに）投稿する",
           "opt": "c"
         },
         {
@@ -5553,21 +5556,21 @@ const LESSONS_DATA = {
         },
         {
           "w": "cause",
-          "jp": "〜の原因となる、引き起こす",
+          "jp": "〜の原因となる、〜を引き起こす",
           "opt": "e"
         }
       ],
       "options": [
         "a. 量、額",
         "b. （人が〜するのを）止める",
-        "c. （を）投稿する",
+        "c. （インターネットに）投稿する",
         "d. 比較する",
-        "e. 〜の原因となる、引き起こす",
+        "e. 〜の原因となる、〜を引き起こす",
         "f. 心配、不安",
         "g. 〜を報告する",
-        "h. SNS、ソーシャルメディア",
+        "h. ソーシャルメディア、SNS",
         "i. 〜に集中する",
-        "j. 依存した"
+        "j. 中毒になって、病みつきになって"
       ],
       "beat": "ビートに乗って1〜10の語句を発音してみましょう。"
     },
@@ -5872,14 +5875,14 @@ const LESSONS_DATA = {
             },
             {
               "text": "(B) their fears increase",
-              "correct": false
+              "correct": true
             },
             {
-              "text": "(C) feelings of increased anxiety",
-              "correct": true
+              "text": "(C) their anxieties disappear",
+              "correct": false
             }
           ],
-          "explain": "「report feelings of increased anxiety」より(C)。",
+          "explain": "「report feelings of increased anxiety（不安が増した気持ちを報告している）」より(B) their fears increase が正解。",
           "evidence": "increased anxiety"
         },
         {
@@ -5960,7 +5963,9 @@ const LESSONS_DATA = {
         "For example, you can get a lot of useful information about good restaurants and shops.（例えば、良い店の有益な情報をたくさん得られます）",
         "Social media is addictive and many people can't stop using it.（SNSは依存性が高く、多くの人がやめられません）",
         "Social media can be stressful.（SNSはストレスになることがあります）",
-        "Sometimes I have to spend a few hours responding to my friends' posts.（時々友人の投稿に返信するのに数時間かかります）"
+        "Sometimes I have to spend a few hours responding to my friends' posts.（時々友人の投稿に返信するのに数時間かかります）",
+        "I totally agree with the idea of limiting our time on social media.（SNSを使う時間を制限するという意見に全く同意します）",
+        "I'm in favor of the idea that our time on social media should be limited.（SNSを使う時間は制限されるべきだという意見に賛成です）"
       ],
       "hints": [
         "→主題文：自分の立場を明確に。",
@@ -5998,7 +6003,7 @@ const LESSONS_DATA = {
         },
         {
           "w": "intention",
-          "jp": "意向",
+          "jp": "意図",
           "opt": "a"
         },
         {
@@ -6028,7 +6033,7 @@ const LESSONS_DATA = {
         }
       ],
       "options": [
-        "a. 意向",
+        "a. 意図",
         "b. スポーツ選手",
         "c. 関連した",
         "d. 結婚する",
@@ -6336,7 +6341,7 @@ const LESSONS_DATA = {
       "instr": "ヒロミが書いた次のパッセージを読み、その内容について1〜3の質問に答えましょう。",
       "cd": "43",
       "passageTitle": "To myself 10 years from now",
-      "passage": "Dear Hiromi,\nHow are you? By the time you read this letter, I hope you have become a certified public accountant. Are you enjoying your career? I hope it is as good as you expected. Where are you living now? I know you wanted to work in New York and enjoy Broadway musicals there. Have your dreams come true? Do you speak English well? Are you married? Do you have any children? I hope you're living with a family you love and are enjoying life with them 10 years from now. Looking forward to seeing you in 10 years.\nSincerely,\nHiromi",
+      "passage": "Dear Hiromi,\nHow are you? By the time you read this letter, I hope you have become a certified public accountant. Are you enjoying your career? I hope it's as good as you expected. Where are you living now? I know you wanted to work in New York and enjoy Broadway musicals there. Have your dreams come true? Do you speak English well? Are you married? Do you have any children? I hope you're living with a family you love and are enjoying life with them 10 years from now. Looking forward to seeing you in 10 years.\nSincerely,\nHiromi",
       "notes": "[Notes] certified public accountant：公認会計士",
       "questions": [
         {
@@ -6385,7 +6390,7 @@ const LESSONS_DATA = {
               "correct": false
             },
             {
-              "text": "(B) enjoy life with a family she loves",
+              "text": "(B) have children",
               "correct": true
             },
             {
@@ -6393,7 +6398,7 @@ const LESSONS_DATA = {
               "correct": false
             }
           ],
-          "explain": "「I hope you're living with a family you love and are enjoying life with them」より(B)。",
+          "explain": "「Do you have any children? I hope you're living with a family you love」より(B)。",
           "evidence": "family you love"
         }
       ]
@@ -6431,7 +6436,8 @@ const LESSONS_DATA = {
         "You always said that your dream was to start your own business.（あなたはいつも起業するのが夢だと言っていました）",
         "Did any of your dreams come true?（夢は叶いましたか？）",
         "I hope you're living with a family you care for.（大切に思う家族と暮らしていることを願っています）",
-        "Bye for now. / Take care.（それではまた。／体に気をつけて）"
+        "Bye for now.（それではまた）",
+        "Take care.（体に気をつけて）"
       ],
       "hints": [
         "→Dear ... で書き出す。",
@@ -7215,5 +7221,5 @@ function renderGame3(u){
 function renderAll(){renderUnitList(document.getElementById('search').value);renderTabs();renderContent();}
 document.getElementById('search').addEventListener('input',e=>renderUnitList(e.target.value));
 renderAll();
-</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1c5a9fb68d3e041',t:'MTc4NDI1Mzc0MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3949751cac2e81b',t:'MTc4OTEwNzg4Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1c5a9fb68d3e041',t:'MTc4NDI1Mzc0MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3949751cac2e81b',t:'MTc4OTEwNzg4Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3abe1fdd87812c1',t:'MTc4OTM1MjExNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
