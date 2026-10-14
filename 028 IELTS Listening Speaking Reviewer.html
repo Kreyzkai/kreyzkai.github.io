@@ -59,6 +59,7 @@ textarea{min-height:58px}
 .options label:has(input:checked){border-color:var(--teal);background:var(--light);font-weight:bold}
 fieldset{border:0;padding:0;margin:0}legend{font-weight:bold;color:var(--navy);padding:0}
 audio{width:100%;margin:8px 0}
+.audio-err{color:var(--bad);font-weight:bold;font-size:.85rem;margin:2px 0 10px}
 .feedback{font-weight:bold;min-height:1.3em;margin:9px 0}.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}
 .feedback .why{display:block;font-weight:normal;font-size:.88rem;color:var(--ink)}
 .pattern{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin:12px 0}
@@ -123,7 +124,7 @@ main{padding-bottom:96px}
   #disclaimerBtn::after{content:"ⓘ";font-size:1.05rem}}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.panel.active{animation:none}}
 @media print{
-  #disclaimerBtn,.tabbar,.recorder,.timer button,#jpToggle,#printBtn,button.btn,.feedback,.wordcount{display:none!important}
+  #disclaimerBtn,.tabbar,.recorder,.timer button,#jpToggle,#printBtn,button.btn,.feedback,.wordcount,.audio-err{display:none!important}
   body{background:#fff;line-height:1.4}
   .card{box-shadow:none;border:1px solid #999}
   details.lesson{page-break-inside:avoid;border:1px solid #999}
@@ -270,10 +271,10 @@ footer a{color:var(--teal-dark)}
     </div>
     <h3>Quick confidence check <span class="jp" lang="ja">/ かくにんクイズ</span></h3>
     <form class="quiz">
-      <div class="q"><label>1. Correct order in the main room?</label><select data-answer="lrw"><option value="">Choose…</option><option value="lrw">Listening → Reading → Writing</option><option value="wrl">Writing → Reading → Listening</option><option value="slr">Speaking → Listening → Reading</option></select></div>
-      <div class="q"><label>2. How many times is each Listening recording played?</label><select data-answer="once"><option value="">Choose…</option><option value="once">One time only</option><option value="twice">Two times</option><option value="many">Many times</option></select></div>
-      <div class="q"><label>3. Speaking is always on the same day. True?</label><select data-answer="no"><option value="">Choose…</option><option value="no">No — it can be a different day</option><option value="yes">Yes, always</option></select></div>
-      <div class="q"><label>4. You can't hear the Listening sound clearly. You…</label><select data-answer="hand"><option value="">Choose…</option><option value="hand">Raise my hand before it starts</option><option value="shout">Shout to staff</option><option value="nothing">Say nothing</option></select></div>
+      <div class="q"><label>1. Correct order in the main room?</label><select data-answer="lrw"><option value="">Choose…</option><option value="wrl">Writing → Reading → Listening</option><option value="lrw">Listening → Reading → Writing</option><option value="slr">Speaking → Listening → Reading</option></select></div>
+      <div class="q"><label>2. How many times is each Listening recording played?</label><select data-answer="once"><option value="">Choose…</option><option value="twice">Two times</option><option value="many">Many times</option><option value="once">One time only</option></select></div>
+      <div class="q"><label>3. Speaking is always on the same day. True?</label><select data-answer="no"><option value="">Choose…</option><option value="yes">Yes, always</option><option value="no">No — it can be a different day</option></select></div>
+      <div class="q"><label>4. You can't hear the Listening sound clearly. You…</label><select data-answer="hand"><option value="">Choose…</option><option value="shout">Shout to staff</option><option value="nothing">Say nothing</option><option value="hand">Raise my hand before it starts</option></select></div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
     <p class="note">Based on official IELTS / British Council test-day guidance; centres vary a little, so your booking confirmation always wins. Sources: <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" target="_blank" rel="noopener">British Council — Test day advice</a> · <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" target="_blank" rel="noopener">IELTS — test format</a>. Print it: <a href="IELTS%20Quest%20Test%20Day%20Journey.pdf" download>Test Day Map (1 page)</a>.</p>
@@ -318,12 +319,15 @@ footer a{color:var(--teal-dark)}
   <details class="lesson" id="mission3"><summary>🎧 Lesson 3 · Trick answers — don't stop at the first answer <span class="time">6 MIN · PRINT MISSION 3</span></summary><div class="body">
     <div class="rule">⚠️ The <strong>first</strong> answer is often a trick! Listen for: <strong>but · however · instead · changed to</strong><br><span class="jp" lang="ja">最初の答えで止まらないで。あとで変わることがあります。</span></div>
     <p><strong>🎧 Listen and answer.</strong> <span class="jp" lang="ja">聞いて答えましょう（答えのあとでスクリプトを見てもOK）</span></p>
-    <audio controls preload="none" src="ielts-audio/script-a-distractors.mp3">Audio not available in this browser.</audio>
+    <!-- Audio: the three MP3s sit NEXT TO this HTML file (repo root, same folder as index.html):
+         028-script-a-distractors.mp3 · 028-script-b-accuracy.mp3 · 028-script-c-mini-review.mp3
+         No sub-folder is needed. If you rename one, update the src here too. -->
+    <audio controls preload="metadata" src="028-script-a-distractors.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
       <div class="q"><fieldset><legend>1. Which day will Maya attend?</legend><div class="options"><label><input type="radio" name="a1" value="A"> A Monday</label><label><input type="radio" name="a1" value="B" data-correct> B Wednesday</label><label><input type="radio" name="a1" value="C"> C Friday</label></div></fieldset></div>
-      <div class="q"><fieldset><legend>2. Where should visitors meet?</legend><div class="options"><label><input type="radio" name="a2" value="A"> A reception</label><label><input type="radio" name="a2" value="B" data-correct> B library entrance</label><label><input type="radio" name="a2" value="C"> C main gate</label></div></fieldset></div>
-      <div class="q"><fieldset><legend>3. How much is the final fee?</legend><div class="options"><label><input type="radio" name="a3" value="A"> A £30</label><label><input type="radio" name="a3" value="B" data-correct> B £35</label><label><input type="radio" name="a3" value="C"> C £50</label></div></fieldset></div>
-      <div class="q"><fieldset><legend>4. What must learners bring?</legend><div class="options"><label><input type="radio" name="a4" value="A"> A a laptop</label><label><input type="radio" name="a4" value="B"> B headphones</label><label><input type="radio" name="a4" value="C" data-correct> C a notebook</label></div></fieldset></div>
+      <div class="q"><fieldset><legend>2. Where should visitors meet?</legend><div class="options"><label><input type="radio" name="a2" value="A"> A main gate</label><label><input type="radio" name="a2" value="B"> B reception</label><label><input type="radio" name="a2" value="C" data-correct> C library entrance</label></div></fieldset></div>
+      <div class="q"><fieldset><legend>3. How much is the final fee?</legend><div class="options"><label><input type="radio" name="a3" value="A" data-correct> A £35</label><label><input type="radio" name="a3" value="B"> B £30</label><label><input type="radio" name="a3" value="C"> C £50</label></div></fieldset></div>
+      <div class="q"><fieldset><legend>4. What must learners bring?</legend><div class="options"><label><input type="radio" name="a4" value="A"> A headphones</label><label><input type="radio" name="a4" value="B" data-correct> B a notebook</label><label><input type="radio" name="a4" value="C"> C a laptop</label></div></fieldset></div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
     <details class="modelbox"><summary>📄 Script — open AFTER you answer</summary><p>Maya first booked the Monday session, <strong>but</strong> her work schedule changed, so she will attend on <strong>Wednesday instead</strong>. Visitors used to gather at reception; <strong>however</strong>, building work means everyone should now meet at the <strong>library entrance</strong>. The standard fee is fifty pounds, <strong>although</strong> early registration reduces it to <strong>thirty-five pounds</strong>. Learners do not need a laptop or headphones, but they must bring a <strong>notebook</strong>.</p></details>
@@ -331,19 +335,30 @@ footer a{color:var(--teal-dark)}
 
   <details class="lesson" id="mission4"><summary>🔢 Lesson 4 · Numbers &amp; spelling — hear the stress <span class="time">6 MIN · PRINT MISSION 4</span></summary><div class="body">
     <div class="rule amber"><strong>13 or 30? Listen to the STRESS</strong> <span class="jp" lang="ja">/ 強く読む場所を聞こう</span><br>thir<strong>TEEN</strong> (13) = strong at the <strong>end</strong> ↗ &nbsp;|&nbsp; <strong>THIR</strong>ty (30) = strong at the <strong>start</strong> ↘</div>
-    <p><strong>🎧 Listen. Write these 6.</strong> <span class="jp" lang="ja">聞いて書こう（何回聞いてもOK）</span></p>
-    <audio controls preload="none" src="ielts-audio/script-b-accuracy.mp3">Audio not available in this browser.</audio>
+    <p><strong>🎧 Listen. Write these 8.</strong> <span class="jp" lang="ja">聞いて書こう（何回聞いてもOK）</span></p>
+    <audio controls preload="metadata" src="028-script-b-accuracy.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
       <div class="grid2">
         <div class="q"><label>1. (13 or 30?)</label><input type="text" data-answers="thirteen|13"></div>
         <div class="q"><label>2.</label><input type="text" data-answers="thirty|30"></div>
         <div class="q"><label>3. (15 or 50?)</label><input type="text" data-answers="fifteen|15"></div>
         <div class="q"><label>4.</label><input type="text" data-answers="fifty|50"></div>
+        <div class="q"><label>5. (a date)</label><input type="text" data-answers="18 June|June 18|18th June"></div>
+        <div class="q"><label>6. (an address)</label><input type="text" data-answers="80 King Street|eighty King Street"></div>
         <div class="q"><label>7. A name (M-A-R-…)</label><input type="text" data-answers="Marco"></div>
         <div class="q"><label>8. A place (B-R-I-…)</label><input type="text" data-answers="Brighton"></div>
       </div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
+    <details class="modelbox"><summary>➕ Extension — Script B items 9 and 10 (optional, fast finishers)</summary>
+      <form class="quiz">
+        <div class="grid2">
+          <div class="q"><label>9. (two words)</label><input type="text" data-answers="two tickets|2 tickets"></div>
+          <div class="q"><label>10. (an adjective + a noun)</label><input type="text" data-answers="an affordable course|affordable course"></div>
+        </div>
+        <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
+      </form>
+    </details>
     <div class="rule">✏️ <strong>Spelling trick:</strong> LOOK 👀 → COVER 🙈 → WRITE ✍️ → CHECK ✓<br><span class="jp" lang="ja">見て・隠して・書いて・確認。間違えたら3回書こう。</span></div>
   </div></details>
 
@@ -424,7 +439,7 @@ footer a{color:var(--teal-dark)}
 
   <details class="lesson" id="mission7"><summary>🏆 Mini check · Listening + Speaking (like a mini test day) <span class="time">8 MIN · PRINT MISSION 7</span></summary><div class="body">
     <div class="rule">🎧 <strong>Listen ONE time</strong> (like the real test). Write <strong>max 2 words</strong> each.<br><span class="jp" lang="ja">本番のように1回だけ聞こう。各答えは2語まで。</span></div>
-    <audio controls preload="none" src="ielts-audio/script-c-mini-review.mp3">Audio not available in this browser.</audio>
+    <audio controls preload="metadata" src="028-script-c-mini-review.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
       <div class="q"><label>1. Workshop date:</label><input type="text" class="wc" data-answers="24 October|October 24"><span class="wordcount"></span></div>
       <div class="q"><label>2. Room:</label><input type="text" class="wc" data-answers="Room 2B|2B"><span class="wordcount"></span></div>
@@ -618,6 +633,17 @@ document.getElementById("jpToggle").addEventListener("click",function(){
   jpOn=!jpOn;document.body.classList.toggle("hide-jp",!jpOn);this.textContent="日本語ヒント: "+(jpOn?"ON":"OFF");
   this.setAttribute("aria-pressed",jpOn?"true":"false");
 });
+/* ---------- audio error notice ---------- */
+document.querySelectorAll("audio[src]").forEach(function(a){
+  a.addEventListener("error",function(){
+    if(a.nextElementSibling&&a.nextElementSibling.className==="audio-err")return;
+    var d=document.createElement("p");
+    d.className="audio-err";
+    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the three MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
+    a.insertAdjacentElement("afterend",d);
+  });
+});
+
 /* ---------- print ---------- */
 var printBtn=document.getElementById("printBtn");
 if(printBtn)printBtn.addEventListener("click",function(){window.print();});
@@ -801,5 +827,5 @@ form.addEventListener("submit",function(ev){
 });
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4a43c6c3f78d4a7',t:'MTc5MTk1NjI4Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>

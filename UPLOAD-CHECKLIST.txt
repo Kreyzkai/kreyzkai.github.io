@@ -1,0 +1,53 @@
+IELTS REVIEWER (028) — WHAT TO PUT IN THE REPOSITORY
+====================================================
+Everything in this ZIP goes FLAT into the REPOSITORY ROOT (the same folder as index.html).
+There is NO sub-folder any more — the three MP3s sit right next to the page. Nothing to rename.
+
+REQUIRED  (10 files)
+--------------------
+  028 IELTS Listening Speaking Reviewer.html      the student page (paste-or-upload; exact name matters — the printed QR codes point at it)
+  028-script-a-distractors.mp3                    listening audio — Lesson 3        (folder-free, upload as a plain file)
+  028-script-b-accuracy.mp3                       listening audio — Lesson 4
+  028-script-c-mini-review.mp3                    listening audio — Mini check
+  index.html                                      launcher (yours already matches; optional to replace)
+  IELTS Quest Mini Workbook.pdf
+  IELTS Quest Mission Sheets.pdf
+  IELTS Quest Teacher Scripts and Key.pdf
+  IELTS Quest Passport and Cards.pdf
+  IELTS Quest Test Day Journey.pdf
+  IELTS Quest Print Pack.zip                      teacher download
+  IELTS-Reviewer-Offline.zip                      student download for no-internet study
+
+DO NOT UPLOAD
+-------------
+  UPLOAD-CHECKLIST.txt        (this file — instructions only)
+  source/                     (rebuild scripts; never linked from the site)
+
+ON GITHUB'S WEBSITE
+-------------------
+  Add file -> Upload files -> select EVERY file in this folder (they are all files now, no folder)
+  -> Commit changes -> wait ~1 minute.
+  (For the HTML you can also just open the file in the editor and paste the source, as before.)
+
+IF YOU USE GITHUB DESKTOP OR GIT
+--------------------------------
+  Copy the unzipped files into your local kreyzkai.github.io folder (overwriting), then:
+      git add .  &&  git commit -m "028: audio files at root, updated page, print pack"  &&  git push
+
+WHAT WENT WRONG LAST TIME (so it does not repeat)
+-------------------------------------------------
+  The PDFs and ZIPs arrived, but the "ielts-audio" FOLDER did not — GitHub's uploader only took the
+  loose files. That is why every player showed a dead 0:00. There is no folder in this pack any more,
+  so a plain "select all files" upload cannot fail that way.
+
+CHECK IT IN 10 SECONDS — paste each URL in a browser; every one must OPEN or DOWNLOAD
+-------------------------------------------------------------------------------------
+  https://kreyzkai.github.io/028%20IELTS%20Listening%20Speaking%20Reviewer.html
+  https://kreyzkai.github.io/028-script-a-distractors.mp3
+  https://kreyzkai.github.io/028-script-b-accuracy.mp3
+  https://kreyzkai.github.io/028-script-c-mini-review.mp3
+  https://kreyzkai.github.io/IELTS%20Quest%20Mini%20Workbook.pdf
+  https://kreyzkai.github.io/IELTS-Reviewer-Offline.zip
+
+A GitHub "404" page means that file did not reach the repo. If the three MP3 links open or download,
+the players on the page will show real durations on load: 0:25, 0:40, 0:12.
