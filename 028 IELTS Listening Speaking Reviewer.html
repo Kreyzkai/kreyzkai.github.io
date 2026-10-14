@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>028 — IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing</title>
-<meta name="description" content="A segmented IELTS reviewer: choose the segment you need — Test Day walkthrough, Listening, Speaking, Reading, or Writing. Short lessons, audio, timers, recording, and printable materials. Original practice material by Marasigan.">
+<title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing</title>
+<meta name="description" content="An unofficial IELTS starter for student self-study: test-day walkthrough, Listening with recorded audio, Speaking with timers and recording, Reading and Writing starters, plus printable paper materials. Not affiliated with IELTS, the British Council, IDP or Cambridge.">
+<meta name="theme-color" content="#14395e">
+<link rel="icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%F0%9F%8E%A7%3C/text%3E%3C/svg%3E">
 <style>
 :root{--navy:#14395e;--teal:#1e9484;--teal-dark:#14705f;--amber:#f0b43b;--amber-dark:#9a6b0d;--ink:#24323d;--grey:#5d6d7a;--line:#c9d8d5;--light:#eaf4f2;--light2:#fff4d6;--bad:#b3261e;--good:#14705f}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -46,7 +48,7 @@ details.lesson>summary{cursor:pointer;padding:17px 20px;font-weight:bold;color:v
 details.lesson>summary::-webkit-details-marker{display:none}
 details.lesson>summary .time{background:var(--light);color:var(--teal-dark);font-size:.7rem;padding:4px 10px;border-radius:99px}
 details.lesson .body{padding:4px 20px 20px}
-details.lesson[open ]{border-color:var(--teal)}
+details.lesson[open]{border-color:var(--teal)}
 .rule{background:var(--light);border:2px solid var(--teal);border-radius:14px;padding:13px 16px;margin:12px 0}
 .rule.amber{background:var(--light2);border-color:var(--amber)}
 .q{border-top:1px dashed var(--line);padding:12px 0}.q:first-of-type{border-top:0}
@@ -79,6 +81,7 @@ table{border-collapse:collapse;width:100%;margin:11px 0;font-size:.91rem}
 th{background:var(--navy);color:#fff;text-align:left}th,td{border:1px solid var(--line);padding:7px;vertical-align:top}
 tr:nth-child(even) td{background:#f2f8f7}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.grid2.even2{grid-template-columns:repeat(2,minmax(160px,1fr))}
 .mini{background:#f8fbfa;border:1px solid var(--line);border-radius:12px;padding:13px}
 .mini h4{margin:.1em 0;color:var(--navy)}
 .note{font-size:.85rem;color:var(--grey)}
@@ -102,6 +105,32 @@ tr:nth-child(even) td{background:#f2f8f7}
 .plan-card{border:2px solid var(--teal);border-radius:14px;padding:15px 17px;margin:12px 0;background:#fbfefd}
 .plan-card.amber{border-color:var(--amber);background:#fffdf4}
 .plan-card h4{margin:.15em 0;color:var(--navy)}
+
+/* ---- audit fixes ---- */
+details.lesson, details.modelbox, section.panel > .card, #panel-needs .card{scroll-margin-top:84px}
+details.lesson>summary{position:relative;padding-right:52px}
+details.lesson>summary::after{content:"＋";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--teal-dark)}
+details.lesson[open]>summary::after{content:"−"}
+.options label.sel{border-color:var(--teal);background:var(--light);font-weight:bold}
+.tabbar .inner{scroll-snap-type:x proximity;padding-right:30px}
+.tab-btn{scroll-snap-align:start}
+.tabbar::after{content:"";position:absolute;right:0;top:0;bottom:2px;width:26px;pointer-events:none;background:linear-gradient(to right,rgba(255,255,255,0),rgba(255,255,255,.96))}
+.subtitle{color:#3b6d94}
+.s1{background:#14705f}.s2{background:#24628f}
+.step small{opacity:.96}
+main{padding-bottom:96px}
+@media(max-width:560px){#disclaimerBtn{font-size:0;padding:14px;border-radius:50%}
+  #disclaimerBtn::after{content:"ⓘ";font-size:1.05rem}}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.panel.active{animation:none}}
+@media print{
+  #disclaimerBtn,.tabbar,.recorder,.timer button,#jpToggle,#printBtn,button.btn,.feedback,.wordcount{display:none!important}
+  body{background:#fff;line-height:1.4}
+  .card{box-shadow:none;border:1px solid #999}
+  details.lesson{page-break-inside:avoid;border:1px solid #999}
+  details.lesson>summary::after{content:""}
+  .jp{color:#333}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:.7em;color:#555;word-break:break-all}
+}
 footer{max-width:900px;margin:0 auto;padding:0 16px 40px;color:var(--grey);font-size:.8rem;text-align:center}
 footer a{color:var(--teal-dark)}
 </style>
@@ -109,33 +138,34 @@ footer a{color:var(--teal-dark)}
 <body>
 
 <header><div class="inner">
-  <div class="eyebrow">TEACHING TOOLS · 028 · IELTS REVIEWER</div>
+  <div class="eyebrow">TEACHING TOOLS · 028 · UNOFFICIAL IELTS STARTER</div>
   <h1>🎧 IELTS Reviewer 🗣️</h1>
   <p class="sub">Choose the segment you need — no set order</p>
   <p class="promise">New to IELTS? Start with <strong>Test Day</strong>. Know the test already? Jump straight to the skill you want to practise.<br>
-  <span class="jp">順番は自由です。必要なところだけ選んで使えます。</span></p>
-  <button class="btn ghost" id="jpToggle" type="button">日本語ヒント: ON</button>
+  <span class="jp" lang="ja">順番は自由です。必要なところだけ選んで使えます。</span></p>
+  <button class="btn ghost" id="jpToggle" type="button" aria-pressed="true">日本語ヒント: ON</button>
+  <button class="btn ghost" id="printBtn" type="button">🖨 Print this segment</button>
 </div></header>
 
 <nav class="tabbar" aria-label="Choose a segment"><div class="inner" role="tablist">
-  <button class="tab-btn active" data-tab="home" role="tab">🏠 Start</button>
-  <button class="tab-btn" data-tab="needs" role="tab">🧭 Needs Check</button>
-  <button class="tab-btn" data-tab="testday" role="tab">🗺️ Test Day</button>
-  <button class="tab-btn" data-tab="listening" role="tab">🎧 Listening</button>
-  <button class="tab-btn" data-tab="speaking" role="tab">🗣️ Speaking</button>
-  <button class="tab-btn" data-tab="reading" role="tab">📖 Reading</button>
-  <button class="tab-btn" data-tab="writing" role="tab">✍️ Writing</button>
-  <button class="tab-btn" data-tab="toolkit" role="tab">🧰 Toolkit &amp; Print</button>
+  <button class="tab-btn active" id="tab-home" data-tab="home" role="tab" aria-controls="panel-home" aria-selected="true" tabindex="0">🏠 Start</button>
+  <button class="tab-btn" id="tab-needs" data-tab="needs" role="tab" aria-controls="panel-needs" aria-selected="false" tabindex="-1">🧭 Needs Check</button>
+  <button class="tab-btn" id="tab-testday" data-tab="testday" role="tab" aria-controls="panel-testday" aria-selected="false" tabindex="-1">🗺️ Test Day</button>
+  <button class="tab-btn" id="tab-listening" data-tab="listening" role="tab" aria-controls="panel-listening" aria-selected="false" tabindex="-1">🎧 Listening</button>
+  <button class="tab-btn" id="tab-speaking" data-tab="speaking" role="tab" aria-controls="panel-speaking" aria-selected="false" tabindex="-1">🗣️ Speaking</button>
+  <button class="tab-btn" id="tab-reading" data-tab="reading" role="tab" aria-controls="panel-reading" aria-selected="false" tabindex="-1">📖 Reading</button>
+  <button class="tab-btn" id="tab-writing" data-tab="writing" role="tab" aria-controls="panel-writing" aria-selected="false" tabindex="-1">✍️ Writing</button>
+  <button class="tab-btn" id="tab-toolkit" data-tab="toolkit" role="tab" aria-controls="panel-toolkit" aria-selected="false" tabindex="-1">🧰 Toolkit &amp; Print</button>
 </div></nav>
 
 <main>
 
 <!-- ============ HOME ============ -->
-<section class="panel active" id="panel-home">
+<section class="panel active" id="panel-home" role="tabpanel" aria-labelledby="tab-home">
   <div class="card">
-    <h2>What do you need today? <span class="jp">/ 今日は何をしますか？</span></h2>
+    <h2>What do you need today? <span class="jp" lang="ja">/ 今日は何をしますか？</span></h2>
     <p class="subtitle">Each segment stands alone. Do one, some, or all — in any order.</p>
-    <div class="rule" style="text-align:left"><strong>🧭 Not sure where to start?</strong> Take the 2-minute Needs Check. It asks about your goal, timing, and which English tasks feel easy or hard — then suggests a segment. Nothing is saved or sent, and it is <strong>not</strong> a score or test.<br><span class="jp">どこから始めるか迷ったら、2分のニーズチェックをどうぞ。記録は保存されません。</span><br>
+    <div class="rule" style="text-align:left"><strong>🧭 Not sure where to start?</strong> Take the 2-minute Needs Check. It asks about your goal, timing, and which English tasks feel easy or hard — then suggests a segment. Nothing is saved or sent, and it is <strong>not</strong> a score or test.<br><span class="jp" lang="ja">どこから始めるか迷ったら、2分のニーズチェックをどうぞ。記録は保存されません。</span><br>
     <button class="btn" type="button" data-go="needs">🧭 Start Needs Check</button></div>
     <div class="seg-grid">
       <button class="seg" data-go="testday"><span class="ico">🗺️</span><h3>Test Day — how IELTS works</h3><p>Booking, check-in, the order of the tests, what happens in each room, and scores. Read this first if you have never taken IELTS.</p><span class="time">READ · ABOUT 5 MIN</span></button>
@@ -145,47 +175,47 @@ footer a{color:var(--teal-dark)}
       <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Writing</h3><p>Tasks 1 and 2, how to plan, and a starter essay-plan practice.</p><span class="time">OVERVIEW + PRACTICE</span></button>
       <button class="seg" data-go="toolkit"><span class="ico">🧰</span><h3>Toolkit &amp; Print</h3><p>Printable quest book, mission sheets, test-day map, phrase cards, and teacher materials.</p><span class="time">DOWNLOADS</span></button>
     </div>
-    <div class="rule"><strong>📌 About saving:</strong> this website does <strong>not</strong> save your answers or progress — there is no account, and answers disappear when you close the tab on a different device. If you want a record, use the <strong>paper Passport / Quest Book</strong> in Toolkit &amp; Print — paper works on every device. 🙂<br>
-    <span class="jp">このサイトは記録を保存しません。記録したい人は紙のパスポートを使いましょう。</span></div>
+    <div class="rule"><strong>📌 About saving:</strong> this website does <strong>not</strong> save your answers or progress — there is no account, so answers disappear when you close the tab, and opening this page on another device starts empty. If you want a record, use the <strong>paper Passport / Quest Book</strong> in Toolkit &amp; Print — paper works on every device. 🙂<br>
+    <span class="jp" lang="ja">このサイトは記録を保存しません。記録したい人は紙のパスポートを使いましょう。</span></div>
   </div>
 </section>
 
 
 <!-- ============ NEEDS CHECK ============ -->
-<section class="panel" id="panel-needs">
+<section class="panel" id="panel-needs" role="tabpanel" aria-labelledby="tab-needs">
   <div class="card">
-    <h2>🧭 Needs Check — find your starting point <span class="jp">/ ニーズチェック</span></h2>
+    <h2>🧭 Needs Check — find your starting point <span class="jp" lang="ja">/ ニーズチェック</span></h2>
     <p class="subtitle">About 2 minutes · no right answers · just for you</p>
     <div class="rule"><strong>📌 Private by design:</strong> your choices are used only on this page, only right now. Nothing is saved, sent, or recorded — and this is <strong>not a test, level check, or band-score prediction</strong>. It simply suggests where to start. Talk to your teacher for real advice about your level and goals.<br>
-    <span class="jp">このページの中だけの提案です。保存・送信されません。スコア予測ではありません。</span></div>
+    <span class="jp" lang="ja">このページの中だけの提案です。保存・送信されません。スコア予測ではありません。</span></div>
 
     <form id="needsForm">
-      <h3>1 · Why are you interested in IELTS? <span class="jp">/ なぜIELTSに興味がありますか？</span></h3>
+      <h3>1 · Why are you interested in IELTS? <span class="jp" lang="ja">/ なぜIELTSに興味がありますか？</span></h3>
       <div class="options">
-        <label><input type="radio" name="goal" value="abroad" required> Study abroad / overseas university <span class="jp">留学</span></label>
-        <label><input type="radio" name="goal" value="program"> An English-taught programme or international course <span class="jp">英語プログラム</span></label>
-        <label><input type="radio" name="goal" value="future"> Future work, migration, or a long-term goal <span class="jp">将来の仕事など</span></label>
-        <label><input type="radio" name="goal" value="challenge"> A personal / school English challenge <span class="jp">英語のチャレンジ</span></label>
-        <label><input type="radio" name="goal" value="curious"> Just curious — I don't know yet <span class="jp">まだ分からない</span></label>
+        <label><input type="radio" name="goal" value="abroad" required> Study abroad / overseas university <span class="jp" lang="ja">留学</span></label>
+        <label><input type="radio" name="goal" value="program"> An English-taught programme or international course <span class="jp" lang="ja">英語プログラム</span></label>
+        <label><input type="radio" name="goal" value="future"> Future work, migration, or a long-term goal <span class="jp" lang="ja">将来の仕事など</span></label>
+        <label><input type="radio" name="goal" value="challenge"> A personal / school English challenge <span class="jp" lang="ja">英語のチャレンジ</span></label>
+        <label><input type="radio" name="goal" value="curious"> Just curious — I don't know yet <span class="jp" lang="ja">まだ分からない</span></label>
       </div>
 
-      <h3>2 · When might you take IELTS? <span class="jp">/ いつ頃受けますか？</span></h3>
+      <h3>2 · When might you take IELTS? <span class="jp" lang="ja">/ いつ頃受けますか？</span></h3>
       <div class="options">
-        <label><input type="radio" name="timing" value="soon" required> Within about 3 months <span class="jp">3か月以内</span></label>
-        <label><input type="radio" name="timing" value="mid"> In about 3–12 months <span class="jp">3か月〜1年</span></label>
-        <label><input type="radio" name="timing" value="later"> More than a year away <span class="jp">1年以上先</span></label>
-        <label><input type="radio" name="timing" value="none"> No date — just exploring <span class="jp">未定・様子見</span></label>
+        <label><input type="radio" name="timing" value="soon" required> Within about 3 months <span class="jp" lang="ja">3か月以内</span></label>
+        <label><input type="radio" name="timing" value="mid"> In about 3–12 months <span class="jp" lang="ja">3か月〜1年</span></label>
+        <label><input type="radio" name="timing" value="later"> More than a year away <span class="jp" lang="ja">1年以上先</span></label>
+        <label><input type="radio" name="timing" value="none"> No date — just exploring <span class="jp" lang="ja">未定・様子見</span></label>
       </div>
 
-      <h3>3 · Your English so far <span class="jp">/ 今の英語について</span></h3>
-      <label>EIKEN (if you have taken it) <span class="jp">/ 英検</span></label>
+      <h3>3 · Your English so far <span class="jp" lang="ja">/ 今の英語について</span></h3>
+      <label>EIKEN (if you have taken it) <span class="jp" lang="ja">/ 英検</span></label>
       <select name="eiken" required>
         <option value="">Choose…</option><option value="none">I have not taken EIKEN / not sure</option>
         <option value="low">Grade 3 or below</option><option value="pre2">Pre-2 / Pre-2 Plus</option>
         <option value="g2">Grade 2</option><option value="pre1">Pre-1 or Grade 1</option>
       </select>
 
-      <h3>4 · How do these feel now? <span class="jp">/ 今の感じは？（正直に）</span></h3>
+      <h3>4 · How do these feel now? <span class="jp" lang="ja">/ 今の感じは？（正直に）</span></h3>
       <label>🎧 Listening to English conversations</label>
       <select name="cListening" required><option value="">Choose…</option><option value="1">Hard — I catch only a few words</option><option value="2">OK — I get the main idea if I can listen again</option><option value="3">Confident — I can follow details the first time</option></select>
       <label>📖 Reading longer English texts</label>
@@ -195,7 +225,7 @@ footer a{color:var(--teal-dark)}
       <label>🗣️ Speaking in English</label>
       <select name="cSpeaking" required><option value="">Choose…</option><option value="1">Hard — a few words or short answers</option><option value="2">I can answer in short sentences</option><option value="3">Confident — I can talk for about a minute</option></select>
 
-      <h3>5 · What worries you most? <span class="jp">/ 一番心配なのは？</span></h3>
+      <h3>5 · What worries you most? <span class="jp" lang="ja">/ 一番心配なのは？</span></h3>
       <select name="worry" required>
         <option value="">Choose…</option>
         <option value="unknown">I don't know what happens in the test</option>
@@ -206,7 +236,7 @@ footer a{color:var(--teal-dark)}
         <option value="language">My vocabulary / grammar level</option>
       </select>
 
-      <h3>6 · Time you can practise each week <span class="jp">/ 毎週の練習時間</span></h3>
+      <h3>6 · Time you can practise each week <span class="jp" lang="ja">/ 毎週の練習時間</span></h3>
       <select name="time" required>
         <option value="">Choose…</option>
         <option value="little">Under 30 minutes</option>
@@ -214,7 +244,8 @@ footer a{color:var(--teal-dark)}
         <option value="much">More than 1 hour</option>
       </select>
 
-      <p style="margin-top:18px"><button class="btn teal" type="submit">➜ Show my starting plan</button></p>
+      <p style="margin-top:18px"><button class="btn teal" type="submit">➜ Show my starting plan</button>
+      <button class="btn ghost" type="reset" id="needsReset" style="display:none">⟲ Start over</button></p>
     </form>
 
     <div id="needsResult" style="display:none" aria-live="polite"></div>
@@ -222,22 +253,22 @@ footer a{color:var(--teal-dark)}
 </section>
 
 <!-- ============ TEST DAY ============ -->
-<section class="panel" id="panel-testday">
+<section class="panel" id="panel-testday" role="tabpanel" aria-labelledby="tab-testday">
   <div class="card">
-    <h2>🗺️ Your IELTS Test Day <span class="jp">/ テスト当日の流れ</span></h2>
-    <p class="subtitle">Know the journey, and nothing can surprise you. ★ = rooms this reviewer trains.</p>
-    <table><tr><th colspan="7" style="text-align:center">1 BOOK → 2 CHECK IN → 3 ★ LISTENING → 4 READING → 5 WRITING → 6 ★ SPEAKING → 7 SCORES</th></tr></table>
-    <p class="note">Listening → Reading → Writing always run together (2 hours 40 minutes, <strong>no breaks</strong>). Speaking may be before/after, or on a different day up to 7 days before/after — your booking confirmation says when.</p>
+    <h2>🗺️ Your IELTS Test Day <span class="jp" lang="ja">/ テスト当日の流れ</span></h2>
+    <p class="subtitle">Know the journey, and nothing can surprise you. 🎯 = rooms this reviewer trains.</p>
+    <table><tr><th colspan="7" style="text-align:center">1 BOOK → 2 CHECK IN → 3 🎯 LISTENING → 4 READING → 5 WRITING → 6 🎯 SPEAKING → 7 SCORES</th></tr></table>
+    <p class="note">Listening → Reading → Writing always run together (about 2 h 40 on paper, about 2 h 30 on computer, <strong>no breaks</strong>). Speaking may be before/after, or on a different day up to 7 days before/after — your booking confirmation says when.</p>
     <div class="timeline">
-      <div class="tl"><div class="n">1</div><div><h4>📝 Book your test</h4><p>Choose <strong>Academic or General Training</strong>, and <strong>paper or computer</strong> at a test centre. Listening and Speaking are the same for both; Reading and Writing are different. Your confirmation gives the date, time, place, and your Speaking time.</p><p class="jp">申し込み時に種類と方法を選びます。</p></div></div>
-      <div class="tl"><div class="n">2</div><div><h4>🎒 Pack &amp; arrive early</h4><p>Bring the <strong>same ID you used when you booked</strong>. Into the test room: only your ID and <strong>water in a clear bottle with no label</strong>. Phones, watches, electronics and your own pens stay outside. The centre takes your photo (some centres also scan a finger). Arrive with plenty of time — if you are late, you may not be able to take the test. Eat and use the toilet before: <strong>there are no breaks</strong>.</p><p class="jp">持ち物は身分証と透明な水筒だけ。早めに到着しましょう。</p></div></div>
-      <div class="tl"><div class="n">3</div><div><h4>🪪 Check in</h4><p>Staff check your ID, take your photo, store your belongings, and show you your seat. An invigilator explains the rules. This is the same for everyone — it is <strong>not</strong> a test. Need help? <strong>Raise your hand quietly.</strong></p><p class="jp">受付は全員同じ手続き。困ったら静かに手を挙げましょう。</p></div></div>
-      <div class="tl star"><div class="n">4</div><div><h4>🎧 Listening room ★ — about 30 min, 40 questions</h4><p>First test of the day. The sound is checked — if you cannot hear clearly, <strong>raise your hand before it starts</strong>. You hear 4 recordings, <strong>each ONE time only</strong>, getting harder (chat → talk → study talk → lecture). Before each part there is a short moment to read the questions: that is your <strong>prediction time</strong> (Listening lessons train exactly this). Write as you listen; paper tests get transfer time at the end, computer tests a short check time.</p><p class="jp">Listening は最初・1回だけ再生。予想する時間がカギです。</p></div></div>
-      <div class="tl"><div class="n">5</div><div><h4>📖✍️ Reading (60 min, 40 questions) → Writing (60 min, 2 tasks)</h4><p>No break between them. Reading answers go straight onto the answer sheet/screen (no extra transfer time). A clock is in the room. This reviewer gives you an overview of both — full training needs timed practice tests too.</p><p class="jp">休憩なしで続きます。時計を見ながら進めましょう。</p></div></div>
-      <div class="tl star"><div class="n">6</div><div><h4>🗣️ Speaking room ★ — 11–14 min, one examiner</h4><p>Show the same ID and wait to be called. <strong>Part 1 (4–5 min)</strong> questions about you → <strong>Part 2</strong> topic card, 1 minute of keyword notes, speak 1–2 minutes → <strong>Part 3 (4–5 min)</strong> deeper discussion. Your speaking is <strong>recorded</strong> (normal for everyone). The examiner controls the time — <strong>being stopped does not mean you failed</strong> — and will not tell you your score.</p><p class="jp">試験官が時間を管理します。止められても失敗ではありません。</p></div></div>
-      <div class="tl"><div class="n">7</div><div><h4>🏁 Finish &amp; scores</h4><p>Stay seated until staff say you can leave, collect your belongings, and report any problem <strong>on the day</strong>. Later you receive <strong>4 scores + 1 overall score (1–9)</strong> on your Test Report Form; when and how depends on your test type and centre.</p><p class="jp">結果は4技能＋総合スコア（1〜9）で届きます。</p></div></div>
+      <div class="tl"><div class="n">1</div><div><h4>📝 Book your test</h4><p>Choose <strong>Academic or General Training</strong>, and <strong>paper or computer</strong> at a test centre. Listening and Speaking are the same for both; Reading and Writing are different. Your confirmation gives the date, time, place, and your Speaking time.</p><p class="jp" lang="ja">申し込み時に種類と方法を選びます。</p></div></div>
+      <div class="tl"><div class="n">2</div><div><h4>🎒 Pack &amp; arrive early</h4><p>Bring the <strong>same ID you used when you booked</strong>. Into the test room: only your ID and <strong>water in a clear bottle with no label</strong>. Phones, watches, electronics and your own pens stay outside. The centre takes your photo (some centres also scan a finger). Arrive with plenty of time — if you are late, you may not be able to take the test. Eat and use the toilet before: <strong>there are no breaks</strong>.</p><p class="jp" lang="ja">持ち物は身分証と透明な水筒だけ。早めに到着しましょう。</p></div></div>
+      <div class="tl"><div class="n">3</div><div><h4>🪪 Check in</h4><p>Staff check your ID, take your photo, store your belongings, and show you your seat. An invigilator explains the rules. This is the same for everyone — it is <strong>not</strong> a test. Need help? <strong>Raise your hand quietly.</strong></p><p class="jp" lang="ja">受付は全員同じ手続き。困ったら静かに手を挙げましょう。</p></div></div>
+      <div class="tl star"><div class="n">4</div><div><h4>🎧 Listening room 🎯 — about 30 min, 40 questions</h4><p>First test of the day. The sound is checked — if you cannot hear clearly, <strong>raise your hand before it starts</strong>. You hear 4 recordings, <strong>each ONE time only</strong>, getting harder (chat → talk → study talk → lecture). Before each part there is a short moment to read the questions: that is your <strong>prediction time</strong> (Listening lessons train exactly this). Write as you listen; paper tests get transfer time at the end, computer tests a short check time.</p><p class="jp" lang="ja">Listening は最初・1回だけ再生。予想する時間がカギです。</p></div></div>
+      <div class="tl"><div class="n">5</div><div><h4>📖✍️ Reading (60 min, 40 questions) → Writing (60 min, 2 tasks)</h4><p>No break between them. Reading answers go straight onto the answer sheet/screen (no extra transfer time). A clock is in the room. This reviewer gives you an overview of both — full training needs timed practice tests too.</p><p class="jp" lang="ja">休憩なしで続きます。時計を見ながら進めましょう。</p></div></div>
+      <div class="tl star"><div class="n">6</div><div><h4>🗣️ Speaking room 🎯 — 11–14 min, one examiner</h4><p>Show the same ID and wait to be called. <strong>Part 1 (4–5 min)</strong> questions about you → <strong>Part 2</strong> topic card, 1 minute of keyword notes, speak 1–2 minutes → <strong>Part 3 (4–5 min)</strong> deeper discussion. Your speaking is <strong>recorded</strong> (normal for everyone). The examiner controls the time — <strong>being stopped does not mean you failed</strong> — and will not tell you your score.</p><p class="jp" lang="ja">試験官が時間を管理します。止められても失敗ではありません。</p></div></div>
+      <div class="tl"><div class="n">7</div><div><h4>🏁 Finish &amp; scores</h4><p>Stay seated until staff say you can leave, collect your belongings, and report any problem <strong>on the day</strong>. Later you receive <strong>4 scores + 1 overall score (1–9)</strong> on your Test Report Form; when and how depends on your test type and centre.</p><p class="jp" lang="ja">結果は4技能＋総合スコア（1〜9）で届きます。</p></div></div>
     </div>
-    <h3>Quick confidence check <span class="jp">/ かくにんクイズ</span></h3>
+    <h3>Quick confidence check <span class="jp" lang="ja">/ かくにんクイズ</span></h3>
     <form class="quiz">
       <div class="q"><label>1. Correct order in the main room?</label><select data-answer="lrw"><option value="">Choose…</option><option value="lrw">Listening → Reading → Writing</option><option value="wrl">Writing → Reading → Listening</option><option value="slr">Speaking → Listening → Reading</option></select></div>
       <div class="q"><label>2. How many times is each Listening recording played?</label><select data-answer="once"><option value="">Choose…</option><option value="once">One time only</option><option value="twice">Two times</option><option value="many">Many times</option></select></div>
@@ -245,43 +276,48 @@ footer a{color:var(--teal-dark)}
       <div class="q"><label>4. You can't hear the Listening sound clearly. You…</label><select data-answer="hand"><option value="">Choose…</option><option value="hand">Raise my hand before it starts</option><option value="shout">Shout to staff</option><option value="nothing">Say nothing</option></select></div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
-    <p class="note">Based on official IELTS / British Council test-day guidance; centres vary a little, so your booking confirmation always wins. Sources: <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" rel="noopener">British Council — Test day advice</a> · <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" rel="noopener">IELTS — test format</a>. Print it: <a href="IELTS%20Quest%20Test%20Day%20Journey.pdf" download>Test Day Map (1 page)</a>.</p>
+    <p class="note">Based on official IELTS / British Council test-day guidance; centres vary a little, so your booking confirmation always wins. Sources: <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" target="_blank" rel="noopener">British Council — Test day advice</a> · <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" target="_blank" rel="noopener">IELTS — test format</a>. Print it: <a href="IELTS%20Quest%20Test%20Day%20Journey.pdf" download>Test Day Map (1 page)</a>.</p>
   </div>
 </section>
 
 <!-- ============ LISTENING ============ -->
-<section class="panel" id="panel-listening">
+<section class="panel" id="panel-listening" role="tabpanel" aria-labelledby="tab-listening">
   <div class="card">
-    <h2>🎧 Listening <span class="jp">/ リスニング</span></h2>
+    <h2>🎧 Listening <span class="jp" lang="ja">/ リスニング</span></h2>
     <p class="subtitle">About 30 minutes · 40 questions · 4 recordings, each played ONE time · answers mostly come in question order. Pick any lesson — no order needed.</p>
     <p><button class="btn small teal" data-open="mission1">1 Predict</button> <button class="btn small teal" data-open="mission2">2 Same meaning</button> <button class="btn small teal" data-open="mission3">3 Trick answers</button> <button class="btn small teal" data-open="mission4">4 Numbers &amp; spelling</button> <button class="btn small" data-go="speaking" data-target="mission7">Mini check →</button></p>
   </div>
 
   <details class="lesson" id="mission1"><summary>🎧 Lesson 1 · Predict — guess before you listen <span class="time">3 MIN · PRINT MISSION 1</span></summary><div class="body">
-    <div class="rule"><strong>Before you listen, guess:</strong> what kind of word will come?<br><span class="jp">音声を聞く前に、どんな言葉が入るか予想します。</span></div>
+    <div class="rule"><strong>Before you listen, guess:</strong> what kind of word will come?<br><span class="jp" lang="ja">音声を聞く前に、どんな言葉が入るか予想します。</span></div>
     <form class="quiz">
       <div class="q"><label>1. The guided tour begins at ________.</label><select data-answer="time"><option value="">Choose…</option><option value="time">🕐 a time</option><option value="place">🏫 a place</option><option value="price">💷 a price</option></select></div>
       <div class="q"><label>2. The course fee is £________.</label><select data-answer="price"><option value="">Choose…</option><option value="time">🕐 a time</option><option value="place">🏫 a place</option><option value="price">💷 a price</option></select></div>
       <div class="q"><label>3. Students must bring a ________.</label><select data-answer="thing"><option value="">Choose…</option><option value="time">🕐 a time</option><option value="thing">🎒 a thing</option><option value="price">💷 a price</option></select></div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
-    <div class="rule amber">⚠️ <strong>Word limit!</strong> “NO MORE THAN TWO WORDS” = <strong>1 or 2 words only</strong>.<br><span class="jp">文字数オーバーは不正解になります。</span><br>Try it: <input type="text" id="wl" placeholder="Type an answer… e.g. a notebook" style="margin-top:8px"> <span class="wordcount" id="wlCount"></span></div>
+    <div class="rule amber">⚠️ <strong>Word limit!</strong> “NO MORE THAN TWO WORDS” = <strong>1 or 2 words only</strong>.<br><span class="jp" lang="ja">文字数オーバーは不正解になります。</span><br>Try it: <input type="text" id="wl" placeholder="Type an answer… e.g. a notebook" style="margin-top:8px"> <span class="wordcount" id="wlCount"></span></div>
   </div></details>
 
   <details class="lesson" id="mission2"><summary>🔤 Lesson 2 · Same meaning — different words, same idea <span class="time">4 MIN · PRINT MISSION 2</span></summary><div class="body">
-    <div class="rule">IELTS loves <strong>different words</strong> with the <strong>same meaning</strong>.<br><span class="jp">問題と音声で、言葉が変わることがよくあります。</span></div>
-    <div class="grid2"><div class="mini"><h4>cheap</h4>= affordable</div><div class="mini"><h4>near</h4>= close to / a short walk</div><div class="mini"><h4>problem</h4>= difficulty</div><div class="mini"><h4>advantage</h4>= benefit</div></div>
+    <div class="rule">IELTS loves <strong>different words</strong> with the <strong>same meaning</strong>.<br>
+    Your answer is always built from the <strong>blue word</strong> — the words after “=” are how the question or recording may say it instead.<br>
+    <span class="jp" lang="ja">答えは青い見出し語から作ります。「=」の語は、問題や音声での言いかえです。</span><br>
+    ⚠️ <strong>Watch the form:</strong> “The price has been reduced.” → the item is now <strong>cheap·er</strong> — not <em>cheap</em>.<br>
+    <span class="jp" lang="ja">形（けい）に注意：reduced → cheaper。</span></div>
+    <div class="grid2 even2"><div class="mini"><h4>cheap</h4>= affordable</div><div class="mini"><h4>near</h4>= close to / a short walk</div><div class="mini"><h4>problem</h4>= difficulty</div><div class="mini"><h4>advantage</h4>= benefit</div></div>
     <form class="quiz">
-      <div class="q"><label>1. “The price has been reduced.” → The item is now ________.</label><input type="text" data-answers="cheaper|more affordable|affordable"></div>
+      <div class="q"><label>1. “The price has been reduced.” → The item is now ________.</label><input type="text" data-answers="cheaper|more affordable"></div>
       <div class="q"><label>2. “It is only a short walk from the station.” → It is ________ the station.</label><input type="text" data-answers="near|close to"></div>
       <div class="q"><label>3. “The main benefit is flexibility.” → The main ________ is flexibility.</label><input type="text" data-answers="advantage"></div>
+      <div class="q"><label>4. “We had trouble with the booking system.” → There was a ________ with the booking system.</label><input type="text" data-answers="problem|difficulty"></div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
   </div></details>
 
   <details class="lesson" id="mission3"><summary>🎧 Lesson 3 · Trick answers — don't stop at the first answer <span class="time">6 MIN · PRINT MISSION 3</span></summary><div class="body">
-    <div class="rule">⚠️ The <strong>first</strong> answer is often a trick! Listen for: <strong>but · however · instead · changed to</strong><br><span class="jp">最初の答えで止まらないで。あとで変わることがあります。</span></div>
-    <p><strong>🎧 Listen and answer.</strong> <span class="jp">聞いて答えましょう（答えのあとでスクリプトを見てもOK）</span></p>
+    <div class="rule">⚠️ The <strong>first</strong> answer is often a trick! Listen for: <strong>but · however · instead · changed to</strong><br><span class="jp" lang="ja">最初の答えで止まらないで。あとで変わることがあります。</span></div>
+    <p><strong>🎧 Listen and answer.</strong> <span class="jp" lang="ja">聞いて答えましょう（答えのあとでスクリプトを見てもOK）</span></p>
     <audio controls preload="none" src="ielts-audio/script-a-distractors.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
       <div class="q"><fieldset><legend>1. Which day will Maya attend?</legend><div class="options"><label><input type="radio" name="a1" value="A"> A Monday</label><label><input type="radio" name="a1" value="B" data-correct> B Wednesday</label><label><input type="radio" name="a1" value="C"> C Friday</label></div></fieldset></div>
@@ -294,8 +330,8 @@ footer a{color:var(--teal-dark)}
   </div></details>
 
   <details class="lesson" id="mission4"><summary>🔢 Lesson 4 · Numbers &amp; spelling — hear the stress <span class="time">6 MIN · PRINT MISSION 4</span></summary><div class="body">
-    <div class="rule amber"><strong>13 or 30? Listen to the STRESS</strong> <span class="jp">/ 強く読む場所を聞こう</span><br>thir<strong>TEEN</strong> (13) = strong at the <strong>end</strong> ↗ &nbsp;|&nbsp; <strong>THIR</strong>ty (30) = strong at the <strong>start</strong> ↘</div>
-    <p><strong>🎧 Listen. Write these 6.</strong> <span class="jp">聞いて書こう（何回聞いてもOK）</span></p>
+    <div class="rule amber"><strong>13 or 30? Listen to the STRESS</strong> <span class="jp" lang="ja">/ 強く読む場所を聞こう</span><br>thir<strong>TEEN</strong> (13) = strong at the <strong>end</strong> ↗ &nbsp;|&nbsp; <strong>THIR</strong>ty (30) = strong at the <strong>start</strong> ↘</div>
+    <p><strong>🎧 Listen. Write these 6.</strong> <span class="jp" lang="ja">聞いて書こう（何回聞いてもOK）</span></p>
     <audio controls preload="none" src="ielts-audio/script-b-accuracy.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
       <div class="grid2">
@@ -308,23 +344,23 @@ footer a{color:var(--teal-dark)}
       </div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
-    <div class="rule">✏️ <strong>Spelling trick:</strong> LOOK 👀 → COVER 🙈 → WRITE ✍️ → CHECK ✓<br><span class="jp">見て・隠して・書いて・確認。間違えたら3回書こう。</span></div>
+    <div class="rule">✏️ <strong>Spelling trick:</strong> LOOK 👀 → COVER 🙈 → WRITE ✍️ → CHECK ✓<br><span class="jp" lang="ja">見て・隠して・書いて・確認。間違えたら3回書こう。</span></div>
   </div></details>
 
-  <div class="card"><h3>When you make a mistake, ask why <span class="jp">/ 間違えた理由</span></h3>
+  <div class="card"><h3>When you make a mistake, ask why <span class="jp" lang="ja">/ 間違えた理由</span></h3>
   <p><strong>A</strong> 🎧 I didn't hear it · <strong>P</strong> 🔮 My guess was wrong · <strong>D</strong> ⚠️ Trick answer · <strong>S</strong> ✏️ Spelling · <strong>F</strong> 💤 I lost focus. Knowing the reason tells you what to practise next — here, or in a full practice test (this reviewer trains 2 of the many Listening question types).</p></div>
 </section>
 
 <!-- ============ SPEAKING ============ -->
-<section class="panel" id="panel-speaking">
+<section class="panel" id="panel-speaking" role="tabpanel" aria-labelledby="tab-speaking">
   <div class="card">
-    <h2>🗣️ Speaking <span class="jp">/ スピーキング</span></h2>
+    <h2>🗣️ Speaking <span class="jp" lang="ja">/ スピーキング</span></h2>
     <p class="subtitle">11–14 minutes · you + one examiner · recorded · three parts. Judged equally on fluency, vocabulary, grammar, and pronunciation — being easy to understand matters more than any accent.</p>
     <p><button class="btn small teal" data-open="mission5">Part 1</button> <button class="btn small teal" data-open="mission6">Part 2</button> <button class="btn small teal" data-open="speaking3">Part 3</button> <button class="btn small teal" data-open="mission7">Mini check</button></p>
   </div>
 
   <details class="lesson" id="mission5"><summary>🗣️ Part 1 · Answer + reason + example <span class="time">4–5 MIN IN TEST · PRINT MISSION 5</span></summary><div class="body">
-    <div class="rule">Don't answer with one word. Use <strong>3 steps</strong>:<br><span class="jp">1語で終わらせず、3ステップで少し長く答えよう。</span></div>
+    <div class="rule">Don't answer with one word. Use <strong>3 steps</strong>:<br><span class="jp" lang="ja">1語で終わらせず、3ステップで少し長く答えよう。</span></div>
     <div class="pattern"><div class="step s1">① ANSWER<small>Yes, I do.</small></div><div class="step s2">② REASON<small>because…</small></div><div class="step s3">③ EXAMPLE<small>For example…</small></div></div>
     <label>Question</label>
     <select id="p1q"><option>Do you enjoy learning English?</option><option>What kind of music do you listen to?</option><option>What do you usually do at weekends?</option><option>How often do you use public transportation?</option><option>Is your hometown a good place for young people?</option><option>Would you like to learn another language?</option></select>
@@ -332,17 +368,17 @@ footer a{color:var(--teal-dark)}
     <label>② Reason — key words</label><input type="text" placeholder="I can talk to many people">
     <label>③ Example — key words</label><input type="text" placeholder="when I travel">
     <div class="timer" data-timer="30"><div class="tlabel">Say it — 30 seconds</div><div class="time">00:30</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
-    <div class="recorder" data-recorder><strong>🎙 Record yourself</strong> <span class="jp">/ 録音してみよう（端末の中だけ・アップロードされません）</span><br>
+    <div class="recorder" data-recorder><strong>🎙 Record yourself</strong> <span class="jp" lang="ja">/ 録音してみよう（端末の中だけ・アップロードされません）</span><br>
       <button class="btn teal small" type="button" data-rec-start>● Start</button><button class="btn small ghost" type="button" data-rec-stop disabled>■ Stop</button>
       <div class="note" data-rec-status>Recordings stay on your device and are not saved by this site.</div><audio controls data-rec-audio style="display:none"></audio></div>
-    <details class="modelbox"><summary>⭐ Models — open AFTER you try</summary>
+    <details class="modelbox"><summary>📄 Models — open AFTER you try</summary>
       <div class="model starter"><span class="tag">Starter</span><p><em>Yes, I do. I like English because I can talk to more people. For example, I can use it when I travel.</em></p></div>
       <div class="model stepup"><span class="tag">Step up · try ONE new phrase</span><p><em>Yes, I do, especially when I can use it in real conversations. When I travelled last year, I was able to ask for directions instead of relying on a translation app.</em></p></div>
     </details>
   </div></details>
 
   <details class="lesson" id="mission6"><summary>🗣️ Part 2 · Talk for 1–2 minutes <span class="time">1 MIN PREP · PRINT MISSION 6</span></summary><div class="body">
-    <div class="rule amber"><strong>🎴 Describe a skill you would like to learn.</strong><br><span class="jp">学びたいことについて話そう。キーワードだけでメモします。</span></div>
+    <div class="rule amber"><strong>🎴 Describe a skill you would like to learn.</strong><br><span class="jp" lang="ja">学びたいことについて話そう。キーワードだけでメモします。</span></div>
     <div class="pattern" style="grid-template-columns:repeat(auto-fit,minmax(100px,1fr))"><div class="step s1">WHAT<small>何？</small></div><div class="step s1">WHY<small>なぜ？</small></div><div class="step s2">HOW<small>どうやって？</small></div><div class="step s2">EXAMPLE<small>例</small></div><div class="step s3">FEELING<small>気持ち</small></div><div class="step s3">ENDING<small>まとめ</small></div></div>
     <div class="grid2">
       <div><label>WHAT</label><input type="text" placeholder="play the guitar"></div><div><label>WHY</label><input type="text" placeholder="I love music"></div>
@@ -353,18 +389,18 @@ footer a{color:var(--teal-dark)}
       <div class="timer" data-timer="60"><div class="tlabel">⏱ Prepare — 1 minute, keywords only</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
       <div class="timer" data-timer="60"><div class="tlabel">🗣️ Speak — first goal: 1 minute!</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
     </div>
-    <p class="note">In the real test you speak for <strong>1–2 minutes</strong>. When 1 minute feels easy, try 2. <span class="jp">本番は1〜2分。慣れたら2分に挑戦。</span> More cue cards: a useful lesson · a place you enjoyed · something you bought · a person who helped you.</p>
+    <p class="note">In the real test you speak for <strong>1–2 minutes</strong>. When 1 minute feels easy, try 2. <span class="jp" lang="ja">本番は1〜2分。慣れたら2分に挑戦。</span> More cue cards: a useful lesson · a place you enjoyed · something you bought · a person who helped you.</p>
     <div class="recorder" data-recorder><strong>🎙 Record yourself</strong><br>
       <button class="btn teal small" type="button" data-rec-start>● Start</button><button class="btn small ghost" type="button" data-rec-stop disabled>■ Stop</button>
       <div class="note" data-rec-status>Listen once for ideas, once for English.</div><audio controls data-rec-audio style="display:none"></audio></div>
-    <details class="modelbox"><summary>⭐ Models — open AFTER you try</summary>
+    <details class="modelbox"><summary>📄 Models — open AFTER you try</summary>
       <div class="model starter"><span class="tag">Starter · about 45 seconds</span><p><em>I would like to learn how to play the guitar. I want to learn it because I enjoy music. I would take online lessons and practise for twenty minutes every day. For example, I could learn one easy song first. I would feel proud if I could play it well. Overall, it would help me relax.</em></p></div>
       <div class="model stepup"><span class="tag">Step up · about 90 seconds · try ONE new phrase</span><p><em>To begin with, a skill I would really like to learn is playing the guitar. One reason I want to learn it is that music helps me relax, and it would be a good way to spend time with friends. I would probably start with short online lessons, because they are flexible, and I would practise for about twenty minutes a day so that I improve gradually. A good example is my cousin, who learned in this way. What would help most is being patient. Overall, it is a skill I could enjoy for the rest of my life.</em></p></div>
     </details>
   </div></details>
 
   <details class="lesson" id="speaking3"><summary>🗣️ Part 3 · Opinion + reason + example + qualify <span class="time">4–5 MIN IN TEST</span></summary><div class="body">
-    <div class="rule">Go deeper than Part 1: <strong>Opinion → Reason → Example → “That said…”</strong><br><span class="jp">意見だけでなく、理由・例・反対の見方も言いましょう。</span></div>
+    <div class="rule">Go deeper than Part 1: <strong>Opinion → Reason → Example → “That said…”</strong><br><span class="jp" lang="ja">意見だけでなく、理由・例・反対の見方も言いましょう。</span></div>
     <label>Question</label>
     <select id="p3q"><option>Are online courses as effective as classroom lessons?</option><option>Why do some adults continue learning new skills?</option><option>Should schools spend more time teaching practical skills?</option><option>How has technology changed the way people learn?</option><option>What skills will be most valuable in the future?</option></select>
     <div class="grid2">
@@ -372,13 +408,13 @@ footer a{color:var(--teal-dark)}
       <div><label>Example — For example…</label><input type="text"></div><div><label>Qualify — That said… / It depends on…</label><input type="text"></div>
     </div>
     <div class="timer" data-timer="60"><div class="tlabel">Say it — about 1 minute</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
-    <details class="modelbox"><summary>⭐ Models — open AFTER you try</summary>
+    <details class="modelbox"><summary>📄 Models — open AFTER you try</summary>
       <div class="model starter"><span class="tag">Starter</span><p><em>I think online courses can be good. This is because students can study at any time. For example, they can watch a lesson again. But some students learn better with a teacher in a classroom.</em></p></div>
       <div class="model stepup"><span class="tag">Step up · try ONE new phrase</span><p><em>In my opinion, online courses can be just as effective as classroom lessons, but it depends on the learner. This is because online study is flexible: students can replay difficult parts and learn at their own pace. For example, a student who works during the day can study late in the evening. That said, classroom lessons offer immediate feedback and more interaction, so younger or less self-disciplined learners may make faster progress with a teacher in front of them.</em></p></div>
     </details>
-    <h3>Help! phrases <span class="jp">/ 困ったときのフレーズ</span></h3>
+    <h3>Help! phrases <span class="jp" lang="ja">/ 困ったときのフレーズ</span></h3>
     <p>“Let me think about that…” · “What I mean is…” · “It is a kind of…” · “It is something you use to…” · “Please say that again.” — being stuck is OK. Keep talking.</p>
-    <h3>Check your recording <span class="jp">/ 録音チェック</span></h3>
+    <h3>Check your recording <span class="jp" lang="ja">/ 録音チェック</span></h3>
     <div class="checkline"><input type="checkbox" id="sr1"><label for="sr1" style="margin:0">Fluency: my ideas connected (first, also, but, overall…).</label></div>
     <div class="checkline"><input type="checkbox" id="sr2"><label for="sr2" style="margin:0">Vocabulary: I used some exact words, not only easy ones.</label></div>
     <div class="checkline"><input type="checkbox" id="sr3"><label for="sr3" style="margin:0">Grammar: I tried some long sentences (because / when / if…).</label></div>
@@ -387,7 +423,7 @@ footer a{color:var(--teal-dark)}
   </div></details>
 
   <details class="lesson" id="mission7"><summary>🏆 Mini check · Listening + Speaking (like a mini test day) <span class="time">8 MIN · PRINT MISSION 7</span></summary><div class="body">
-    <div class="rule">🎧 <strong>Listen ONE time</strong> (like the real test). Write <strong>max 2 words</strong> each.<br><span class="jp">本番のように1回だけ聞こう。各答えは2語まで。</span></div>
+    <div class="rule">🎧 <strong>Listen ONE time</strong> (like the real test). Write <strong>max 2 words</strong> each.<br><span class="jp" lang="ja">本番のように1回だけ聞こう。各答えは2語まで。</span></div>
     <audio controls preload="none" src="ielts-audio/script-c-mini-review.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
       <div class="q"><label>1. Workshop date:</label><input type="text" class="wc" data-answers="24 October|October 24"><span class="wordcount"></span></div>
@@ -408,12 +444,12 @@ footer a{color:var(--teal-dark)}
 </section>
 
 <!-- ============ READING ============ -->
-<section class="panel" id="panel-reading">
+<section class="panel" id="panel-reading" role="tabpanel" aria-labelledby="tab-reading">
   <div class="card">
-    <h2>📖 Reading <span class="jp">/ リーディング</span></h2>
+    <h2>📖 Reading <span class="jp" lang="ja">/ リーディング</span></h2>
     <p class="subtitle">60 minutes · 40 questions · right after Listening, with no break. This segment is an overview + starter practice — full training needs timed practice tests.</p>
     <div class="rule"><strong>Academic:</strong> 3 long passages (books, journals, magazines) with 40 questions in total. <strong>General Training:</strong> shorter everyday/work texts plus longer passages. Question types: multiple choice, True/False/Not Given, matching headings/information, sentence &amp; note completion, and more. <strong>No extra transfer time</strong> — write answers on the answer sheet/screen as you go.<br>
-    <span class="jp">60分・40問。答えはその場で解答用紙に書きます。</span></div>
+    <span class="jp" lang="ja">60分・40問。答えはその場で解答用紙に書きます。</span></div>
     <h3>5 strategies that help most</h3>
     <div class="grid2">
       <div class="mini"><h4>1 · Questions first</h4>Read the questions before the passage. You read with a purpose.</div>
@@ -439,16 +475,16 @@ footer a{color:var(--teal-dark)}
 </section>
 
 <!-- ============ WRITING ============ -->
-<section class="panel" id="panel-writing">
+<section class="panel" id="panel-writing" role="tabpanel" aria-labelledby="tab-writing">
   <div class="card">
-    <h2>✍️ Writing <span class="jp">/ ライティング</span></h2>
+    <h2>✍️ Writing <span class="jp" lang="ja">/ ライティング</span></h2>
     <p class="subtitle">60 minutes · 2 tasks · Task 2 counts about twice as much as Task 1. Overview + starter practice.</p>
     <div class="grid2">
       <div class="mini"><h4>Task 1 (at least 150 words)</h4><strong>Academic:</strong> describe a chart, graph, table, diagram or process in your own words.<br><strong>General Training:</strong> write a letter for a given situation.</div>
       <div class="mini"><h4>Task 2 (at least 250 words)</h4>An essay: give your opinion, discuss a problem, or argue a point. Same for Academic and General Training. <strong>Spend about 40 minutes here.</strong></div>
     </div>
     <div class="rule"><strong>Judged on:</strong> answering the task · organising ideas clearly · vocabulary · grammar range &amp; accuracy. A clear plan beats beautiful sentences with no structure.<br>
-    <span class="jp">構成（パラグラフ）が大事です。書く前に計画しましょう。</span></div>
+    <span class="jp" lang="ja">構成（パラグラフ）が大事です。書く前に計画しましょう。</span></div>
     <h3>The 5-step routine</h3>
     <div class="pattern"><div class="step s1">1 READ<small>What exactly is asked?</small></div><div class="step s1">2 PLAN<small>5 min · ideas in order</small></div><div class="step s2">3 WRITE<small>paragraphs!</small></div><div class="step s2">4 COUNT<small>150 / 250 words</small></div><div class="step s3">5 CHECK<small>verbs · plurals · spelling</small></div></div>
   </div>
@@ -460,7 +496,7 @@ footer a{color:var(--teal-dark)}
       <div><label>View 2 + reason</label><input type="text" placeholder="teacher feedback in class"></div>
       <div><label>Example</label><input type="text" placeholder="a worker studying at night"></div>
     </div>
-    <details class="modelbox"><summary>⭐ Model paragraph — open AFTER your plan</summary>
+    <details class="modelbox"><summary>📄 Model paragraph — open AFTER your plan</summary>
       <div class="model starter"><span class="tag">Starter paragraph</span><p><em>Online courses have clear advantages. Students can study at any time and watch a lesson again if it is difficult. For example, a person who works during the day can study late in the evening. This flexibility helps many learners continue studying.</em></p><p class="note">Pattern: topic sentence → reason → example → result. Four sentences, one idea.</p></div>
       <div class="model stepup"><span class="tag">Step up · try ONE upgrade</span><p><em>Online courses offer considerable flexibility, as learners can revisit difficult material and progress at their own pace; a student with a daytime job, for instance, may study late in the evening. That said, this independence only benefits learners who are sufficiently self-disciplined.</em></p><p class="note">Upgrades to borrow (one!): a precise word (<em>considerable, revisit</em>) · “as / for instance / That said” linking · a longer sentence.</p></div>
     </details>
@@ -474,14 +510,15 @@ footer a{color:var(--teal-dark)}
 </section>
 
 <!-- ============ TOOLKIT ============ -->
-<section class="panel" id="panel-toolkit">
+<section class="panel" id="panel-toolkit" role="tabpanel" aria-labelledby="tab-toolkit">
   <div class="card">
-    <h2>🧰 Toolkit &amp; Print <span class="jp">/ 印刷教材</span></h2>
+    <h2>🧰 Toolkit &amp; Print <span class="jp" lang="ja">/ 印刷教材</span></h2>
     <p class="subtitle">Paper works everywhere — including classrooms with no phones.</p>
     <div class="rule" style="text-align:center"><strong>🖨️ For students — start with this one:</strong><br>
     <a class="btn teal" href="IELTS%20Quest%20Mini%20Workbook.pdf" download>⬇ Quest Book — 6 pages</a>
-    <a class="btn" href="IELTS%20Quest%20Test%20Day%20Journey.pdf" download>⬇ Test Day Map — 1 page</a><br>
-    <span class="note">The Quest Book's page 1 has a code for each mission — scan it to jump straight to that lesson on this page.</span></div>
+    <a class="btn" href="IELTS%20Quest%20Test%20Day%20Journey.pdf" download>⬇ Test Day Map — 1 page</a>
+    <a class="btn" href="IELTS-Reviewer-Offline.zip" download>⬇ Offline Study Pack (.zip)</a><br>
+    <span class="note">Studying without internet, or on a school computer that blocks pages? The <strong>Offline Study Pack</strong> contains this whole page, the audio, and every PDF. The Quest Book's page 1 has a code for each mission — scan it to jump straight to that lesson on this page.</span></div>
     <details class="modelbox"><summary>For teachers — full print pack / 先生用</summary>
       <ul>
         <li><a href="IELTS%20Quest%20Mission%20Sheets.pdf" download><strong>Mission Sheets</strong></a> — one lesson per A4 page, QR code, exit ticket (score · error code · next goal)</li>
@@ -493,7 +530,7 @@ footer a{color:var(--teal-dark)}
     <h3>Why paper for progress?</h3>
     <p>This site has <strong>no accounts and saves nothing</strong>. A paper Passport in a student's notebook survives shared school computers, new phones, and cleared browsers — and a teacher can check it in five seconds. Use the site for <strong>audio, timers, recording, and instant answers</strong>; use paper for <strong>plans, keywords, and the record</strong>.</p>
     <h3>Official information</h3>
-    <p class="note">Always confirm the current format and rules at <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" rel="noopener">ielts.org</a> and <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" rel="noopener">British Council test-day advice</a>. All tasks, scripts, audio and models here are original practice material — not official IELTS questions, and this site is not endorsed by IELTS.</p>
+    <p class="note">Always confirm the current format and rules at <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" target="_blank" rel="noopener">ielts.org</a> and <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" target="_blank" rel="noopener">British Council test-day advice</a>. All tasks, scripts, audio and models here are original practice material — not official IELTS questions. This is an <strong>unofficial</strong> resource: it is not affiliated with, endorsed by, or approved by IELTS, the British Council, IDP, Cambridge, or any school, and practice results are not IELTS band scores. Tap <strong>ⓘ Disclaimer</strong> (bottom-right) for the full text.</p>
   </div>
 </section>
 
@@ -501,11 +538,12 @@ footer a{color:var(--teal-dark)}
 
 <footer>
   <p><strong>IELTS Reviewer (028)</strong> · Marasigan · For student self-study. Choose any segment, in any order, as often as you like.<br>
-  This website does not save your work. Recordings are made on your device and never uploaded. · <a href="#" id="disclaimerLink">About &amp; Disclaimer</a> · <a href="https://kreyzkai.github.io/">← Teaching Tools home</a></p>
+  Unofficial study resource — not affiliated with, endorsed by, or approved by IELTS, the British Council, IDP, Cambridge, or any school.<br>
+  This website does not save your work. Recordings are made on your device and never uploaded. · <a href="#" id="disclaimerLink">About &amp; Disclaimer</a> · <a href="https://kreyzkai.github.io/" rel="noopener">← Teaching Tools home</a></p>
 </footer>
 
 
-<button id="disclaimerBtn" type="button" aria-haspopup="dialog" aria-controls="disclaimerOverlay">ⓘ Disclaimer</button>
+<button id="disclaimerBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="disclaimerOverlay">ⓘ Disclaimer</button>
 <div id="disclaimerOverlay" role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle">
   <div class="disclaimer-panel">
     <h2 id="disclaimerTitle">ⓘ About &amp; Disclaimer</h2>
@@ -514,7 +552,7 @@ footer a{color:var(--teal-dark)}
     <h3>What this site is — and is not</h3>
     <p>All scripts, passages, questions, audio, and model answers are <strong>original practice materials</strong>, not official IELTS questions or past papers. “Starter” and “Step up” models are learning examples and have not been given official band scores. Quiz results are practice results only: they are <strong>not IELTS scores, estimated band scores, examiner assessments, or predictions</strong>, and using this site cannot guarantee any test result or admission outcome.</p>
     <h3>Accuracy</h3>
-    <p>Test formats, test-day procedures, fees, and test-centre arrangements can change. This page was last reviewed in <strong>October 2026</strong>. Official sources — <a href="https://ielts.org" rel="noopener">ielts.org</a>, your test centre, and your booking confirmation — always take priority over information here. Please tell your teacher if you find an error.</p>
+    <p>Test formats, test-day procedures, fees, and test-centre arrangements can change. This page was last reviewed in <strong>October 2026</strong>. Official sources — <a href="https://ielts.org" target="_blank" rel="noopener">ielts.org</a>, your test centre, and your booking confirmation — always take priority over information here. Please tell your teacher if you find an error.</p>
     <h3>Audio, recording &amp; your information</h3>
     <p>Listening audio uses educational recorded/synthetic voices and does not reproduce the full range of voices, accents, or conditions of an official test. This website has <strong>no accounts and does not intentionally collect or upload your answers or recordings</strong>; the voice recorder works locally in your browser. Websites linked from here have their own policies. Please do not submit personal information through this site — talk to your teacher at school instead.</p>
     <h3>Using this resource</h3>
@@ -531,8 +569,17 @@ var LEGACY={"mission1":["listening","mission1"],"mission2":["listening","mission
 "mission4":["listening","mission4"],"mission5":["speaking","mission5"],"mission6":["speaking","mission6"],"mission7":["speaking","mission7"],
 "speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"writing-practice":["writing","writing-practice"]};
 function activate(tab, targetId){
-  document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.toggle("active",b.getAttribute("data-tab")===tab);});
-  document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  document.querySelectorAll(".tab-btn").forEach(function(b){
+    var on=b.getAttribute("data-tab")===tab;
+    b.classList.toggle("active",on);
+    b.setAttribute("aria-selected",on?"true":"false");
+    b.tabIndex=on?0:-1;
+  });
+  document.querySelectorAll(".panel").forEach(function(p){
+    var on=p.id==="panel-"+tab;
+    p.classList.toggle("active",on);
+    if(on){p.removeAttribute("hidden");}else{p.setAttribute("hidden","");}
+  });
   if(targetId){
     var el=document.getElementById(targetId);
     if(el){ if(el.tagName==="DETAILS")el.open=true;
@@ -547,16 +594,53 @@ document.querySelectorAll("[data-open]").forEach(function(b){b.addEventListener(
 });});
 function route(){
   var h=(location.hash||"").replace("#","");
-  if(!h)return;
+  if(!h){
+    document.querySelectorAll(".panel").forEach(function(p){if(!p.classList.contains("active"))p.setAttribute("hidden","");});
+    return;
+  }
   if(LEGACY[h]){activate(LEGACY[h][0],h);return;}
   if(document.getElementById("panel-"+h))activate(h);
 }
 window.addEventListener("hashchange",route); route();
+window.IELTSactivate=activate; window.IELTSLEGACY=LEGACY;
+var tabbar=document.querySelector(".tabbar .inner");
+if(tabbar)tabbar.addEventListener("keydown",function(e){
+  var btns=Array.prototype.slice.call(document.querySelectorAll(".tab-btn"));
+  var i=btns.indexOf(document.activeElement); if(i<0)return; var n=-1;
+  if(e.key==="ArrowRight")n=(i+1)%btns.length;
+  else if(e.key==="ArrowLeft")n=(i-1+btns.length)%btns.length;
+  else if(e.key==="Home")n=0; else if(e.key==="End")n=btns.length-1;
+  if(n>=0){e.preventDefault();btns[n].focus();activate(btns[n].getAttribute("data-tab"));}
+});
 /* ---------- JP toggle ---------- */
 var jpOn=true;
 document.getElementById("jpToggle").addEventListener("click",function(){
   jpOn=!jpOn;document.body.classList.toggle("hide-jp",!jpOn);this.textContent="日本語ヒント: "+(jpOn?"ON":"OFF");
+  this.setAttribute("aria-pressed",jpOn?"true":"false");
 });
+/* ---------- print ---------- */
+var printBtn=document.getElementById("printBtn");
+if(printBtn)printBtn.addEventListener("click",function(){window.print();});
+var openedForPrint=[];
+window.addEventListener("beforeprint",function(){
+  openedForPrint=[];
+  document.querySelectorAll(".panel.active details").forEach(function(d){if(!d.open){d.open=true;openedForPrint.push(d);}});
+});
+window.addEventListener("afterprint",function(){openedForPrint.forEach(function(d){d.open=false;});openedForPrint=[];});
+
+/* ---------- radio highlight fallback (no :has support needed) ---------- */
+function syncOpts(){
+  document.querySelectorAll(".options label").forEach(function(l){
+    var i=l.querySelector("input"); l.classList.toggle("sel",!!(i&&i.checked));
+  });
+}
+document.addEventListener("change",function(e){
+  var el=e.target; if(el&&el.closest&&el.closest(".options"))syncOpts();
+});
+document.addEventListener("click",function(e){
+  var el=e.target; if(el&&el.closest){var l=el.closest(".options label"); if(l)setTimeout(syncOpts,0);}
+});
+
 /* ---------- word counters ---------- */
 function countWords(s){s=s.trim();return s?s.split(/\s+/).length:0;}
 var wl=document.getElementById("wl"),wlc=document.getElementById("wlCount");
@@ -571,21 +655,37 @@ document.querySelectorAll("form.quiz").forEach(function(form){
   form.addEventListener("submit",function(ev){
     ev.preventDefault();var total=0,correct=0,missed=[];
     form.querySelectorAll("[data-answer]").forEach(function(sel,i){total++;if(sel.value===sel.getAttribute("data-answer"))correct++;else missed.push(i+1);});
-    form.querySelectorAll("input[type=text][data-answers]").forEach(function(input,i){total++;if(input.getAttribute("data-answers").split("|").map(norm).indexOf(norm(input.value))>-1)correct++;else missed.push(i+1);});
+    var stems=[];
+    form.querySelectorAll("input[type=text][data-answers]").forEach(function(input,i){
+      total++;
+      var vals=input.getAttribute("data-answers").split("|").map(norm);
+      var got=norm(input.value);
+      if(vals.indexOf(got)>-1){correct++;}
+      else{
+        missed.push(i+1);
+        if(got&&vals.some(function(v){return v.indexOf(got)===0;}))stems.push(i+1);
+      }
+    });
     var groups={};form.querySelectorAll("input[type=radio][data-correct]").forEach(function(r){groups[r.name]=r;});
     Object.keys(groups).forEach(function(name,i){total++;if(groups[name].checked)correct++;else missed.push(i+1);});
     var fb=form.querySelector(".feedback");
     if(correct===total){fb.className="feedback good";fb.innerHTML="🎉 "+correct+" / "+total+" Perfect! Stop here, or pick another segment — your choice.<span class='why'>ここで終わっても、つづけてもOKです。</span>";}
-    else{fb.className="feedback bad";fb.innerHTML="💪 "+correct+" / "+total+" — check No. "+missed.join(", ")+" and try again!<span class='why'>ヒント: 答えを変える前に、なぜ間違えたか考えよう。</span>";}
+    else{
+      var hint=stems.length?("<span class='why'>💡 No. "+stems.join(", ")+": right word, wrong <strong>form</strong> — read the sentence again (reduced → cheaper, not cheap). 形（けい）を確認しよう。</span>"):"";
+      fb.className="feedback bad";
+      fb.innerHTML="💪 "+correct+" / "+total+" — check No. "+missed.join(", ")+" and try again!"+hint+"<span class='why'>ヒント: 答えを変える前に、なぜ間違えたか考えよう。</span>";
+    }
   });
 });
 /* ---------- timers ---------- */
 document.querySelectorAll("[data-timer]").forEach(function(box){
   var total=parseInt(box.getAttribute("data-timer"),10),left=total,tick=null,disp=box.querySelector(".time");
-  function renderT(){var m=Math.floor(left/60),s=left%60;disp.textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;}
+  function renderT(){if(left<0)left=0;var m=Math.floor(left/60),s=left%60;disp.textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;}
   function stop(){if(tick){clearInterval(tick);tick=null;}}
   box.querySelector("[data-t-start]").addEventListener("click",function(){
-    if(tick){stop();this.textContent="Resume";return;}this.textContent="Pause";
+    if(tick){stop();this.textContent="Resume";return;}
+    if(left<=0){left=total;renderT();}
+    this.textContent="Pause";
     tick=setInterval(function(){left--;renderT();if(left<=0){stop();disp.textContent="⏰ Time!";box.querySelector("[data-t-start]").textContent="Start";}},1000);
   });
   box.querySelector("[data-t-reset]").addEventListener("click",function(){stop();left=total;renderT();box.querySelector("[data-t-start]").textContent="Start";});
@@ -599,7 +699,7 @@ document.querySelectorAll("[data-recorder]").forEach(function(box){
     navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
       chunks=[];recorder=new MediaRecorder(stream);
       recorder.ondataavailable=function(e){if(e.data.size)chunks.push(e.data);};
-      recorder.onstop=function(){stream.getTracks().forEach(function(t){t.stop();});audio.src=URL.createObjectURL(new Blob(chunks,{type:recorder.mimeType||"audio/webm"}));audio.style.display="block";status.textContent="✓ Recorded! Listen: 1) ideas 2) English. (Not saved — record again any time.)";startBtn.disabled=false;stopBtn.disabled=true;};
+      recorder.onstop=function(){stream.getTracks().forEach(function(t){t.stop();});if(audio.src&&audio.src.indexOf("blob:")===0){try{URL.revokeObjectURL(audio.src);}catch(e){}}audio.src=URL.createObjectURL(new Blob(chunks,{type:recorder.mimeType||"audio/webm"}));audio.style.display="block";status.textContent="✓ Recorded! Listen: 1) ideas 2) English. (Not saved — record again any time.)";startBtn.disabled=false;stopBtn.disabled=true;};
       recorder.start();status.textContent="🔴 Recording… speak now!";startBtn.disabled=true;stopBtn.disabled=false;
     }).catch(function(){status.textContent="No microphone permission — practising aloud is OK too!";});
   });
@@ -613,8 +713,22 @@ document.querySelectorAll("[data-recorder]").forEach(function(box){
 "use strict";
 /* ---------- disclaimer modal ---------- */
 var overlay=document.getElementById("disclaimerOverlay");
-function openD(){overlay.classList.add("open");var c=document.getElementById("disclaimerClose");if(c)c.focus();}
-function closeD(){overlay.classList.remove("open");}
+function openD(){overlay.classList.add("open");document.body.style.overflow="hidden";document.getElementById("disclaimerBtn").setAttribute("aria-expanded","true");var c=document.getElementById("disclaimerClose");if(c)c.focus();}
+function closeD(){
+  if(!overlay.classList.contains("open"))return;
+  overlay.classList.remove("open");document.body.style.overflow="";
+  document.getElementById("disclaimerBtn").setAttribute("aria-expanded","false");
+  document.getElementById("disclaimerBtn").focus();
+}
+function trapTab(e){
+  if(e.key!=="Tab"||!overlay.classList.contains("open"))return;
+  var f=overlay.querySelectorAll('a[href],button:not([disabled])');
+  if(!f.length)return;
+  var first=f[0],last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+}
+document.addEventListener("keydown",trapTab);
 document.getElementById("disclaimerBtn").addEventListener("click",openD);
 document.getElementById("disclaimerClose").addEventListener("click",closeD);
 var link=document.getElementById("disclaimerLink");
@@ -624,6 +738,13 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape")closeD();});
 
 /* ---------- needs check (nothing is saved or sent) ---------- */
 var form=document.getElementById("needsForm"); if(!form)return;
+var resetBtn=document.getElementById("needsReset");
+if(resetBtn)resetBtn.addEventListener("click",function(){
+  var out=document.getElementById("needsResult");
+  if(out){out.innerHTML="";out.style.display="none";}
+  resetBtn.style.display="none";
+  document.querySelectorAll("#needsForm .options label.sel").forEach(function(l){l.classList.remove("sel");});
+});
 var SKILL={
  listening:{name:"Listening",tab:"#listening",first:"#mission1",firstLabel:"Listening Lesson 1 · Predict",why:"Listening is played only once in the test, so prediction and trick-answer skills help immediately."},
  reading:{name:"Reading",tab:"#reading",first:"#reading",firstLabel:"Reading segment",why:"Start with the timing rules and the 5 strategies, then try the short Bike Library practice."},
@@ -652,6 +773,9 @@ form.addEventListener("submit",function(ev){
   } else if(advanced){
     steps.push({h:"Your level sounds strong",b:"Use the Step up models and the Mini check, then move quickly to official full practice tests — this site will soon feel too easy, and that is fine.",href:"#mission7",label:"Try the Mini check"});
   } else if(beginner){
+    if(!(worry==="unknown"||goal==="curious"||timing==="none")){
+      steps.push({h:"Also read: Test Day",b:"Before you practise seriously, spend 5 minutes on what actually happens in the test room — knowing the day removes most of the fear.",href:"#testday",label:"Open Test Day"});
+    }
     steps.push({h:"Build the base first",b:"Start with Starter models and short lessons. If IELTS still feels far away, that is normal — general English (and EIKEN, if your school uses it) still helps you. Talk with your teacher before paying for a test.",href:"#testday",label:"Re-check Test Day"});
   } else {
     steps.push({h:"Then: try the Mini check",b:"When the first segment feels OK, test yourself with one-time listening and short speaking — like a tiny test day.",href:"#mission7",label:"Open Mini check"});
@@ -663,9 +787,19 @@ form.addEventListener("submit",function(ev){
   html+="<div class='rule'><strong>✍️ Take this to your teacher:</strong> copy this one line into your paper Passport — “My goal is _______. First I will practise _______. My next question is _______.” Then ask your teacher or ALT. Asking is part of the plan.</div>";
   var out=document.getElementById("needsResult");
   out.innerHTML=html; out.style.display="block";
+  var rb=document.getElementById("needsReset"); if(rb)rb.style.display="inline-block";
+  out.querySelectorAll("a[href^='#']").forEach(function(a){
+    a.addEventListener("click",function(e){
+      e.preventDefault();
+      var id=a.getAttribute("href").slice(1);
+      var dest=(window.IELTSLEGACY&&window.IELTSLEGACY[id])?window.IELTSLEGACY[id]:null;
+      if(window.IELTSactivate){window.IELTSactivate(dest?dest[0]:id,dest?id:null);}
+      else{location.hash=id;}
+    });
+  });
   out.scrollIntoView({behavior:"smooth",block:"start"});
 });
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4a3dcee2c95ae80',t:'MTc5MTk1MjM3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4a43c6c3f78d4a7',t:'MTc5MTk1NjI4Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
