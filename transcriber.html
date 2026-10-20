@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local Transcriber — batch audio to text, entirely in your browser</title>
+<style>
+  :root{
+    --bg:#070a11; --panel:#0e1521; --line:#1f2c42; --line2:#2a3a55;
+    --text:#e9eff9; --muted:#8fa1ba; --dim:#63748e;
+    --accent:#6aa6ff; --ok:#34d399; --warn:#fbbf24; --bad:#fb7185;
+    --r:16px; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text); font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans JP","Hiragino Sans",sans-serif;
+    background:
+      radial-gradient(1100px 560px at 12% -12%, #16233c 0%, transparent 62%),
+      radial-gradient(900px 520px at 92% -6%, #0f2a24 0%, transparent 58%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1320px;margin:0 auto;padding:26px 22px 40px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;
+    background:linear-gradient(145deg,#1b3358,#0f2036);border:1px solid var(--line2);
+    box-shadow:0 8px 26px rgba(106,166,255,.18) inset, 0 2px 10px rgba(0,0,0,.4)}
+  .mark svg{width:22px;height:22px;display:block}
+  h1{font-size:19px;line-height:1.2;margin:0;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:12.5px;margin:2px 0 0}
+  .badges{display:flex;gap:8px;flex-wrap:wrap}
+  .badge{font:600 11.5px/1 ui-sans-serif,system-ui;letter-spacing:.3px;text-transform:uppercase;
+    padding:7px 10px;border-radius:999px;border:1px solid var(--line2);color:#bcd0ea;background:#101a28}
+  .badge.ok{color:#9ff3d3;border-color:#1e5145;background:#0d2b24}
+  .badge.warn{color:#ffe1a0;border-color:#5a4318;background:#2a2110}
+  .badge.ghost{color:var(--muted);background:transparent}
+  main{display:grid;grid-template-columns:410px minmax(0,1fr);gap:16px;align-items:start}
+  @media (max-width:1000px){ main{grid-template-columns:1fr} .wrap{padding:18px 14px 32px} }
+  .card{background:linear-gradient(180deg,rgba(18,27,41,.92),rgba(13,20,31,.92));border:1px solid var(--line);
+    border-radius:var(--r);padding:16px;box-shadow:0 18px 40px -28px #000}
+  .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .ctitle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;letter-spacing:.7px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:12px}
+  .ctitle .l{display:flex;align-items:center;gap:8px}
+  .ctitle b{color:#c9d9ef;font-weight:700}
+  .drop{border:1.5px dashed #2b3d59;border-radius:13px;padding:16px 14px;text-align:center;cursor:pointer;
+    transition:.15s border-color,.15s background,.15s transform;outline:none}
+  .drop:hover,.drop:focus-visible{border-color:#3f6fa8;background:#0f1b2b}
+  .drop.over{border-color:var(--accent);background:#10243c;transform:translateY(-1px)}
+  .drop .ico{font-size:21px;line-height:1;margin-bottom:5px;opacity:.9}
+  .drop .t1{font-weight:650;font-size:14.5px}
+  .drop .t2{color:var(--muted);font-size:12px;margin-top:2px}
+  .addrow{display:flex;gap:8px;margin-top:9px}
+  .addrow button{flex:1}
+  .ghostbtn{border:1px solid var(--line2);background:#101a29;color:#cfe0f5;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:650;transition:.15s}
+  .ghostbtn:hover:not(:disabled){border-color:#3a5679;background:#152238}
+  .ghostbtn:disabled{opacity:.4;cursor:not-allowed}
+  .tlist{margin-top:12px;display:flex;flex-direction:column;gap:4px;max-height:min(38vh,340px);overflow:auto;padding-right:2px}
+  .tempty{color:var(--dim);font-size:12.5px;text-align:center;padding:14px 6px}
+  .trow{display:grid;grid-template-columns:26px minmax(0,1fr) auto 20px;gap:8px;align-items:center;
+    padding:6px 7px;border-radius:9px;border:1px solid transparent;cursor:pointer}
+  .trow:hover{background:#0f1a2a}
+  .trow.sel{background:#122238;border-color:#2b4668}
+  .tnum{font:600 11px/1 var(--mono);color:#59779c;text-align:right}
+  .tmain{min-width:0}
+  .tname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tmeta{font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-top:1px}
+  .lang{font:700 10px/1 ui-sans-serif;letter-spacing:.4px;text-transform:uppercase;padding:3px 5px;border-radius:5px;
+    background:#16233a;border:1px solid var(--line2);color:#9db6d6}
+  .lang.auto{color:#8fe3c2;border-color:#1e5145;background:#0d2b24}
+  .tstat{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;min-width:56px}
+  .tstat.done{color:#7fe0b6}
+  .tstat.err{color:#ff9aa7}
+  .tstat.run{color:#9dc3ff}
+  .tdel{background:none;border:0;color:#3f5876;font-size:13px;line-height:1;padding:2px 0;border-radius:5px}
+  .tdel:hover{color:#ff9aa7}
+  .minibar{height:3px;background:#0a111c;border-radius:9px;overflow:hidden;margin-top:3px}
+  .minibar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4d8cf0,#79f0c4);border-radius:9px}
+  label.f{display:block;font-size:12px;color:var(--dim);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin:0 0 5px}
+  .field{margin-bottom:12px}
+  .field:last-child{margin-bottom:0}
+  select{width:100%;appearance:none;background:#0b1320 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%236f86a6' stroke-width='1.6' stroke-linecap='round'/></svg>") no-repeat right 12px center;
+    border:1px solid var(--line2);color:var(--text);border-radius:10px;padding:9px 34px 9px 11px;font-weight:600;font-size:13.5px;cursor:pointer}
+  select:focus{outline:2px solid #2f5f9c;outline-offset:1px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row2.b{grid-template-columns:1.25fr 1fr}
+  .note{color:var(--dim);font-size:12px;margin-top:10px;line-height:1.45}
+  details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+  summary{cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:650;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--dim)}
+  details[open] summary::before{content:"▾ "}
+  .check{display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;color:#c4d4e9}
+  .check input{margin:3px 0 0;accent-color:var(--accent);width:15px;height:15px}
+  button{font:inherit;cursor:pointer}
+  .primary{width:100%;border:0;border-radius:12px;padding:13px 16px;font-weight:750;font-size:14.5px;letter-spacing:.2px;
+    color:#04121f;background:linear-gradient(180deg,#8ec2ff,#5f9cf5);box-shadow:0 10px 26px -14px #6aa6ff, inset 0 1px 0 #cfe6ff;transition:.15s}
+  .primary:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px)}
+  .primary:disabled{opacity:.42;cursor:not-allowed;box-shadow:none;transform:none}
+  .stopbtn{width:100%;margin-top:9px;border:1px solid #5c2630;background:#25121a;color:#ffc2cb;border-radius:11px;padding:10px;font-weight:650;font-size:13.5px}
+  .stopbtn:hover{background:#30161f}
+  .prog{margin-top:14px;display:none}
+  .prog.show{display:block}
+  .bar{height:7px;border-radius:99px;background:#0a111c;border:1px solid var(--line);overflow:hidden}
+  .bar > i{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#4d8cf0,#79f0c4);transition:width .25s ease}
+  .bar.dl > i{background:linear-gradient(90deg,#7a5cf0,#6aa6ff)}
+  .prow{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--muted);margin:9px 0 4px}
+  .prow:first-child{margin-top:0}
+  .status{margin-top:12px;font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;min-height:19px;word-break:break-word}
+  .status .dot{width:7px;height:7px;border-radius:99px;background:var(--dim);margin-top:6px;flex:none}
+  .status.busy .dot{background:var(--accent);animation:pulse 1.1s infinite}
+  .status.ok .dot{background:var(--ok)}
+  .status.err .dot{background:var(--bad)}
+  .status.err{color:#ffb4bf}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  .tcard{display:flex;flex-direction:column;min-height:560px;padding:0;overflow:hidden}
+  .thead{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+  .hline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .hline .l{display:flex;align-items:baseline;gap:9px;min-width:0;flex-wrap:wrap}
+  .hline h2{margin:0;font-size:13px;letter-spacing:.7px;text-transform:uppercase;color:#c9d9ef;white-space:nowrap}
+  .meta{color:var(--dim);font-size:12px;min-width:0}
+  .tools{display:flex;gap:6px;flex-wrap:wrap}
+  .tracksel{max-width:280px}
+  .sub-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  audio{height:32px;max-width:260px;flex:1 1 180px;filter:saturate(.85)}
+  .langadj{display:flex;align-items:center;gap:6px}
+  .langadj select{width:auto;min-width:132px;padding:6px 30px 6px 9px;font-size:12.5px;border-radius:9px}
+  .langadj button{padding:6px 10px;font-size:12px}
+  .used{font-size:11.5px;color:var(--dim)}
+  .out{flex:1;overflow:auto;padding:8px 8px 22px;min-height:380px;max-height:calc(100vh - 300px);scroll-behavior:smooth}
+  @media (max-width:1000px){ .out{max-height:60vh} }
+  .seg{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;padding:6px 9px;border-radius:9px}
+  .seg:hover{background:#0f1a2a}
+  .seg .ts{font:600 11.5px/1.9 var(--mono);color:#5f7fa8;background:none;border:0;padding:0;text-align:left;letter-spacing:-.2px}
+  .seg .ts:hover{color:var(--accent)}
+  .seg .tx{white-space:pre-wrap;word-break:break-word;font-size:14.5px;color:#dfe8f6}
+  .empty{display:grid;place-items:center;height:100%;min-height:340px;text-align:center;color:var(--dim);padding:24px}
+  .empty .big{font-size:30px;margin-bottom:10px;opacity:.55}
+  .empty p{max-width:340px;margin:0;font-size:13px;line-height:1.6}
+  footer{margin-top:22px;color:var(--dim);font-size:12px;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;border-top:1px solid #141f30;padding-top:14px}
+  .kbd{font:600 11px/1 var(--mono);border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:3px 5px;color:#a9bfda;background:#0d1622}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#16233a;border:1px solid var(--line2);
+    color:#dbe8f8;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:9;box-shadow:0 18px 40px -18px #000}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .hidden{display:none !important}
+  .link{background:none;border:0;color:var(--accent);font:inherit;font-size:12px;cursor:pointer;padding:2px 0}
+  .link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8ec2ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v3a8 8 0 0 0 16 0v-3"/><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M12 18v4"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Local Transcriber</h1>
+        <p class="sub">Drop a whole album of tracks → transcripts per track, languages detected automatically.</p>
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge" id="deviceBadge">detecting…</span>
+      <span class="badge ghost">nothing uploaded</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="col">
+      <section class="card">
+        <div class="ctitle"><div class="l"><b>1</b> Tracks</div><button class="link" id="clearAll">clear all</button></div>
+        <div class="drop" id="drop" role="button" tabindex="0" aria-label="Choose audio files">
+          <div class="ico">🎧</div>
+          <div class="t1">Drop audio files here</div>
+          <div class="t2">or click to browse · selects several at once</div>
+        </div>
+        <input type="file" id="file" multiple accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.oga,.opus,.flac,.webm,.mp4,.mpeg" hidden>
+        <input type="file" id="folder" webkitdirectory multiple hidden>
+        <div class="addrow">
+          <button class="ghostbtn" id="addFiles">Add files…</button>
+          <button class="ghostbtn" id="addFolder">Add folder…</button>
+        </div>
+        <div class="tlist" id="tlist"><div class="tempty">No tracks yet. A CD usually rips to 01.wav … 24.wav — drop them all in.</div></div>
+      </section>
+
+      <section class="card">
+        <div class="ctitle"><div class="l"><b>2</b> Settings</div></div>
+        <div class="field">
+          <label class="f" for="model">Model</label>
+          <select id="model"></select>
+        </div>
+        <div class="field">
+          <label class="f" for="langMode">Language</label>
+          <select id="langMode">
+            <option value="auto">Auto-detect per track (recommended)</option>
+            <option value="force">One language for every track</option>
+          </select>
+        </div>
+        <div class="row2 b">
+          <div class="field hidden" id="langField">
+            <label class="f" for="lang">Spoken language</label>
+            <select id="lang"></select>
+          </div>
+          <div class="field">
+            <label class="f" for="task">Task</label>
+            <select id="task">
+              <option value="transcribe">Transcribe</option>
+              <option value="translate">Translate → English</option>
+            </select>
+          </div>
+        </div>
+        <div class="note" id="modelNote"></div>
+        <details>
+          <summary>Advanced</summary>
+          <label class="check"><input type="checkbox" id="forceCpu">
+            <span>Force CPU (WASM) — use this if GPU output looks wrong, or if your browser has no WebGPU.</span></label>
+          <div class="note">Model weights download once, then live in the browser cache. Every track in the queue reuses the same loaded model. Your audio never leaves this computer. If the tab ever crashes on a big queue, step down one model size — that is memory, not your files.</div>
+        </details>
+      </section>
+
+      <section class="card">
+        <div class="ctitle"><div class="l"><b>3</b> Run</div></div>
+        <button class="primary" id="start" disabled>Transcribe all tracks</button>
+        <button class="stopbtn hidden" id="stop">Stop</button>
+
+        <div class="prog" id="prog">
+          <div class="prow"><span id="dlLabel">Model download</span><span id="dlPct">0%</span></div>
+          <div class="bar dl"><i id="dlBar"></i></div>
+          <div class="prow"><span id="txLabel">Current track</span><span id="txPct">0%</span></div>
+          <div class="bar"><i id="txBar"></i></div>
+        </div>
+
+        <div class="status" id="status" aria-live="polite"><span class="dot"></span><span id="statusText">Add your ripped tracks to begin.</span></div>
+      </section>
+    </div>
+
+    <section class="card tcard">
+      <div class="thead">
+        <div class="hline">
+          <div class="l">
+            <h2>Transcript</h2>
+            <select class="tracksel" id="trackSel" disabled><option>no track selected</option></select>
+          </div>
+          <div class="tools">
+            <button class="ghostbtn" id="copy" disabled>Copy</button>
+            <button class="ghostbtn" id="dlTxt" disabled>TXT</button>
+            <button class="ghostbtn" id="dlSrt" disabled>SRT</button>
+            <button class="ghostbtn" id="dlVtt" disabled>VTT</button>
+            <button class="ghostbtn" id="dlJson" disabled>JSON</button>
+            <button class="ghostbtn" id="dlAll" disabled title="Every transcript as text + subtitles, in one ZIP">All → ZIP</button>
+          </div>
+        </div>
+        <div class="sub-row">
+          <audio id="player" controls preload="metadata"></audio>
+          <div class="langadj">
+            <select id="trackLang" title="Language for this track"><option value="auto">Auto-detect</option></select>
+            <button class="ghostbtn" id="rerun" disabled>Re-run track</button>
+          </div>
+          <span class="used" id="usedLang"></span>
+        </div>
+      </div>
+      <div class="out" id="out">
+        <div class="empty">
+          <div>
+            <div class="big">📝</div>
+            <p>Pick a track on the left (or run the whole queue). Timestamps are clickable and jump into the audio.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Whisper via Transformers.js · WebGPU for speed, CPU as fallback · <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to run</span>
+    <span>Mixed-language discs are fine: each track gets its own language check before it is transcribed.</span>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ============================= ENGINE =============================
+     Runs in a Worker (falls back to the page). Protocol over postMessage. -->
+<script id="engine-src" type="text/plain">
+const CDN = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
+const SR = 16000;
+const SOT = 50258;          // <|startoftranscript|>
+
+let lib = null;
+let pipe = null;
+let stopFlag = false;
+let loaded = { model: null, device: null };
+
+const post = (msg, transfer) => self.postMessage(msg, transfer || []);
+
+(async () => {
+  try {
+    lib = await import(CDN);
+  } catch (err) {
+    post({ type: "fatal", message: "Could not load the transcription library from the CDN. " +
+      "This page needs internet access the first time (and cannot work inside a sandboxed preview). " +
+      (err && err.message ? err.message : err) });
+    return;
+  }
+  let gpu = false, fp16 = false;
+  try {
+    if (navigator.gpu && navigator.gpu.requestAdapter) {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (adapter) {
+        gpu = true;
+        fp16 = !!(adapter.features && adapter.features.has && adapter.features.has("shader-f16"));
+      }
+    }
+  } catch (e) {}
+  post({ type: "hello", version: (lib.env && lib.env.version) || "", gpu, fp16 });
+})();
+
+self.addEventListener("message", async (ev) => {
+  const m = ev.data || {};
+  if (m.type === "stop") { stopFlag = true; return; }
+  try {
+    if (m.type === "load") await loadModel(m);
+    else if (m.type === "run") await run(m);
+  } catch (err) {
+    post({ type: "error", id: m.id != null ? m.id : null, message: (err && err.message) ? err.message : String(err) });
+  }
+});
+
+function pickDtype(spec, device, fp16) {
+  if (device === "wasm") return "q8";
+  const enc = (spec && spec.webgpuEncoder === "q4") ? "q4" : (fp16 ? "fp16" : "fp32");
+  return { encoder_model: enc, decoder_model_merged: "q4" };
+}
+
+async function loadModel(m) {
+  const { pipeline, env } = lib;
+  env.allowLocalModels = false;
+  stopFlag = false;
+
+  const wantGpu = !m.forceCpu;
+  if (pipe && (loaded.model !== m.model || loaded.device !== (wantGpu ? "webgpu" : "wasm"))) {
+    try { await pipe.dispose(); } catch (e) {}
+    pipe = null;
+  }
+
+  let files = new Map();
+  const progress = (p) => {
+    if (!p || !p.file) return;
+    if (p.status === "progress") {
+      const prev = files.get(p.file) || {};
+      files.set(p.file, { loaded: Math.max(p.loaded || 0, prev.loaded || 0), total: p.total || prev.total || 0 });
+      let L = 0, T = 0;
+      for (const v of files.values()) { L += v.loaded || 0; T += v.total || 0; }
+      post({ type: "download", file: String(p.file).split("/").pop(), loaded: L, total: T, pct: T ? L / T : 0 });
+    } else if (p.status === "done") {
+      const v = files.get(p.file);
+      if (v && v.total) files.set(p.file, { loaded: v.total, total: v.total });
+    }
+  };
+
+  const make = (dev) => pipeline("automatic-speech-recognition", m.model, {
+    device: dev,
+    dtype: pickDtype(m.spec, dev, m.fp16),
+    progress_callback: progress
+  });
+
+  const order = wantGpu ? ["webgpu", "wasm"] : ["wasm"];
+  let device = null, lastErr = null;
+
+  for (let i = 0; i < order.length; i++) {
+    const dev = order[i];
+    files = new Map();
+    post({ type: "status", message: dev === "webgpu" ? "Loading model on the GPU…" : "Loading model on the CPU…" });
+    try {
+      pipe = await make(dev);
+      if (dev === "webgpu") {                       // fail here, not halfway through track 1
+        post({ type: "status", message: "Warming up the GPU…" });
+        await pipe(new Float32Array(16000), { max_new_tokens: 1 });
+      }
+      device = dev;
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      try { if (pipe) await pipe.dispose(); } catch (e) {}
+      pipe = null;
+      if (dev === "webgpu") {
+        post({ type: "fallback", reason: (err && err.message) ? err.message : String(err) });
+        post({ type: "status", message: "GPU didn't work out — switching to the CPU. Expect it to be slower." });
+      }
+    }
+  }
+  if (!pipe || !device) throw lastErr || new Error("Could not load the model.");
+
+  loaded = { model: m.model, device };
+  post({ type: "loaded", device, model: m.model });
+  post({ type: "status", message: "Model ready." });
+}
+
+/* ---------- language detection: ask Whisper itself, one decoder step ---------- */
+function firstSpeech(audio) {
+  const frame = Math.floor(SR * 0.1);
+  for (let p = 0; p + frame <= audio.length; p += frame) {
+    let e = 0;
+    for (let i = p; i < p + frame; i++) e += audio[i] * audio[i];
+    if (e / frame > 1e-5) return Math.max(0, p - Math.floor(SR * 0.3));
+  }
+  return 0;
+}
+
+async function detectLanguage(audio) {
+  try {
+    const start = firstSpeech(audio);
+    const sample = audio.subarray(start, Math.min(audio.length, start + SR * 30));
+    if (sample.length < SR) return null;
+    const feats = await pipe.processor(sample);
+    const res = await pipe.model.generate({
+      inputs: feats.input_features,
+      decoder_input_ids: [SOT],
+      max_new_tokens: 1,
+      do_sample: false,
+      num_beams: 1
+    });
+    const seq = (res.sequences ? res.sequences : res).tolist()[0];
+    const token = seq[seq.length - 1];
+    const txt = pipe.tokenizer.decode([token], { skip_special_tokens: false });
+    const m = /<\|([a-z]{2,3})\|>/.exec(txt || "");
+    return m ? m[1] : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ---------- chunk long audio at quiet points ---------- */
+function quietest(audio, from, to) {
+  const frame = Math.floor(SR * 0.02);
+  let best = to, bestE = Infinity;
+  for (let p = from; p + frame <= to; p += frame) {
+    let e = 0;
+    for (let i = p; i < p + frame; i++) { const v = audio[i]; e += v * v; }
+    if (e < bestE) { bestE = e; best = p; }
+  }
+  return best;
+}
+
+function planChunks(audio, maxSec, searchSec) {
+  const n = audio.length, maxLen = Math.floor(maxSec * SR);
+  if (n <= maxLen) return [[0, n]];
+  const out = [];
+  let start = 0;
+  while (start < n) {
+    let end = Math.min(start + maxLen, n);
+    if (end < n) {
+      const from = Math.max(start + Math.floor(maxLen * 0.55), end - Math.floor(searchSec * SR));
+      end = quietest(audio, from, end);
+      if (end <= start) end = Math.min(start + maxLen, n);
+    }
+    out.push([start, end]);
+    start = end;
+  }
+  return out;
+}
+
+const norm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9\u3040-\u30ff\u4e00-\u9fff]+/g, "");
+
+async function run(m) {
+  if (!pipe) throw new Error("Model is not loaded.");
+  stopFlag = false;
+
+  const audio = m.audio;
+  const totalSec = audio.length / SR;
+  const started = performance.now();
+  let language = m.language || null;
+
+  if (!language) {
+    post({ type: "status", message: "Checking the language of this track…" });
+    const detected = await detectLanguage(audio);
+    if (detected) {
+      language = detected;
+      post({ type: "lang", id: m.id, lang: detected });
+    }
+  }
+
+  const chunks = planChunks(audio, 180, 5);
+  const segs = [];
+
+  const add = (start, end, text) => {
+    text = (text || "").trim();
+    if (!text) return;
+    const prev = segs[segs.length - 1];
+    if (prev) {
+      const a = norm(prev.text), b = norm(text);
+      if (a && a === b) { if (end != null) prev.end = end; return; }
+      if (b && a && b.startsWith(a) && b.length - a.length < 8) { if (end != null) prev.end = end; return; }
+    }
+    segs.push({ start, end, text });
+  };
+
+  for (let i = 0; i < chunks.length; i++) {
+    if (stopFlag) break;
+    const [a, b] = chunks[i];
+    const offset = a / SR;
+
+    const out = await pipe(audio.subarray(a, b), {
+      language: language || undefined,
+      task: m.task || "transcribe",
+      return_timestamps: true,
+      chunk_length_s: 30,
+      stride_length_s: 5,
+      force_full_sequences: false
+    });
+
+    const pieces = out && out.chunks;
+    if (!pieces || !pieces.length) {
+      if (out && out.text) add(offset, offset + (b - a) / SR, out.text);
+    } else {
+      for (const c of pieces) {
+        const ts = c.timestamp || [null, null];
+        const s = ts[0] == null ? offset : offset + ts[0];
+        const e = ts[1] == null ? null : offset + ts[1];
+        add(s, e, c.text);
+      }
+    }
+
+    post({ type: "partial", id: m.id, segments: segs.slice(), doneSec: b / SR, totalSec });
+    await new Promise((r) => setTimeout(r, 0));
+  }
+
+  post({ type: "done", id: m.id, segments: segs, totalSec, elapsed: (performance.now() - started) / 1000,
+         stopped: stopFlag, language, languageForced: !!m.language });
+}
+</script>
+
+<!-- ============================= APP ============================= -->
+<script>
+(() => {
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+const ENGINE_SRC = $("engine-src").textContent;
+
+/* ------------------------------------------------------------------ config */
+const MODELS = [
+  { id: "onnx-community/whisper-tiny",  name: "Whisper Tiny — fastest", mb: { wasm: 42, gpu: 103 },
+    note: "Quick draft. Fine for clear English, weak elsewhere." },
+  { id: "onnx-community/whisper-base",  name: "Whisper Base — fast", mb: { wasm: 77, gpu: 165 },
+    note: "Good speed/quality balance for English; Japanese is rough." },
+  { id: "onnx-community/whisper-small", name: "Whisper Small — balanced", mb: { wasm: 250, gpu: 410 },
+    note: "Recommended: solid Japanese and English. Good default for spoken scripts." },
+  { id: "onnx-community/whisper-large-v3-turbo", name: "Whisper Large v3 Turbo — best", mb: { wasm: null, gpu: 760 }, turbo: true,
+    note: "Highest accuracy, including Japanese. Needs a reasonably modern GPU." }
+];
+const LANGS = [
+  ["en","English"], ["ja","Japanese"], ["zh","Chinese"], ["ko","Korean"],
+  ["es","Spanish"], ["fr","French"], ["de","German"], ["it","Italian"], ["pt","Portuguese"],
+  ["ru","Russian"], ["uk","Ukrainian"], ["nl","Dutch"], ["pl","Polish"], ["tr","Turkish"],
+  ["ar","Arabic"], ["he","Hebrew"], ["hi","Hindi"], ["th","Thai"], ["vi","Vietnamese"],
+  ["id","Indonesian"], ["sv","Swedish"], ["da","Danish"], ["no","Norwegian"], ["fi","Finnish"],
+  ["el","Greek"], ["cs","Czech"], ["ro","Romanian"], ["hu","Hungarian"]
+];
+const LANG_NAME = Object.fromEntries(LANGS);
+
+/* ------------------------------------------------------------------- state */
+let uid = 1;
+const S = {
+  tracks: [], selected: null,
+  running: false, stopping: false,
+  mode: "", worker: null, post: null, hello: false,
+  gpu: false, fp16: false, deviceName: "CPU",
+  loadedKey: "", playerUrl: "", trackUrl: "",
+  bootPromise: null, bootOK: null, bootBAD: null,
+  waiters: {}                     // id (or "model") -> {resolve, reject}
+};
+
+/* --------------------------------------------------------------- formatting */
+const fmtBytes = (b) => {
+  if (!b || !isFinite(b)) return "0 MB";
+  return b < 1048576 ? Math.round(b / 1024) + " KB" : (b / 1048576).toFixed(b < 10485760 ? 1 : 0) + " MB";
+};
+const pad2 = (n) => String(n).padStart(2, "0");
+const fmtClock = (sec) => {
+  if (sec == null || !isFinite(sec)) return "--:--";
+  sec = Math.max(0, sec);
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = Math.floor(sec % 60);
+  return (h ? h + ":" + pad2(m) : m) + ":" + pad2(s);
+};
+const fmtStamp = (sec, comma) => {
+  if (sec == null || !isFinite(sec)) sec = 0;
+  const ms = Math.round((sec - Math.floor(sec)) * 1000);
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = Math.floor(sec % 60);
+  return pad2(h) + ":" + pad2(m) + ":" + pad2(s) + (comma ? "," : ".") + String(Math.min(999, ms)).padStart(3, "0");
+};
+const safeName = (s, max) => (s || "track").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, "_").slice(0, max || 70).replace(/^\.+/, "") || "track";
+const natural = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), 1900);
+}
+function setStatus(text, kind) {
+  $("statusText").textContent = text;
+  $("status").className = "status" + (kind ? " " + kind : "");
+}
+function setRunning(on) {
+  S.running = on;
+  $("start").disabled = on || !S.tracks.length;
+  $("stop").classList.toggle("hidden", !on);
+  $("prog").classList.toggle("show", on);
+  $("file").disabled = on;
+  $("folder").disabled = on;
+  $("model").disabled = on;
+  $("langMode").disabled = on;
+}
+
+/* ------------------------------------------------------------------ storage */
+function saveSettings() {
+  try {
+    localStorage.setItem("lt.model", $("model").value);
+    localStorage.setItem("lt.langMode", $("langMode").value);
+    localStorage.setItem("lt.lang", $("lang").value);
+  } catch (e) {}
+}
+function loadSetting(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+/* ------------------------------------------------------------------ selects */
+function badge() {
+  const el = $("deviceBadge");
+  if (S.gpu) { el.textContent = "WebGPU" + (S.fp16 ? " · fp16" : ""); el.className = "badge ok"; }
+  else { el.textContent = S.hello ? "CPU only" : "detecting…"; el.className = "badge " + (S.hello ? "warn" : ""); }
+}
+function buildModelList() {
+  const sel = $("model");
+  const prev = sel.value || loadSetting("lt.model");
+  sel.innerHTML = "";
+  for (const m of MODELS) {
+    const size = S.gpu ? m.mb.gpu : m.mb.wasm;
+    const o = document.createElement("option");
+    o.value = m.id;
+    if (m.turbo && !S.gpu) { o.disabled = true; o.textContent = m.name + " · GPU only"; }
+    else o.textContent = m.name + (size ? " · ~" + size + " MB" : "");
+    sel.appendChild(o);
+  }
+  const usable = (id) => [...sel.options].some(o => o.value === id && !o.disabled);
+  // Small is the quality pick, but on CPU-only machines it needs a lot of RAM —
+  // start those on Base and let people step up per track if they want.
+  const preferred = S.gpu ? "onnx-community/whisper-small" : "onnx-community/whisper-base";
+  sel.value = (prev && usable(prev)) ? prev : preferred;
+  if (sel.selectedOptions[0] && sel.selectedOptions[0].disabled) sel.selectedIndex = 1;
+  updateModelNote();
+}
+function updateModelNote() {
+  const m = MODELS.find((x) => x.id === $("model").value) || MODELS[2];
+  const size = S.gpu ? m.mb.gpu : m.mb.wasm;
+  $("modelNote").textContent = m.note + (size ? " Downloaded once (~" + size + " MB), then reused for every track." : "");
+}
+function buildLangList() {
+  const fill = (sel, autoLabel) => {
+    sel.innerHTML = "";
+    if (autoLabel) {
+      const o = document.createElement("option");
+      o.value = "auto"; o.textContent = autoLabel;
+      sel.appendChild(o);
+    }
+    for (const [v, label] of LANGS) {
+      const o = document.createElement("option");
+      o.value = v; o.textContent = label;
+      sel.appendChild(o);
+    }
+  };
+  fill($("lang"), null);
+  fill($("trackLang"), "Auto-detect");
+
+  const sys = String(navigator.language || "en").slice(0, 2).toLowerCase();
+  const fallback = LANGS.some((l) => l[0] === sys) ? sys : "en";
+  const sLang = loadSetting("lt.lang");
+  $("lang").value = [...$("lang").options].some((o) => o.value === sLang) ? sLang : fallback;
+
+  const sMode = loadSetting("lt.langMode");
+  $("langMode").value = sMode === "force" ? "force" : "auto";
+  syncLangMode();
+}
+function syncLangMode() {
+  const force = $("langMode").value === "force";
+  $("langField").classList.toggle("hidden", !force);
+  $("task").closest(".field").style.gridColumn = force ? "" : "1 / -1";
+}
+
+/* ------------------------------------------------------------------ engine */
+function onEngine(m) {
+  if (!m || !m.type) return;
+  switch (m.type) {
+    case "hello":
+      S.hello = true; S.gpu = !!m.gpu; S.fp16 = !!m.fp16;
+      badge(); buildModelList();
+      if (S.bootOK) { const f = S.bootOK; S.bootOK = null; f(); }
+      break;
+
+    case "fatal":
+      if (S.mode === "worker") startInline("engine said: " + m.message);
+      else if (S.bootBAD) { const f = S.bootBAD; S.bootBAD = null; f(m.message); }
+      else fail(m.message);
+      break;
+
+    case "status":
+      if (S.running) setStatus(m.message, "busy");
+      break;
+
+    case "download": {
+      const pct = Math.max(0, Math.min(1, m.pct || 0));
+      $("dlBar").style.width = (pct * 100).toFixed(1) + "%";
+      $("dlPct").textContent = Math.round(pct * 100) + "%";
+      $("dlLabel").textContent = m.total ? "Model · " + fmtBytes(m.loaded) + " / " + fmtBytes(m.total) : "Model · " + fmtBytes(m.loaded);
+      setStatus("Downloading model — " + m.file, "busy");
+      break;
+    }
+
+    case "loaded":
+      S.deviceName = m.device === "webgpu" ? "GPU" : "CPU";
+      $("dlBar").style.width = "100%"; $("dlPct").textContent = "100%"; $("dlLabel").textContent = "Model ready";
+      signal("model", m);
+      break;
+
+    case "fallback":
+      S.gpu = false; S.fp16 = false; badge(); buildModelList();
+      break;
+
+    case "lang": {
+      const t = trackById(m.id);
+      if (t) { t.lang = m.lang; t.langSource = "auto"; updateRow(t); syncTrackHeader(); }
+      break;
+    }
+
+    case "partial": {
+      const t = trackById(m.id);
+      if (!t || S.stopping) break;
+      t.segments = m.segments || [];
+      t.progress = { done: m.doneSec, total: m.totalSec };
+      updateRow(t); progress(m.doneSec, m.totalSec);
+      if (S.selected === t.id) renderSegments();
+      break;
+    }
+
+    case "done": {
+      const t = trackById(m.id);
+      if (t) {
+        t.segments = m.segments || [];
+        t.status = "done";
+        t.lang = m.language || t.lang;
+        t.langSource = m.languageForced ? "forced" : (t.langSource === "auto" ? "auto" : "auto");
+        t.elapsed = m.elapsed;
+        t.duration = m.totalSec || t.duration;
+        updateRow(t);
+        if (S.selected === t.id) renderSegments();
+      }
+      const w = S.waiters[m.id];
+      if (w) { delete S.waiters[m.id]; w.resolve(m); }
+      break;
+    }
+
+    case "error": {
+      const t = m.id != null ? trackById(m.id) : null;
+      if (t) { t.status = "error"; t.error = m.message; updateRow(t); }
+      const w = S.waiters[m.id];
+      if (w) { delete S.waiters[m.id]; w.reject(new Error(m.message)); }
+      else if (t) { /* per-track error already surfaced in the list */ }
+      else fail(m.message);
+      break;
+    }
+  }
+}
+
+function attachWorker(w) {
+  S.worker = w;
+  w.onmessage = (ev) => onEngine(ev.data);
+  w.onerror = (ev) => {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    if (S.mode !== "worker") return;
+    teardownEngine();
+    fail("The transcription worker stopped (usually out of memory). Try a smaller model, or fewer tracks at a time.");
+  };
+}
+
+function teardownEngine() {
+  if (S.worker) { try { S.worker.terminate(); } catch (e) {} }
+  S.worker = null; S.post = null; S.hello = false; S.mode = ""; S.loadedKey = "";
+  S.bootPromise = null;
+}
+
+function startWorker() {
+  const url = URL.createObjectURL(new Blob([ENGINE_SRC], { type: "text/javascript" }));
+  const w = new Worker(url);            // classic worker: module workers are blocked on file://
+  S.mode = "worker";
+  S.post = (msg) => w.postMessage(msg);
+  attachWorker(w);
+}
+
+function startInline(reason) {
+  if (S.mode === "inline") return;
+  S.mode = "inline";
+  if (S.worker) { try { S.worker.terminate(); } catch (e) {} S.worker = null; }
+  window.addEventListener("message", (ev) => {
+    if (ev.data && typeof ev.data === "object" && ev.data.type) onEngine(ev.data);
+  });
+  S.post = (msg) => window.postMessage(msg, "*");
+  const s = document.createElement("script");
+  s.type = "module";
+  s.textContent = ENGINE_SRC;
+  document.body.appendChild(s);
+  console.info("[transcriber] running without a Worker:", reason);
+}
+
+function boot() {
+  if (S.bootPromise) return S.bootPromise;
+  S.bootPromise = new Promise((resolve, reject) => {
+    let done = false;
+    S.bootOK = () => { if (!done) { done = true; clearTimeout(t1); clearTimeout(t2); resolve(); } };
+    S.bootBAD = (msg) => { if (!done) { done = true; clearTimeout(t1); clearTimeout(t2); reject(new Error(msg)); } };
+    const t1 = setTimeout(() => { if (!S.hello) startInline("worker did not answer in time"); }, 8000);
+    const t2 = setTimeout(() => {
+      if (!S.hello && S.bootBAD) S.bootBAD("The transcription engine did not start. Check your internet connection — the library is fetched from a CDN on first run.");
+    }, 32000);
+    startWorker();
+  });
+  return S.bootPromise;
+}
+
+function signal(key, payload) {
+  const w = S.waiters[key];
+  if (w) { delete S.waiters[key]; w.resolve(payload); }
+}
+function waitFor(key, ms, label) {
+  return new Promise((resolve, reject) => {
+    S.waiters[key] = { resolve, reject };
+    setTimeout(() => {
+      if (S.waiters[key]) { delete S.waiters[key]; reject(new Error("Timed out while " + (label || "waiting") + ".")); }
+    }, ms);
+  });
+}
+
+/* ------------------------------------------------------------------- tracks */
+function trackById(id) { return S.tracks.find((t) => t.id === id) || null; }
+
+function probeDuration(file) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (v) => { if (!settled) { settled = true; resolve(v); } };
+    const url = URL.createObjectURL(file);
+    const a = new Audio();
+    a.preload = "metadata";
+    a.onloadedmetadata = () => { const d = isFinite(a.duration) ? a.duration : null; URL.revokeObjectURL(url); done(d); };
+    a.onerror = () => { URL.revokeObjectURL(url); done(null); };
+    a.src = url;
+    setTimeout(() => done(null), 4000);
+  });
+}
+
+async function addFiles(fileList) {
+  const files = [...fileList].filter((f) => f && (f.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg|oga|opus|flac|webm|mp4|mpa|mpeg)$/i.test(f.name)));
+  if (!files.length) { toast("No audio files in that selection"); return; }
+  files.sort((a, b) => natural(a.name, b.name));
+
+  const added = [];
+  for (const f of files) {
+    const t = {
+      id: uid++, file: f, name: f.name, size: f.size,
+      duration: null, status: "queued", segments: [], lang: null, langSource: "auto",
+      forceLang: "auto", progress: null, error: null, elapsed: 0
+    };
+    S.tracks.push(t);
+    added.push(t);
+  }
+  renderQueue();
+  if (!S.selected) selectTrack(added[0].id);
+  setStatus(added.length + " track" + (added.length === 1 ? "" : "s") + " added. " +
+    (S.tracks.length ? S.tracks.length + " in the queue." : ""), "");
+  $("start").disabled = S.running || !S.tracks.length;
+
+  for (const t of added) {
+    const d = await probeDuration(t.file);
+    if (d != null) { t.duration = d; updateRow(t); }
+  }
+}
+
+function removeTrack(id) {
+  const i = S.tracks.findIndex((t) => t.id === id);
+  if (i < 0 || S.running) return;
+  S.tracks.splice(i, 1);
+  if (S.selected === id) {
+    S.selected = S.tracks.length ? S.tracks[Math.min(i, S.tracks.length - 1)].id : null;
+    if (S.selected) selectTrack(S.selected); else clearTranscript();
+  }
+  renderQueue();
+  $("start").disabled = S.running || !S.tracks.length;
+}
+
+function renderQueue() {
+  const box = $("tlist");
+  box.innerHTML = "";
+  if (!S.tracks.length) {
+    box.innerHTML = '<div class="tempty">No tracks yet. A CD usually rips to 01.wav … 24.wav — drop them all in.</div>';
+  }
+  for (let i = 0; i < S.tracks.length; i++) {
+    const t = S.tracks[i];
+    const row = document.createElement("div");
+    row.className = "trow" + (S.selected === t.id ? " sel" : "");
+    row.dataset.id = t.id;
+
+    const num = document.createElement("div");
+    num.className = "tnum"; num.textContent = String(i + 1).padStart(2, "0");
+
+    const main = document.createElement("div");
+    main.className = "tmain";
+    const nm = document.createElement("div");
+    nm.className = "tname"; nm.textContent = t.name; nm.title = t.name;
+    const meta = document.createElement("div");
+    meta.className = "tmeta";
+    const lang = document.createElement("span");
+    lang.className = "lang"; lang.textContent = t.lang ? t.lang.toUpperCase() : "—";
+    const dur = document.createElement("span");
+    dur.className = "tdur"; dur.textContent = t.duration != null ? fmtClock(t.duration) : "";
+    meta.append(lang, dur);
+    main.append(nm, meta);
+    if (t.status === "running") {
+      const mb = document.createElement("div");
+      mb.className = "minibar";
+      const fill = document.createElement("i");
+      mb.appendChild(fill);
+      main.appendChild(mb);
+    }
+
+    const stat = document.createElement("div");
+    stat.className = "tstat";
+
+    const del = document.createElement("button");
+    del.className = "tdel"; del.type = "button"; del.title = "Remove"; del.textContent = "✕";
+    del.addEventListener("click", (e) => { e.stopPropagation(); removeTrack(t.id); });
+
+    row.append(num, main, stat, del);
+    row.addEventListener("click", () => selectTrack(t.id));
+    t.el = { row, lang, dur, stat, fill: main.querySelector(".minibar > i") };
+    box.appendChild(row);
+    updateRow(t);
+  }
+  // track <select> in the transcript header
+  const sel = $("trackSel");
+  sel.innerHTML = "";
+  if (!S.tracks.length) {
+    const o = document.createElement("option"); o.textContent = "no track selected"; sel.appendChild(o);
+    sel.disabled = true;
+  } else {
+    sel.disabled = false;
+    for (let i = 0; i < S.tracks.length; i++) {
+      const t = S.tracks[i];
+      const o = document.createElement("option");
+      o.value = t.id;
+      o.textContent = String(i + 1).padStart(2, "0") + " · " + t.name + (t.status === "done" ? " ✓" : t.status === "error" ? " ⚠" : "");
+      sel.appendChild(o);
+    }
+    if (S.selected) sel.value = S.selected;
+  }
+  updateAllButton();
+}
+
+function updateRow(t) {
+  if (!t.el) return;
+  const { row, lang, dur, stat, fill } = t.el;
+  lang.textContent = t.lang ? t.lang.toUpperCase() : (t.status === "done" ? "?" : "—");
+  lang.className = "lang" + (t.langSource === "auto" && t.lang ? " auto" : "");
+  dur.textContent = t.duration != null ? "· " + fmtClock(t.duration) : "";
+  row.classList.toggle("sel", S.selected === t.id);
+
+  stat.className = "tstat";
+  if (t.status === "queued") stat.textContent = "waiting";
+  else if (t.status === "decoding") stat.textContent = "decoding…";
+  else if (t.status === "running") {
+    const p = t.progress;
+    stat.textContent = p ? Math.round((p.done / (p.total || 1)) * 100) + "%" : "…";
+    stat.classList.add("run");
+    if (fill) fill.style.width = (p ? Math.min(100, (p.done / (p.total || 1)) * 100) : 0) + "%";
+  }
+  else if (t.status === "done") {
+    stat.textContent = t.segments.length ? "✓ " + t.segments.length : "no speech";
+    stat.classList.add("done");
+  }
+  else if (t.status === "error") { stat.textContent = "⚠ failed"; stat.classList.add("err"); stat.title = t.error || ""; }
+  else if (t.status === "stopped") stat.textContent = "stopped";
+}
+
+function selectTrack(id) {
+  S.selected = id;
+  const t = trackById(id);
+  if (!t) { clearTranscript(); return; }
+  $("trackSel").value = id;
+  renderQueue();
+  syncTrackHeader();
+  renderSegments();
+  // player
+  if (S.trackUrl) { try { URL.revokeObjectURL(S.trackUrl); } catch (e) {} }
+  S.trackUrl = URL.createObjectURL(t.file);
+  $("player").src = S.trackUrl;
+}
+
+function clearTranscript() {
+  S.selected = null;
+  $("player").removeAttribute("src");
+  $("out").innerHTML = '<div class="empty"><div><div class="big">📝</div><p>Pick a track on the left (or run the whole queue). Timestamps are clickable and jump into the audio.</p></div></div>';
+  $("usedLang").textContent = "";
+  $("trackLang").value = "auto";
+  updateExports();
+}
+
+function syncTrackHeader() {
+  const t = trackById(S.selected);
+  if (!t) return;
+  $("trackSel").value = t.id;
+  $("trackLang").value = t.forceLang || "auto";
+  $("rerun").disabled = S.running || !t;
+  const bits = [];
+  if (t.lang) bits.push("language: " + (LANG_NAME[t.lang] || t.lang) + (t.langSource === "forced" ? " (forced)" : " (detected)"));
+  if (t.status === "done" && t.segments.length) bits.push(t.segments.length + " segments");
+  $("usedLang").textContent = bits.join(" · ");
+}
+
+/* ----------------------------------------------------------------- decoding */
+async function decodeToMono16k(file) {
+  const ctx = new OfflineAudioContext(1, 1, 16000);
+  let buf;
+  try {
+    buf = await ctx.decodeAudioData(await file.arrayBuffer());
+  } catch (e) {
+    const ctx2 = new OfflineAudioContext(1, 1, 44100);
+    const decoded = await ctx2.decodeAudioData(await file.arrayBuffer());
+    const len = Math.max(1, Math.ceil(decoded.duration * 16000));
+    const off = new OfflineAudioContext(1, len, 16000);
+    const src = off.createBufferSource();
+    src.buffer = decoded;
+    src.connect(off.destination);
+    src.start();
+    buf = await off.startRendering();
+  }
+  const ch = buf.numberOfChannels, n = buf.length;
+  const mono = new Float32Array(n);
+  mono.set(buf.getChannelData(0));
+  if (ch > 1) {
+    for (let c = 1; c < ch; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < n; i++) mono[i] += d[i];
+    }
+    for (let i = 0; i < n; i++) mono[i] /= ch;
+  }
+  return mono;
+}
+
+/* ---------------------------------------------------------------------- run */
+function progress(done, total) {
+  const pct = total ? Math.min(1, done / total) : 0;
+  $("txBar").style.width = (pct * 100).toFixed(1) + "%";
+  $("txPct").textContent = Math.round(pct * 100) + "%";
+  $("txLabel").textContent = "Current track · " + fmtClock(done) + " / " + fmtClock(total);
+}
+
+function fail(msg) {
+  setRunning(false);
+  $("txLabel").textContent = "Current track";
+  setStatus(msg || "Something went wrong.", "err");
+}
+
+function languageFor(t) {
+  if (t.forceLang && t.forceLang !== "auto") return t.forceLang;
+  if ($("langMode").value === "force") return $("lang").value;
+  return null;                    // null => let the engine detect
+}
+
+async function ensureModel() {
+  const model = $("model").value;
+  const def = MODELS.find((x) => x.id === model);
+  if (def && def.turbo && !S.gpu) throw new Error("That model needs WebGPU. Pick a smaller one.");
+  const key = model + "|" + ((S.gpu && !$("forceCpu").checked) ? "gpu" : "cpu");
+  if (S.loadedKey === key) return;
+  S.post({ type: "load", model, forceCpu: $("forceCpu").checked || !S.gpu, fp16: S.fp16,
+           spec: { webgpuEncoder: def && def.turbo ? "q4" : "auto" } });
+  await waitFor("model", 45 * 60 * 1000, "loading the model");
+  S.loadedKey = key;
+}
+
+async function runQueue(ids) {
+  const list = ids
+    ? ids.map(trackById).filter(Boolean)
+    : S.tracks.filter((t) => t.status !== "done");
+  if (!list.length) { toast("Nothing left to transcribe"); return; }
+  if (S.running) return;
+
+  S.stopping = false;
+  setRunning(true);
+  for (const t of S.tracks) if (list.includes(t) && t.status === "error") t.status = "queued";
+  list.forEach((t) => { if (t.status !== "done") t.status = "queued"; });
+  renderQueue();
+  $("dlBar").style.width = "0%"; $("dlPct").textContent = "0%";
+  $("txBar").style.width = "0%"; $("txPct").textContent = "0%";
+  $("dlLabel").textContent = "Model download";
+  setStatus("Starting engine…", "busy");
+
+  try {
+    await boot();
+    if (!S.post) throw new Error("The engine failed to start.");
+    await ensureModel();
+    saveSettings();
+  } catch (e) {
+    fail(e.message);
+    return;
+  }
+
+  let completed = 0;
+  for (let i = 0; i < list.length; i++) {
+    const t = list[i];
+    if (S.stopping) { t.status = t.status === "running" ? "stopped" : t.status; updateRow(t); break; }
+
+    $("txBar").style.width = "0%"; $("txPct").textContent = "0%";
+    $("txLabel").textContent = "Track " + (i + 1) + " of " + list.length;
+    setStatus("Decoding " + t.name + "…", "busy");
+
+    try {
+      t.status = "decoding"; updateRow(t);
+      const audio = await decodeToMono16k(t.file);
+      if (!t.duration) { t.duration = audio.length / 16000; updateRow(t); }
+      t.status = "running"; t.progress = { done: 0, total: audio.length / 16000 };
+      t.lang = null; t.langSource = "auto"; updateRow(t);
+      setStatus("Transcribing track " + (i + 1) + " of " + list.length + " — " + t.name, "busy");
+      if (S.selected !== t.id) selectTrack(t.id);
+
+      const msg = {
+        type: "run", id: t.id, audio,
+        language: languageFor(t),
+        task: $("task").value
+      };
+      const wait = waitFor(t.id, 6 * 60 * 60 * 1000, "transcribing " + t.name);
+      if (S.worker) S.worker.postMessage(msg, [audio.buffer]);
+      else S.post(msg);
+      await wait;
+      completed++;
+      t.audio = null;
+    } catch (e) {
+      t.status = "error"; t.error = e.message; updateRow(t);
+      if (S.stopping) break;
+    }
+  }
+
+  setRunning(false);
+  const doneN = S.tracks.filter((t) => t.status === "done").length;
+  if (S.stopping) {
+    setStatus("Stopped. " + doneN + " of " + S.tracks.length + " tracks transcribed.", "");
+  } else {
+    const failed = S.tracks.filter((t) => t.status === "error").length;
+    setStatus("Finished " + completed + " track" + (completed === 1 ? "" : "s") + " on " + S.deviceName +
+      (failed ? " · " + failed + " failed — click a track to see why." : " · export everything with All → ZIP."),
+      failed ? "" : "ok");
+  }
+  S.stopping = false;
+  renderQueue();
+  updateAllButton();
+}
+
+function stopRun() {
+  if (!S.running) return;
+  S.stopping = true;
+  setStatus("Stopping after this track…", "busy");
+  try { if (S.post) S.post({ type: "stop" }); } catch (e) {}
+  // a worker cannot be interrupted mid-call, so drop it; finished transcript stays
+  if (S.worker) {
+    const cur = S.tracks.find((t) => t.status === "running");
+    if (cur) { cur.status = "stopped"; updateRow(cur); }
+    teardownEngine();
+    setRunning(false);
+    const doneN = S.tracks.filter((t) => t.status === "done").length;
+    setStatus("Stopped. " + doneN + " of " + S.tracks.length + " tracks transcribed.", "");
+    S.stopping = false;
+    for (const k of Object.keys(S.waiters)) { delete S.waiters[k]; }
+    renderQueue();
+  }
+}
+
+/* --------------------------------------------------------------- transcript */
+function renderSegments() {
+  const out = $("out");
+  const t = trackById(S.selected);
+  if (!t) return;
+  const segs = t.segments || [];
+  if (!segs.length) {
+    const txt = t.status === "done" ? "No speech was found in this track."
+      : t.status === "error" ? "This track failed: " + (t.error || "unknown error")
+      : t.status === "running" ? "Listening… text lands here as the model works through the track."
+      : "Not transcribed yet. Run the queue, or press “Re-run track”.";
+    out.innerHTML = '<div class="empty"><div><div class="big">' +
+      (t.status === "done" ? "🔇" : t.status === "error" ? "⚠️" : "🎙️") +
+      '</div><p>' + txt.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])) + '</p></div></div>';
+    updateExports();
+    return;
+  }
+  const nearBottom = out.scrollHeight - out.scrollTop - out.clientHeight < 160;
+  const frag = document.createDocumentFragment();
+  for (const s of segs) {
+    const row = document.createElement("div");
+    row.className = "seg";
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ts"; b.textContent = fmtClock(s.start);
+    b.title = "Jump to " + fmtClock(s.start);
+    b.addEventListener("click", () => {
+      const p = $("player");
+      try { p.currentTime = s.start; p.play(); } catch (e) {}
+    });
+    const tx = document.createElement("div");
+    tx.className = "tx"; tx.textContent = s.text;
+    row.append(b, tx);
+    frag.appendChild(row);
+  }
+  out.replaceChildren(frag);
+  if (nearBottom) out.scrollTop = out.scrollHeight;
+  updateExports();
+}
+
+/* ----------------------------------------------------------------- exports */
+const hasCjk = (t) => /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(t);
+function plainOf(t) {
+  const segs = t.segments || [];
+  if (!segs.length) return "";
+  const glue = hasCjk(segs.map((s) => s.text).join("")) ? "" : " ";
+  return segs.map((s) => s.text).join(glue).trim();
+}
+const endOf = (s) => (s.end != null ? s.end : s.start + Math.max(1.2, s.text.length / 15));
+function srtOf(t) {
+  return (t.segments || []).map((s, i) =>
+    (i + 1) + "\r\n" + fmtStamp(s.start, true) + " --> " + fmtStamp(endOf(s), true) + "\r\n" + s.text + "\r\n"
+  ).join("\r\n");
+}
+function vttOf(t) {
+  return "WEBVTT\r\n\r\n" + (t.segments || []).map((s) =>
+    fmtStamp(s.start, false) + " --> " + fmtStamp(endOf(s), false) + "\r\n" + s.text + "\r\n"
+  ).join("\r\n");
+}
+function jsonOf(t) {
+  return JSON.stringify({
+    file: t.name, duration_sec: Math.round((t.duration || 0) * 100) / 100,
+    language: t.lang || "unknown", language_source: t.langSource,
+    model: $("model").value, task: $("task").value, device: S.deviceName,
+    segments: (t.segments || []).map((s) => ({ start: +(+s.start).toFixed(2), end: s.end == null ? null : +(+s.end).toFixed(2), text: s.text }))
+  }, null, 2);
+}
+function baseNameOf(t) {
+  const i = S.tracks.indexOf(t);
+  const prefix = i >= 0 ? String(i + 1).padStart(2, "0") + " - " : "";
+  return (prefix + safeName(t.name.replace(/\.[^.]+$/, ""))).slice(0, 90);
+}
+function download(name, data, mime) {
+  const blob = new Blob([data], { type: mime || "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 6000);
+}
+function finishedTracks() { return S.tracks.filter((t) => t.status === "done"); }
+function updateExports() {
+  const t = trackById(S.selected);
+  const on = !!(t && t.segments && t.segments.length);
+  for (const id of ["copy", "dlTxt", "dlSrt", "dlVtt", "dlJson"]) $(id).disabled = !on;
+  $("dlAll").disabled = finishedTracks().length === 0;
+  updateAllButton();
+}
+function updateAllButton() { $("dlAll").disabled = finishedTracks().length === 0 || S.running && false; }
+
+function combinedText() {
+  const parts = [];
+  for (let i = 0; i < S.tracks.length; i++) {
+    const t = S.tracks[i];
+    if (!(t.segments || []).length) continue;
+    const head = String(i + 1).padStart(2, "0") + " — " + t.name.replace(/\.[^.]+$/, "") +
+      (t.lang ? "  [" + t.lang + "]" : "");
+    parts.push(head + "\n" + "=".repeat(Math.min(70, head.length)) + "\n\n" + plainOf(t));
+  }
+  return parts.join("\n\n\n") + "\n";
+}
+
+/* --- minimal ZIP writer (store, no compression — transcripts are tiny) --- */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(u8) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function zipStore(entries) {
+  const enc = new TextEncoder();
+  const chunks = [], central = [];
+  let offset = 0;
+  for (const { name, data } of entries) {
+    const nameBytes = enc.encode(name);
+    const bytes = typeof data === "string" ? enc.encode(data) : data;
+    const crc = crc32(bytes);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true);
+    h.setUint16(4, 20, true);          // version needed
+    h.setUint16(6, 0x0800, true);      // UTF-8 filename flag
+    h.setUint16(8, 0, true);           // stored
+    h.setUint16(10, 0, true); h.setUint16(12, 0x21, true);  // time 00:00:00 (dos), date 1980-01-01
+    h.setUint32(14, crc, true);
+    h.setUint32(18, bytes.length, true);
+    h.setUint32(22, bytes.length, true);
+    h.setUint16(26, nameBytes.length, true);
+    h.setUint16(28, 0, true);
+    chunks.push(new Uint8Array(h.buffer), nameBytes, bytes);
+
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true);
+    c.setUint16(4, 20, true); c.setUint16(6, 20, true);
+    c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+    c.setUint16(12, 0, true); c.setUint16(14, 0x21, true);
+    c.setUint32(16, crc, true);
+    c.setUint32(20, bytes.length, true);
+    c.setUint32(24, bytes.length, true);
+    c.setUint16(28, nameBytes.length, true);
+    c.setUint16(30, 0, true); c.setUint16(32, 0, true);
+    c.setUint16(34, 0, true); c.setUint16(36, 0, true);
+    c.setUint32(38, 0, true);
+    c.setUint32(42, offset, true);
+    central.push(new Uint8Array(c.buffer), nameBytes);
+
+    offset += 30 + nameBytes.length + bytes.length;
+  }
+  let centralSize = 0;
+  for (const c of central) centralSize += c.length;
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, entries.length, true);
+  end.setUint16(10, entries.length, true);
+  end.setUint32(12, centralSize, true);
+  end.setUint32(16, offset, true);
+  return new Blob([...chunks, ...central, new Uint8Array(end.buffer)], { type: "application/zip" });
+}
+function downloadBlob(name, blob) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 8000);
+}
+function exportZip() {
+  const done = finishedTracks();
+  if (!done.length) return;
+  const entries = [];
+  for (const t of done) {
+    const base = baseNameOf(t);
+    entries.push({ name: base + ".txt", data: plainOf(t) + "\n" });
+    entries.push({ name: base + ".srt", data: srtOf(t) });
+  }
+  entries.push({ name: "combined.txt", data: combinedText() });
+  entries.push({
+    name: "transcript.json",
+    data: JSON.stringify({
+      model: $("model").value, task: $("task").value, device: S.deviceName,
+      tracks: done.map((t) => ({
+        file: t.name, language: t.lang, language_source: t.langSource,
+        duration_sec: Math.round((t.duration || 0) * 100) / 100,
+        segments: (t.segments || []).map((s) => ({ start: +(+s.start).toFixed(2), end: s.end == null ? null : +(+s.end).toFixed(2), text: s.text }))
+      }))
+    }, null, 2)
+  });
+  downloadBlob("transcripts.zip", zipStore(entries));
+}
+
+/* ------------------------------------------------------------------- wiring */
+function init() {
+  buildLangList();
+  buildModelList();
+
+  const drop = $("drop"), input = $("file");
+  drop.addEventListener("click", () => input.click());
+  drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+  input.addEventListener("change", () => { if (input.files && input.files.length) addFiles(input.files); input.value = ""; });
+  $("folder").addEventListener("change", () => { if ($("folder").files && $("folder").files.length) addFiles($("folder").files); $("folder").value = ""; });
+  $("addFiles").addEventListener("click", () => input.click());
+  $("addFolder").addEventListener("click", () => $("folder").click());
+  ["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", (e) => {
+    const f = e.dataTransfer && e.dataTransfer.files;
+    if (f && f.length) addFiles(f);
+  });
+  window.addEventListener("dragover", (e) => e.preventDefault());
+  window.addEventListener("drop", (e) => e.preventDefault());
+
+  $("clearAll").addEventListener("click", () => {
+    if (S.running) return;
+    S.tracks = []; S.selected = null;
+    renderQueue(); clearTranscript();
+    $("start").disabled = true;
+    setStatus("Queue cleared. Add your ripped tracks to begin.", "");
+  });
+
+  $("model").addEventListener("change", updateModelNote);
+  $("langMode").addEventListener("change", () => { syncLangMode(); saveSettings(); });
+  $("start").addEventListener("click", () => runQueue(null));
+  $("stop").addEventListener("click", stopRun);
+
+  $("trackSel").addEventListener("change", (e) => selectTrack(+e.target.value));
+  $("trackLang").addEventListener("change", (e) => {
+    const t = trackById(S.selected);
+    if (t) { t.forceLang = e.target.value; }
+  });
+  $("rerun").addEventListener("click", () => {
+    const t = trackById(S.selected);
+    if (!t || S.running) return;
+    t.status = "queued"; t.segments = []; t.progress = null; t.error = null;
+    renderSegments(); updateRow(t);
+    runQueue([t.id]);
+  });
+
+  $("copy").addEventListener("click", async () => {
+    const t = trackById(S.selected);
+    if (!t) return;
+    try { await navigator.clipboard.writeText(plainOf(t) + "\n"); toast("Copied to clipboard"); }
+    catch (e) { toast("Copy blocked — select the text instead"); }
+  });
+  $("dlTxt").addEventListener("click", () => { const t = trackById(S.selected); if (t) download(baseNameOf(t) + ".txt", plainOf(t) + "\n"); });
+  $("dlSrt").addEventListener("click", () => { const t = trackById(S.selected); if (t) download(baseNameOf(t) + ".srt", srtOf(t)); });
+  $("dlVtt").addEventListener("click", () => { const t = trackById(S.selected); if (t) download(baseNameOf(t) + ".vtt", vttOf(t)); });
+  $("dlJson").addEventListener("click", () => { const t = trackById(S.selected); if (t) download(baseNameOf(t) + ".json", jsonOf(t), "application/json"); });
+  $("dlAll").addEventListener("click", exportZip);
+
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); if (!S.running) runQueue(null); }
+  });
+
+  updateModelNote();
+  updateExports();
+  boot().catch(() => {});
+}
+init();
+})();
+</script>
+</body>
+</html>
