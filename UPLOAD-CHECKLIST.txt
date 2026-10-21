@@ -9,8 +9,11 @@ REQUIRED  (10 files)
   028-script-a-distractors.mp3                    listening audio — Lesson 3        (folder-free, upload as a plain file)
   028-script-b-accuracy.mp3                       listening audio — Lesson 4
   028-script-c-mini-review.mp3                    listening audio — Mini check
-  028-script-d-map.mp3                            listening audio — Lesson 5 (Campus Map)
-  028-script-e-lecture.mp3                        listening audio — Lesson 6 (Academic Lecture)
+  028-script-d-map.mp3                            listening audio — Lesson 6 (Campus Map, Part 2)
+  028-script-e-lecture.mp3                        listening audio — Lesson 9 (Academic Lecture, Part 4)
+  028-script-f-form.mp3                           listening audio — Lesson 5 (2-Speaker Form Call, Part 1)
+  028-script-g-career.mp3                         listening audio — Lesson 7 (School Talk Matching & Short Answer, Part 2)
+  028-script-h-seminar.mp3                        listening audio — Lesson 8 (2-Speaker Seminar Flow-Chart & Sentences, Part 3)
   index.html                                      launcher (yours already matches; optional to replace)
   IELTS Quest Mini Workbook.pdf
   IELTS Quest Mission Sheets.pdf
