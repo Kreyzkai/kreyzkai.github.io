@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing</title>
-<meta name="description" content="An unofficial IELTS starter for student self-study: test-day walkthrough, Listening with recorded audio, Speaking with timers and recording, Reading and Writing starters, plus printable paper materials. Not affiliated with IELTS, the British Council, IDP or Cambridge.">
+<title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing · Grammar Boost</title>
+<meta name="description" content="An unofficial IELTS starter for student self-study: test-day walkthrough, Listening with recorded audio, Speaking with timers and recording, Reading and Writing starters, optional Parts of Speech &amp; Sentence Patterns boost, plus printable paper materials. Not affiliated with IELTS, the British Council, IDP or Cambridge.">
 <meta name="theme-color" content="#14395e">
 <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%F0%9F%8E%A7%3C/text%3E%3C/svg%3E">
 <style>
@@ -107,6 +107,35 @@ tr:nth-child(even) td{background:#f2f8f7}
 .plan-card.amber{border-color:var(--amber);background:#fffdf4}
 .plan-card h4{margin:.15em 0;color:var(--navy)}
 
+/* ---- optional grammar boost ---- */
+.opt-pill{display:inline-block;background:var(--light2);color:var(--amber-dark);border:1px solid var(--amber);font-weight:bold;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;vertical-align:middle}
+.seg.opt-card{border-style:dashed;background:linear-gradient(180deg,#ffffff 0%,#f7fbfa 100%)}
+.seg.opt-card .time.opt{background:var(--light2);color:var(--amber-dark)}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:11px 0}
+.tbl-wrap table{margin:0;min-width:520px}
+.xray{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;padding:14px;background:#f8fbfa;border:1.5px solid var(--line);border-radius:14px;align-items:stretch}
+.tok{flex:1 1 auto;min-width:86px;background:#fff;border:1.5px solid var(--line);border-top:5px solid var(--teal);border-radius:11px;padding:8px 10px;text-align:center;transition:opacity .2s ease,transform .2s ease,box-shadow .2s ease}
+.tok .t-pos{display:block;font-size:.66rem;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:var(--teal-dark)}
+.tok .t-word{display:block;font-size:1.12rem;font-weight:bold;color:var(--navy);margin:3px 0 2px}
+.tok .t-jp{display:block;font-size:.74rem;color:var(--grey)}
+.tok.art,.tok.adj,.tok.adv{border-top-color:#d99a1e}
+.tok.art .t-pos,.tok.adj .t-pos,.tok.adv .t-pos{color:var(--amber-dark)}
+.tok.verb{border-top-color:var(--navy)}
+.tok.verb .t-pos{color:var(--navy)}
+.xray.skeleton .tok.extra{opacity:.26;transform:scale(.96)}
+.xray.skeleton .tok.core{box-shadow:0 0 0 2px var(--teal);background:var(--light)}
+.grow-box{border:2px solid var(--teal);border-radius:15px;padding:16px;background:#fbfefd;margin:14px 0}
+.grow-steps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.grow-btn{border:1.5px solid var(--line);background:#fff;color:var(--navy);font-weight:bold;font-size:.82rem;padding:7px 13px;border-radius:99px;cursor:pointer}
+.grow-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.grow-sent{font-size:1.12rem;line-height:1.65;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin:8px 0;color:var(--ink)}
+.grow-sent mark{background:var(--light2);color:var(--ink);padding:1px 5px;border-radius:5px;font-weight:bold}
+.grow-sent mark.core{background:var(--light);border-bottom:2px solid var(--teal)}
+.pat-tag{display:inline-block;background:var(--navy);color:#fff;font-weight:bold;font-size:.76rem;padding:3px 9px;border-radius:7px;margin-right:6px}
+.trap-bad{color:var(--bad);font-weight:bold}
+.trap-good{color:var(--good);font-weight:bold}
+.inline-link{background:none;border:0;color:var(--teal-dark);font:inherit;font-weight:bold;text-decoration:underline;cursor:pointer;padding:0}
+
 /* ---- audit fixes ---- */
 details.lesson, details.modelbox, section.panel > .card, #panel-needs .card{scroll-margin-top:84px}
 details.lesson>summary{position:relative;padding-right:52px}
@@ -124,10 +153,12 @@ main{padding-bottom:96px}
   #disclaimerBtn::after{content:"ⓘ";font-size:1.05rem}}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.panel.active{animation:none}}
 @media print{
-  #disclaimerBtn,.tabbar,.recorder,.timer button,#jpToggle,#printBtn,button.btn,.feedback,.wordcount,.audio-err{display:none!important}
+  #disclaimerBtn,.tabbar,.recorder,.timer button,#jpToggle,#printBtn,button.btn,.feedback,.wordcount,.audio-err,.grow-steps,.inline-link{display:none!important}
   body{background:#fff;line-height:1.4}
   .card{box-shadow:none;border:1px solid #999}
   details.lesson{page-break-inside:avoid;border:1px solid #999}
+  #panel-grammar details.lesson{page-break-inside:auto}
+  .tbl-wrap{overflow:visible}.tbl-wrap table{min-width:0}
   details.lesson>summary::after{content:""}
   .jp{color:#333}
   a[href^="http"]::after{content:" (" attr(href) ")";font-size:.7em;color:#555;word-break:break-all}
@@ -156,6 +187,7 @@ footer a{color:var(--teal-dark)}
   <button class="tab-btn" id="tab-speaking" data-tab="speaking" role="tab" aria-controls="panel-speaking" aria-selected="false" tabindex="-1">🗣️ Speaking</button>
   <button class="tab-btn" id="tab-reading" data-tab="reading" role="tab" aria-controls="panel-reading" aria-selected="false" tabindex="-1">📖 Reading</button>
   <button class="tab-btn" id="tab-writing" data-tab="writing" role="tab" aria-controls="panel-writing" aria-selected="false" tabindex="-1">✍️ Writing</button>
+  <button class="tab-btn" id="tab-grammar" data-tab="grammar" role="tab" aria-controls="panel-grammar" aria-selected="false" tabindex="-1">🧩 Grammar</button>
   <button class="tab-btn" id="tab-toolkit" data-tab="toolkit" role="tab" aria-controls="panel-toolkit" aria-selected="false" tabindex="-1">🧰 Toolkit &amp; Print</button>
 </div></nav>
 
@@ -174,6 +206,7 @@ footer a{color:var(--teal-dark)}
       <button class="seg" data-go="speaking"><span class="ico">🗣️</span><h3>Speaking</h3><p>Parts 1, 2 and 3 with simple patterns, timers, a recorder, and models.</p><span class="time">3 PARTS + MINI CHECK</span></button>
       <button class="seg" data-go="reading"><span class="ico">📖</span><h3>Reading</h3><p>What the Reading test is, timing strategy, and a short starter practice.</p><span class="time">OVERVIEW + PRACTICE</span></button>
       <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Writing</h3><p>Tasks 1 and 2, how to plan, and a starter essay-plan practice.</p><span class="time">OVERVIEW + PRACTICE</span></button>
+      <button class="seg opt-card" data-go="grammar"><span class="ico">🧩</span><h3>Grammar Boost <span class="opt-pill">Optional</span></h3><p>Parts of speech (<span lang="ja">品詞</span>) &amp; common English sentence patterns (<span lang="ja">文型</span>) — from beginner foundations to real IELTS score-savers.</p><span class="time opt">OPTIONAL · 5 MINI LESSONS</span></button>
       <button class="seg" data-go="toolkit"><span class="ico">🧰</span><h3>Toolkit &amp; Print</h3><p>Printable quest book, mission sheets, test-day map, phrase cards, and teacher materials.</p><span class="time">DOWNLOADS</span></button>
     </div>
     <div class="rule"><strong>📌 About saving:</strong> this website does <strong>not</strong> save your answers or progress — there is no account, so answers disappear when you close the tab, and opening this page on another device starts empty. If you want a record, use the <strong>paper Passport / Quest Book</strong> in Toolkit &amp; Print — paper works on every device. 🙂<br>
@@ -298,6 +331,7 @@ footer a{color:var(--teal-dark)}
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
     <div class="rule amber">⚠️ <strong>Word limit!</strong> “NO MORE THAN TWO WORDS” = <strong>1 or 2 words only</strong>.<br><span class="jp" lang="ja">文字数オーバーは不正解になります。</span><br>Try it: <input type="text" id="wl" placeholder="Type an answer… e.g. a notebook" style="margin-top:8px"> <span class="wordcount" id="wlCount"></span></div>
+    <p class="note">🧩 Tip: Predicting whether a blank needs a <strong>noun, verb, or adjective</strong> gets much easier when you know your parts of speech (<span lang="ja">品詞</span>). <button type="button" class="inline-link" data-open="pos-hinshi">Open optional Grammar Boost →</button></p>
   </div></details>
 
   <details class="lesson" id="mission2"><summary>🔤 Lesson 2 · Same meaning — different words, same idea <span class="time">4 MIN · PRINT MISSION 2</span></summary><div class="body">
@@ -520,7 +554,270 @@ footer a{color:var(--teal-dark)}
     <div class="checkline"><input type="checkbox" id="wr2"><label for="wr2" style="margin:0">Each paragraph has ONE main idea.</label></div>
     <div class="checkline"><input type="checkbox" id="wr3"><label for="wr3" style="margin:0">Word count is enough (Task 2: 250+).</label></div>
     <div class="checkline"><input type="checkbox" id="wr4"><label for="wr4" style="margin:0">I checked verb endings, plurals, and spelling.</label></div>
-    <p class="note">Nobody can mark your essay on this page — show it to a teacher, or compare it honestly with the model paragraph.</p>
+    <p class="note">Nobody can mark your essay on this page — show it to a teacher, or compare it honestly with the model paragraph. Need extra help avoiding common sentence &amp; article mistakes? <button type="button" class="inline-link" data-open="pos-traps">Open optional Grammar Boost →</button></p>
+  </div></details>
+</section>
+
+<!-- ============ GRAMMAR BOOST (OPTIONAL) ============ -->
+<section class="panel" id="panel-grammar" role="tabpanel" aria-labelledby="tab-grammar">
+  <div class="card">
+    <p style="margin:0 0 6px"><span class="opt-pill">Optional Lesson · Foundation to Band-Up</span></p>
+    <h2>🧩 Grammar Boost — Parts of Speech &amp; Sentence Patterns <span class="jp" lang="ja">/ 品詞と文型</span></h2>
+    <p class="subtitle">100% optional · built for Japanese learners starting from basics or sharpening accuracy for every IELTS room</p>
+    <div class="rule"><strong>💡 Teacher's secret — why this matters so much on IELTS:</strong><br>
+    Grammar is directly worth <strong>25% of your Speaking score</strong> and <strong>25% of your Writing score</strong> — and in <strong>Listening &amp; Reading</strong>, knowing whether a blank needs a <em>noun</em>, <em>verb</em>, <em>adjective</em>, or <em>article</em> saves points before you even hear or read the answer! Start from Lesson 1 if English feels hard, or jump straight to Lessons 4–5 for fast score-savers.<br>
+    <span class="jp" lang="ja">スピーキング・ライティングの採点の25%は文法です。リスニングやリーディングの空欄予想にも直結します。必要なところだけ選んでOK！</span></div>
+    <p>
+      <button class="btn small teal" data-open="pos-hinshi">1 Parts of speech (品詞)</button>
+      <button class="btn small teal" data-open="pos-xray">2 Sentence X-Ray &amp; endings</button>
+      <button class="btn small teal" data-open="pos-patterns">3 Sentence patterns (文型)</button>
+      <button class="btn small teal" data-open="pos-traps">4 Fix 5 JP→EN traps</button>
+      <button class="btn small teal" data-open="pos-ielts">5 IELTS 4-skill workout</button>
+    </p>
+  </div>
+
+  <!-- GRAMMAR LESSON 1: HINSHI -->
+  <details class="lesson" id="pos-hinshi"><summary>🏷️ Lesson 1 · Parts of Speech — Hinshi (<span lang="ja">品詞</span>) <span class="time">5 MIN · OPTIONAL</span></summary><div class="body">
+    <div class="rule">Every word in an English sentence has a <strong>job</strong> (its <em>part of speech</em> / <span lang="ja">品詞・ひんし</span>). Connect the Japanese grammar words you already know to their English names so IELTS tips make instant sense!<br>
+    <span class="jp" lang="ja">日本語で習った「品詞」と英語の名前をつなげると、IELTSのコツが一気に分かりやすくなります。</span></div>
+
+    <h3>Main categories <span class="jp" lang="ja">/ 基本の9品詞</span></h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Romaji</th><th>Japanese</th><th>English</th><th>Job in a sentence</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Kanshi</strong></td><td lang="ja">冠詞</td><td><strong>Article</strong></td><td>Signals a noun is coming (<em>a/an</em> = one; <em>the</em> = specific)</td><td><em>a, an, the</em></td></tr>
+          <tr><td><strong>Meishi</strong></td><td lang="ja">名詞</td><td><strong>Noun</strong></td><td>Person, place, thing, or idea (often Subject or Object)</td><td><em>cat, student, school</em></td></tr>
+          <tr><td><strong>Dōshi</strong></td><td lang="ja">動詞</td><td><strong>Verb</strong></td><td>Action or state — the engine of every clause</td><td><em>eat, run, study</em></td></tr>
+          <tr><td><strong>Keiyōshi</strong></td><td lang="ja">形容詞</td><td><strong>Adjective</strong></td><td>Describes a noun or subject (<em>happy student</em>, <em>is happy</em>)</td><td><em>happy, big, beautiful</em></td></tr>
+          <tr><td><strong>Fukushi</strong></td><td lang="ja">副詞</td><td><strong>Adverb</strong></td><td>Adds <em>how, how much,</em> or <em>how often</em> to a verb/adjective</td><td><em>slowly, very, often</em></td></tr>
+          <tr><td><strong>Daimeishi</strong></td><td lang="ja">代名詞</td><td><strong>Pronoun</strong></td><td>Replaces a noun so you don't repeat the same word</td><td><em>I, you, he, they</em></td></tr>
+          <tr><td><strong>Zenchishi</strong></td><td lang="ja">前置詞</td><td><strong>Preposition</strong></td><td>Goes <em>before</em> a noun to show place, time, or direction</td><td><em>in, on, under, at</em></td></tr>
+          <tr><td><strong>Setsuzokushi</strong></td><td lang="ja">接続詞</td><td><strong>Conjunction</strong></td><td>Connects words or joins two <em>S + V</em> clauses (vital in IELTS!)</td><td><em>and, but, because</em></td></tr>
+          <tr><td><strong>Kandōshi</strong></td><td lang="ja">感動詞</td><td><strong>Interjection</strong></td><td>Short emotion word (natural speech only — never formal essays)</td><td><em>Oh!, Wow!, Hey!</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Other useful categories <span class="jp" lang="ja">/ 知っておくと便利な4分類</span></h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Romaji</th><th>Japanese</th><th>English</th><th>Why it helps you</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Jodōshi</strong></td><td lang="ja">助動詞</td><td><strong>Auxiliary / helping verb</strong></td><td>Goes before a <strong>base verb</strong> to show ability, future, or obligation</td><td><em>can, will, must</em></td></tr>
+          <tr><td><strong>Joshi</strong></td><td lang="ja">助詞</td><td><strong>Particle</strong></td><td>Marks roles in Japanese — English uses <strong>word order + prepositions</strong> instead</td><td>Japanese <span lang="ja">は</span> (<em>wa</em>), <span lang="ja">が</span> (<em>ga</em>), <span lang="ja">を</span> (<em>o</em>)</td></tr>
+          <tr><td><strong>Suushi</strong></td><td lang="ja">数詞</td><td><strong>Numeral</strong></td><td>Counts or orders things (tested constantly in Listening &amp; Task 1!)</td><td><em>one, two, three</em></td></tr>
+          <tr><td><strong>Meishi-shūshoku</strong></td><td lang="ja">名詞修飾</td><td><strong>Noun modification</strong></td><td>Describes a noun using another noun or adjective right in front of it</td><td><em>school bag, blue car</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rule amber"><strong>🇯🇵 ↔ 🇬🇧 3 crucial differences every Japanese learner should know:</strong>
+      <ul style="margin:8px 0 0;padding-left:20px">
+        <li><strong>Grammar boxes don't match 1-to-1:</strong> Japanese and English categories do not line up perfectly, so word-by-word translation causes mistakes.</li>
+        <li><strong>Articles (<em>Kanshi</em> / <span lang="ja">冠詞</span>: <em>a, an, the</em>) don't exist in Japanese:</strong> that is why forgetting <em>a / an / the</em> is the #1 habit to watch in IELTS Writing, Speaking, and note completion!</li>
+        <li><strong>Japanese particles (<span lang="ja">は・が・を</span>) ≠ English prepositions:</strong> in Japanese, <span lang="ja">は / が / を</span> tell you who did what. In English, <strong>position around the verb</strong> decides Subject vs Object (<em>I play soccer</em>, never <em>I soccer play</em>), and prepositions (<em>in, on, at</em>) go <strong>in front of</strong> the noun (<em>in Tokyo</em>).</li>
+      </ul>
+    </div>
+
+    <h3>Quick check — match the job <span class="jp" lang="ja">/ 品詞ミニチェック</span></h3>
+    <form class="quiz">
+      <div class="q" data-why="Look for the category that introduces a noun (冠詞 in Japanese — English uses these constantly!)."><label>1. <em>a, an, the</em> — signals a noun is coming:</label><select data-answer="article"><option value="">Choose…</option><option value="preposition">Preposition (Zenchishi / 前置詞)</option><option value="article">Article (Kanshi / 冠詞)</option><option value="adverb">Adverb (Fukushi / 副詞)</option></select></div>
+      <div class="q" data-why="Which category acts like glue to connect words or join two full S + V clauses (接続詞)?"><label>2. <em>and, but, because</em> — joins words or two sentences:</label><select data-answer="conjunction"><option value="">Choose…</option><option value="conjunction">Conjunction (Setsuzokushi / 接続詞)</option><option value="pronoun">Pronoun (Daimeishi / 代名詞)</option><option value="adjective">Adjective (Keiyōshi / 形容詞)</option></select></div>
+      <div class="q" data-why="Which category tells how, how much, or how often an action happens (副詞)?"><label>3. <em>slowly, very, often</em> — tells how, how much, or how often:</label><select data-answer="adverb"><option value="">Choose…</option><option value="noun">Noun (Meishi / 名詞)</option><option value="adjective">Adjective (Keiyōshi / 形容詞)</option><option value="adverb">Adverb (Fukushi / 副詞)</option></select></div>
+      <div class="q" data-why="Which English category sits IN FRONT OF a noun to show place or time (前置詞)?"><label>4. <em>in, on, under, at</em> — placed before a noun for place or time:</label><select data-answer="preposition"><option value="">Choose…</option><option value="preposition">Preposition (Zenchishi / 前置詞)</option><option value="particle">Japanese Particle (Joshi / 助詞)</option><option value="verb">Verb (Dōshi / 動詞)</option></select></div>
+      <div class="q" data-why="Which category goes right before a base verb to express ability, future, or obligation (助動詞)?"><label>5. <em>can, will, must</em> — goes before a base verb (e.g. <em>must bring</em>):</label><select data-answer="aux"><option value="">Choose…</option><option value="numeral">Numeral (Suushi / 数詞)</option><option value="aux">Auxiliary / helping verb (Jodōshi / 助動詞)</option><option value="interjection">Interjection (Kandōshi / 感動詞)</option></select></div>
+      <div class="q" data-why="Which category describes what a noun or subject is like (形容詞)?"><label>6. <em>happy, big, beautiful</em> — describes a noun or subject:</label><select data-answer="adjective"><option value="">Choose…</option><option value="adjective">Adjective (Keiyōshi / 形容詞)</option><option value="verb">Verb (Dōshi / 動詞)</option><option value="pronoun">Pronoun (Daimeishi / 代名詞)</option></select></div>
+      <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <!-- GRAMMAR LESSON 2: SENTENCE X-RAY & WORD ENDINGS -->
+  <details class="lesson" id="pos-xray"><summary>🔍 Lesson 2 · Sentence X-Ray &amp; Word Endings — See Inside Any Sentence <span class="time">5 MIN · OPTIONAL</span></summary><div class="body">
+    <p>Look at how each word does its own job inside a real sentence — and notice what forms the <strong>core skeleton</strong> versus <strong>extra detail</strong>:</p>
+
+    <h3>X-Ray 1 · “A happy student studies hard.”</h3>
+    <div class="xray" aria-label="Word breakdown of A happy student studies hard">
+      <div class="tok art extra"><span class="t-pos">Kanshi · Article</span><span class="t-word">A</span><span class="t-jp" lang="ja">冠詞</span></div>
+      <div class="tok adj extra"><span class="t-pos">Keiyōshi · Adjective</span><span class="t-word">happy</span><span class="t-jp" lang="ja">形容詞</span></div>
+      <div class="tok core"><span class="t-pos">Meishi · Noun (S)</span><span class="t-word">student</span><span class="t-jp" lang="ja">名詞（主語）</span></div>
+      <div class="tok verb core"><span class="t-pos">Dōshi · Verb (V)</span><span class="t-word">studies</span><span class="t-jp" lang="ja">動詞</span></div>
+      <div class="tok adv extra"><span class="t-pos">Fukushi · Adverb</span><span class="t-word">hard.</span><span class="t-jp" lang="ja">副詞</span></div>
+    </div>
+    <p class="note">📌 Important: this is <strong>one possible pattern</strong>, not a rule for every sentence! Also spot the IELTS favourite: <em>hard</em> and <em>fast</em> work as adverbs <strong>without</strong> <em>-ly</em> (<em>studies hard</em> = works diligently; <em>hardly</em> means “almost not”!).<br>
+    <span class="jp" lang="ja">※ hard は -ly がつかなくても副詞（「一生懸命に」）になります。hardly は「ほとんど〜ない」なので注意！</span></p>
+
+    <h3>X-Ray 2 · “The happy student studies English every day.”</h3>
+    <div class="xray" id="xrayDemo" aria-label="Word breakdown of The happy student studies English every day">
+      <div class="tok art extra"><span class="t-pos">Kanshi · Article</span><span class="t-word">The</span><span class="t-jp" lang="ja">冠詞</span></div>
+      <div class="tok adj extra"><span class="t-pos">Keiyōshi · Adjective</span><span class="t-word">happy</span><span class="t-jp" lang="ja">形容詞</span></div>
+      <div class="tok core"><span class="t-pos">Meishi · Noun (S)</span><span class="t-word">student</span><span class="t-jp" lang="ja">名詞（主語）</span></div>
+      <div class="tok verb core"><span class="t-pos">Dōshi · Verb (V)</span><span class="t-word">studies</span><span class="t-jp" lang="ja">動詞</span></div>
+      <div class="tok core"><span class="t-pos">Meishi · Noun (O)</span><span class="t-word">English</span><span class="t-jp" lang="ja">名詞（目的語）</span></div>
+      <div class="tok adv extra"><span class="t-pos">Time expression</span><span class="t-word">every day.</span><span class="t-jp" lang="ja">時の表現</span></div>
+    </div>
+    <p><button class="btn small ghost" type="button" id="xrayToggle" aria-pressed="false">🦴 Highlight core skeleton only (S + V + O)</button></p>
+    <div class="rule"><strong>🔑 Core rule for long IELTS Reading passages:</strong> Articles (<em>The</em>), adjectives (<em>happy</em>), and time/place phrases (<em>every day</em>) are <strong>not</strong> the core structure — they decorate the main <strong>Subject + Verb (+ Object)</strong>. When an IELTS Reading sentence looks scary and 35 words long, hunt the <strong>core S + V + O</strong> first!<br>
+    <span class="jp" lang="ja">長い英文で迷ったら、飾り（冠詞・形容詞・副詞）をいったん外して「誰が（S）・どうする（V）・何を（O）」だけを見つけましょう！</span></div>
+
+    <h3>IELTS Suffix Radar — guess the part of speech from the ending! <span class="jp" lang="ja">/ 語尾で品詞を見抜く裏ワザ</span></h3>
+    <p class="note">Even if you meet an unknown word in IELTS Reading, its ending usually reveals its job:</p>
+    <div class="grid2 even2">
+      <div class="mini"><h4>🏛️ Noun endings (<em>Meishi</em>)</h4><strong>-tion / -sion</strong> (<em>education</em>) · <strong>-ment</strong> (<em>improvement</em>) · <strong>-ness</strong> (<em>happiness</em>) · <strong>-ity</strong> (<em>flexibility</em>)</div>
+      <div class="mini"><h4>🎨 Adjective endings (<em>Keiyōshi</em>)</h4><strong>-able / -ible</strong> (<em>affordable, flexible</em>) · <strong>-ful</strong> (<em>useful</em>) · <strong>-ive</strong> (<em>effective</em>) · <strong>-al</strong> (<em>practical</em>)</div>
+      <div class="mini"><h4>⚡ Verb endings (<em>Dōshi</em>)</h4><strong>-ise / -ize</strong> (<em>organise</em>) · <strong>-ate</strong> (<em>communicate</em>) · <strong>-ify</strong> (<em>identify</em>) · <strong>-en</strong> (<em>widen</em>)</div>
+      <div class="mini"><h4>🏃 Adverb endings (<em>Fukushi</em>)</h4><strong>-ly</strong> (<em>slowly, gradually, sharply</em>) — plus short adverbs <em>often, very, fast, hard</em>.</div>
+    </div>
+
+    <h3>Practice — switch the word form (IELTS paraphrase skill!) <span class="jp" lang="ja">/ 品詞チェンジ練習</span></h3>
+    <div class="rule amber">Word families to use below:
+      <strong>succeed</strong> (V) · <strong>success</strong> (N) · <strong>successful</strong> (Adj) · <strong>successfully</strong> (Adv) &nbsp;|&nbsp;
+      <strong>flexibility</strong> (N) · <strong>flexible</strong> (Adj) &nbsp;|&nbsp;
+      <strong>educate</strong> (V) · <strong>education</strong> (N) · <strong>educational</strong> (Adj)</div>
+    <form class="quiz">
+      <div class="q" data-why="Look right before the blank: 'a great ____' requires the singular Noun from the succeed family!"><label>1. “The project succeeded.” → “The project was a great ________.”</label><input type="text" data-answers="success" placeholder="Noun (Meishi)"></div>
+      <div class="q" data-why="This blank tells HOW she completed the course (modifying the verb 'completed') — use the -ly Adverb!"><label>2. “She finished the course without trouble.” → “She ________ completed the course.”</label><input type="text" data-answers="successfully" placeholder="Adverb (Fukushi)"></div>
+      <div class="q" data-why="After 'is very ____', describe the subject using the Adjective (-ible), not the -ity Noun!"><label>3. “Online study offers great flexibility.” → “Online study is very ________.”</label><input type="text" data-answers="flexible" placeholder="Adjective (Keiyōshi)"></div>
+      <div class="q" data-why="Between 'an' and the noun 'programme', use the -al Adjective from the educate family!"><label>4. “The programme educates young people.” → “It is an ________ programme.”</label><input type="text" data-answers="educational" placeholder="Adjective (Keiyōshi)"></div>
+      <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <!-- GRAMMAR LESSON 3: SENTENCE PATTERNS -->
+  <details class="lesson" id="pos-patterns"><summary>🧱 Lesson 3 · Common English Sentence Patterns (<span lang="ja">基本文型</span>) — Beginner 4 to IELTS Complex <span class="time">7 MIN · OPTIONAL</span></summary><div class="body">
+    <h3>Step A · Brand new to sentence building? Master these 4 first! <span class="jp" lang="ja">/ まずはこの4つから！</span></h3>
+    <div class="grid2 even2">
+      <div class="mini"><h4>1 · S + V</h4><p style="margin:.2em 0"><strong>I run.</strong><br><span class="note">Subject + Action Verb</span></p></div>
+      <div class="mini"><h4>2 · S + V + O</h4><p style="margin:.2em 0"><strong>I play soccer.</strong><br><span class="note">Subject + Action Verb + Object</span></p></div>
+      <div class="mini"><h4>3 · S + <em>be</em> + Adjective</h4><p style="margin:.2em 0"><strong>I am happy.</strong><br><span class="note"><em>am / is / are / was / were</em> + feeling or quality</span></p></div>
+      <div class="mini"><h4>4 · S + <em>be</em> + Noun</h4><p style="margin:.2em 0"><strong>I am a student.</strong><br><span class="note"><em>be</em> connects the subject to who/what it is</span></p></div>
+    </div>
+    <div class="pattern">
+      <div class="step s1">1 START<small>Subject + Verb</small></div>
+      <div class="step s1">2 ADD OBJECT<small>when needed (S + V + O)</small></div>
+      <div class="step s2">3 PRACTISE <em>BE</em><small>be + adj / be + noun</small></div>
+      <div class="step s3">4 ADD DETAIL<small>adj · adv · place · reason</small></div>
+    </div>
+
+    <h3>Step B · All 5 Core Patterns + 3 Useful Extensions <span class="jp" lang="ja">/ 5文型＋3つの広げ方</span></h3>
+    <p class="note"><strong>Pattern letters:</strong> <strong>S</strong> = Subject (<span lang="ja">主語</span>: who/what the sentence is about) · <strong>V</strong> = Verb (<span lang="ja">動詞</span>: action or state) · <strong>O</strong> = Object (<span lang="ja">目的語</span>: person/thing affected) · <strong>C</strong> = Complement (<span lang="ja">補語</span>: describes/identifies S or O) · <strong>IO</strong> = Indirect Object (<span lang="ja">間接目的語</span>: person receiving) · <strong>DO</strong> = Direct Object (<span lang="ja">直接目的語</span>: thing given/sent).</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Structure</th><th>Core Example</th><th>Same Pattern in IELTS Speaking / Writing!</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. S + V</strong></td><td>Subject + Verb</td><td><em>Birds fly.</em></td><td><em>Prices <strong>rose</strong>.</em> (Task 1 chart)</td></tr>
+          <tr><td><strong>2. S + V + O</strong></td><td>Subject + Verb + Object</td><td><em>I like music.</em></td><td><em>Technology <strong>improves education</strong>.</em></td></tr>
+          <tr><td><strong>3. S + V + C</strong></td><td>Subject + Verb + Complement (<em>S = C</em>)</td><td><em>She is happy.</em></td><td><em>Online learning <strong>became popular</strong>.</em></td></tr>
+          <tr><td><strong>4. S + V + IO + DO</strong></td><td>Subject + Verb + Indirect Obj + Direct Obj</td><td><em>He gave <strong>me</strong> <strong>a gift</strong>.</em></td><td><em>Travel teaches <strong>students</strong> <strong>new skills</strong>.</em></td></tr>
+          <tr><td><strong>5. S + V + O + C</strong></td><td>Subject + Verb + Object + Complement (<em>O = C</em>)</td><td><em>They made <strong>me</strong> <strong>happy</strong>.</em></td><td><em>Smartphones make <strong>communication</strong> <strong>easy</strong>.</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rule"><strong>➕ 3 Useful Extensions</strong> <em>(these add information around a sentence — they are extensions, not separate core patterns)</em>:
+      <ul style="margin:8px 0 0;padding-left:20px">
+        <li><strong>6. Subject + Verb + Adverb:</strong> <em>He runs <strong>fast</strong>.</em> → IELTS Task 1: <em> figures increased <strong>steadily</strong>.</em></li>
+        <li><strong>7. Subject + Verb + Prepositional Phrase:</strong> <em>I live <strong>in Tokyo</strong>.</em> → IELTS Speaking: <em>I study <strong>at a library near my station</strong>.</em></li>
+        <li><strong>8. Subject + Verb + <em>to</em>-infinitive:</strong> <em>I want <strong>to sleep</strong>.</em> → IELTS Speaking/Writing: <em>Many students choose <strong>to study abroad</strong>.</em></li>
+      </ul>
+    </div>
+
+    <h3>Step C · Watch a basic sentence grow to IELTS Band-Up level! <span class="jp" lang="ja">/ 文を育てるデモ</span></h3>
+    <div class="grow-box">
+      <div class="grow-steps" role="group" aria-label="Sentence growth stages">
+        <button type="button" class="grow-btn active" data-grow="0">Stage 1 · Core (S+V+O)</button>
+        <button type="button" class="grow-btn" data-grow="1">Stage 2 · + Adj &amp; Adv</button>
+        <button type="button" class="grow-btn" data-grow="2">Stage 3 · + Extensions</button>
+        <button type="button" class="grow-btn" data-grow="3">Stage 4 · + Conjunction (IELTS!)</button>
+      </div>
+      <div class="grow-sent" id="growSent"><mark class="core">Students</mark> <mark class="core">study</mark> <mark class="core">English</mark>.</div>
+      <p class="note" id="growNote" style="margin:6px 0 0"><span class="pat-tag">S + V + O</span> <strong>Core skeleton:</strong> 100% grammatical already! Every strong IELTS sentence starts from a clean S + V backbone.</p>
+    </div>
+
+    <h3>Quick check — spot the pattern <span class="jp" lang="ja">/ 文型チェック</span></h3>
+    <form class="quiz">
+      <div class="q" data-why="'Birds' (Subject) + 'fly' (Verb) stands complete with nothing after the verb."><label>1. <em>Birds fly.</em></label><select data-answer="sv"><option value="">Choose…</option><option value="sv">S + V</option><option value="svo">S + V + O</option><option value="svc">S + V + C</option></select></div>
+      <div class="q" data-why="'is' works like an = sign connecting Subject 'She' to 'happy' (She = happy = Complement)."><label>2. <em>She is happy.</em></label><select data-answer="svc"><option value="">Choose…</option><option value="svo">S + V + O</option><option value="svc">S + V + C</option><option value="svoc">S + V + O + C</option></select></div>
+      <div class="q" data-why="'music' receives the action 'like' (I ≠ music, so it is an Object, not a Complement)."><label>3. <em>I like music.</em></label><select data-answer="svo"><option value="">Choose…</option><option value="sv">S + V</option><option value="svo">S + V + O</option><option value="svc">S + V + C</option></select></div>
+      <div class="q" data-why="Two objects follow 'gave': first the person receiving ('me'), then the thing given ('a gift')."><label>4. <em>He gave me a gift.</em></label><select data-answer="sviodo"><option value="">Choose…</option><option value="svo">S + V + O</option><option value="sviodo">S + V + IO + DO</option><option value="svoc">S + V + O + C</option></select></div>
+      <div class="q" data-why="'happy' describes the object 'me' (me = happy), so Object + Complement!"><label>5. <em>They made me happy.</em></label><select data-answer="svoc"><option value="">Choose…</option><option value="svc">S + V + C</option><option value="sviodo">S + V + IO + DO</option><option value="svoc">S + V + O + C</option></select></div>
+      <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <!-- GRAMMAR LESSON 4: TOP 5 JP->EN TRAPS -->
+  <details class="lesson" id="pos-traps"><summary>🛠️ Lesson 4 · Top 5 Japanese→English Traps Examiners Notice Immediately <span class="time">5 MIN · OPTIONAL</span></summary><div class="body">
+    <div class="rule amber"><strong>🎯 Instant score boost:</strong> Fixing just these 5 high-frequency habits cleans up over half the grammar slips examiners hear and read from Japanese test-takers!<br>
+    <span class="jp" lang="ja">日本の受験生が一番やりがちな5つのミスです。これを知るだけで減点が一気に減ります！</span></div>
+
+    <div class="grid2">
+      <div class="mini">
+        <h4>1 · Double verb (<em>be</em> + base verb)</h4>
+        <p><span class="trap-bad">✗ I am play soccer.</span><br><span class="trap-good">✓ I play soccer.</span></p>
+        <p class="note">Use <em>be</em> before a noun/adjective (<em>I am happy</em>), <strong>not</strong> before a regular base action verb.</p>
+      </div>
+      <div class="mini">
+        <h4>2 · “I am agree” trap (<em>Dōshi</em> vs <em>Keiyōshi</em>)</h4>
+        <p><span class="trap-bad">✗ I am agree with this view.</span><br><span class="trap-good">✓ I agree with this view.</span></p>
+        <p class="note"><em>agree, happen, belong, depend</em> are <strong>Verbs</strong>, not adjectives — never put <em>am / is / are</em> in front!</p>
+      </div>
+      <div class="mini">
+        <h4>3 · Naked singular noun (missing <em>Kanshi</em>)</h4>
+        <p><span class="trap-bad">✗ Student needs notebook.</span><br><span class="trap-good">✓ A student needs a notebook.</span> <span class="note">(or <em>Students need notebooks.</em>)</span></p>
+        <p class="note">A countable singular noun never stands naked — add <strong>a / an / the / my</strong> or make it <strong>plural (-s)</strong>!</p>
+      </div>
+      <div class="mini">
+        <h4>4 · Missing subject <em>It / They</em> (<em>Daimeishi</em>)</h4>
+        <p><span class="trap-bad">✗ Because is convenient.</span><br><span class="trap-good">✓ Because it is convenient.</span></p>
+        <p class="note">Japanese omits <span lang="ja">それ</span>, but every English clause <strong>must</strong> have a Subject (<em>S + V</em>) — even after <em>because</em>!</p>
+      </div>
+      <div class="mini">
+        <h4>5 · Particle (<span lang="ja">を・について</span>) trap</h4>
+        <p><span class="trap-bad">✗ discuss about a problem / listen music</span><br><span class="trap-good">✓ discuss a problem / listen to music</span></p>
+        <p class="note"><em>discuss</em> takes an Object directly (<em>S + V + O</em>); <em>listen</em> needs the preposition <strong>to</strong>!</p>
+      </div>
+      <div class="mini">
+        <h4>Bonus · Lone “Because…” fragment</h4>
+        <p><span class="trap-bad">✗ I like online courses. Because I can save time.</span><br><span class="trap-good">✓ I like online courses because I can save time.</span></p>
+        <p class="note">In IELTS Writing, attach a <em>because / although</em> clause to a main clause with no period between them!</p>
+      </div>
+    </div>
+
+    <h3>Be the examiner — pick the clean IELTS sentence <span class="jp" lang="ja">/ 正しい英文を選ぼう</span></h3>
+    <form class="quiz">
+      <div class="q" data-why="'agree' is already a Verb (Dōshi), so never write 'am agree' — write 'I completely agree…'."><label>1. Writing Task 2 opening:</label><select data-answer="b"><option value="">Choose…</option><option value="a">I am completely agree with this opinion.</option><option value="b">I completely agree with this opinion.</option><option value="c">I completely agreed with be this opinion.</option></select></div>
+      <div class="q" data-why="'discuss' is S + V + O directly (no 'about'), and 'issue' is countable singular so keep 'this' or 'the'!"><label>2. Essay introduction:</label><select data-answer="a"><option value="">Choose…</option><option value="a">This essay will discuss both views.</option><option value="b">This essay will discuss about both views.</option><option value="c">Essay will be discuss both views.</option></select></div>
+      <div class="q" data-why="After 'because', English STILL needs a Subject ('it') before 'is'!"><label>3. Speaking Part 1 reason:</label><select data-answer="c"><option value="">Choose…</option><option value="a">I often take the train because convenient.</option><option value="b">I am often take train because is convenient.</option><option value="c">I often take the train because it is convenient.</option></select></div>
+      <div class="q" data-why="'laptop' is a countable singular noun — give it an article ('a new laptop')!"><label>4. Speaking Part 2 sentence:</label><select data-answer="b"><option value="">Choose…</option><option value="a">Last month, I bought new laptop for school.</option><option value="b">Last month, I bought a new laptop for school.</option><option value="c">Last month, I was buy a new laptop for school.</option></select></div>
+      <div class="q" data-why="'listen' always takes the preposition 'to' before its object → listen to podcasts."><label>5. Speaking study habit:</label><select data-answer="a"><option value="">Choose…</option><option value="a">Every morning, I listen to English podcasts on the train.</option><option value="b">Every morning, I listen English podcasts on train.</option><option value="c">Every morning, I am listen to English podcasts on the train.</option></select></div>
+      <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <!-- GRAMMAR LESSON 5: ALL-4-SKILLS IELTS SCORE SAVERS -->
+  <details class="lesson" id="pos-ielts"><summary>🚀 Lesson 5 · How to Use This on Test Day — All 4 IELTS Skills Workout <span class="time">6 MIN · OPTIONAL</span></summary><div class="body">
+    <h3>Your exam-day game plan <span class="jp" lang="ja">/ 4技能すべてで使える得点アップ術</span></h3>
+    <div class="grid2 even2">
+      <div class="mini"><h4>🎧 Listening</h4>In your 20–30 s preview time, pencil <strong>N</strong> (noun), <strong>Adj</strong>, <strong>V</strong>, or <strong>Num</strong> next to every gap. Check <strong>“a” vs “an”</strong> before the blank — <em>an ________</em> guarantees a vowel sound!</div>
+      <div class="mini"><h4>📖 Reading</h4>In note/summary completion, your word <strong>must fit the grammar</strong> of the summary sentence. Use core <strong>S + V + O</strong> X-ray vision to slice through long sentences fast.</div>
+      <div class="mini"><h4>✍️ Writing</h4><strong>Task 1 magic pair:</strong> swap <em>Verb + Adverb</em> (<em>rose sharply</em>) with <em>Adjective + Noun</em> (<em>a sharp rise</em>) to boost variety! Save 3 min at the end to check <strong>S+V · -s · articles</strong>.</div>
+      <div class="mini"><h4>🗣️ Speaking</h4>Examiners reward <strong>error-free simple sentences + natural complex clauses</strong>: link two clean core patterns with <strong>because, although, when,</strong> or <strong>if</strong>!</div>
+    </div>
+
+    <h3>Final workout — IELTS Gap-Fill X-Ray <span class="jp" lang="ja">/ 品詞で解く実践ドリル</span></h3>
+    <div class="rule"><strong>Word bank:</strong> &nbsp; <code>notebook</code> &nbsp;·&nbsp; <code>affordable</code> &nbsp;·&nbsp; <code>register</code> &nbsp;·&nbsp; <code>sharply</code> &nbsp;·&nbsp; <code>sharp</code><br>
+    Read the words <strong>around</strong> each blank to decide the Part of Speech first, then type the exact word from the bank!<br>
+    <span class="jp" lang="ja">空欄の「前後」を見てどの品詞が入るか決めてから、上の5語から1つ選んで入力しよう！</span></div>
+    <form class="quiz">
+      <div class="q" data-why="Clue: 'a ____ to the class' — choose the countable singular Noun from the bank!"><label>1. <em>Listening note:</em> Participants must bring a ________ to the class.</label><input type="text" data-answers="notebook" placeholder="Clue: after 'a' = Noun"></div>
+      <div class="q" data-why="Clue: 'is surprisingly ____' — choose the -able Adjective describing the fee!"><label>2. <em>Reading completion:</em> The membership fee is surprisingly ________ for students.</label><input type="text" data-answers="affordable" placeholder="Clue: 'is' + adverb + Adjective"></div>
+      <div class="q" data-why="Clue: after helping verb 'must' (Jodōshi), always use the base Verb from the bank!"><label>3. <em>Listening completion:</em> All visitors must ________ online before Friday.</label><input type="text" data-answers="register" placeholder="Clue: 'must' + base Verb"></div>
+      <div class="q" data-why="Clue: modifies the action verb 'rose' (HOW did sales rise?) — pick the -ly Adverb!"><label>4. <em>Writing Task 1 (Verb + Adverb):</em> Online sales rose ________ between 2018 and 2025.</label><input type="text" data-answers="sharply" placeholder="Clue: verb 'rose' + Adverb"></div>
+      <div class="q" data-why="Clue: sits between 'a' and noun 'rise' — pick the plain Adjective (no -ly)! Notice how #4 & #5 express the exact same trend two ways!"><label>5. <em>Writing Task 1 upgrade (Adjective + Noun):</em> There was a ________ rise in online sales.</label><input type="text" data-answers="sharp" placeholder="Clue: 'a' + Adjective + noun"></div>
+      <button class="btn teal" type="submit">✓ Check my IELTS X-Ray score</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <div class="rule amber"><strong>🌟 You've got this!</strong> You don't need memorised giant words to pass IELTS — a clear <strong>Subject + Verb</strong> backbone, the right <strong>word form</strong>, careful <strong>articles &amp; plurals</strong>, and linking ideas with <strong>because / although / when / for example</strong> already take your English remarkably far. Ready to put it into action? Jump straight to <button type="button" class="inline-link" data-go="listening">🎧 Listening</button>, <button type="button" class="inline-link" data-go="speaking">🗣️ Speaking</button>, or <button type="button" class="inline-link" data-go="writing">✍️ Writing</button>!</div>
   </div></details>
 </section>
 
@@ -582,7 +879,9 @@ footer a{color:var(--teal-dark)}
 /* ---------- tabs ---------- */
 var LEGACY={"mission1":["listening","mission1"],"mission2":["listening","mission2"],"mission3":["listening","mission3"],
 "mission4":["listening","mission4"],"mission5":["speaking","mission5"],"mission6":["speaking","mission6"],"mission7":["speaking","mission7"],
-"speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"writing-practice":["writing","writing-practice"]};
+"speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"writing-practice":["writing","writing-practice"],
+"pos-hinshi":["grammar","pos-hinshi"],"pos-xray":["grammar","pos-xray"],"pos-patterns":["grammar","pos-patterns"],
+"pos-traps":["grammar","pos-traps"],"pos-ielts":["grammar","pos-ielts"]};
 function activate(tab, targetId){
   document.querySelectorAll(".tab-btn").forEach(function(b){
     var on=b.getAttribute("data-tab")===tab;
@@ -697,10 +996,45 @@ document.querySelectorAll("form.quiz").forEach(function(form){
     var fb=form.querySelector(".feedback");
     if(correct===total){fb.className="feedback good";fb.innerHTML="🎉 "+correct+" / "+total+" Perfect! Stop here, or pick another segment — your choice.<span class='why'>ここで終わっても、つづけてもOKです。</span>";}
     else{
-      var hint=stems.length?("<span class='why'>💡 No. "+stems.join(", ")+": right word, wrong <strong>form</strong> — read the sentence again (reduced → cheaper, not cheap). 形（けい）を確認しよう。</span>"):"";
+      var whys=[];
+      missed.forEach(function(n){
+        var qEl=form.querySelectorAll(".q")[n-1];
+        var w=qEl&&qEl.getAttribute("data-why");
+        if(w)whys.push("<span class='why'>💡 No. "+n+": "+w+"</span>");
+      });
+      var hint=stems.length&&!whys.length?("<span class='why'>💡 No. "+stems.join(", ")+": right word, wrong <strong>form</strong> — read the sentence again (reduced → cheaper, not cheap). 形（けい）を確認しよう。</span>"):"";
       fb.className="feedback bad";
-      fb.innerHTML="💪 "+correct+" / "+total+" — check No. "+missed.join(", ")+" and try again!"+hint+"<span class='why'>ヒント: 答えを変える前に、なぜ間違えたか考えよう。</span>";
+      fb.innerHTML="💪 "+correct+" / "+total+" — check No. "+missed.join(", ")+" and try again!"+hint+whys.join("")+(whys.length?"":"<span class='why'>ヒント: 答えを変える前に、なぜ間違えたか考えよう。</span>");
     }
+  });
+});
+
+/* ---------- optional grammar interactive helpers ---------- */
+var xrayBtn=document.getElementById("xrayToggle"),xrayBox=document.getElementById("xrayDemo");
+if(xrayBtn&&xrayBox){
+  xrayBtn.addEventListener("click",function(){
+    var on=xrayBox.classList.toggle("skeleton");
+    xrayBtn.setAttribute("aria-pressed",on?"true":"false");
+    xrayBtn.textContent=on?"🔍 Show full sentence (+ articles, adjectives & time)":"🦴 Highlight core skeleton only (S + V + O)";
+  });
+}
+var GROW=[
+  {sent:"<mark class='core'>Students</mark> <mark class='core'>study</mark> <mark class='core'>English</mark>.",
+   note:"<span class='pat-tag'>S + V + O</span> <strong>Stage 1 — Core skeleton:</strong> 100% grammatical! Every strong IELTS sentence stands on a clear Subject + Verb backbone."},
+  {sent:"Many <mark>motivated</mark> <mark class='core'>students</mark> <mark class='core'>study</mark> <mark class='core'>English</mark> <mark>regularly</mark>.",
+   note:"<span class='pat-tag'>+ Adj &amp; Adv</span> <strong>Stage 2 — Precision modifiers:</strong> Adding one exact adjective (<em>motivated</em>) and adverb (<em>regularly</em>) upgrades Vocabulary without breaking the S + V + O core."},
+  {sent:"Many <mark>motivated</mark> <mark class='core'>students</mark> <mark class='core'>study</mark> <mark class='core'>English</mark> <mark>at home</mark> <mark>to prepare for university</mark>.",
+   note:"<span class='pat-tag'>+ Prep &amp; to-V</span> <strong>Stage 3 — Extensions:</strong> A prepositional phrase (<em>at home</em>) + <em>to</em>-infinitive purpose (<em>to prepare…</em>) answers <em>where</em> and <em>why</em>."},
+  {sent:"<mark>Although</mark> school is busy, many <mark>motivated</mark> <mark class='core'>students</mark> <mark class='core'>study</mark> <mark class='core'>English</mark> <mark>at home</mark> <mark>because</mark> strong communication opens future doors.",
+   note:"<span class='pat-tag'>Complex Sentence</span> <strong>Stage 4 — IELTS Band-Up!</strong> Joining clauses with conjunctions (<em>Although… / because…</em>) demonstrates <strong>Grammatical Range</strong> — worth 25% of Speaking &amp; Writing!"}
+];
+document.querySelectorAll(".grow-btn").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    var idx=+btn.getAttribute("data-grow"),d=GROW[idx];
+    if(!d)return;
+    document.querySelectorAll(".grow-btn").forEach(function(b){b.classList.toggle("active",b===btn);});
+    document.getElementById("growSent").innerHTML=d.sent;
+    document.getElementById("growNote").innerHTML=d.note;
   });
 });
 /* ---------- timers ---------- */
@@ -775,8 +1109,9 @@ var SKILL={
  listening:{name:"Listening",tab:"#listening",first:"#mission1",firstLabel:"Listening Lesson 1 · Predict",why:"Listening is played only once in the test, so prediction and trick-answer skills help immediately."},
  reading:{name:"Reading",tab:"#reading",first:"#reading",firstLabel:"Reading segment",why:"Start with the timing rules and the 5 strategies, then try the short Bike Library practice."},
  writing:{name:"Writing",tab:"#writing",first:"#writing",firstLabel:"Writing segment",why:"Start with the two tasks and the 5-step routine; planning is the fastest win."},
- speaking:{name:"Speaking",tab:"#speaking",first:"#mission5",firstLabel:"Speaking Part 1",why:"Start with Answer + Reason + Example. Short, daily speaking beats rare long practice."}};
-var WORRY={unknown:"testday",listening:"listening",speaking:"speaking",reading:"reading",writing:"writing",language:null};
+ speaking:{name:"Speaking",tab:"#speaking",first:"#mission5",firstLabel:"Speaking Part 1",why:"Start with Answer + Reason + Example. Short, daily speaking beats rare long practice."},
+ grammar:{name:"Grammar Boost (Optional)",tab:"#grammar",first:"#pos-hinshi",firstLabel:"Grammar Boost · Parts of Speech",why:"Knowing parts of speech (品詞) and core English sentence patterns strengthens Writing & Speaking accuracy (25% of your score) and helps predict gap-fill answers in Listening & Reading."}};
+var WORRY={unknown:"testday",listening:"listening",speaking:"speaking",reading:"reading",writing:"writing",language:"grammar"};
 form.addEventListener("submit",function(ev){
   ev.preventDefault();
   var fd=new FormData(form);
@@ -802,7 +1137,11 @@ form.addEventListener("submit",function(ev){
     if(!(worry==="unknown"||goal==="curious"||timing==="none")){
       steps.push({h:"Also read: Test Day",b:"Before you practise seriously, spend 5 minutes on what actually happens in the test room — knowing the day removes most of the fear.",href:"#testday",label:"Open Test Day"});
     }
-    steps.push({h:"Build the base first",b:"Start with Starter models and short lessons. If IELTS still feels far away, that is normal — general English (and EIKEN, if your school uses it) still helps you. Talk with your teacher before paying for a test.",href:"#testday",label:"Re-check Test Day"});
+    if(primary!=="grammar"){
+      steps.push({h:"Build the base first (Optional Grammar Boost)",b:"Review parts of speech (品詞) and the 4 core beginner sentence patterns first, then try Starter models. Talk with your teacher before booking a test.",href:"#pos-patterns",label:"Open Grammar Boost"});
+    } else {
+      steps.push({h:"Next: try Listening Lesson 1",b:"Put your parts-of-speech skills straight to work predicting blanks before you listen — short Starter practice builds confidence fast.",href:"#mission1",label:"Open Listening Lesson 1"});
+    }
   } else {
     steps.push({h:"Then: try the Mini check",b:"When the first segment feels OK, test yourself with one-time listening and short speaking — like a tiny test day.",href:"#mission7",label:"Open Mini check"});
   }
