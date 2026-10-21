@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing · Grammar Boost</title>
-<meta name="description" content="An unofficial IELTS starter covering all 10 official IELTS Listening task types with 8 audio tracks (including 2-speaker dialogues, SVG map labelling, matching, flow-chart, sentence, form, table &amp; summary completion), Speaking timers &amp; recorder, 3 Reading labs, Writing Task 1 &amp; 2 labs with live word counters, and optional Grammar Boost.">
+<title>028 — Unofficial IELTS Academic Reviewer | Listening · Reading · Writing · Speaking · Grammar Boost</title>
+<meta name="description" content="An unofficial IELTS Academic reviewer aligned with official ielts.org Academic formats: all 10 Listening task types, all 11 Academic Reading question types, Academic Writing Task 1 (charts &amp; process diagrams) + Task 2 essays with Band 6.5 &amp; 7.5+ models, Speaking Parts 1–3 with examiner audio &amp; recorder, and optional Grammar Boost.">
 <meta name="theme-color" content="#14395e">
 <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%F0%9F%8E%A7%3C/text%3E%3C/svg%3E">
 <style>
@@ -220,7 +220,7 @@ button,summary,label,select,input,textarea,a.btn{touch-action:manipulation;-webk
   body{background:#fff;line-height:1.4}
   .card{box-shadow:none;border:1px solid #999}
   details.lesson{page-break-inside:avoid;border:1px solid #999}
-  #panel-grammar details.lesson,#panel-listening details.lesson{page-break-inside:auto}
+  #panel-grammar details.lesson,#panel-listening details.lesson,#panel-reading details.lesson,#panel-writing details.lesson,#panel-speaking details.lesson{page-break-inside:auto}
   .vis-wrap,.flowchart,.fc-step{break-inside:avoid;background:#fff;border-color:#999}
   .tbl-wrap{overflow:visible}.tbl-wrap table{min-width:0}
   details.lesson>summary::after{content:""}
@@ -234,11 +234,11 @@ footer a{color:var(--teal-dark)}
 <body>
 
 <header><div class="inner">
-  <div class="eyebrow">TEACHING TOOLS · 028 · UNOFFICIAL IELTS STARTER</div>
-  <h1>🎧 IELTS Reviewer 🗣️</h1>
-  <p class="sub">Choose the segment you need — no set order</p>
-  <p class="promise">New to IELTS? Start with <strong>Test Day</strong>. Know the test already? Jump straight to the skill you want to practise.<br>
-  <span class="jp" lang="ja">順番は自由です。必要なところだけ選んで使えます。</span></p>
+  <div class="eyebrow">TEACHING TOOLS · 028 · UNOFFICIAL IELTS ACADEMIC REVIEWER</div>
+  <h1>🎓 IELTS Academic Reviewer</h1>
+  <p class="sub">Aligned with official ielts.org Academic formats — choose any skill in any order</p>
+  <p class="promise">Built for university entry (<strong>Band 6.0–6.5+</strong>) &amp; professional registration such as teaching (<strong>Band 7.0+</strong>). Start with <strong>Test Day</strong> or jump straight to practice.<br>
+  <span class="jp" lang="ja">IELTS Academic（進学・教員登録向け）全4技能の公式問題形式に対応。順番は自由です。</span></p>
   <button class="btn ghost" id="jpToggle" type="button" aria-pressed="true">日本語ヒント: ON</button>
   <button class="btn ghost" id="printBtn" type="button">🖨 Print this segment</button>
 </div></header>
@@ -267,9 +267,9 @@ footer a{color:var(--teal-dark)}
     <div class="seg-grid">
       <button class="seg" data-go="testday"><span class="ico">🗺️</span><h3>Test Day — how IELTS works</h3><p>2026 computer format (+ Writing on Paper option), check-in, room order, check times, and scores.</p><span class="time">READ · ABOUT 5 MIN</span></button>
       <button class="seg" data-go="listening"><span class="ico">🎧</span><h3>Listening</h3><p>All <strong>10 official task types</strong> (form, note, table, summary &amp; sentence completion, 1-answer &amp; 2-answer MCQ, matching, map &amp; flow-chart) across 8 audio tracks.</p><span class="time">9 LESSONS · ALL 10 TYPES</span></button>
-      <button class="seg" data-go="speaking"><span class="ico">🗣️</span><h3>Speaking</h3><p>Parts 1, 2 (with rounding-off questions) and 3 with patterns, timers, local recording, and models.</p><span class="time">3 PARTS + MINI CHECK</span></button>
-      <button class="seg" data-go="reading"><span class="ico">📖</span><h3>Reading</h3><p>Timing strategy plus 3 official task styles: completion, True / False / Not Given, and Matching Headings &amp; Summary.</p><span class="time">OVERVIEW + 3 LABS</span></button>
-      <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Writing</h3><p>Academic Task 1 bar-chart lab + Overview rules, Task 2 essay planner, full models, and live computer word counters.</p><span class="time">TASK 1 + TASK 2 LABS</span></button>
+      <button class="seg" data-go="speaking"><span class="ico">🗣️</span><h3>Speaking</h3><p>Parts 1, 2 (task card + 2-min timer + rounding-off) &amp; 3 with <strong>examiner audio</strong>, recorder, and Band 6–7.5+ criteria.</p><span class="time">3 EXAMINER TRACKS · 4 LABS</span></button>
+      <button class="seg" data-go="reading"><span class="ico">📖</span><h3>Academic Reading</h3><p>All <strong>11 official ielts.org task types</strong> across descriptive, research, and opinion passages + SVG diagram lab.</p><span class="time">6 LABS · ALL 11 TYPES</span></button>
+      <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Academic Writing</h3><p>Task 1 <strong>Data Chart + Process Diagram</strong> labs, all 4 Task 2 essay types, live counters, and Band 6 vs 7.5 examiner notes.</p><span class="time">4 LABS · BAND 6–7.5+</span></button>
       <button class="seg opt-card" data-go="grammar"><span class="ico">🧩</span><h3>Grammar Boost <span class="opt-pill">Optional</span></h3><p>Parts of speech (<span lang="ja">品詞</span>) &amp; common English sentence patterns (<span lang="ja">文型</span>) — from beginner foundations to real IELTS score-savers.</p><span class="time opt">OPTIONAL · 5 MINI LESSONS</span></button>
       <button class="seg" data-go="toolkit"><span class="ico">🧰</span><h3>Toolkit &amp; Print</h3><p>Printable quest book, mission sheets, test-day map, phrase cards, and teacher materials.</p><span class="time">DOWNLOADS</span></button>
     </div>
@@ -360,7 +360,7 @@ footer a{color:var(--teal-dark)}
     <span class="jp" lang="ja">2026年夏より日本国内のIELTSは原則コンピューター受験になりました（一部地域ではライティングのみ手書き方式も選択可）。</span></div>
     <p class="note">Speaking is always face-to-face with a certified examiner — either the same day (before/after) or on a different day up to 7 days before/after. Check your booking confirmation.</p>
     <div class="timeline">
-      <div class="tl"><div class="n">1</div><div><h4>📝 Book your test</h4><p>Choose <strong>Academic or General Training</strong> on computer (plus <strong>Writing on Paper</strong> if offered and preferred). Listening and Speaking are identical for both; Reading and Writing differ. Many computer centres also support <strong>One Skill Retake</strong> within 60 days if one section falls short.</p><p class="jp" lang="ja">申し込み時にAcademic / Generalを選びます。会場により1技能のみ再受験（One Skill Retake）も可能です。</p></div></div>
+      <div class="tl"><div class="n">1</div><div><h4>📝 Book IELTS Academic at an official test centre</h4><p>Book <strong>IELTS Academic on Computer</strong> at an authorised test centre (plus <strong>Writing on Paper</strong> where available). Typical benchmarks: <strong>Undergraduate 6.0</strong> (min 5.5) · <strong>Postgraduate 6.5</strong> (min 6.0) · <strong>Teacher / Professional Registration (e.g. NZQA / Teaching Council NZ) 7.0 in every skill</strong>. Official computer centres also offer <strong>One Skill Retake</strong> within 60 days — avoid at-home remote tests if applying for licensing or visas.</p><p class="jp" lang="ja">大学進学（目安6.0〜6.5）も海外教員登録（例：NZ教員登録 各7.0以上）も <strong>IELTS Academic（公認会場受験）</strong> を選びます。1技能のみ再受験（One Skill Retake）にも対応。</p></div></div>
       <div class="tl"><div class="n">2</div><div><h4>🎒 Pack &amp; arrive early</h4><p>Bring the <strong>exact same valid ID (passport) you booked with</strong>. Into the test room: only your ID and <strong>water in a clear bottle with no label</strong>. Phones, watches, notes, and bags stay locked outside. Arrive early for check-in — eat and use the toilet first because <strong>there are no breaks</strong>.</p><p class="jp" lang="ja">持ち込みはパスポート（申込時と同じ身分証）とラベルなしの透明な水のみです。</p></div></div>
       <div class="tl"><div class="n">3</div><div><h4>🪪 Check in</h4><p>Staff verify your ID, take a security photo (and finger scan at many centres), store your belongings, and guide you to your computer booth. Need help at any moment? <strong>Raise your hand quietly.</strong></p><p class="jp" lang="ja">受付は全員同じ手続きです。困ったら静かに手を挙げましょう。</p></div></div>
       <div class="tl star"><div class="n">4</div><div><h4>🎧 Listening room 🎯 — about 30 min, 40 questions</h4><p>Put on your headphones and check the volume — if anything sounds unclear, <strong>raise your hand immediately</strong>. You hear 4 recordings, <strong>each ONE time only</strong> (everyday chat → public talk → student discussion → academic lecture). Use the short preview pauses for <strong>prediction</strong>. ⚠️ <strong>Crucial computer rule:</strong> enter answers directly on screen as you listen — at the end you get only <strong>2 minutes to check</strong> (not the old 10-minute paper transfer time)!</p><p class="jp" lang="ja">コンピューター版は最後の見直し時間が約2分しかありません。聞きながら直接入力・選択しましょう。</p></div></div>
@@ -762,71 +762,123 @@ footer a{color:var(--teal-dark)}
 <section class="panel" id="panel-speaking" role="tabpanel" aria-labelledby="tab-speaking">
   <div class="card">
     <h2>🗣️ Speaking <span class="jp" lang="ja">/ スピーキング</span></h2>
-    <p class="subtitle">11–14 minutes · you + one examiner · recorded · three parts. Judged equally on fluency, vocabulary, grammar, and pronunciation — being easy to understand matters more than any accent.</p>
-    <p><button class="btn small teal" data-open="mission5">Part 1</button> <button class="btn small teal" data-open="mission6">Part 2</button> <button class="btn small teal" data-open="speaking3">Part 3</button> <button class="btn small teal" data-open="mission7">Mini check</button></p>
+    <p class="subtitle">11–14 minutes · live certified examiner · recorded · three parts with examiner audio tracks, timers &amp; recorder</p>
+    <p><button class="btn small teal" data-open="mission5">Part 1 · Interview Frame</button> <button class="btn small teal" data-open="mission6">Part 2 · Long Turn (1–2 min)</button> <button class="btn small teal" data-open="speaking3">Part 3 · Abstract Discussion &amp; Rubric</button> <button class="btn small teal" data-open="mission7">Mini check</button></p>
+    <details class="modelbox" style="margin-bottom:0"><summary>📋 Official ielts.org Speaking structure &amp; 4 equal marking criteria (25% each)</summary>
+      <div class="tbl-wrap">
+        <table class="resp-tbl">
+          <thead><tr><th>Criterion (25%)</th><th>What Examiners Listen For</th><th>Band 6.0 → Band 7.0+ Upgrade</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Criterion"><strong>1. Fluency &amp; Coherence</strong></td><td data-label="What counts">Natural flow without long silence; clear linking of ideas</td><td data-label="Band 7.0+">Expand answers naturally using varied discourse markers (<em>That said, As a result, What stands out is…</em>) without memorised speeches</td></tr>
+            <tr><td data-label="Criterion"><strong>2. Lexical Resource</strong></td><td data-label="What counts">Topic precision + paraphrasing when you forget a word</td><td data-label="Band 7.0+">Use natural collocations (<em>steep learning curve, hands-on feedback, self-disciplined</em>) instead of repeating <em>good / hard / nice</em></td></tr>
+            <tr><td data-label="Criterion"><strong>3. Grammatical Range &amp; Accuracy</strong></td><td data-label="What counts">Mix of simple &amp; complex clauses + frequent error-free sentences</td><td data-label="Band 7.0+">Combine relative, conditional &amp; contrast clauses cleanly (<em>Although…, if learners practise…, which helps…</em>)</td></tr>
+            <tr><td data-label="Criterion"><strong>4. Pronunciation</strong></td><td data-label="What counts">Effortless intelligibility, word stress, rhythm &amp; intonation (any accent!)</td><td data-label="Band 7.0+">Group words in meaningful chunks and stress contrast words naturally — native accent is <strong>never</strong> required</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 
-  <details class="lesson" id="mission5"><summary>🗣️ Part 1 · Answer + reason + example <span class="time">4–5 MIN IN TEST · PRINT MISSION 5</span></summary><div class="body">
-    <div class="rule">Don't answer with one word. Use <strong>3 steps</strong>:<br><span class="jp" lang="ja">1語で終わらせず、3ステップで少し長く答えよう。</span></div>
-    <div class="pattern"><div class="step s1">① ANSWER<small>Yes, I do.</small></div><div class="step s2">② REASON<small>because…</small></div><div class="step s3">③ EXAMPLE<small>For example…</small></div></div>
-    <label>Question</label>
-    <select id="p1q"><option>Do you enjoy learning English?</option><option>What kind of music do you listen to?</option><option>What do you usually do at weekends?</option><option>How often do you use public transportation?</option><option>Is your hometown a good place for young people?</option><option>Would you like to learn another language?</option></select>
-    <label>① Answer — key words</label><input type="text" placeholder="Yes, I do.">
-    <label>② Reason — key words</label><input type="text" placeholder="I can talk to many people">
-    <label>③ Example — key words</label><input type="text" placeholder="when I travel">
-    <div class="timer" data-timer="30"><div class="tlabel">Say it — 30 seconds</div><div class="time">00:30</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+  <details class="lesson" id="mission5"><summary>🗣️ Part 1 · Introduction &amp; 2-Topic Interview Frame (with Examiner Audio) <span class="time">4–5 MIN · AUDIO</span></summary><div class="body">
+    <div class="rule"><strong>Official Part 1 format:</strong> After a quick ID check, the examiner asks <strong>2–3 short topic frames</strong> (4 questions per frame — e.g. <em>Where you live</em> → <em>Daily study habits</em>). Answer each in <strong>2–3 natural sentences</strong>: <strong>Answer + Reason + Short Detail/Example</strong>.<br><span class="jp" lang="ja">本人確認のあと、身近なテーマ2〜3分野（各4問前後）を聞かれます。1語で終わらせず2〜3文で答えましょう。</span></div>
+    <p><strong>🎧 Practise with the Examiner recording</strong> — pause after each question and speak aloud! <span class="jp" lang="ja">質問ごとに一時停止して声に出して答えよう</span></p>
+    <audio controls preload="metadata" src="028-script-s1-part1.mp3">Audio not available in this browser.</audio>
+    <div class="pattern"><div class="step s1">① ANSWER<small>Direct reply</small></div><div class="step s2">② REASON<small>because / since…</small></div><div class="step s3">③ DETAIL<small>For instance…</small></div></div>
+    <label>Choose a Part 1 frame question to plan:</label>
+    <select id="p1q">
+      <option>[Frame A · Home area] What kind of town or neighbourhood do you live in?</option>
+      <option>[Frame A · Home area] What is the most interesting place to visit near your home?</option>
+      <option>[Frame A · Home area] Would you say it is a good area for students to live in?</option>
+      <option>[Frame B · Study routine] What part of the day do you find best for studying, and why?</option>
+      <option>[Frame B · Languages] Do you enjoy learning English?</option>
+      <option>[Frame B · Transport] How often do you use public transportation?</option>
+    </select>
+    <label>① Answer — key words</label><input type="text" placeholder="Quiet commuter suburb, 25 min from city centre">
+    <label>② Reason — key words</label><input type="text" placeholder="peaceful at night, affordable cafés">
+    <label>③ Example — key words</label><input type="text" placeholder="public library 5 min walk from my flat">
+    <div class="timer" data-timer="30"><div class="tlabel">Say it — 20–30 seconds per question</div><div class="time">00:30</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
     <div class="recorder" data-recorder><strong>🎙 Record yourself</strong> <span class="jp" lang="ja">/ 録音してみよう（端末の中だけ・アップロードされません）</span><br>
       <button class="btn teal small" type="button" data-rec-start>● Start</button><button class="btn small ghost" type="button" data-rec-stop disabled>■ Stop</button>
       <div class="note" data-rec-status>Recordings stay on your device and are not saved by this site.</div><audio controls data-rec-audio style="display:none"></audio></div>
-    <details class="modelbox"><summary>📄 Models — open AFTER you try</summary>
-      <div class="model starter"><span class="tag">Starter</span><p><em>Yes, I do. I like English because I can talk to more people. For example, I can use it when I travel.</em></p></div>
-      <div class="model stepup"><span class="tag">Step up · try ONE new phrase</span><p><em>Yes, I do, especially when I can use it in real conversations. When I travelled last year, I was able to ask for directions instead of relying on a translation app.</em></p></div>
+    <details class="modelbox"><summary>📄 Examiner Script &amp; Band 6 vs Band 7.5 Models — open AFTER you try</summary>
+      <p class="note"><strong>Examiner frame in audio:</strong> <em>“Good afternoon. Can you tell me your full name, please? Thank you. In this first part, let's talk about where you live. (1) What kind of town or neighbourhood do you live in? (2) What is the most interesting place to visit near your home? (3) Would you say it's a good area for students to live in? Now let's move on to daily routines. (4) What part of the day do you find best for studying, and why?”</em></p>
+      <div class="model starter"><span class="tag">Band 6.0 Starter · clear 3 sentences</span><p><em>I live in a quiet residential neighbourhood on the edge of Tokyo. I really like living there because it is safe and convenient for commuting. For example, there is a train station and a small library just five minutes from my house.</em></p></div>
+      <div class="model stepup"><span class="tag">Band 7.5+ Model · natural idiom &amp; subordination</span><p><em>I live in a leafy residential suburb about twenty-five minutes outside central Tokyo. Although it isn't particularly lively at night, it suits me down to the ground because everything is within walking distance — including a quiet municipal library where I prepare lesson materials on weekends.</em></p></div>
     </details>
   </div></details>
 
-  <details class="lesson" id="mission6"><summary>🗣️ Part 2 · Talk for 1–2 minutes <span class="time">1 MIN PREP · PRINT MISSION 6</span></summary><div class="body">
-    <div class="rule amber"><strong>🎴 Describe a skill you would like to learn.</strong><br><span class="jp" lang="ja">学びたいことについて話そう。キーワードだけでメモします。</span></div>
-    <div class="pattern" style="grid-template-columns:repeat(auto-fit,minmax(100px,1fr))"><div class="step s1">WHAT<small>何？</small></div><div class="step s1">WHY<small>なぜ？</small></div><div class="step s2">HOW<small>どうやって？</small></div><div class="step s2">EXAMPLE<small>例</small></div><div class="step s3">FEELING<small>気持ち</small></div><div class="step s3">ENDING<small>まとめ</small></div></div>
+  <details class="lesson" id="mission6"><summary>🗣️ Part 2 · Candidate Task Card, 2-Min Long Turn &amp; Rounding-Off <span class="time">3–4 MIN · AUDIO</span></summary><div class="body">
+    <div class="rule amber" style="text-align:left">
+      <strong>🎴 Official Candidate Task Card</strong><br>
+      <strong>Describe a skill you would like to learn.</strong><br>
+      You should say:
+      <ul style="margin:6px 0 6px;padding-left:20px">
+        <li>what the skill is</li>
+        <li>how you would learn it</li>
+        <li>why learning this skill might be challenging</li>
+        <li>and explain how this skill would help you in the future.</li>
+      </ul>
+      <span class="note" style="display:block;margin:0"><em>You have <strong>1 minute</strong> to think and write brief notes, then speak for <strong>1 to 2 minutes</strong>. Afterwards, the examiner asks <strong>1–2 short rounding-off questions</strong>.</em></span>
+    </div>
+    <audio controls preload="metadata" src="028-script-s2-part2.mp3">Audio not available in this browser.</audio>
+    <div class="pattern" style="grid-template-columns:repeat(auto-fit,minmax(100px,1fr))"><div class="step s1">WHAT<small>何？</small></div><div class="step s1">HOW<small>学び方</small></div><div class="step s2">CHALLENGE<small>難しい点</small></div><div class="step s2">STORY / EX.<small>具体例</small></div><div class="step s3">BENEFIT<small>将来への役立ち</small></div><div class="step s3">ROUND-OFF<small>短い追加質問</small></div></div>
     <div class="grid2">
-      <div><label>WHAT</label><input type="text" placeholder="play the guitar"></div><div><label>WHY</label><input type="text" placeholder="I love music"></div>
-      <div><label>HOW</label><input type="text" placeholder="online lessons, 20 min/day"></div><div><label>EXAMPLE</label><input type="text" placeholder="my cousin learned…"></div>
-      <div><label>FEELING</label><input type="text" placeholder="proud, relaxed"></div><div><label>ENDING</label><input type="text" placeholder="a skill for my life"></div>
+      <div><label>WHAT skill</label><input type="text" placeholder="video editing / acoustic guitar"></div><div><label>HOW to learn</label><input type="text" placeholder="short online tutorials, 20 min/day"></div>
+      <div><label>CHALLENGE</label><input type="text" placeholder="steep learning curve at first"></div><div><label>EXAMPLE</label><input type="text" placeholder="my colleague created class videos…"></div>
+      <div><label>FUTURE BENEFIT</label><input type="text" placeholder="more engaging presentations"></div><div><label>ROUNDING-OFF ANSWER</label><input type="text" placeholder="Yes, quite a few — especially…"></div>
     </div>
     <div class="grid2">
-      <div class="timer" data-timer="60"><div class="tlabel">⏱ Prepare — 1 minute, keywords only</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
-      <div class="timer" data-timer="60"><div class="tlabel">🗣️ Speak — first goal: 1 minute!</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+      <div class="timer" data-timer="60"><div class="tlabel">⏱ Prepare — 1:00 official prep time</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+      <div class="timer" data-timer="120"><div class="tlabel">🗣️ Speak — full 2:00 long turn target</div><div class="time">02:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
     </div>
-    <p class="note">In the real test you speak for <strong>1–2 minutes</strong>, and then the examiner usually asks <strong>1–2 brief rounding-off questions</strong> (e.g. <em>“Do your friends want to learn this skill too?”</em> — answer in 1–2 natural sentences!). <span class="jp" lang="ja">本番は1〜2分話したあと、短い締めくくりの質問が1〜2問あります。</span> More cue cards: a useful lesson · a place you enjoyed · something you bought · a person who helped you.</p>
+    <p class="note"><strong>Official Rounding-Off Questions (at the end of the audio):</strong> ① <em>“Do many people your age want to learn this skill too?”</em> · ② <em>“Do you think this skill will be useful in the future?”</em> — answer each briefly in 1–2 sentences! <span class="jp" lang="ja">1〜2分話し終えた直後の締めくくり質問は、1〜2文で簡潔に答えるのが公式スタイルです。</span></p>
     <div class="recorder" data-recorder><strong>🎙 Record yourself</strong><br>
       <button class="btn teal small" type="button" data-rec-start>● Start</button><button class="btn small ghost" type="button" data-rec-stop disabled>■ Stop</button>
       <div class="note" data-rec-status>Listen once for ideas, once for English.</div><audio controls data-rec-audio style="display:none"></audio></div>
-    <details class="modelbox"><summary>📄 Models — open AFTER you try</summary>
-      <div class="model starter"><span class="tag">Starter · about 45 seconds</span><p><em>I would like to learn how to play the guitar. I want to learn it because I enjoy music. I would take online lessons and practise for twenty minutes every day. For example, I could learn one easy song first. I would feel proud if I could play it well. Overall, it would help me relax.</em></p></div>
-      <div class="model stepup"><span class="tag">Step up · about 90 seconds · try ONE new phrase</span><p><em>To begin with, a skill I would really like to learn is playing the guitar. One reason I want to learn it is that music helps me relax, and it would be a good way to spend time with friends. I would probably start with short online lessons, because they are flexible, and I would practise for about twenty minutes a day so that I improve gradually. A good example is my cousin, who learned in this way. What would help most is being patient. Overall, it is a skill I could enjoy for the rest of my life.</em></p></div>
+    <details class="modelbox"><summary>📄 Models (Band 6 Starter &amp; Band 7.5 Full Long Turn) — open AFTER you try</summary>
+      <div class="model starter"><span class="tag">Band 6.0 Starter · covers all 4 prompts clearly</span><p><em>I would like to learn how to play the acoustic guitar. I would start with short online lessons and practise for twenty minutes every evening after dinner. At first, pressing the strings cleanly would be difficult for my fingers. However, my cousin learned this way last year and can already play several songs. Learning guitar would help me relax after busy days and enjoy music with friends.</em></p></div>
+      <div class="model stepup"><span class="tag">Band 7.5+ Model · ~1 min 45 s · rich collocations &amp; complex clauses</span><p><em>A practical skill I have been keen to pick up for quite a while is video editing. In my studies and teaching work, clear visual explanations make complex topics far easier to grasp, so being able to produce crisp three-minute explainer clips would be genuinely useful. To learn it systematically, I would enrol in a structured beginner course and set aside twenty minutes every evening to edit short clips I film on my phone. The toughest part at the beginning would definitely be the steep learning curve — timeline software always looks intimidating until keyboard shortcuts become second nature. That said, a colleague of mine started from scratch six months ago, and seeing how engaging her classroom videos are convinced me that steady daily practice pays off. In the long run, it is a versatile skill that would benefit both my career and creative hobbies.</em><br>
+      <strong>Rounding-off reply:</strong> <em>“Yes, definitely — visual media is everywhere now, so lots of students and teachers want to edit confident short videos without hiring a specialist.”</em></p></div>
     </details>
   </div></details>
 
-  <details class="lesson" id="speaking3"><summary>🗣️ Part 3 · Opinion + reason + example + qualify <span class="time">4–5 MIN IN TEST</span></summary><div class="body">
-    <div class="rule">Go deeper than Part 1: <strong>Opinion → Reason → Example → “That said…”</strong><br><span class="jp" lang="ja">意見だけでなく、理由・例・反対の見方も言いましょう。</span></div>
-    <label>Question</label>
-    <select id="p3q"><option>Are online courses as effective as classroom lessons?</option><option>Why do some adults continue learning new skills?</option><option>Should schools spend more time teaching practical skills?</option><option>How has technology changed the way people learn?</option><option>What skills will be most valuable in the future?</option></select>
+  <details class="lesson" id="speaking3"><summary>🗣️ Part 3 · Two-Way Abstract Discussion &amp; Examiner Check <span class="time">4–5 MIN · AUDIO</span></summary><div class="body">
+    <div class="rule"><strong>Crucial Part 3 rule on ielts.org:</strong> Part 3 shifts from <em>“I / my life”</em> to <strong>society, generations, causes, and future trends</strong>! The examiner responds to what you just said and probes deeper — use <strong>Claim → Reason → Concrete Example → Nuance / Qualification</strong>.<br><span class="jp" lang="ja">Part 3では「自分自身の話」ではなく、社会全体・世代変化・将来予測について一般化して議論します！</span></div>
+    <audio controls preload="metadata" src="028-script-s3-part3.mp3">Audio not available in this browser.</audio>
+    <label>Practise one of the Examiner's abstract Part 3 questions:</label>
+    <select id="p3q">
+      <option>Why do some adults continue learning new skills later in life?</option>
+      <option>Has the way people learn practical skills changed compared with your parents' generation?</option>
+      <option>Should schools spend more time teaching practical skills alongside academic subjects?</option>
+      <option>How might artificial intelligence change university education over the next ten years?</option>
+      <option>Are online courses as effective as face-to-face classroom lessons?</option>
+    </select>
     <div class="grid2">
-      <div><label>Opinion — I think…</label><input type="text"></div><div><label>Reason — This is because…</label><input type="text"></div>
-      <div><label>Example — For example…</label><input type="text"></div><div><label>Qualify — That said… / It depends on…</label><input type="text"></div>
+      <div><label>Claim (General society view)</label><input type="text" placeholder="Largely because workplaces evolve rapidly…"></div><div><label>Reason — Why that happens</label><input type="text" placeholder="Skills learned at twenty rarely last forty years…"></div>
+      <div><label>Example — Group / real world</label><input type="text" placeholder="Mid-career teachers learning digital tools…"></div><div><label>Qualify — Nuance / exception</label><input type="text" placeholder="That said, many older adults learn purely for joy…"></div>
     </div>
-    <div class="timer" data-timer="60"><div class="tlabel">Say it — about 1 minute</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
-    <details class="modelbox"><summary>📄 Models — open AFTER you try</summary>
-      <div class="model starter"><span class="tag">Starter</span><p><em>I think online courses can be good. This is because students can study at any time. For example, they can watch a lesson again. But some students learn better with a teacher in a classroom.</em></p></div>
-      <div class="model stepup"><span class="tag">Step up · try ONE new phrase</span><p><em>In my opinion, online courses can be just as effective as classroom lessons, but it depends on the learner. This is because online study is flexible: students can replay difficult parts and learn at their own pace. For example, a student who works during the day can study late in the evening. That said, classroom lessons offer immediate feedback and more interaction, so younger or less self-disciplined learners may make faster progress with a teacher in front of them.</em></p></div>
+    <div class="timer" data-timer="60"><div class="tlabel">Say it — 45–60 seconds of connected thought</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+    <details class="modelbox"><summary>📄 Band 6.0 vs Band 7.5+ Part 3 Models — open AFTER you try</summary>
+      <div class="model starter"><span class="tag">Band 6.0 Starter</span><p><em>I think online courses can be very effective for independent students. This is because learners can replay difficult lectures at any time. For example, working adults can study late at night after work. However, younger students usually learn better with a teacher in a real classroom.</em></p></div>
+      <div class="model stepup"><span class="tag">Band 7.5+ Model · abstract framing + hedging + contrast</span><p><em>To a large extent, online courses can match classroom teaching when the goal is transmitting information, since self-motivated adults can pause complex lectures and review at their own pace. A good illustration is professionals upskilling in data analysis after work hours. That said, education involves far more than absorbing content: hands-on subjects, spontaneous debate, and immediate corrective feedback still work noticeably better face to face, particularly for younger learners who benefit from routine and peer accountability.</em></p></div>
     </details>
-    <h3>Help! phrases <span class="jp" lang="ja">/ 困ったときのフレーズ</span></h3>
-    <p>“Let me think about that…” · “What I mean is…” · “It is a kind of…” · “It is something you use to…” · “Please say that again.” — being stuck is OK. Keep talking.</p>
-    <h3>Check your recording <span class="jp" lang="ja">/ 録音チェック</span></h3>
-    <div class="checkline"><input type="checkbox" id="sr1"><label for="sr1" style="margin:0">Fluency: my ideas connected (first, also, but, overall…).</label></div>
-    <div class="checkline"><input type="checkbox" id="sr2"><label for="sr2" style="margin:0">Vocabulary: I used some exact words, not only easy ones.</label></div>
-    <div class="checkline"><input type="checkbox" id="sr3"><label for="sr3" style="margin:0">Grammar: I tried some long sentences (because / when / if…).</label></div>
-    <div class="checkline"><input type="checkbox" id="sr4"><label for="sr4" style="margin:0">Pronunciation: a friend could understand me easily.</label></div>
-    <p class="note">Ticking these boxes is for this visit only — for a record that lasts, write your scores in the paper Passport (Toolkit &amp; Print).</p>
+
+    <h3>Quick Examiner Check — What raises Speaking to Band 7.0+?</h3>
+    <form class="quiz">
+      <div class="q" data-why="In Part 3, examiners test abstract analysis across society/generations — don't stay stuck only telling personal stories about yourself!"><label>1. In Part 3 (“Why do adults learn new skills?”), which opening matches the official task demand best?</label><select data-answer="b"><option value="">Choose…</option><option value="a">Last Tuesday I watched a YouTube cooking video in my kitchen.</option><option value="b">In modern workplaces, rapid technological change pushes many adults to upskill, although curiosity plays a big role too.</option><option value="c">Yes.</option></select></div>
+      <div class="q" data-why="IELTS Pronunciation judges effortless intelligibility, stress, rhythm, and intonation — NEVER whether you sound British or American!"><label>2. Which statement about the Pronunciation criterion (25%) is TRUE on IELTS?</label><select data-answer="c"><option value="">Choose…</option><option value="a">You must imitate a British RP accent to score Band 7+.</option><option value="b">Speaking as fast as humanly possible raises Fluency and Pronunciation.</option><option value="c">Any accent can score Band 8–9 if speech is clear, well-stressed, and effortless to understand.</option></select></div>
+      <div class="q" data-why="In Part 2, the examiner MUST keep strict timing (max 2 minutes) — being politely interrupted is completely normal and carries zero penalty!"><label>3. If the examiner politely stops you at 2 minutes in Part 2 (“Thank you…”), what does it mean?</label><select data-answer="a"><option value="">Choose…</option><option value="a">Nothing negative at all — you spoke for the full maximum time!</option><option value="b">You lost points for not finishing your final sentence.</option><option value="c">Your grammar was wrong.</option></select></div>
+      <button class="btn teal" type="submit">✓ Check Speaking rules</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Help! phrases <span class="jp" lang="ja">/ 困ったときの自然なつなぎ表現</span></h3>
+    <p>“That's an interesting question — let me think for a second…” · “What I mean by that is…” · “Could you repeat the question, please?” *(asking the examiner to repeat a question in Part 1 or 3 is completely allowed!)*</p>
+    <h3>Check your recording <span class="jp" lang="ja">/ 録音セルフチェック</span></h3>
+    <div class="checkline"><input type="checkbox" id="sr1"><label for="sr1" style="margin:0">Fluency: my ideas connected smoothly without long silent pauses.</label></div>
+    <div class="checkline"><input type="checkbox" id="sr2"><label for="sr2" style="margin:0">Lexical Resource: I used exact collocations and paraphrased instead of repeating basic words.</label></div>
+    <div class="checkline"><input type="checkbox" id="sr3"><label for="sr3" style="margin:0">Grammar: I combined error-free simple sentences with natural complex clauses (<em>although / since / if</em>).</label></div>
+    <div class="checkline"><input type="checkbox" id="sr4"><label for="sr4" style="margin:0">Pronunciation: key content words were clearly stressed and easy to follow.</label></div>
+    <p class="note">Ticking these boxes is for this visit only — write notes in the paper Passport (Toolkit &amp; Print) if you want a lasting log.</p>
   </div></details>
 
   <details class="lesson" id="mission7"><summary>🏆 Mini check · Listening + Speaking (like a mini test day) <span class="time">8 MIN · PRINT MISSION 7</span></summary><div class="body">
@@ -853,44 +905,87 @@ footer a{color:var(--teal-dark)}
 <!-- ============ READING ============ -->
 <section class="panel" id="panel-reading" role="tabpanel" aria-labelledby="tab-reading">
   <div class="card">
-    <h2>📖 Reading <span class="jp" lang="ja">/ リーディング</span></h2>
-    <p class="subtitle">60 minutes · 40 questions · right after Listening, with no break. This segment is an overview + starter practice — full training needs timed practice tests.</p>
-    <div class="rule"><strong>Academic:</strong> 3 long passages (books, journals, magazines) with 40 questions in total. <strong>General Training:</strong> shorter everyday/work texts plus longer passages. Question types: multiple choice, True/False/Not Given, matching headings/information, sentence &amp; note completion, and more. <strong>No extra transfer time</strong> — write answers on the answer sheet/screen as you go.<br>
-    <span class="jp" lang="ja">60分・40問。答えはその場で解答用紙に書きます。</span></div>
+    <h2>📖 Academic Reading <span class="jp" lang="ja">/ アカデミック・リーディング</span></h2>
+    <p class="subtitle">60 minutes · 3 long academic passages (2,150–2,750 words total) · 40 questions · no extra transfer time</p>
+    <div class="rule"><strong>IELTS Academic Reading structure:</strong> 3 authentic academic texts from books, journals, magazines, and newspapers (descriptive, research-based, and at least one logical/discursive argument), testing <strong>all 11 official ielts.org question types</strong> below.<br>
+    <span class="jp" lang="ja">IELTS Academicのリーディングは60分・長文3本・40問。公式11形式すべてを下の6ラボで練習できます。</span></div>
     <h3>5 strategies that help most</h3>
     <div class="grid2">
-      <div class="mini"><h4>1 · Questions first</h4>Read the questions before the passage. You read with a purpose.</div>
-      <div class="mini"><h4>2 · Hunt names &amp; numbers</h4>Capital letters, dates and numbers are easy to find — start there.</div>
-      <div class="mini"><h4>3 · Same meaning again</h4>Answers are paraphrased, exactly like Listening Lesson 2.</div>
-      <div class="mini"><h4>4 · ~20 minutes per passage</h4>Don't get stuck. Mark it, move on, come back.</div>
-      <div class="mini"><h4>5 · Never leave a blank</h4>No minus points for wrong answers. Guess!</div>
-      <div class="mini"><h4>True / False / Not Given</h4>FALSE = the text says the opposite. NOT GIVEN = the text doesn't say. Don't use your own knowledge.</div>
+      <div class="mini"><h4>1 · Questions first</h4>Read the questions before the passage so you scan with a clear purpose.</div>
+      <div class="mini"><h4>2 · Hunt names, dates &amp; terms</h4>Capital letters, researchers' names, and years act like anchors in 900-word texts.</div>
+      <div class="mini"><h4>3 · Same meaning, different words</h4>Correct answers almost always paraphrase the passage using synonyms.</div>
+      <div class="mini"><h4>4 · Strict 20-min discipline</h4>Passage 3 is usually the most abstract — never let Passage 1 eat 30 minutes!</div>
+      <div class="mini"><h4>5 · Check question order</h4><em>T/F/NG, Y/N/NG, MCQ, Sentence Completion &amp; Short Answers</em> follow text order; <em>Matching Headings/Info</em> do not!</div>
+      <div class="mini"><h4>TRUE/FALSE vs YES/NO</h4><strong>TRUE / FALSE</strong> = factual statements · <strong>YES / NO</strong> = writer's opinions/claims. Never mix the labels!</div>
     </div>
-    <p style="margin:14px 0 0">
-      <button class="btn small teal" data-open="reading-practice">1 Starter completion</button>
-      <button class="btn small teal" data-open="reading-tfng">2 True / False / Not Given</button>
-      <button class="btn small teal" data-open="reading-headings">3 Headings &amp; Summary</button>
+    <p style="margin:14px 0 8px">
+      <button class="btn small teal" data-open="reading-practice">1 Sentence · Table · Short Answer</button>
+      <button class="btn small teal" data-open="reading-tfng">2 True/False/NG · Notes</button>
+      <button class="btn small teal" data-open="reading-headings">3 Headings · Text Summary</button>
+      <button class="btn small teal" data-open="reading-matching">4 Match Info · Features · MCQ (1 &amp; 2)</button>
+      <button class="btn small teal" data-open="reading-ynng">5 Yes/No/NG · Endings · Word-Bank Summary</button>
+      <button class="btn small teal" data-open="reading-diagram">6 SVG Diagram &amp; Flow-Chart</button>
     </p>
+    <details class="modelbox" style="margin-bottom:0"><summary>📋 Official ielts.org coverage check — jump to any of the 11 Academic Reading question types</summary>
+      <div class="tbl-wrap">
+        <table class="resp-tbl">
+          <thead><tr><th>#</th><th>Official ielts.org Question Type</th><th>In Text Order?</th><th>Open Lab</th></tr></thead>
+          <tbody>
+            <tr><td data-label="#">1</td><td data-label="Question Type"><strong>Multiple Choice (1 answer &amp; Choose TWO)</strong></td><td data-label="Order">Yes</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-matching">Lab 4 (Part C) →</button></td></tr>
+            <tr><td data-label="#">2</td><td data-label="Question Type"><strong>Identifying Information (True / False / Not Given)</strong></td><td data-label="Order">Yes</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-tfng">Lab 2 (Part A) →</button></td></tr>
+            <tr><td data-label="#">3</td><td data-label="Question Type"><strong>Identifying Writer's Views / Claims (Yes / No / Not Given)</strong></td><td data-label="Order">Yes</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-ynng">Lab 5 (Part A) →</button></td></tr>
+            <tr><td data-label="#">4</td><td data-label="Question Type"><strong>Matching Information (to paragraphs A–D)</strong></td><td data-label="Order">No (scan all)</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-matching">Lab 4 (Part A) →</button></td></tr>
+            <tr><td data-label="#">5</td><td data-label="Question Type"><strong>Matching Headings (i–v to paragraphs)</strong></td><td data-label="Order">Paragraph by paragraph</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-headings">Lab 3 (Part A) →</button></td></tr>
+            <tr><td data-label="#">6</td><td data-label="Question Type"><strong>Matching Features (statements → researchers A–C)</strong></td><td data-label="Order">No (scan names)</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-matching">Lab 4 (Part B) →</button></td></tr>
+            <tr><td data-label="#">7</td><td data-label="Question Type"><strong>Matching Sentence Endings (1–3 → A–E)</strong></td><td data-label="Order">Yes</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-ynng">Lab 5 (Part B) →</button></td></tr>
+            <tr><td data-label="#">8</td><td data-label="Question Type"><strong>Sentence Completion (exact words from text)</strong></td><td data-label="Order">Yes</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-practice">Lab 1 (Part A) →</button></td></tr>
+            <tr><td data-label="#">9</td><td data-label="Question Type"><strong>Summary, Note, Table &amp; Flow-Chart Completion (both text &amp; word list)</strong></td><td data-label="Order">Usually local</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-practice">Table →</button> · <button type="button" class="inline-link" data-open="reading-tfng">Notes →</button> · <button type="button" class="inline-link" data-open="reading-headings">Summary →</button> · <button type="button" class="inline-link" data-open="reading-ynng">Word List →</button></td></tr>
+            <tr><td data-label="#">10</td><td data-label="Question Type"><strong>Diagram Label Completion</strong></td><td data-label="Order">Usually one section</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-diagram">Lab 6 (Part A) →</button></td></tr>
+            <tr><td data-label="#">11</td><td data-label="Question Type"><strong>Short-Answer Questions</strong></td><td data-label="Order">Yes</td><td data-label="Open"><button type="button" class="inline-link" data-open="reading-practice">Lab 1 (Q4–5) →</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
-  <details class="lesson" id="reading-practice"><summary>📖 Lab 1 · Starter completion — The Bike Library <span class="time">5 MIN</span></summary><div class="body">
-    <div class="rule" style="text-align:left"><strong>The Bike Library</strong><br>
-    Riverton's Bike Library opened in 2023 in a former <strong>ticket office</strong> next to the central station. For £15 a year, members can borrow a bicycle for up to <strong>seven days</strong> at a time, and a helmet is included free. The library owns 120 bicycles, most of them donated by local residents. Volunteers check the brakes and tyres every week, and on the <strong>first Saturday</strong> of each month they run a free repair workshop where members can learn to fix common problems. The library is open from Tuesday to Saturday. Its manager says the most popular bicycles are the small city bikes, because most members ride only two or three kilometres to school or work.</div>
+
+  <details class="lesson" id="reading-practice"><summary>📖 Lab 1 · Sentence Completion, Short-Answer &amp; Table Completion — The Bike Library <span class="time">6 MIN · TYPES 8, 9 &amp; 11</span></summary><div class="body">
+    <div class="rule" style="text-align:left"><strong>The Campus &amp; Community Bike Library</strong><br>
+    Riverton's Bike Library opened in 2023 in a former <strong>ticket office</strong> next to the central station. For £15 a year, members can borrow a standard bicycle for up to <strong>seven days</strong> at a time, and a safety helmet is included free of charge. The library owns 120 bicycles in total: 95 lightweight city bikes donated by residents for short two-to-three-kilometre commutes, and 25 electric cargo bikes funded by a municipal grant for carrying groceries or heavy textbooks (loaned for up to 48 hours). Volunteers inspect brakes and tyres every week, and on the <strong>first Saturday</strong> of each month they run a free repair workshop.</div>
+
+    <h3>Part A · Sentence Completion &amp; Short-Answer Questions (<strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong>)</h3>
     <form class="quiz">
-      <div class="q"><label>1. The Bike Library is in a former ________.</label><input type="text" data-answers="ticket office"></div>
-      <div class="q"><label>2. Members can borrow a bicycle for up to ________ days.</label><input type="text" data-answers="seven|7"></div>
-      <div class="q"><label>3. The repair workshop is on the ________ Saturday of each month.</label><input type="text" data-answers="first"></div>
-      <div class="q"><label>4. What is included free with a bicycle?</label><input type="text" data-answers="a helmet|helmet"></div>
-      <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
+      <div class="q"><label>1. The Bike Library operates inside a converted ________.</label><input type="text" class="wc" data-answers="ticket office"><span class="wordcount"></span></div>
+      <div class="q"><label>2. Members may keep a standard bicycle for up to ________ days.</label><input type="text" class="wc" data-answers="seven|7"><span class="wordcount"></span></div>
+      <div class="q"><label>3. Volunteers hold a free repair workshop on the ________ Saturday monthly.</label><input type="text" class="wc" data-answers="first"><span class="wordcount"></span></div>
+      <div class="q" data-why="Short-answer question: what safety item comes free with every loan?"><label>4. What equipment is provided free with each borrowed bike?</label><input type="text" class="wc" data-answers="safety helmet|a helmet|helmet"><span class="wordcount"></span></div>
+      <div class="q" data-why="Short-answer question: look at the total fleet figure in the passage."><label>5. How many bicycles does the library own altogether?</label><input type="text" class="wc" data-answers="120"><span class="wordcount"></span></div>
+      <button class="btn teal" type="submit">✓ Check Part A</button><div class="feedback" aria-live="polite"></div>
     </form>
-    <p class="note">Questions 1–4: the words in the passage are <strong>bold</strong> this time. In the real test they will not be — your job is to find them. Notice how the questions use different words (“included free” / “borrow”) from your first reading.</p>
+
+    <h3>Part B · Table Completion — Write <strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong></h3>
+    <div class="tbl-wrap">
+      <table class="resp-tbl">
+        <thead><tr><th>Bicycle Category</th><th>Fleet Size &amp; Funding Source</th><th>Typical Use / Loan Limit</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Category"><strong>City bikes</strong></td><td data-label="Source">95 bikes donated by local <strong>[ 1 ]</strong></td><td data-label="Use">Short daily commutes (up to 7 days)</td></tr>
+          <tr><td data-label="Category"><strong>Electric cargo bikes</strong></td><td data-label="Source">25 bikes paid for by a <strong>[ 2 ]</strong></td><td data-label="Use">Carrying groceries/books (max <strong>[ 3 ]</strong> hours)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Scan '95 lightweight city bikes donated by ____'."><label>1. Donated by local ________:</label><input type="text" class="wc" data-answers="residents"><span class="wordcount"></span></div>
+        <div class="q" data-why="Scan '25 electric cargo bikes funded by a ____' (2 words)."><label>2. Funded by a ________:</label><input type="text" class="wc" data-answers="municipal grant"><span class="wordcount"></span></div>
+        <div class="q" data-why="Scan '(loaned for up to ____ hours)'."><label>3. Maximum loan (________ hours):</label><input type="text" class="wc" data-answers="48|forty-eight"><span class="wordcount"></span></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Table</button><div class="feedback" aria-live="polite"></div>
+    </form>
   </div></details>
 
-  <details class="lesson" id="reading-tfng"><summary>🧭 Lab 2 · Identifying Information — True / False / Not Given <span class="time">7 MIN · ACADEMIC CORE</span></summary><div class="body">
-    <div class="rule amber"><strong>⚠️ The #1 IELTS Reading rule — judge ONLY from the passage:</strong><br>
-    <strong>TRUE</strong> = the text confirms this exact idea (often in different words) ·
-    <strong>FALSE</strong> = the text proves the opposite ·
-    <strong>NOT GIVEN</strong> = you cannot prove TRUE or FALSE from the text alone — never assume!<br>
-    <span class="jp" lang="ja">反対のことが書いてあれば FALSE、そもそも書いていなければ NOT GIVEN です。自分の知識で推測しないこと！</span></div>
+  <details class="lesson" id="reading-tfng"><summary>🧭 Lab 2 · True / False / Not Given &amp; Note Completion — Sea Turtle Navigation <span class="time">7 MIN · TYPES 2 &amp; 9</span></summary><div class="body">
+    <div class="rule amber"><strong>⚠️ Judge ONLY from factual evidence in the text:</strong><br>
+    <strong>TRUE</strong> = confirmed by the text · <strong>FALSE</strong> = directly contradicted · <strong>NOT GIVEN</strong> = neither proved nor disproved by the text.<br>
+    <span class="jp" lang="ja">反対の事実が書いてあれば FALSE、本文だけでは判断できなければ NOT GIVEN です。</span></div>
 
     <div class="rule" style="text-align:left;background:#fbfefd">
       <strong>How Sea Turtles Navigate the Open Ocean</strong><br>
@@ -898,6 +993,7 @@ footer a{color:var(--teal-dark)}
       Decades later, adult females use this magnetic map to return to lay eggs along the very same stretch of coastline where they hatched. On land, nevertheless, human activity poses an immediate threat: bright beachfront hotels and streetlamps can confuse newly emerged hatchlings, drawing them inland away from the waves before their magnetic sense takes over in the water.
     </div>
 
+    <h3>Part A · Identifying Information (TRUE / FALSE / NOT GIVEN)</h3>
     <form class="quiz">
       <div class="q" data-why="Check paragraph 1: early naturalists ASSUMED starlight guided them, 'however… windowless laboratories proved otherwise' — directly contradicted!"><label>1. Laboratory experiments confirmed that hatchlings need starlight to navigate at sea.</label><select data-answer="F"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
       <div class="q" data-why="'wave-tank trials conducted by biologist Kenneth Lohmann in the 1990s… artificial magnetic fields' matches this statement directly!"><label>2. In the 1990s, Kenneth Lohmann tested young turtles using simulated magnetic fields in tanks.</label><select data-answer="T"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
@@ -906,9 +1002,25 @@ footer a{color:var(--teal-dark)}
       <div class="q" data-why="The passage mentions loggerheads crossing thousands of kilometres, never comparing their swimming speed to green sea turtles!"><label>5. Loggerhead hatchlings swim faster across the Atlantic than green sea turtles.</label><select data-answer="NG"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
       <button class="btn teal" type="submit">✓ Check True / False / Not Given</button><div class="feedback" aria-live="polite"></div>
     </form>
+
+    <h3>Part B · Research Note Completion — Write <strong>ONE WORD ONLY</strong> from the passage</h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>Lohmann's Navigation Notes</strong><br>
+      • Hatchlings emerge at night from nests beneath the <strong>[ 1 ]</strong>.<br>
+      • Indoor experiments took place in <strong>[ 2 ]</strong> laboratories with zero outside light.<br>
+      • Bright coastal hotels and <strong>[ 3 ]</strong> can lure hatchlings inland away from the sea.
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Check line 1: 'emerging from underground ____ nests'."><label>1. Nests beneath the ________:</label><input type="text" data-answers="sand" placeholder="1 word"></div>
+        <div class="q" data-why="Check paragraph 1: 'inside ____ laboratories' (adjective describing no windows)."><label>2. ________ laboratories:</label><input type="text" data-answers="windowless" placeholder="1 word"></div>
+        <div class="q" data-why="Check final sentence: 'bright beachfront hotels and ____'."><label>3. Hotels and ________:</label><input type="text" data-answers="streetlamps" placeholder="1 plural noun"></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Notes</button><div class="feedback" aria-live="polite"></div>
+    </form>
   </div></details>
 
-  <details class="lesson" id="reading-headings"><summary>🏛️ Lab 3 · Matching Headings &amp; Summary Completion <span class="time">8 MIN · ACADEMIC CORE</span></summary><div class="body">
+  <details class="lesson" id="reading-headings"><summary>🏛️ Lab 3 · Matching Headings &amp; Text Summary Completion <span class="time">8 MIN · TYPES 5 &amp; 9A</span></summary><div class="body">
     <div class="rule"><strong>Speed secret:</strong> For <strong>Matching Headings</strong>, read the <em>whole paragraph's main purpose</em> (don't fall for a heading that only repeats one small detail!). For <strong>Summary Completion</strong>, use your <strong>Part-of-Speech X-Ray</strong> first.<br>
     <span class="jp" lang="ja">見出し選びは「段落全体のテーマ」を選びます（細かい単語だけの引っ掛け選択肢に注意！）。</span></div>
 
@@ -945,32 +1057,233 @@ footer a{color:var(--teal-dark)}
       <button class="btn teal" type="submit">✓ Check Summary</button><div class="feedback" aria-live="polite"></div>
     </form>
   </div></details>
+
+  <details class="lesson" id="reading-matching"><summary>🔬 Lab 4 · Matching Information, Matching Features &amp; Multiple Choice (1 &amp; 2 Answers) <span class="time">9 MIN · TYPES 1, 4 &amp; 6</span></summary><div class="body">
+    <div class="rule"><strong>Don't confuse these two IELTS Reading classics:</strong><br>
+    • <strong>Matching Headings</strong> = main theme of the whole paragraph · <strong>Matching Information</strong> = scan for <em>which paragraph (A–D) contains a specific detail, reason, or problem</em> (letters MAY repeat!).<br>
+    • <strong>Matching Features</strong> = scan capitalised names/theories (<em>A–C</em>) and match each statement to the right researcher!<br>
+    <span class="jp" lang="ja">段落情報一致は「細かい記述がどの段落にあるか」（同じ文字を複数回使う場合あり）、特徴一致は「研究者名（A〜C）と業績の照合」です！</span></div>
+
+    <div class="rule" style="text-align:left;background:#fbfefd">
+      <strong>Pioneers of Modern Bionic Prosthetics</strong><br><br>
+      <strong>Paragraph A</strong> — Traditional wooden and plastic artificial limbs acted merely as passive props, offering wearers no sense of touch and requiring exhausting hip effort on stairs. Over the past two decades, bioengineers have transformed prosthetics by linking lightweight motors directly to human nerves and muscles.<br><br>
+      <strong>Paragraph B</strong> — At the Massachusetts Institute of Technology, biophysicist <strong>Hugh Herr</strong> — himself a double amputee after a mountain-climbing accident — developed robotic ankle-foot prostheses with microprocessors that mimic calf tendons, cutting the metabolic energy needed for walking to match non-disabled stride efficiency.<br><br>
+      <strong>Paragraph C</strong> — Controlling multi-jointed artificial hands posed a different challenge until physician <strong>Todd Kuiken</strong> pioneered <em>targeted muscle reinnervation</em> in Chicago. By rerouting severed arm nerves into healthy chest muscles, Kuiken enabled patients to open and rotate a prosthetic hand simply by thinking about moving their missing fingers.<br><br>
+      <strong>Paragraph D</strong> — More recently at the University of Michigan, biomedical engineer <strong>Cynthia Chestek</strong> addressed weak electrical nerve signals by wrapping tiny muscle grafts around nerve endings to amplify impulses without risky brain implants. Despite these breakthroughs, waterproof durability and battery weight remain major hurdles, and high manufacturing costs still put advanced bionics beyond reach for many patients worldwide.
+    </div>
+
+    <h3>Part A · Matching Information — Which paragraph (<strong>A–D</strong>) contains the following information? <em>(NB You may use any letter more than once.)</em></h3>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Scan for physical strain / passive props of early limbs → Paragraph A!"><label>1. Why early non-electronic artificial limbs were tiring to walk in</label><select data-answer="A"><option value="">Choose A–D…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+        <div class="q" data-why="Scan for economic accessibility / high manufacturing costs → end of Paragraph D!"><label>2. Financial barriers preventing wider global access to bionic limbs</label><select data-answer="D"><option value="">Choose A–D…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+        <div class="q" data-why="Notice 'NB You may use any letter more than once': brain surgery avoidance ('without risky brain implants') is ALSO in Paragraph D!"><label>3. A method that avoids placing implants inside the brain</label><select data-answer="D"><option value="">Choose A–D…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Matching Information</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Matching Features — Match each achievement (1–3) with the correct researcher (<strong>A–C</strong>)</h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>List of Researchers:</strong> &nbsp; <strong>A.</strong> Hugh Herr &nbsp;·&nbsp; <strong>B.</strong> Todd Kuiken &nbsp;·&nbsp; <strong>C.</strong> Cynthia Chestek
+    </div>
+    <form class="quiz">
+      <div class="q" data-why="Check Paragraph C: who redirected arm nerves into chest muscles?"><label>1. Redirected arm nerves into chest tissue so thought signals control a prosthetic hand</label><select data-answer="B"><option value="">Choose A–C…</option><option value="A">A — Hugh Herr</option><option value="B">B — Todd Kuiken</option><option value="C">C — Cynthia Chestek</option></select></div>
+      <div class="q" data-why="Check Paragraph D: who wrapped tiny muscle grafts around nerve endings to boost faint signals?"><label>2. Used small muscle grafts to strengthen faint nerve signals</label><select data-answer="C"><option value="">Choose A–C…</option><option value="A">A — Hugh Herr</option><option value="B">B — Todd Kuiken</option><option value="C">C — Cynthia Chestek</option></select></div>
+      <div class="q" data-why="Check Paragraph B: who built powered ankle prostheses cutting walking energy costs?"><label>3. Built computer-controlled ankles that reduced walking energy demands</label><select data-answer="A"><option value="">Choose A–C…</option><option value="A">A — Hugh Herr</option><option value="B">B — Todd Kuiken</option><option value="C">C — Cynthia Chestek</option></select></div>
+      <button class="btn teal" type="submit">✓ Check Matching Features</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part C · Multiple Choice — One Answer (A–D) + More Than One Answer (Choose TWO)</h3>
+    <form class="quiz">
+      <div class="q" data-why="Paragraph B states Herr is 'himself a double amputee after a mountain-climbing accident'."><fieldset><legend>1. What personal background shaped Hugh Herr's research into lower-limb bionics?</legend>
+        <div class="options">
+          <label><input type="radio" name="rmcq1" value="A"> A He previously worked as an orthopaedic surgeon in Chicago.</label>
+          <label><input type="radio" name="rmcq1" value="B" data-correct> B He lost both legs following a mountaineering accident.</label>
+          <label><input type="radio" name="rmcq1" value="C"> C He designed battery packs for underwater robotics.</label>
+          <label><input type="radio" name="rmcq1" value="D"> D He trained Olympic sprinters before joining MIT.</label>
+        </div>
+      </fieldset></div>
+      <div class="q" data-why="Check the final sentence of Paragraph D: 'waterproof durability and battery weight remain major hurdles'!"><fieldset data-multi="2"><legend>2. Which <strong>TWO</strong> technical limitations of modern bionic limbs are mentioned in Paragraph D?</legend>
+        <div class="options">
+          <label><input type="checkbox" value="A" data-correct> A Heavy batteries</label>
+          <label><input type="checkbox" value="B"> B Slow microprocessor speeds</label>
+          <label><input type="checkbox" value="C" data-correct> C Protection against water damage</label>
+          <label><input type="checkbox" value="D"> D Shortage of titanium alloys</label>
+          <label><input type="checkbox" value="E"> E Interference from mobile phones</label>
+        </div>
+      </fieldset></div>
+      <button class="btn teal" type="submit">✓ Check Multiple Choice</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <details class="lesson" id="reading-ynng"><summary>⚖️ Lab 5 · Writer's Claims (Yes / No / Not Given), Sentence Endings &amp; Word-List Summary <span class="time">9 MIN · TYPES 3, 7 &amp; 9B</span></summary><div class="body">
+    <div class="rule amber"><strong>Passage 3 Discursive Reading Rule:</strong> Argumentative passages test whether statements agree with the <strong>writer's opinions/claims</strong>:<br>
+    <strong>YES</strong> = matches the writer's claim · <strong>NO</strong> = contradicts the writer's claim · <strong>NOT GIVEN</strong> = impossible to know what the writer thinks. <em>(On test day, always type/select YES/NO — never write TRUE/FALSE here!)</em><br>
+    <span class="jp" lang="ja">筆者の意見・主張を問う形式では YES / NO / NOT GIVEN を使います（TRUE / FALSE と書かないよう注意！）。</span></div>
+
+    <div class="rule" style="text-align:left;background:#fbfefd">
+      <strong>Rethinking Car-Free City Centres</strong><br>
+      When municipal leaders propose restricting private cars on historic shopping streets, retail associations almost always predict financial ruin. Yet empirical evidence from Oslo, Ghent, and Ljubljana tells a strikingly different story: once exhaust fumes and traffic noise give way to wider pavements and tram priority lanes, footfall and café revenues consistently rise rather than fall.<br><br>
+      Critics nevertheless raise one valid concern. Blanket bans introduced overnight without affordable suburban rail or step-free shuttle buses penalise shift workers and residents with limited mobility. Effective urban policy therefore requires sequence: cities must expand reliable public transit and delivery micro-hubs <em>before</em> narrowing arterial roads, rather than treating congestion charges as a quick revenue grab.
+    </div>
+
+    <h3>Part A · Do the following statements agree with the claims of the writer? (<strong>YES / NO / NOT GIVEN</strong>)</h3>
+    <form class="quiz">
+      <div class="q" data-why="The writer states evidence from Oslo, Ghent, and Ljubljana shows footfall and café revenues 'consistently rise rather than fall' — directly contradicting shopkeepers' fears!"><label>1. Pedestrianising city streets generally leads to long-term drops in café and shop customer numbers.</label><select data-answer="N"><option value="">Choose…</option><option value="Y">YES</option><option value="N">NO</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="Check paragraph 2: 'Critics nevertheless raise one valid concern. Blanket bans introduced overnight without affordable suburban rail… penalise shift workers…' — matches the writer's claim!"><label>2. Removing cars suddenly without strong public transport unfairly harms night-shift workers and less mobile residents.</label><select data-answer="Y"><option value="">Choose…</option><option value="Y">YES</option><option value="N">NO</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="Careful! The writer mentions Oslo, Ghent, and Ljubljana together positively, NEVER claiming Ghent's tram network is larger or cheaper than Oslo's!"><label>3. Ghent has invested more heavily in tram lanes than Oslo has.</label><select data-answer="NG"><option value="">Choose…</option><option value="Y">YES</option><option value="N">NO</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="Final sentence: 'cities must expand reliable public transit and delivery micro-hubs BEFORE narrowing arterial roads' — matches the writer's claim!"><label>4. Public transport upgrades should be put in place prior to restricting road space for cars.</label><select data-answer="Y"><option value="">Choose…</option><option value="Y">YES</option><option value="N">NO</option><option value="NG">NOT GIVEN</option></select></div>
+      <button class="btn teal" type="submit">✓ Check Yes / No / Not Given</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Matching Sentence Endings — Complete sentences 1–3 with the correct ending (<strong>A–E</strong>)</h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>Sentence Endings (A–E):</strong><br>
+      <strong>A.</strong> frequently warn that banning cars will hurt local businesses.<br>
+      <strong>B.</strong> eliminated all delivery vans from suburban motorways.<br>
+      <strong>C.</strong> boosted pedestrian numbers and hospitality spending.<br>
+      <strong>D.</strong> should precede restrictions on major city roads.<br>
+      <strong>E.</strong> reduced tram frequency during winter months.
+    </div>
+    <form class="quiz">
+      <div class="q" data-why="Sentence 1 matches line 1: 'retail associations almost always predict financial ruin' = warn banning cars will hurt local businesses [A]."><label>1. When car restrictions are first proposed, shopkeepers' groups…</label><select data-answer="A"><option value="">Choose A–E…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
+      <div class="q" data-why="Sentence 2 matches 'footfall and café revenues consistently rise' = boosted pedestrian numbers and hospitality spending [C]."><label>2. Replacing traffic lanes with wider walkways in three European cities…</label><select data-answer="C"><option value="">Choose A–E…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
+      <div class="q" data-why="Sentence 3 matches 'must expand reliable public transit… BEFORE narrowing arterial roads' = precede restrictions [D]."><label>3. Better transit links and delivery hubs…</label><select data-answer="D"><option value="">Choose A–E…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
+      <button class="btn teal" type="submit">✓ Check Sentence Endings</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part C · Summary Completion (Selecting from a Word List <strong>A–F</strong>)</h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>Word List:</strong> &nbsp; <strong>A.</strong> decline &nbsp;·&nbsp; <strong>B.</strong> sequence &nbsp;·&nbsp; <strong>C.</strong> growth &nbsp;·&nbsp; <strong>D.</strong> penalties &nbsp;·&nbsp; <strong>E.</strong> mobility &nbsp;·&nbsp; <strong>F.</strong> tourism
+    </div>
+    <form class="quiz">
+      <p class="note">Summary: Despite predictions of economic <strong>[ 1 ]</strong>, car-free streets in several European cities have produced steady commercial <strong>[ 2 ]</strong>. However, to protect shift workers and citizens with reduced <strong>[ 3 ]</strong>, transit alternatives must come first.</p>
+      <div class="grid2">
+        <div class="q" data-why="Synonym for 'financial ruin' in sentence 1 → economic decline [A]!"><label>1. Gap [ 1 ]</label><select data-answer="A"><option value="">Choose A–F…</option><option value="A">A — decline</option><option value="B">B — sequence</option><option value="C">C — growth</option><option value="D">D — penalties</option><option value="E">E — mobility</option><option value="F">F — tourism</option></select></div>
+        <div class="q" data-why="Synonym for 'revenues consistently rise' → commercial growth [C]!"><label>2. Gap [ 2 ]</label><select data-answer="C"><option value="">Choose A–F…</option><option value="A">A — decline</option><option value="B">B — sequence</option><option value="C">C — growth</option><option value="D">D — penalties</option><option value="E">E — mobility</option><option value="F">F — tourism</option></select></div>
+        <div class="q" data-why="Matches 'residents with limited mobility' → reduced mobility [E]!"><label>3. Gap [ 3 ]</label><select data-answer="E"><option value="">Choose A–F…</option><option value="A">A — decline</option><option value="B">B — sequence</option><option value="C">C — growth</option><option value="D">D — penalties</option><option value="E">E — mobility</option><option value="F">F — tourism</option></select></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Word-List Summary</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <details class="lesson" id="reading-diagram"><summary>⚙️ Lab 6 · Diagram Label Completion &amp; Flow-Chart Completion — Geothermal Heating <span class="time">8 MIN · TYPES 9 &amp; 10</span></summary><div class="body">
+    <div class="rule"><strong>Diagram &amp; Flow-Chart secret on ielts.org:</strong> Follow arrows, pipes, and physical positions (<em>deep underground / at ground level / returning downward</em>). Note that diagram labels do <strong>not</strong> always appear in strict sentence order — check the exact nouns in the passage!<br>
+    <span class="jp" lang="ja">図解ラベル問題（Diagram Label Completion）は矢印の向きや位置関係を手がかりに、本文の正確な語句を抜き出します。</span></div>
+
+    <div class="rule" style="text-align:left;background:#fbfefd">
+      <strong>Closed-Loop Geothermal District Heating</strong><br>
+      In cold northern towns, closed-loop geothermal systems warm entire apartment blocks without burning fossil fuels on site. Two vertical boreholes are drilled two kilometres down into hot <strong>granite rock</strong>. Naturally heated water is drawn upward through an insulated <strong>production well</strong> to a surface plant. Because deep mineral water would corrode apartment radiators, it never enters homes directly; instead, it passes through a titanium <strong>heat exchanger</strong>, transferring thermal energy to a clean freshwater network pumped through street pipes to buildings. Once cooled, the mineral water flows through a fine <strong>sand filter</strong> to remove suspended grit before an <strong>injection pump</strong> pushes it back down the return borehole to be reheated underground.
+    </div>
+
+    <div class="vis-wrap">
+      <svg class="vis-svg" viewBox="0 0 580 265" role="img" aria-labelledby="geoTitle geoDesc">
+        <title id="geoTitle">Closed-Loop Geothermal Heating Diagram</title>
+        <desc id="geoDesc">Cross-section diagram showing hot underground rock layer [3] at bottom, insulated rising pipe [1] on left leading to surface titanium unit [2] connected to apartments, then sand filter and injection pump returning cooled water underground on right.</desc>
+        <rect x="2" y="2" width="576" height="261" rx="12" fill="#f7fbfa" stroke="#c9d8d5" stroke-width="1.5"/>
+        <!-- ground surface & deep layer -->
+        <rect x="10" y="135" width="560" height="58" fill="#e9e2d2"/>
+        <rect x="10" y="193" width="560" height="62" rx="6" fill="#d97b66"/>
+        <line x1="10" y1="135" x2="570" y2="135" stroke="#14395e" stroke-width="2"/>
+        <text x="26" y="128" font-size="10.5" font-weight="bold" fill="#5d6d7a">GROUND LEVEL</text>
+
+        <!-- Rising pipe [1] -->
+        <path d="M125 225 L125 66 L205 66" fill="none" stroke="#c0392b" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="125" y="168" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">↑</text>
+        <rect x="22" y="76" width="92" height="36" rx="6" fill="#fff" stroke="#c0392b" stroke-width="2"/>
+        <text x="68" y="92" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#c0392b">Insulated</text>
+        <text x="68" y="106" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">[ 1 ]</text>
+
+        <!-- Surface Titanium Unit [2] -->
+        <rect x="206" y="40" width="142" height="56" rx="8" fill="#14395e"/>
+        <text x="277" y="62" text-anchor="middle" font-size="11" fill="#cfe9e5">Surface Titanium</text>
+        <text x="277" y="81" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">[ 2 ]</text>
+
+        <!-- Apartments loop -->
+        <rect x="408" y="22" width="146" height="44" rx="7" fill="#dff3ef" stroke="#1e9484" stroke-width="1.6"/>
+        <text x="481" y="42" text-anchor="middle" font-size="11" font-weight="bold" fill="#14395e">Clean Freshwater</text>
+        <text x="481" y="57" text-anchor="middle" font-size="10.5" fill="#14705f">→ Apartment Blocks</text>
+        <line x1="348" y1="50" x2="408" y2="50" stroke="#1e9484" stroke-width="4"/>
+
+        <!-- Return pipe right -->
+        <path d="M348 80 L452 80 L452 225" fill="none" stroke="#2980b9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="366" y="96" width="172" height="28" rx="6" fill="#fff" stroke="#2980b9" stroke-width="1.6"/>
+        <text x="452" y="114" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14395e">Sand Filter + Injection Pump ↓</text>
+
+        <!-- Deep rock [3] -->
+        <rect x="195" y="206" width="190" height="38" rx="7" fill="#fff" stroke="#14395e" stroke-width="2"/>
+        <text x="290" y="222" text-anchor="middle" font-size="10.5" fill="#5d6d7a">2 km Deep Hot Layer:</text>
+        <text x="290" y="238" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#14395e">[ 3 ]</text>
+      </svg>
+    </div>
+
+    <h3>Part A · Diagram Label Completion — Write <strong>NO MORE THAN TWO WORDS</strong> from the passage</h3>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Follow the rising red pipe: 'drawn upward through an insulated ____'."><label>1. Label [ 1 ] — Insulated ________:</label><input type="text" class="wc" data-answers="production well"><span class="wordcount"></span></div>
+        <div class="q" data-why="Check the surface titanium unit that transfers heat to freshwater without mixing: 'passes through a titanium ____'."><label>2. Label [ 2 ] — Surface Titanium ________:</label><input type="text" class="wc" data-answers="heat exchanger"><span class="wordcount"></span></div>
+        <div class="q" data-why="Check what lies 2 km deep at the bottom: 'drilled two kilometres down into hot ____'."><label>3. Label [ 3 ] — 2 km Deep Hot ________:</label><input type="text" class="wc" data-answers="granite rock|granite"><span class="wordcount"></span></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Diagram Labels</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Flow-Chart Completion (Return Stage) — Write <strong>NO MORE THAN TWO WORDS</strong></h3>
+    <div class="flowchart">
+      <div class="fc-step">Step 1: <span>Hot mineral water transfers heat to clean freshwater inside the surface plant</span></div>
+      <div class="fc-arrow">↓</div>
+      <div class="fc-step">Step 2: <span>Cooled mineral water passes through a <strong>[ 1 ]</strong> to trap grit</span></div>
+      <div class="fc-arrow">↓</div>
+      <div class="fc-step">Step 3: <span>An <strong>[ 2 ]</strong> forces water back down the return borehole</span></div>
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Look at the last sentence: 'flows through a fine ____ to remove suspended grit'."><label>1. Passes through a ________:</label><input type="text" class="wc" data-answers="sand filter|fine sand filter"><span class="wordcount"></span></div>
+        <div class="q" data-why="Look after 'before an ____ pushes it back down': 2-word noun phrase starting with a vowel!"><label>2. An ________ forces water down:</label><input type="text" class="wc" data-answers="injection pump"><span class="wordcount"></span></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Flow-Chart</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
 </section>
 
 <!-- ============ WRITING ============ -->
 <section class="panel" id="panel-writing" role="tabpanel" aria-labelledby="tab-writing">
   <div class="card">
-    <h2>✍️ Writing <span class="jp" lang="ja">/ ライティング</span></h2>
-    <p class="subtitle">60 minutes · 2 tasks · Task 2 counts about twice as much as Task 1. Overview + starter practice.</p>
+    <h2>✍️ Academic Writing <span class="jp" lang="ja">/ アカデミック・ライティング</span></h2>
+    <p class="subtitle">60 minutes · 2 compulsory Academic tasks · Task 2 carries twice the weight of Task 1 · Computer typing or Writing on Paper</p>
     <div class="grid2">
-      <div class="mini"><h4>Task 1 (at least 150 words)</h4><strong>Academic:</strong> describe a chart, graph, table, diagram or process in your own words.<br><strong>General Training:</strong> write a letter for a given situation.</div>
-      <div class="mini"><h4>Task 2 (at least 250 words)</h4>An essay: give your opinion, discuss a problem, or argue a point. Same for Academic and General Training. <strong>Spend about 40 minutes here.</strong></div>
+      <div class="mini"><h4>Academic Task 1 (~20 min · ≥150 words)</h4>Summarise and compare factual information from <strong>graphs, charts, tables, maps, or process/how-it-works diagrams</strong> in formal connected paragraphs (never bullet points or outside speculation!).</div>
+      <div class="mini"><h4>Academic Task 2 (~40 min · ≥250 words)</h4>Write a well-structured discursive essay evaluating an opinion, argument, problem/solution, or advantage/disadvantage prompt. <strong>Worth ~2/3 of your total Writing score!</strong></div>
     </div>
-    <div class="rule"><strong>Judged on:</strong> answering the task · organising ideas clearly · vocabulary · grammar range &amp; accuracy. A clear plan beats beautiful sentences with no structure.<br>
-    <span class="jp" lang="ja">構成（パラグラフ）が大事です。書く前に計画しましょう。</span></div>
-    <h3>The 5-step routine</h3>
-    <div class="pattern"><div class="step s1">1 READ<small>What exactly is asked?</small></div><div class="step s1">2 PLAN<small>5 min · ideas in order</small></div><div class="step s2">3 WRITE<small>paragraphs!</small></div><div class="step s2">4 COUNT<small>150 / 250 words</small></div><div class="step s3">5 CHECK<small>verbs · plurals · spelling</small></div></div>
-    <p style="margin:14px 0 0">
-      <button class="btn small teal" data-open="writing-task1">1 Academic Task 1 Chart Lab</button>
-      <button class="btn small teal" data-open="writing-practice">2 Task 2 Essay Lab</button>
+    <div class="rule"><strong>Official 4 Assessment Criteria (25% each):</strong> ① <strong>Task Achievement (T1) / Task Response (T2)</strong> · ② <strong>Coherence &amp; Cohesion</strong> · ③ <strong>Lexical Resource</strong> · ④ <strong>Grammatical Range &amp; Accuracy</strong>.<br>
+    <span class="jp" lang="ja">採点基準は課題達成度・構成と一貫性・語彙力・文法の幅と正確さの4項目（各25%）。箇条書きは厳禁です。</span></div>
+    <h3>The 5-step exam routine</h3>
+    <div class="pattern"><div class="step s1">1 ANALYSE<small>Visual / prompt type</small></div><div class="step s1">2 PLAN<small>4–5 min structure</small></div><div class="step s2">3 OVERVIEW / THESIS<small>Clear big picture</small></div><div class="step s2">4 DEVELOP<small>150+ / 250+ words</small></div><div class="step s3">5 PROOFREAD<small>3 min error check</small></div></div>
+    <p style="margin:14px 0 8px">
+      <button class="btn small teal" data-open="writing-task1">1 Task 1 · Charts &amp; Data</button>
+      <button class="btn small teal" data-open="writing-process">2 Task 1 · Process Diagram</button>
+      <button class="btn small teal" data-open="writing-practice">3 Task 2 · All 4 Essay Types + Full Models</button>
+      <button class="btn small teal" data-open="writing-examiner">4 Official Examiner Band 6 vs 7.5+ Clinic</button>
     </p>
+    <details class="modelbox" style="margin-bottom:0"><summary>📋 Official ielts.org Academic Writing visual &amp; essay coverage check</summary>
+      <div class="tbl-wrap">
+        <table class="resp-tbl">
+          <thead><tr><th>Official ielts.org Requirement</th><th>Key Academic Skill Tested</th><th>Open Lab</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Format"><strong>Task 1 · Graphs, Charts &amp; Tables</strong></td><td data-label="Skill">Select key features, write clear Overview, compare trends &amp; figures</td><td data-label="Open"><button type="button" class="inline-link" data-open="writing-task1">Lab 1 →</button></td></tr>
+            <tr><td data-label="Format"><strong>Task 1 · Process / How-It-Works Diagram</strong></td><td data-label="Skill">Describe stages in order using present simple passive &amp; sequencers</td><td data-label="Open"><button type="button" class="inline-link" data-open="writing-process">Lab 2 →</button></td></tr>
+            <tr><td data-label="Format"><strong>Task 2 · Opinion / Discuss Both / Problem-Solution / Outweigh</strong></td><td data-label="Skill">Formulate a clear position, support with examples, qualify counter-views</td><td data-label="Open"><button type="button" class="inline-link" data-open="writing-practice">Lab 3 →</button></td></tr>
+            <tr><td data-label="Format"><strong>Examiner Band Descriptors (Band 5.5 / 6.0 → 7.5+)</strong></td><td data-label="Skill">Fix mechanical listing, L1 errors &amp; add academic hedging (<em>tend to / appears to</em>)</td><td data-label="Open"><button type="button" class="inline-link" data-open="writing-examiner">Lab 4 →</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 
-  <details class="lesson" id="writing-task1"><summary>📊 Lab 1 · Academic Task 1 — Bar Chart, Overview Rule &amp; Computer Word Counter <span class="time">10 MIN · 150+ WORDS</span></summary><div class="body">
-    <div class="rule"><strong>🔑 2 Official Examiner Rules for Academic Task 1:</strong><br>
-    ① <strong>Always write a clear Overview</strong> (2 sentences naming the biggest overall changes/differences — without an Overview, Task Achievement stalls at Band 5!).<br>
-    ② <strong>Stick strictly to the data in full prose paragraphs</strong> — never invent outside opinions/reasons (e.g. <em>“because bus tickets got expensive”</em>), and <strong>never use bullet points</strong>!<br>
-    <span class="jp" lang="ja">①全体の大きな特徴（Overview）を必ず書く　②グラフにない理由を勝手に推測しない・箇条書きは厳禁！</span></div>
+  <details class="lesson" id="writing-task1"><summary>📊 Lab 1 · Academic Task 1 (Data) — Charts, Overview Rule &amp; Computer Simulator <span class="time">10 MIN · 150+ WORDS</span></summary><div class="body">
+    <div class="rule"><strong>🔑 2 Official Examiner Rules for Academic Task 1 Data Reports:</strong><br>
+    ① <strong>Always include a clear Overview</strong> (2 sentences summarising the main trends/differences — without an Overview, Task Achievement stalls at Band 5!).<br>
+    ② <strong>Report ONLY what the visual shows in full prose</strong> — never invent outside reasons (e.g. <em>“because bus tickets got expensive”</em>), and avoid repeating <em>“the percentage of…”</em> in every sentence!<br>
+    <span class="jp" lang="ja">①全体の大きな特徴（Overview）を必ず書く　②グラフ外の理由を推測しない・同じ表現の繰り返しを避ける！</span></div>
 
     <div class="rule amber"><strong>Task 1 Prompt:</strong> “The bar chart below shows the percentage of upper-secondary students at a suburban school commuting by four modes of transport in <strong>2010</strong> and <strong>2025</strong>. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.” <em>(Write at least 150 words · spend ~20 minutes.)</em></div>
 
@@ -1039,46 +1352,164 @@ footer a{color:var(--teal-dark)}
       <div class="wtarget" aria-live="polite">Words: 0 / 150 minimum (150 more to go)</div>
     </div>
 
-    <details class="modelbox"><summary>📄 Full 150+ word Models — open AFTER you write</summary>
-      <div class="model starter"><span class="tag">Starter · 157 words · 4 clear paragraphs</span>
+    <details class="modelbox"><summary>📄 Band 6.0 Examiner Trap vs Full Band 7.5+ Report (157 words) — open AFTER writing</summary>
+      <div class="model starter"><span class="tag">Official Examiner Trap — Why scripts stall at Band 6.0</span>
+        <p class="note" style="margin:0">In official <code>ielts.org</code> sample comments, candidates stall at <strong>Band 6.0</strong> when they list numbers mechanically sentence-by-sentence (<em>“In 2010 bus was 22%. In 2025 bus was 11%…”</em>) and repeat phrases like <em>“the number of students”</em>. Group figures by <strong>pattern</strong> instead!</p>
+      </div>
+      <div class="model stepup"><span class="tag">Band 7.5+ Full Report · 157 words · 4 clear paragraphs</span>
         <p><em>The bar chart compares the proportions of upper-secondary students at a suburban school who used four types of transport to travel to school in 2010 and 2025.</em></p>
         <p><em>Overall, cycling grew dramatically over the fifteen-year period to overtake rail travel as the most popular commute method. By contrast, the share of students taking the bus dropped by half, while train and walking figures changed only slightly.</em></p>
         <p><em>In 2010, trains and subways were the leading choice at 38%, followed by bicycles at 28%. By 2025, however, bicycle use had climbed sharply to 44% — the highest figure on the chart — whereas rail use edged down slightly to 35%.</em></p>
         <p><em>The remaining two modes accounted for smaller shares in both years. Bus commuting fell markedly from 22% in 2010 to just 11% in 2025. Walking stayed the least common option throughout the period, dipping slightly from 12% to 10% of students.</em></p>
       </div>
-      <div class="model stepup"><span class="tag">Step up · borrow exact phrases</span>
-        <p class="note" style="margin:0">Notice the high-scoring moves inside that clean report: <strong>paraphrased opening</strong> (<em>compares the proportions…</em>) · <strong>clear number-free Overview</strong> (<em>Overall, … By contrast, …</em>) · <strong>Verb + Adverb</strong> (<em>climbed sharply, dipped slightly</em>) · <strong>comparison structure</strong> (<em>the highest figure on the chart / dropped by half</em>).</p>
+    </details>
+  </div></details>
+
+  <details class="lesson" id="writing-process"><summary>🔄 Lab 2 · Academic Task 1 (Diagram / Process) — Stages, Passive Voice &amp; Model <span class="time">10 MIN · OFFICIAL VISUAL TYPE</span></summary><div class="body">
+    <div class="rule"><strong>🔑 Don't get caught off guard by a Task 1 Diagram!</strong> On <code>ielts.org</code>, Academic Task 1 also tests <strong>processes, how something works, and site maps</strong> (with <strong>zero percentages</strong>!). Use three tools:<br>
+    ① <strong>Overview:</strong> state whether the process is linear or cyclical, how many main stages exist, and where it starts &amp; ends.<br>
+    ② <strong>Present Simple Passive:</strong> <em>Rainwater <strong>is collected</strong> → debris <strong>is removed</strong> → clean water <strong>is stored</strong></em>.<br>
+    ③ <strong>Varied Sequencers:</strong> <em>Initially · From there · Once filtered · In the final stage</em> (never write <em>First, Second, Third, Fourth, Fifth</em>!).<br>
+    <span class="jp" lang="ja">IELTS Academic Task 1では「製造工程・仕組みの図解」も頻出です。現在形の受動態（is + 過去分詞）と順序のつなぎ言葉がカギ！</span></div>
+
+    <div class="rule amber"><strong>Task 1 Process Prompt:</strong> “The diagram below shows how rainwater is collected, treated, and reused at a university campus. Summarise the information by selecting and reporting the main features.” <em>(At least 150 words.)</em></div>
+
+    <div class="vis-wrap">
+      <svg class="vis-svg" viewBox="0 0 580 222" role="img" aria-labelledby="procTitle procDesc">
+        <title id="procTitle">Campus Rainwater Recycling Process (6 Stages)</title>
+        <desc id="procDesc">Six-stage process diagram: 1 Roof gutters collect rainwater, 2 Leaf screen removes leaves and twigs, 3 Underground settling tank separates heavy sediment, 4 Sand and carbon unit filters fine particles, 5 UV lamp disinfects water, 6 Storage tank supplies campus toilets and garden irrigation.</desc>
+        <rect x="2" y="2" width="576" height="218" rx="12" fill="#fff" stroke="#c9d8d5" stroke-width="1.5"/>
+        <text x="290" y="24" text-anchor="middle" font-size="13" font-weight="bold" fill="#14395e">Campus Rainwater Harvesting &amp; Reuse System (6 Stages)</text>
+        <rect x="24" y="44" width="154" height="62" rx="9" fill="#e6f5f2" stroke="#1e9484" stroke-width="1.8"/>
+        <text x="101" y="65" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">1. Roof Gutters</text>
+        <text x="101" y="83" text-anchor="middle" font-size="10.5" fill="#24323d">Collect rainwater from</text>
+        <text x="101" y="96" text-anchor="middle" font-size="10.5" fill="#24323d">lecture-hall roofs</text>
+        <text x="194" y="79" text-anchor="middle" font-size="16" font-weight="bold" fill="#14705f">→</text>
+
+        <rect x="212" y="44" width="154" height="62" rx="9" fill="#e6f5f2" stroke="#1e9484" stroke-width="1.8"/>
+        <text x="289" y="65" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">2. Mesh Leaf Screen</text>
+        <text x="289" y="83" text-anchor="middle" font-size="10.5" fill="#24323d">Traps leaves &amp; coarse</text>
+        <text x="289" y="96" text-anchor="middle" font-size="10.5" fill="#24323d">debris → compost bin</text>
+        <text x="382" y="79" text-anchor="middle" font-size="16" font-weight="bold" fill="#14705f">→</text>
+
+        <rect x="400" y="44" width="156" height="62" rx="9" fill="#e6f5f2" stroke="#1e9484" stroke-width="1.8"/>
+        <text x="478" y="65" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">3. Settling Tank</text>
+        <text x="478" y="83" text-anchor="middle" font-size="10.5" fill="#24323d">Underground chamber;</text>
+        <text x="478" y="96" text-anchor="middle" font-size="10.5" fill="#24323d">heavy grit sinks to base</text>
+
+        <path d="M478 106 L478 122 L101 122 L101 136" fill="none" stroke="#14395e" stroke-width="1.8" stroke-dasharray="4 3"/>
+        <text x="101" y="135" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">↓</text>
+
+        <rect x="24" y="140" width="154" height="62" rx="9" fill="#f3f6fa" stroke="#14395e" stroke-width="1.8"/>
+        <text x="101" y="161" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">4. Sand &amp; Carbon Filter</text>
+        <text x="101" y="179" text-anchor="middle" font-size="10.5" fill="#24323d">Removes fine particles</text>
+        <text x="101" y="192" text-anchor="middle" font-size="10.5" fill="#24323d">&amp; odours</text>
+        <text x="194" y="175" text-anchor="middle" font-size="16" font-weight="bold" fill="#14395e">→</text>
+
+        <rect x="212" y="140" width="154" height="62" rx="9" fill="#f3f6fa" stroke="#14395e" stroke-width="1.8"/>
+        <text x="289" y="161" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">5. UV Treatment Chamber</text>
+        <text x="289" y="179" text-anchor="middle" font-size="10.5" fill="#24323d">Ultraviolet lamp kills</text>
+        <text x="289" y="192" text-anchor="middle" font-size="10.5" fill="#24323d">bacteria (no chemicals)</text>
+        <text x="382" y="175" text-anchor="middle" font-size="16" font-weight="bold" fill="#14395e">→</text>
+
+        <rect x="400" y="140" width="156" height="62" rx="9" fill="#fef4e2" stroke="#d99b26" stroke-width="2"/>
+        <text x="478" y="161" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">6. Clean Storage Tank</text>
+        <text x="478" y="179" text-anchor="middle" font-size="10.5" fill="#24323d">Pumped to campus</text>
+        <text x="478" y="192" text-anchor="middle" font-size="10.5" fill="#24323d">toilets &amp; gardens</text>
+      </svg>
+    </div>
+
+    <h3>Step 1 · Passive Voice &amp; Process Overview Check</h3>
+    <form class="quiz">
+      <div class="q" data-why="A Process Overview states total stages + beginning and end without minor details."><label>1. Strongest Overview sentence for this process diagram:</label><select data-answer="b"><option value="">Choose…</option><option value="a">Overall, rainwater rose from Stage 1 to Stage 6 by 60%.</option><option value="b">Overall, the linear six-stage process captures rooftop rainwater, purifies it through physical filtration and UV light, and distributes it for non-drinking campus use.</option><option value="c">In my opinion, every university should build rainwater tanks to save money.</option></select></div>
+      <div class="q" data-why="Singular uncountable subject 'rainwater' + present simple passive 'is collected' (be + past participle)!"><label>2. Complete in academic passive voice: “Initially, rainwater ________ from lecture-hall roofs through gutters.”</label><input type="text" data-answers="is collected|is channelled|is captured" placeholder="is + past participle (e.g. is collected)"></div>
+      <div class="q" data-why="Plural subject 'leaves' → 'are trapped' / 'are removed'!"><label>3. Complete in academic passive voice: “Next, leaves ________ by a mesh screen.”</label><input type="text" data-answers="are trapped|are removed|are filtered" placeholder="are + past participle (e.g. are trapped)"></div>
+      <button class="btn teal" type="submit">✓ Check Process Grammar</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Step 2 · Practise typing your Process Report (20 min · 150+ words)</h3>
+    <div class="timer" data-timer="1200"><div class="tlabel">⏱ Process Task 1 timer — 20 minutes</div><div class="time">20:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+    <div>
+      <label for="t1ProcDraft">Type your 4-paragraph Process Report:</label>
+      <textarea id="t1ProcDraft" class="exam-box" data-minwords="150" placeholder="Paragraph 1 (Paraphrase): The diagram illustrates how rainwater is harvested…&#10;&#10;Paragraph 2 (Overview — 6 stages, start → end): Overall, the six-stage process begins with…&#10;&#10;Paragraph 3 (Stages 1–3 collection &amp; settling): Initially, …&#10;&#10;Paragraph 4 (Stages 4–6 filtration, UV &amp; reuse): Once settled, …"></textarea>
+      <div class="wtarget" aria-live="polite">Words: 0 / 150 minimum (150 more to go)</div>
+    </div>
+
+    <details class="modelbox"><summary>📄 Full Band 7.5+ Process Model (168 words) — open AFTER writing</summary>
+      <div class="model stepup"><span class="tag">Band 7.5+ Model · 168 words · Passive Voice + Varied Sequencers</span>
+        <p><em>The diagram illustrates how rainwater is harvested, purified, and distributed for non-drinking use across a university campus.</em></p>
+        <p><em>Overall, the system consists of six sequential stages, beginning with the capture of rainfall on building rooftops and ending with the supply of treated water to campus washrooms and landscaped gardens.</em></p>
+        <p><em>Initially, rainwater falling on lecture-hall roofs is channelled into perimeter gutters and directed downward through a mesh leaf screen, where leaves and coarse twigs are trapped and diverted to a compost bin. From there, the screened water enters an underground settling tank, allowing heavier grit and sediment to sink gradually to the bottom.</em></p>
+        <p><em>Once settled, the clearer water is pumped upward into a sand and carbon filter that removes remaining fine particles and unpleasant odours. Next, the filtered water passes through an ultraviolet treatment chamber, where bacteria are neutralised by a UV lamp without adding chemicals. In the final stage, the purified water is held in a clean storage tank before being pumped to flush campus toilets and irrigate gardens.</em></p>
       </div>
     </details>
   </div></details>
 
-  <details class="lesson" id="writing-practice"><summary>✍️ Lab 2 · Task 2 Essay — Plan, Computer Typing Box &amp; Models <span class="time">10 MIN · 250+ WORDS</span></summary><div class="body">
-    <div class="rule amber"><strong>Task 2:</strong> “Are online courses as effective as classroom lessons? Discuss both views and give your own opinion.”</div>
+  <details class="lesson" id="writing-practice"><summary>✍️ Lab 3 · Academic Task 2 — All 4 Official Essay Types, Planner &amp; Full 250+w Models <span class="time">40 MIN · 250+ WORDS</span></summary><div class="body">
+    <div class="rule"><strong>Official ielts.org Task 2 scope:</strong> Every Academic Task 2 prompt asks you to perform one of <strong>4 analytical tasks</strong>. Switch prompts below to practise planning and typing any of the 4 official formats!<br>
+    <span class="jp" lang="ja">IELTS Academic Task 2の設問は大きく4タイプに分かれます。下のメニューで切り替えられます。</span></div>
+
+    <label for="t2PromptSel"><strong>Choose an official Academic Task 2 prompt family:</strong></label>
+    <select id="t2PromptSel">
+      <option value="0">1 · Discuss Both Views &amp; Opinion — Online courses vs. classroom lessons</option>
+      <option value="1">2 · Agree or Disagree (Opinion) — Career training vs. broad academic knowledge</option>
+      <option value="2">3 · Problem &amp; Solution — Declining student focus on long academic texts</option>
+      <option value="3">4 · Advantages Outweigh Disadvantages — AI tools in university research</option>
+    </select>
+    <div class="rule amber" id="t2PromptBox" style="margin-top:10px"><strong>Prompt 1 (Discuss Both Views + Opinion):</strong> “Some people say online courses are as effective as classroom lessons, while others disagree. Discuss both views and give your own opinion.” <em>(4 paragraphs: Intro with clear position → View A → View B → Conclusion.)</em></div>
+
     <div class="grid2">
-      <div><label>My opinion (one sentence)</label><input type="text" placeholder="Online courses can be as effective, but…"></div>
-      <div><label>View 1 + reason</label><input type="text" placeholder="flexible — study any time"></div>
-      <div><label>View 2 + reason</label><input type="text" placeholder="teacher feedback in class"></div>
-      <div><label>Example</label><input type="text" placeholder="a worker studying at night"></div>
+      <div><label>Thesis / Position (answer every part of prompt!)</label><input type="text" placeholder="Clear stance right in Paragraph 1…"></div>
+      <div><label>Body 1 Main Idea + Explanation</label><input type="text" placeholder="Core argument 1 + why it happens…"></div>
+      <div><label>Body 2 Main Idea + Explanation</label><input type="text" placeholder="Counter-view / Solution + why…"></div>
+      <div><label>Specific Real-World Example</label><input type="text" placeholder="Working adults / first-year undergraduates…"></div>
     </div>
 
-    <h3>Optional · Write your full Task 2 essay (live 250-word counter · spellcheck OFF)</h3>
-    <div class="timer" data-timer="2400"><div class="tlabel">⏱ Optional Task 2 timer — 40 minutes</div><div class="time">40:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+    <h3>Practise typing your full Task 2 essay (live 250-word counter · spellcheck OFF)</h3>
+    <div class="timer" data-timer="2400"><div class="tlabel">⏱ Official Task 2 timing — 40 minutes</div><div class="time">40:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
     <div>
-      <label for="t2Draft">Write in connected paragraphs (Introduction → Body 1 → Body 2 → Conclusion):</label>
-      <textarea id="t2Draft" class="exam-box" data-minwords="250" placeholder="Introduction (restate topic + give your clear opinion)…&#10;&#10;Body Paragraph 1 (On the one hand, online courses…)…&#10;&#10;Body Paragraph 2 (On the other hand, face-to-face classes…)…&#10;&#10;Conclusion (In conclusion, …)…"></textarea>
+      <label for="t2Draft">Write in full connected paragraphs (Introduction → Body 1 → Body 2 → Conclusion):</label>
+      <textarea id="t2Draft" class="exam-box" data-minwords="250" placeholder="Introduction (restate topic + state your clear position from the outset)…&#10;&#10;Body Paragraph 1 (Topic sentence → explanation → concrete example)…&#10;&#10;Body Paragraph 2 (Second side / deeper argument → explanation → example)…&#10;&#10;Conclusion (In conclusion, restate your balanced position cleanly)…"></textarea>
       <div class="wtarget" aria-live="polite">Words: 0 / 250 minimum (250 more to go)</div>
     </div>
 
-    <details class="modelbox"><summary>📄 Model paragraph — open AFTER your plan</summary>
-      <div class="model starter"><span class="tag">Starter paragraph</span><p><em>Online courses have clear advantages. Students can study at any time and watch a lesson again if it is difficult. For example, a person who works during the day can study late in the evening. This flexibility helps many learners continue studying.</em></p><p class="note">Pattern: topic sentence → reason → example → result. Four sentences, one idea.</p></div>
-      <div class="model stepup"><span class="tag">Step up · try ONE upgrade</span><p><em>Online courses offer considerable flexibility, as learners can revisit difficult material and progress at their own pace; a student with a daytime job, for instance, may study late in the evening. That said, this independence only benefits learners who are sufficiently self-disciplined.</em></p><p class="note">Upgrades to borrow (one!): a precise word (<em>considerable, revisit</em>) · “as / for instance / That said” linking · a longer sentence.</p></div>
+    <details class="modelbox"><summary>📄 Complete 250+ Word Essays (Band 6.5 Solid vs Band 7.5+ High-Band Model) — open AFTER writing</summary>
+      <div class="model starter"><span class="tag">Band 6.5 Complete Essay · 258 words · 4 balanced paragraphs</span>
+        <p><em>Digital technology has made online study widely available, leading to debate over whether virtual courses teach as effectively as traditional classroom lessons. While online learning works very well for self-motivated adults, I believe face-to-face classes remain more effective overall for most students.</em></p>
+        <p><em>On the one hand, online courses offer clear practical advantages, particularly flexibility. Learners can watch recorded lectures at any hour and pause or replay difficult explanations until they understand them fully. For example, full-time employees or parents with family duties can complete a postgraduate certificate late in the evening without commuting to a campus. Without online options, many of these learners would not be able to continue education at all.</em></p>
+        <p><em>On the other hand, physical classrooms provide human interaction and structure that screens struggle to replace. When a teacher notices puzzled expressions in a room, they can adjust their explanation immediately and encourage shy students to ask questions. Studying alongside classmates also builds daily routine and teamwork skills, whereas isolated online learners frequently lose motivation and drop out before finishing their course.</em></p>
+        <p><em>In conclusion, although online courses are an effective tool for disciplined learners with busy schedules, classroom teaching delivers stronger support, feedback, and engagement for the majority of students.</em></p>
+      </div>
+      <div class="model stepup"><span class="tag">Band 7.5+ Complete Essay · 279 words · Hedging, Concession &amp; Varied Complex Clauses</span>
+        <p><em>Rapid improvements in streaming platforms have prompted many educators to argue that online courses now rival traditional classroom teaching. Although virtual study can be remarkably effective for transmitting factual content to disciplined adults, I would argue that face-to-face classrooms remain superior wherever deeper discussion, practical skill-building, and learner accountability are required.</em></p>
+        <p><em>Admittedly, well-designed online programmes offer flexibility that physical timetables cannot match. Learners can revisit dense lectures at their own pace and fit study around employment or caregiving responsibilities. A hospital nurse preparing for a specialist qualification, for instance, can review recorded seminars between shifts rather than spending hours commuting. Where the objective is mastering clearly structured content independently, virtual delivery appears to perform just as well as lecture halls.</em></p>
+        <p><em>Nevertheless, effective education rarely consists solely of absorbing information. In a physical classroom, skilled teachers read subtle non-verbal cues, clarify misconceptions on the spot, and guide spontaneous debate among peers with competing viewpoints. Hands-on fields — from laboratory sciences to schoolteacher training — likewise depend on immediate feedback that video calls struggle to replicate. Equally important, scheduled in-person attendance creates social accountability, which helps explain why completion rates in purely self-paced online courses tend to lag behind campus programmes.</em></p>
+        <p><em>In conclusion, while online courses provide an invaluable pathway for self-directed learners seeking flexibility, they complement rather than replace the interactive depth of classroom teaching.</em></p>
+      </div>
     </details>
     <h3>Before you finish — check</h3>
-    <div class="checkline"><input type="checkbox" id="wr1"><label for="wr1" style="margin:0">I answered the whole question (both views + my opinion).</label></div>
-    <div class="checkline"><input type="checkbox" id="wr2"><label for="wr2" style="margin:0">Each paragraph has ONE main idea.</label></div>
-    <div class="checkline"><input type="checkbox" id="wr3"><label for="wr3" style="margin:0">Word count is enough (Task 2: 250+).</label></div>
-    <div class="checkline"><input type="checkbox" id="wr4"><label for="wr4" style="margin:0">I checked verb endings, plurals, and spelling.</label></div>
-    <p class="note">Nobody can mark your essay on this page — show it to a teacher, or compare it honestly with the model paragraph. Need extra help avoiding common sentence &amp; article mistakes? <button type="button" class="inline-link" data-open="pos-traps">Open optional Grammar Boost →</button></p>
+    <div class="checkline"><input type="checkbox" id="wr1"><label for="wr1" style="margin:0">I stated my clear position right from the introduction and answered every part of the question.</label></div>
+    <div class="checkline"><input type="checkbox" id="wr2"><label for="wr2" style="margin:0">Each body paragraph develops ONE central topic sentence with explanation + specific example.</label></div>
+    <div class="checkline"><input type="checkbox" id="wr3"><label for="wr3" style="margin:0">My essay exceeds 250 words in connected prose (zero bullet points or note fragments).</label></div>
+    <div class="checkline"><input type="checkbox" id="wr4"><label for="wr4" style="margin:0">I saved 3 minutes to check subject–verb agreement, articles (<em>a/an/the</em>), plurals, and spelling.</label></div>
+    <p class="note">Need extra help avoiding sentence &amp; article mistakes? <button type="button" class="inline-link" data-open="pos-traps">Open optional Grammar Boost →</button></p>
+  </div></details>
+
+  <details class="lesson" id="writing-examiner"><summary>🏅 Lab 4 · Official ielts.org Examiner Clinic — How to Break Past Band 6.0 to 7.0+ <span class="time">6 MIN · BAND 7.0+ CLINIC</span></summary><div class="body">
+    <div class="rule amber"><strong>Directly from official ielts.org Examiner Comments:</strong> Many university applicants &amp; teachers score 7.5 in Listening/Reading yet get stuck at <strong>6.0 or 6.5 in Writing</strong>. Spot the exact upgrades examiners highlight between Band 5.5–6.0 and Band 7.5+!<br>
+    <span class="jp" lang="ja">Listening/Readingは高得点なのにWritingだけ6.0〜6.5で止まる人が非常に多いです。公式採点官コメントが指摘する「7.0突破のポイント」を確認しよう！</span></div>
+
+    <form class="quiz">
+      <div class="q" data-why="Official ielts.org Examiner PDF highlights 'softening / hedging' ('tend to', 'appears to be', 'might argue') as a hallmark of Band 7.5+ lexical & academic control!"><label>1. <strong>Academic Hedging (Softening):</strong> Which sentence sounds like a Band 7.5+ academic writer rather than sweeping over-generalisation?</label>
+        <select data-answer="b"><option value="">Choose…</option><option value="a">Every single student who studies online always fails immediately.</option><option value="b">Purely self-paced online courses tend to suffer lower completion rates, particularly among younger learners.</option><option value="c">Online courses are bad thing for everybody in the world every day.</option></select></div>
+      <div class="q" data-why="Official ielts.org Examiner comments explicitly warn against mechanical sequencer chains ('Firstly… So… Also… Yet…') in every sentence!"><label>2. <strong>Cohesion Trap:</strong> In official examiner comments, what linking habit holds otherwise strong essays back?</label>
+        <select data-answer="a"><option value="">Choose…</option><option value="a">Starting almost every single sentence with mechanical linkers (Firstly… Also… So… Moreover…)</option><option value="b">Using pronouns like 'this trend' or 'such measures' to link sentences naturally</option><option value="c">Organising the essay into four clear paragraphs</option></select></div>
+      <div class="q" data-why="Under-length essays (<250 words on Task 2; <150 words on Task 1) directly lose marks on Task Response / Task Achievement!"><label>3. <strong>Word Count Penalty:</strong> What happens if your Task 2 essay stops at 205 words because you spent 32 minutes on Task 1?</label>
+        <select data-answer="c"><option value="">Choose…</option><option value="a">Nothing, as long as your grammar has zero mistakes.</option><option value="b">Task 1 automatically lends its extra words to Task 2.</option><option value="c">Task Response is penalised for insufficient development — and Task 2 carries TWICE the weight of Task 1!</option></select></div>
+      <div class="q" data-why="Bullet points or numbered note lists violate connected-prose requirements and are explicitly penalised on IELTS Academic!"><label>4. <strong>Formatting Penalty:</strong> Which layout choice is explicitly penalised on official IELTS Writing instructions?</label>
+        <select data-answer="b"><option value="">Choose…</option><option value="a">Leaving one blank line between paragraphs when typing</option><option value="b">Writing bullet points or note lists inside your essay or Task 1 report</option><option value="c">Writing 175 words for Task 1 and 285 words for Task 2</option></select></div>
+      <button class="btn teal" type="submit">✓ Check Examiner Clinic</button><div class="feedback" aria-live="polite"></div>
+    </form>
   </div></details>
 </section>
 
@@ -1413,7 +1844,9 @@ var LEGACY={"mission1":["listening","mission1"],"mission2":["listening","mission
 "mission-career":["listening","mission-career"],"mission-seminar":["listening","mission-seminar"],"mission-lecture":["listening","mission-lecture"],
 "mission5":["speaking","mission5"],"mission6":["speaking","mission6"],"mission7":["speaking","mission7"],
 "speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"reading-tfng":["reading","reading-tfng"],
-"reading-headings":["reading","reading-headings"],"writing-task1":["writing","writing-task1"],"writing-practice":["writing","writing-practice"],
+"reading-headings":["reading","reading-headings"],"reading-matching":["reading","reading-matching"],"reading-ynng":["reading","reading-ynng"],
+"reading-diagram":["reading","reading-diagram"],"writing-task1":["writing","writing-task1"],"writing-process":["writing","writing-process"],
+"writing-practice":["writing","writing-practice"],"writing-examiner":["writing","writing-examiner"],
 "pos-hinshi":["grammar","pos-hinshi"],"pos-xray":["grammar","pos-xray"],"pos-patterns":["grammar","pos-patterns"],
 "pos-traps":["grammar","pos-traps"],"pos-ielts":["grammar","pos-ielts"]};
 function activate(tab, targetId){
@@ -1479,7 +1912,7 @@ document.querySelectorAll("audio[src]").forEach(function(a){
     if(a.nextElementSibling&&a.nextElementSibling.className==="audio-err")return;
     var d=document.createElement("p");
     d.className="audio-err";
-    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the eight MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
+    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the eleven MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
     a.insertAdjacentElement("afterend",d);
   });
 });
@@ -1580,6 +2013,14 @@ document.querySelectorAll("form.quiz").forEach(function(form){
   });
 });
 
+var t2Sel=document.getElementById("t2PromptSel"),t2Box=document.getElementById("t2PromptBox");
+var T2PROMPTS=[
+  "<strong>Prompt 1 (Discuss Both Views + Opinion):</strong> “Some people say online courses are as effective as classroom lessons, while others disagree. Discuss both views and give your own opinion.” <em>(4 paragraphs: Intro with clear position → View A → View B → Conclusion.)</em>",
+  "<strong>Prompt 2 (Agree or Disagree / Opinion):</strong> “University education should focus primarily on preparing students for specific careers rather than general academic knowledge. To what extent do you agree or disagree?” <em>(4 paragraphs: Intro stating clear extent of agreement → Main reason 1 → Nuanced balance / reason 2 → Conclusion.)</em>",
+  "<strong>Prompt 3 (Problem &amp; Solution):</strong> “Many university students struggle to concentrate on long academic texts outside class. What are the main causes of this problem, and what measures could address it?” <em>(4 paragraphs: Intro framing issue → Key causes in Body 1 → Practical university &amp; student solutions in Body 2 → Conclusion.)</em>",
+  "<strong>Prompt 4 (Advantages Outweigh Disadvantages):</strong> “Artificial intelligence tools are increasingly used by university students to summarise research papers. Do the advantages of this trend outweigh the disadvantages?” <em>(4 paragraphs: Intro stating explicitly which side is stronger → Weaker side first → Stronger side in greater depth → Conclusion.)</em>"
+];
+if(t2Sel&&t2Box){t2Sel.addEventListener("change",function(){var p=T2PROMPTS[+this.value];if(p)t2Box.innerHTML=p;});}
 /* ---------- optional grammar interactive helpers ---------- */
 var xrayBtn=document.getElementById("xrayToggle"),xrayBox=document.getElementById("xrayDemo");
 if(xrayBtn&&xrayBox){

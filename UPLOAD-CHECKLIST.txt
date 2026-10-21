@@ -14,6 +14,9 @@ REQUIRED  (10 files)
   028-script-f-form.mp3                           listening audio — Lesson 5 (2-Speaker Form Call, Part 1)
   028-script-g-career.mp3                         listening audio — Lesson 7 (School Talk Matching & Short Answer, Part 2)
   028-script-h-seminar.mp3                        listening audio — Lesson 8 (2-Speaker Seminar Flow-Chart & Sentences, Part 3)
+  028-script-s1-part1.mp3                         speaking examiner audio — Part 1 (2-Topic Interview Frame)
+  028-script-s2-part2.mp3                         speaking examiner audio — Part 2 (Task Card & Rounding-Off Questions)
+  028-script-s3-part3.mp3                         speaking examiner audio — Part 3 (Abstract Discussion Frame)
   index.html                                      launcher (yours already matches; optional to replace)
   IELTS Quest Mini Workbook.pdf
   IELTS Quest Mission Sheets.pdf
