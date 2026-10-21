@@ -316,7 +316,8 @@
   .splash .answer .rule{font-size:clamp(14px,1.05vw,17.5px);line-height:1.42;color:#3F5370;
     font-weight:600;border-top:1px dashed #CFE7DE;padding-top:9px;margin-top:9px}
   .splash .answer .rule .rl{display:block}
-  .splash .answer .rule .rl.off{color:#6B7787;font-weight:500}
+  .splash .answer .rule .rl.off{color:#6B7787;font-weight:500;font-size:.93em;line-height:1.3}
+  .splash .answer .rule .rlo{display:block;margin:5px 0 1px;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;font-weight:900;color:#8A98AC}
   .splash .answer .lb{display:block;font-size:10.5px;letter-spacing:1.4px;
     font-weight:900;color:#0E6E63;margin-bottom:4px;line-height:1.2}
   .splash .answer .slip{margin-top:8px;font-size:clamp(13.5px,1vw,16.5px);line-height:1.35;
@@ -340,7 +341,8 @@
     .splash .answer{padding:9px 13px 10px}
     .splash .answer .note{padding:6px 10px 7px}
     .splash .answer .rule{font-size:13.5px;line-height:1.32;padding-top:6px;margin-top:6px}
-    .splash .answer .slip{font-size:13px;padding:5px 9px 6px;margin-top:6px}
+    .splash .answer .slip{font-size:13px;padding:5px 9px 6px;margin-top:5px}
+    .splash .answer .rule .rlo{margin:4px 0 1px}
     .splash .answer .note{margin-top:7px}
     .splash .sptext .en{font-size:clamp(22px,1.85vw,27px)}
     .splash .alt{font-size:12.5px}
@@ -372,13 +374,13 @@
     .sbody{grid-template-columns:1.16fr .84fr;gap:24px}
   }
   @media (max-height:900px){
-    .sbody{padding:11px 20px 9px;gap:18px}
-    .splash .answer{padding:9px 13px 10px}
-    .splash .answer .note{font-size:15px;padding:6px 10px 7px;margin-top:7px}
-    .splash .answer .rule{font-size:13.5px;line-height:1.32;padding-top:6px;margin-top:6px}
-    .splash .answer .slip{font-size:13px;padding:5px 9px 6px;margin-top:6px}
-    .splash .sptext .en{font-size:clamp(22px,1.6vw,25px)}
-    .sfoot{padding:8px 20px 10px}
+    .sbody{padding:11px 20px 8px;gap:18px}
+    .splash .answer{padding:8px 13px 9px}
+    .splash .answer .note{font-size:15px;padding:5px 10px 6px;margin-top:6px}
+    .splash .answer .rule{font-size:13.5px;line-height:1.3;padding-top:5px;margin-top:5px}
+    .splash .answer .slip{font-size:13px;padding:5px 9px 6px;margin-top:5px}
+    .splash .sptext .en{font-size:clamp(21px,1.5vw,24px)}
+    .sfoot{padding:7px 20px 8px}
   }
   @media (max-width:1240px){
     main{grid-template-columns:minmax(0,1fr) 336px;gap:11px}
@@ -795,14 +797,14 @@ function sheetSync(){ /* the question no longer uses the panel sheet */
 window.addEventListener("resize",()=>sheetSync());
 
 const RULE={
-  TENSE:{PR:"PRESENT means now.<br><b>Be verb:</b> I am, she is, they are.<br><b>Other verbs:</b> he plays, they play. Add -s only for he / she / it.",
-         PA:"PAST means before now.<br><b>Be verb:</b> I was, you were, he was, they were.<br><b>Other verbs:</b> add -ed — played, watched. Some words change: go → went, eat → ate."},
-  NEG:"<b>1 Be verb:</b> put not after it — is → is not, was → was not.<br><b>2 Every other verb:</b> do / does / did + not, and the verb loses its -s or -ed — plays → does not play, watched → did not watch.",
-  YN:"<b>1 Be verb:</b> move it to the front — she is → is she?<br><b>2 There is / There are:</b> the same move — there is → is there?<br><b>3 Every other verb:</b> start with Do / Does / Did — he plays → does he play?",
-  WH:"<b>1</b> Question word first: where, what, when, how old / many / long.<br><b>2</b> Be verb: Where is he?<br><b>3</b> Other verbs: Where does he live?<br><b>4</b> Special: there is / there are stay together; a who or what subject adds nothing.",
+  TENSE:{PR:"<b>Now:</b> am / is / are — I am, she is, they are.<br><b>Other verbs:</b> he plays, they play. Add -s only for he / she / it.",
+         PA:"<b>Before now:</b> was / were — I was, they were.<br><b>Other verbs:</b> add -ed — played, watched. Some words change: go → went, eat → ate."},
+  NEG:"<b>Be verb:</b> put not after it — is → is not, was → was not.<br><b>Every other verb:</b> do / does / did + not, and the verb loses its -s or -ed — plays → does not play, watched → did not watch.",
+  YN:"<b>Be verb:</b> move it to the front — she is → is she?<br><b>There is / There are:</b> the same move — there is → is there?<br><b>Every other verb:</b> start with Do / Does / Did — he plays → does he play?",
+  WH:"<b>Question word first:</b> where, what, when, how old / many.<br><b>Be verb:</b> Where is he?<br><b>Other verbs:</b> Where does he live?<br><b>There is / There are:</b> keep together — How many students are there?<br><b>Who or what:</b> as the subject, add nothing.",
   SUBJ:"<b>Only the subject changes.</b> The verb then follows the new subject — I play → he plays, I am → they are.<br>Nothing else moves: not the place, not the time.",
-  PLUR:"<b>1</b> Make the noun plural — book → books, dictionary → dictionaries.<br><b>2</b> The rest of the sentence follows — this → these, that → those, is → are, there is → there are, a → nothing.",
-  ANS:"<b>1</b> Wh question → a full sentence: I live in Tokyo.<br><b>2</b> Yes / no → Yes or No, then the same verb: Yes, I was. / No, I don't.<br><b>3</b> Is there…? → Yes, there is. / No, there isn't."
+  PLUR:"<b>The noun:</b> book → books, dictionary → dictionaries.<br><b>Then the rest:</b> this → these, that → those, is → are, there is → there are, a → nothing.",
+  ANS:"<b>Wh question:</b> a full sentence — I live in Tokyo.<br><b>Yes / no question:</b> Yes or No, then the same verb — Yes, I was. / No, I don't.<br><b>Is there…?:</b> Yes, there is. / No, there isn't."
 };
 const SLIP={
   TENSE:{PR:"He play tennis → He <b>plays</b> tennis.",
@@ -957,24 +959,24 @@ function slipFor(card,space){
 function ruleLines(card){
   const en=(card.en||"").toLowerCase(), st=card.stack;
   const beVerb=/\b(am|is|are|was|were)\b/.test(en), hasAux=/\b(do|does|did)\b/.test(en);
-  if(st==="TENSE") return beVerb&&!hasAux ? [0,1] : [0,2];   /* be verb vs other verbs */
+  if(st==="TENSE") return beVerb&&!hasAux ? [0,1] : [0,2];
   if(st==="NEG")   return beVerb&&!hasAux ? [0] : [1];
   if(st==="YN")    return /^there (is|are)/.test(en) ? [1] : (beVerb&&!hasAux ? [0] : [2]);
   if(st==="WH"){
     const a=((card.ans&&card.ans.ANY)||[]).join(" ");
     if(/are there/i.test(a)) return [0,3];
-    if(/^who [a-z]+/i.test(a)) return [0,3];
+    if(/^who [a-z]+/i.test(a)) return [0,4];
     if(/\b(am|is|are|was|were)\b/i.test(a)) return [0,1];
     return [0,2];
   }
-  if(st==="PLUR")  return /^there is/.test(en) ? [0,1] : [0,1];
+  if(st==="PLUR") return [0,1];
   if(st==="ANS"){
     const a=((card.ans&&card.ans.ANY)||[])[0]||"";
     if(/^yes/i.test(a)) return /there|\bis\b/i.test(a) ? [2] : [1];
     if(/^there /i.test(a)) return [2];
     return [0];
   }
-  return null;                     // SUBJ / TENSE: nothing to grey out
+  return null;
 }
 function ruleFor(card,space){
   if(!card) return "";
@@ -985,8 +987,15 @@ function ruleFor(card,space){
   if(!live || !txt) return txt;
   const parts=txt.split("<br>");
   if(parts.length<2) return txt;
-  return parts.map((p,i)=>
-    `<span class="rl${live.indexOf(i)<0?" off":""}">${p}</span>`).join("");
+  const on=parts.filter((p,i)=>live.indexOf(i)>-1);
+  const off=parts.filter((p,i)=>live.indexOf(i)<0);
+  /* The line this card needs goes FIRST and stands alone. The other shapes sit
+     under a label that says whose they are, so a student cannot read them as
+     sub-points of the live line - they belong to a different card. */
+  let out=on.map(p=>`<span class="rl">${p}</span>`).join("");
+  if(off.length) out+=`<span class="rlo">Other cards</span>`
+                    +off.map(p=>`<span class="rl off">${p}</span>`).join("");
+  return out;
 }
 
 /* the panel card is the idle face; the question itself lives in the splash */
@@ -1422,5 +1431,5 @@ document.addEventListener("keydown",e=>{
   }
 });
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4dc9dc0dc57735a',t:'MTc5MjU0NzQ3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4dcb70e0d4f735a',t:'MTc5MjU0ODUxMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
