@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing · Grammar Boost</title>
-<meta name="description" content="An unofficial IELTS starter for student self-study: test-day walkthrough, Listening with recorded audio, Speaking with timers and recording, Reading and Writing starters, optional Parts of Speech &amp; Sentence Patterns boost, plus printable paper materials. Not affiliated with IELTS, the British Council, IDP or Cambridge.">
+<meta name="description" content="An unofficial IELTS starter aligned with current IELTS on Computer &amp; Academic task formats: 2026 test-day guide, Listening with 5 audio tracks (including map labelling &amp; lecture notes), Speaking with timers and recorder, Reading (completion, True/False/Not Given, Matching Headings), Writing Task 1 chart &amp; Task 2 essay labs with live word counters, and optional Grammar Boost.">
 <meta name="theme-color" content="#14395e">
 <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%F0%9F%8E%A7%3C/text%3E%3C/svg%3E">
 <style>
@@ -71,6 +71,11 @@ audio{width:100%;margin:8px 0}
 .timer .tlabel{color:#bcd2e4;font-size:.75rem;letter-spacing:.07em;text-transform:uppercase}
 .recorder{border:2px dashed var(--teal);border-radius:14px;padding:13px;margin:11px 0;background:#fbfefd;text-align:center}
 .wordcount{font-size:.79rem;color:var(--grey)}.wordcount.over{color:var(--bad);font-weight:bold}
+.wtarget{display:inline-block;margin-top:6px;padding:4px 11px;border-radius:99px;background:#f2f6f8;border:1px solid var(--line);font-size:.82rem;font-weight:bold;color:var(--navy);font-variant-numeric:tabular-nums}
+.wtarget.reached{background:var(--light);border-color:var(--teal);color:var(--good)}
+textarea.exam-box{min-height:150px;line-height:1.6;font-size:.96rem;margin-top:6px}
+.vis-wrap{background:#f8fbfa;border:1.5px solid var(--line);border-radius:14px;padding:12px;margin:12px 0;text-align:center}
+.vis-svg{display:block;width:100%;max-width:600px;height:auto;margin:0 auto}
 details.modelbox{border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin:12px 0;background:#fcfefd}
 details.modelbox summary{cursor:pointer;font-weight:bold;color:var(--navy)}
 .model{border-radius:12px;padding:12px 15px;margin:10px 0}
@@ -161,7 +166,7 @@ button,summary,label,select,input,textarea,a.btn{touch-action:manipulation;-webk
   details.modelbox summary{min-height:44px;display:flex;align-items:center}
   input[type=text],select,textarea{font-size:16px;min-height:46px;padding:11px 12px}
   .options label{min-height:46px;display:flex;align-items:center;gap:10px;padding:10px 12px}
-  .options input[type=radio]{width:20px;height:20px;flex:0 0 20px;margin:0}
+  .options input[type=radio],.options input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;margin:0}
   .checkline{padding:5px 0;gap:10px}
   .checkline input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;margin-top:2px}
   .inline-link{padding:6px 2px;display:inline-block}
@@ -255,11 +260,11 @@ footer a{color:var(--teal-dark)}
     <div class="rule" style="text-align:left"><strong>🧭 Not sure where to start?</strong> Take the 2-minute Needs Check. It asks about your goal, timing, and which English tasks feel easy or hard — then suggests a segment. Nothing is saved or sent, and it is <strong>not</strong> a score or test.<br><span class="jp" lang="ja">どこから始めるか迷ったら、2分のニーズチェックをどうぞ。記録は保存されません。</span><br>
     <button class="btn" type="button" data-go="needs">🧭 Start Needs Check</button></div>
     <div class="seg-grid">
-      <button class="seg" data-go="testday"><span class="ico">🗺️</span><h3>Test Day — how IELTS works</h3><p>Booking, check-in, the order of the tests, what happens in each room, and scores. Read this first if you have never taken IELTS.</p><span class="time">READ · ABOUT 5 MIN</span></button>
-      <button class="seg" data-go="listening"><span class="ico">🎧</span><h3>Listening</h3><p>Predict, paraphrase, trick answers, numbers &amp; spelling — with recorded audio and instant checking.</p><span class="time">4 SHORT LESSONS</span></button>
-      <button class="seg" data-go="speaking"><span class="ico">🗣️</span><h3>Speaking</h3><p>Parts 1, 2 and 3 with simple patterns, timers, a recorder, and models.</p><span class="time">3 PARTS + MINI CHECK</span></button>
-      <button class="seg" data-go="reading"><span class="ico">📖</span><h3>Reading</h3><p>What the Reading test is, timing strategy, and a short starter practice.</p><span class="time">OVERVIEW + PRACTICE</span></button>
-      <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Writing</h3><p>Tasks 1 and 2, how to plan, and a starter essay-plan practice.</p><span class="time">OVERVIEW + PRACTICE</span></button>
+      <button class="seg" data-go="testday"><span class="ico">🗺️</span><h3>Test Day — how IELTS works</h3><p>2026 computer format (+ Writing on Paper option), check-in, room order, check times, and scores.</p><span class="time">READ · ABOUT 5 MIN</span></button>
+      <button class="seg" data-go="listening"><span class="ico">🎧</span><h3>Listening</h3><p>Predict, paraphrase, trick answers, numbers &amp; spelling, campus map labelling, and lecture tables — with 5 audio tracks.</p><span class="time">6 LESSONS · AUDIO</span></button>
+      <button class="seg" data-go="speaking"><span class="ico">🗣️</span><h3>Speaking</h3><p>Parts 1, 2 (with rounding-off questions) and 3 with patterns, timers, local recording, and models.</p><span class="time">3 PARTS + MINI CHECK</span></button>
+      <button class="seg" data-go="reading"><span class="ico">📖</span><h3>Reading</h3><p>Timing strategy plus 3 official task styles: completion, True / False / Not Given, and Matching Headings &amp; Summary.</p><span class="time">OVERVIEW + 3 LABS</span></button>
+      <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Writing</h3><p>Academic Task 1 bar-chart lab + Overview rules, Task 2 essay planner, full models, and live computer word counters.</p><span class="time">TASK 1 + TASK 2 LABS</span></button>
       <button class="seg opt-card" data-go="grammar"><span class="ico">🧩</span><h3>Grammar Boost <span class="opt-pill">Optional</span></h3><p>Parts of speech (<span lang="ja">品詞</span>) &amp; common English sentence patterns (<span lang="ja">文型</span>) — from beginner foundations to real IELTS score-savers.</p><span class="time opt">OPTIONAL · 5 MINI LESSONS</span></button>
       <button class="seg" data-go="toolkit"><span class="ico">🧰</span><h3>Toolkit &amp; Print</h3><p>Printable quest book, mission sheets, test-day map, phrase cards, and teacher materials.</p><span class="time">DOWNLOADS</span></button>
     </div>
@@ -346,22 +351,25 @@ footer a{color:var(--teal-dark)}
     <h2>🗺️ Your IELTS Test Day <span class="jp" lang="ja">/ テスト当日の流れ</span></h2>
     <p class="subtitle">Know the journey, and nothing can surprise you. 🎯 = rooms this reviewer trains.</p>
     <table><tr><th colspan="7" style="text-align:center">1 BOOK → 2 CHECK IN → 3 🎯 LISTENING → 4 READING → 5 WRITING → 6 🎯 SPEAKING → 7 SCORES</th></tr></table>
-    <p class="note">Listening → Reading → Writing always run together (about 2 h 40 on paper, about 2 h 30 on computer, <strong>no breaks</strong>). Speaking may be before/after, or on a different day up to 7 days before/after — your booking confirmation says when.</p>
+    <div class="rule amber"><strong>🆕 2026 Format Update (Japan &amp; Worldwide):</strong> Traditional full paper-based IELTS ended in mid-2026 (August 2026 in Tokyo &amp; Osaka). Today you sit <strong>IELTS on Computer</strong> (~2 h 30 back-to-back, <strong>no breaks</strong>) — in selected centres, you can choose <strong>Writing on Paper</strong> to handwrite your essays while still doing Listening and Reading on screen.<br>
+    <span class="jp" lang="ja">2026年夏より日本国内のIELTSは原則コンピューター受験になりました（一部地域ではライティングのみ手書き方式も選択可）。</span></div>
+    <p class="note">Speaking is always face-to-face with a certified examiner — either the same day (before/after) or on a different day up to 7 days before/after. Check your booking confirmation.</p>
     <div class="timeline">
-      <div class="tl"><div class="n">1</div><div><h4>📝 Book your test</h4><p>Choose <strong>Academic or General Training</strong>, and <strong>paper or computer</strong> at a test centre. Listening and Speaking are the same for both; Reading and Writing are different. Your confirmation gives the date, time, place, and your Speaking time.</p><p class="jp" lang="ja">申し込み時に種類と方法を選びます。</p></div></div>
-      <div class="tl"><div class="n">2</div><div><h4>🎒 Pack &amp; arrive early</h4><p>Bring the <strong>same ID you used when you booked</strong>. Into the test room: only your ID and <strong>water in a clear bottle with no label</strong>. Phones, watches, electronics and your own pens stay outside. The centre takes your photo (some centres also scan a finger). Arrive with plenty of time — if you are late, you may not be able to take the test. Eat and use the toilet before: <strong>there are no breaks</strong>.</p><p class="jp" lang="ja">持ち物は身分証と透明な水筒だけ。早めに到着しましょう。</p></div></div>
-      <div class="tl"><div class="n">3</div><div><h4>🪪 Check in</h4><p>Staff check your ID, take your photo, store your belongings, and show you your seat. An invigilator explains the rules. This is the same for everyone — it is <strong>not</strong> a test. Need help? <strong>Raise your hand quietly.</strong></p><p class="jp" lang="ja">受付は全員同じ手続き。困ったら静かに手を挙げましょう。</p></div></div>
-      <div class="tl star"><div class="n">4</div><div><h4>🎧 Listening room 🎯 — about 30 min, 40 questions</h4><p>First test of the day. The sound is checked — if you cannot hear clearly, <strong>raise your hand before it starts</strong>. You hear 4 recordings, <strong>each ONE time only</strong>, getting harder (chat → talk → study talk → lecture). Before each part there is a short moment to read the questions: that is your <strong>prediction time</strong> (Listening lessons train exactly this). Write as you listen; paper tests get transfer time at the end, computer tests a short check time.</p><p class="jp" lang="ja">Listening は最初・1回だけ再生。予想する時間がカギです。</p></div></div>
-      <div class="tl"><div class="n">5</div><div><h4>📖✍️ Reading (60 min, 40 questions) → Writing (60 min, 2 tasks)</h4><p>No break between them. Reading answers go straight onto the answer sheet/screen (no extra transfer time). A clock is in the room. This reviewer gives you an overview of both — full training needs timed practice tests too.</p><p class="jp" lang="ja">休憩なしで続きます。時計を見ながら進めましょう。</p></div></div>
-      <div class="tl star"><div class="n">6</div><div><h4>🗣️ Speaking room 🎯 — 11–14 min, one examiner</h4><p>Show the same ID and wait to be called. <strong>Part 1 (4–5 min)</strong> questions about you → <strong>Part 2</strong> topic card, 1 minute of keyword notes, speak 1–2 minutes → <strong>Part 3 (4–5 min)</strong> deeper discussion. Your speaking is <strong>recorded</strong> (normal for everyone). The examiner controls the time — <strong>being stopped does not mean you failed</strong> — and will not tell you your score.</p><p class="jp" lang="ja">試験官が時間を管理します。止められても失敗ではありません。</p></div></div>
-      <div class="tl"><div class="n">7</div><div><h4>🏁 Finish &amp; scores</h4><p>Stay seated until staff say you can leave, collect your belongings, and report any problem <strong>on the day</strong>. Later you receive <strong>4 scores + 1 overall score (1–9)</strong> on your Test Report Form; when and how depends on your test type and centre.</p><p class="jp" lang="ja">結果は4技能＋総合スコア（1〜9）で届きます。</p></div></div>
+      <div class="tl"><div class="n">1</div><div><h4>📝 Book your test</h4><p>Choose <strong>Academic or General Training</strong> on computer (plus <strong>Writing on Paper</strong> if offered and preferred). Listening and Speaking are identical for both; Reading and Writing differ. Many computer centres also support <strong>One Skill Retake</strong> within 60 days if one section falls short.</p><p class="jp" lang="ja">申し込み時にAcademic / Generalを選びます。会場により1技能のみ再受験（One Skill Retake）も可能です。</p></div></div>
+      <div class="tl"><div class="n">2</div><div><h4>🎒 Pack &amp; arrive early</h4><p>Bring the <strong>exact same valid ID (passport) you booked with</strong>. Into the test room: only your ID and <strong>water in a clear bottle with no label</strong>. Phones, watches, notes, and bags stay locked outside. Arrive early for check-in — eat and use the toilet first because <strong>there are no breaks</strong>.</p><p class="jp" lang="ja">持ち込みはパスポート（申込時と同じ身分証）とラベルなしの透明な水のみです。</p></div></div>
+      <div class="tl"><div class="n">3</div><div><h4>🪪 Check in</h4><p>Staff verify your ID, take a security photo (and finger scan at many centres), store your belongings, and guide you to your computer booth. Need help at any moment? <strong>Raise your hand quietly.</strong></p><p class="jp" lang="ja">受付は全員同じ手続きです。困ったら静かに手を挙げましょう。</p></div></div>
+      <div class="tl star"><div class="n">4</div><div><h4>🎧 Listening room 🎯 — about 30 min, 40 questions</h4><p>Put on your headphones and check the volume — if anything sounds unclear, <strong>raise your hand immediately</strong>. You hear 4 recordings, <strong>each ONE time only</strong> (everyday chat → public talk → student discussion → academic lecture). Use the short preview pauses for <strong>prediction</strong>. ⚠️ <strong>Crucial computer rule:</strong> enter answers directly on screen as you listen — at the end you get only <strong>2 minutes to check</strong> (not the old 10-minute paper transfer time)!</p><p class="jp" lang="ja">コンピューター版は最後の見直し時間が約2分しかありません。聞きながら直接入力・選択しましょう。</p></div></div>
+      <div class="tl"><div class="n">5</div><div><h4>📖✍️ Reading (60 min, 40 questions) → Writing (60 min, 2 tasks)</h4><p>Runs straight on with no break. On computer, Reading splits passage + questions side-by-side with highlight/notes tools (no extra transfer time). Writing displays an <strong>automatic live word counter</strong> on screen with <strong>spellcheck OFF</strong> (or printed booklets if taking Writing on Paper).</p><p class="jp" lang="ja">リーディングは左右分割画面、ライティングは語数が自動表示されます（スペルチェック機能はなし）。</p></div></div>
+      <div class="tl star"><div class="n">6</div><div><h4>🗣️ Speaking room 🎯 — 11–14 min, one examiner</h4><p>Show the same ID and wait to be called. <strong>Part 1 (4–5 min)</strong> personal interview → <strong>Part 2</strong> cue card, 1 min keyword notes, speak 1–2 min, plus <strong>1–2 short rounding-off questions</strong> → <strong>Part 3 (4–5 min)</strong> two-way discussion. Recorded as standard. Being stopped politely for time is normal — <strong>it never means you failed</strong>.</p><p class="jp" lang="ja">Part 2の直後に短い締めくくりの質問が1〜2問入ります。時間で止められても減点ではありません。</p></div></div>
+      <div class="tl"><div class="n">7</div><div><h4>🏁 Finish &amp; scores</h4><p>Stay seated until dismissed and report any room/equipment issue <strong>before leaving the centre</strong>. Computer results usually arrive within <strong>1–2 days</strong> (longer for Writing on Paper): <strong>4 skill band scores + 1 overall band score (1–9)</strong>.</p><p class="jp" lang="ja">コンピューター版の結果は通常1〜2日で届きます（4技能＋総合バンド1〜9）。</p></div></div>
     </div>
     <h3>Quick confidence check <span class="jp" lang="ja">/ かくにんクイズ</span></h3>
     <form class="quiz">
-      <div class="q"><label>1. Correct order in the main room?</label><select data-answer="lrw"><option value="">Choose…</option><option value="wrl">Writing → Reading → Listening</option><option value="lrw">Listening → Reading → Writing</option><option value="slr">Speaking → Listening → Reading</option></select></div>
-      <div class="q"><label>2. How many times is each Listening recording played?</label><select data-answer="once"><option value="">Choose…</option><option value="twice">Two times</option><option value="many">Many times</option><option value="once">One time only</option></select></div>
-      <div class="q"><label>3. Speaking is always on the same day. True?</label><select data-answer="no"><option value="">Choose…</option><option value="yes">Yes, always</option><option value="no">No — it can be a different day</option></select></div>
-      <div class="q"><label>4. You can't hear the Listening sound clearly. You…</label><select data-answer="hand"><option value="">Choose…</option><option value="shout">Shout to staff</option><option value="nothing">Say nothing</option><option value="hand">Raise my hand before it starts</option></select></div>
+      <div class="q" data-why="The three main sections always run Listening → Reading → Writing with no break."><label>1. Correct order in the main room?</label><select data-answer="lrw"><option value="">Choose…</option><option value="wrl">Writing → Reading → Listening</option><option value="lrw">Listening → Reading → Writing</option><option value="slr">Speaking → Listening → Reading</option></select></div>
+      <div class="q" data-why="Every IELTS Listening recording plays ONCE only."><label>2. How many times is each Listening recording played?</label><select data-answer="once"><option value="">Choose…</option><option value="twice">Two times</option><option value="many">Many times</option><option value="once">One time only</option></select></div>
+      <div class="q" data-why="Speaking can be scheduled on the same day OR up to 7 days before/after."><label>3. Speaking is always on the same day. True?</label><select data-answer="no"><option value="">Choose…</option><option value="yes">Yes, always</option><option value="no">No — it can be a different day</option></select></div>
+      <div class="q" data-why="Always raise your hand quietly BEFORE the audio begins if headphones have an issue."><label>4. You can't hear the Listening sound clearly. You…</label><select data-answer="hand"><option value="">Choose…</option><option value="shout">Shout to staff</option><option value="nothing">Say nothing</option><option value="hand">Raise my hand before it starts</option></select></div>
+      <div class="q" data-why="On computer-delivered IELTS, type/click answers during the audio — you only get about 2 minutes at the end to review!"><label>5. At the end of IELTS on Computer Listening, how much check time do you get?</label><select data-answer="two"><option value="">Choose…</option><option value="ten">10 minutes to copy answers from scrap paper</option><option value="two">Only about 2 minutes — enter answers as you listen!</option><option value="thirty">30 extra minutes</option></select></div>
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
     <p class="note">Based on official IELTS / British Council test-day guidance; centres vary a little, so your booking confirmation always wins. Sources: <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" target="_blank" rel="noopener">British Council — Test day advice</a> · <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" target="_blank" rel="noopener">IELTS — test format</a>. Print it: <a href="IELTS%20Quest%20Test%20Day%20Journey.pdf" download>Test Day Map (1 page)</a>.</p>
@@ -373,7 +381,7 @@ footer a{color:var(--teal-dark)}
   <div class="card">
     <h2>🎧 Listening <span class="jp" lang="ja">/ リスニング</span></h2>
     <p class="subtitle">About 30 minutes · 40 questions · 4 recordings, each played ONE time · answers mostly come in question order. Pick any lesson — no order needed.</p>
-    <p><button class="btn small teal" data-open="mission1">1 Predict</button> <button class="btn small teal" data-open="mission2">2 Same meaning</button> <button class="btn small teal" data-open="mission3">3 Trick answers</button> <button class="btn small teal" data-open="mission4">4 Numbers &amp; spelling</button> <button class="btn small" data-go="speaking" data-target="mission7">Mini check →</button></p>
+    <p><button class="btn small teal" data-open="mission1">1 Predict</button> <button class="btn small teal" data-open="mission2">2 Same meaning</button> <button class="btn small teal" data-open="mission3">3 Trick answers</button> <button class="btn small teal" data-open="mission4">4 Numbers &amp; spelling</button> <button class="btn small teal" data-open="mission-map">5 Campus map</button> <button class="btn small teal" data-open="mission-lecture">6 Lecture &amp; table</button> <button class="btn small" data-go="speaking" data-target="mission7">Mini check →</button></p>
   </div>
 
   <details class="lesson" id="mission1"><summary>🎧 Lesson 1 · Predict — guess before you listen <span class="time">3 MIN · PRINT MISSION 1</span></summary><div class="body">
@@ -407,8 +415,9 @@ footer a{color:var(--teal-dark)}
   <details class="lesson" id="mission3"><summary>🎧 Lesson 3 · Trick answers — don't stop at the first answer <span class="time">6 MIN · PRINT MISSION 3</span></summary><div class="body">
     <div class="rule">⚠️ The <strong>first</strong> answer is often a trick! Listen for: <strong>but · however · instead · changed to</strong><br><span class="jp" lang="ja">最初の答えで止まらないで。あとで変わることがあります。</span></div>
     <p><strong>🎧 Listen and answer.</strong> <span class="jp" lang="ja">聞いて答えましょう（答えのあとでスクリプトを見てもOK）</span></p>
-    <!-- Audio: the three MP3s sit NEXT TO this HTML file (repo root, same folder as index.html):
-         028-script-a-distractors.mp3 · 028-script-b-accuracy.mp3 · 028-script-c-mini-review.mp3
+    <!-- Audio: the five MP3s sit NEXT TO this HTML file (repo root, same folder as index.html):
+         028-script-a-distractors.mp3 · 028-script-b-accuracy.mp3 · 028-script-c-mini-review.mp3 ·
+         028-script-d-map.mp3 · 028-script-e-lecture.mp3
          No sub-folder is needed. If you rename one, update the src here too. -->
     <audio controls preload="metadata" src="028-script-a-distractors.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
@@ -450,8 +459,127 @@ footer a{color:var(--teal-dark)}
     <div class="rule">✏️ <strong>Spelling trick:</strong> LOOK 👀 → COVER 🙈 → WRITE ✍️ → CHECK ✓<br><span class="jp" lang="ja">見て・隠して・書いて・確認。間違えたら3回書こう。</span></div>
   </div></details>
 
+  <details class="lesson" id="mission-map"><summary>🗺️ Lesson 5 · Plan / Map labelling — follow directions (Part 2) <span class="time">6 MIN · OFFICIAL FORMAT</span></summary><div class="body">
+    <div class="rule"><strong>3-step Map Strategy before the audio starts:</strong> ① Find <strong>★ YOU ARE HERE</strong> and the compass (<strong>N ↑</strong>) · ② Read the named landmarks already printed on the map · ③ Put your finger on ★ and move with the speaker!<br>
+    <span class="jp" lang="ja">音声が始まる前に「現在地（★）」「方角（北↑）」「すでに名前がある建物」を確認し、指でたどりながら聞きましょう。</span></div>
+
+    <div class="vis-wrap">
+      <svg class="vis-svg" viewBox="0 0 600 356" role="img" aria-labelledby="mapTitle mapDesc">
+        <title id="mapTitle">Riverdale College Campus Map with letters A to F</title>
+        <desc id="mapDesc">Map facing North at top. Main Gate is at bottom centre leading north up Central Path to the Library at top centre. East-West Walk crosses horizontally in the middle. Science Block is bottom left, A is between Science Block and Main Gate, Pond is bottom right with small box B south of the Pond, C is above Science Block across East-West Walk, D is above the Pond across East-West Walk, E is top left west of Library, and F is top right east of Library.</desc>
+        <rect x="4" y="4" width="592" height="348" rx="14" fill="#f3f9f8" stroke="#14395e" stroke-width="2"/>
+        <!-- paths -->
+        <rect x="284" y="76" width="32" height="236" fill="#dce7e5"/>
+        <rect x="46" y="170" width="508" height="28" fill="#dce7e5"/>
+        <text x="300" y="156" text-anchor="middle" font-size="11" font-weight="bold" fill="#475a68">↑ CENTRAL PATH</text>
+        <text x="155" y="188" text-anchor="middle" font-size="11" font-weight="bold" fill="#475a68">EAST–WEST WALK</text>
+        <!-- compass -->
+        <g transform="translate(548,44)">
+          <circle cx="0" cy="0" r="28" fill="#fff" stroke="#14395e" stroke-width="1.8"/>
+          <text x="0" y="-11" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">N ↑</text>
+          <text x="0" y="19" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#5d6d7a">S</text>
+          <text x="-17" y="4" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#5d6d7a">W</text>
+          <text x="17" y="4" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#5d6d7a">E</text>
+        </g>
+        <!-- fixed landmarks -->
+        <rect x="235" y="22" width="130" height="50" rx="9" fill="#14395e"/>
+        <text x="300" y="52" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">LIBRARY</text>
+
+        <rect x="48" y="212" width="128" height="58" rx="9" fill="#dcebe8" stroke="#14705f" stroke-width="1.8"/>
+        <text x="112" y="245" text-anchor="middle" font-size="13" font-weight="bold" fill="#14395e">SCIENCE BLOCK</text>
+
+        <rect x="358" y="208" width="192" height="62" rx="14" fill="#d7eef2" stroke="#1e9484" stroke-width="1.8"/>
+        <ellipse cx="454" cy="239" rx="54" ry="18" fill="#aee0e8"/>
+        <text x="454" y="243" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">CENTRAL LAWN &amp; POND</text>
+
+        <rect x="218" y="308" width="164" height="34" rx="17" fill="#f0b43b" stroke="#9a6b0d" stroke-width="1.8"/>
+        <text x="300" y="329" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#21303c">★ MAIN GATE (You Are Here)</text>
+
+        <!-- candidate boxes A - F -->
+        <rect x="190" y="220" width="78" height="48" rx="9" fill="#fff" stroke="#14395e" stroke-width="2.4"/>
+        <text x="229" y="250" text-anchor="middle" font-size="19" font-weight="bold" fill="#14395e">A</text>
+
+        <rect x="420" y="282" width="70" height="38" rx="8" fill="#fff" stroke="#14395e" stroke-width="2.4"/>
+        <text x="455" y="307" text-anchor="middle" font-size="18" font-weight="bold" fill="#14395e">B</text>
+
+        <rect x="68" y="104" width="96" height="50" rx="9" fill="#fff" stroke="#14395e" stroke-width="2.4"/>
+        <text x="116" y="135" text-anchor="middle" font-size="19" font-weight="bold" fill="#14395e">C</text>
+
+        <rect x="404" y="104" width="96" height="50" rx="9" fill="#fff" stroke="#14395e" stroke-width="2.4"/>
+        <text x="452" y="135" text-anchor="middle" font-size="19" font-weight="bold" fill="#14395e">D</text>
+
+        <rect x="108" y="24" width="96" height="46" rx="9" fill="#fff" stroke="#14395e" stroke-width="2.4"/>
+        <text x="156" y="53" text-anchor="middle" font-size="19" font-weight="bold" fill="#14395e">E</text>
+
+        <rect x="396" y="24" width="96" height="46" rx="9" fill="#fff" stroke="#14395e" stroke-width="2.4"/>
+        <text x="444" y="53" text-anchor="middle" font-size="19" font-weight="bold" fill="#14395e">F</text>
+      </svg>
+    </div>
+
+    <p><strong>🎧 Listen to the campus guide and choose the correct letter (A–F) for each place.</strong> <span class="note">(Two letters are distractors — just like the real test!)</span></p>
+    <audio controls preload="metadata" src="028-script-d-map.mp3">Audio not available in this browser.</audio>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Start at ★ Main Gate facing North: 'immediately on your left… right next to the Science Block'."><label>1. Student Support Desk</label><select data-answer="A"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+        <div class="q" data-why="Cross East–West Walk on the west side: 'just across East–West Walk, directly north of the Science Block'."><label>2. Campus Bookshop</label><select data-answer="C"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+        <div class="q" data-why="Look across to the east side: 'just north of the Central Lawn and Pond'. (B is the closed hut on the south edge!)"><label>3. Student Café</label><select data-answer="D"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+        <div class="q" data-why="At the Library, ignore west (staff parking) and turn east ('immediately to the right of the Library, in the northeast corner')."><label>4. Sports Hall</label><select data-answer="F"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check map answers</button><div class="feedback" aria-live="polite"></div>
+    </form>
+    <details class="modelbox"><summary>📄 Script D — open AFTER you answer</summary>
+      <p>Welcome to Riverdale College! Right now we are standing at the <strong>Main Gate</strong> at the south entrance, facing north up the Central Path. First, if you need your ID card checked, the <strong>Student Support Desk [A]</strong> is <strong>immediately on your left</strong> as you come through the Main Gate, right next to the Science Block. Over on the right, on the south edge of the pond, you will see a small hut [B] — that used to be a visitor booth, <strong>however</strong> it is closed this term. Now walk straight north along the Central Path to the crossroads at East–West Walk. Just across East–West Walk, <strong>directly north of the Science Block</strong>, is our <strong>Campus Bookshop [C]</strong>, where you can buy notebooks and lab manuals. Across the path on the east side, <strong>just north of the Central Lawn and Pond</strong>, you will find the <strong>Student Café [D]</strong>, which serves hot lunches until three p.m. Finally, follow the Central Path all the way north to the Library. Ignore the space to the west of the Library [E], which is only for staff parking, and turn <strong>east, immediately to the right of the Library</strong>, to reach the <strong>Sports Hall [F]</strong> in the northeast corner.</p>
+    </details>
+  </div></details>
+
+  <details class="lesson" id="mission-lecture"><summary>🎓 Lesson 6 · Academic lecture — Choose TWO &amp; Table Completion (Parts 3–4) <span class="time">7 MIN · OFFICIAL FORMAT</span></summary><div class="body">
+    <div class="rule"><strong>Part 4 Lecture Secret:</strong> Even without a break mid-recording, lecturers guide you with <strong>signpost phrases</strong> (<em>First… / Turning now to… / Finally, one unexpected problem…</em>). Follow the table headings in order!<br>
+    <span class="jp" lang="ja">大学の講義パートでは「First / Turning now to / Finally」などの合図の言葉で今どの行を話しているかが分かります。</span></div>
+
+    <audio controls preload="metadata" src="028-script-e-lecture.mp3">Audio not available in this browser.</audio>
+
+    <h3>Part A · Multiple Choice — Choose TWO letters <span class="jp" lang="ja">/ 2つ選ぼう</span></h3>
+    <form class="quiz">
+      <div class="q" data-why="Select BOTH true main benefits (2 ticks only!): winter heating gains were 'fairly small' and herbs are shared, not sold — focus on heatwaves + heavy rainfall!"><fieldset data-multi="2"><legend>Which <strong>TWO</strong> benefits of urban rooftop gardens does the lecturer highlight?</legend>
+        <div class="options">
+          <label><input type="checkbox" value="A"> A Major savings on winter heating bills</label>
+          <label><input type="checkbox" value="B" data-correct> B Cooler top-floor rooms during summer heatwaves</label>
+          <label><input type="checkbox" value="C"> C Strong commercial profit from selling herbs</label>
+          <label><input type="checkbox" value="D" data-correct> D Less rainwater pressure on street drains during storms</label>
+          <label><input type="checkbox" value="E"> E Deep soil for growing tall shade trees</label>
+        </div>
+      </fieldset></div>
+      <button class="btn teal" type="submit">✓ Check Part A (2 answers)</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Table Completion — Write <strong>ONE WORD AND/OR A NUMBER</strong> <span class="jp" lang="ja">/ 表の穴埋め（1語または数字）</span></h3>
+    <div class="tbl-wrap">
+      <table class="resp-tbl">
+        <thead><tr><th>Stage / Feature</th><th>Key Lecture Notes</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Feature"><strong>1. Safety check</strong></td><td data-label="Notes">Roof load limit must first be checked by an <strong>[ 1 ]</strong></td></tr>
+          <tr><td data-label="Feature"><strong>2. Soil layer</strong></td><td data-label="Notes">Typically only <strong>[ 2 ]</strong> cm deep (lighter than tree beds)</td></tr>
+          <tr><td data-label="Feature"><strong>3. Suitable plants</strong></td><td data-label="Notes">Hardy herbs and shallow-rooted <strong>[ 3 ]</strong></td></tr>
+          <tr><td data-label="Feature"><strong>4. Main challenge</strong></td><td data-label="Notes">Strong <strong>[ 4 ]</strong> dries the soil out rapidly</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Grammar clue: 'by an ____' needs a singular person Noun starting with a vowel sound!"><label>1. Safety check — checked by an ________:</label><input type="text" data-answers="engineer" placeholder="1 word"></div>
+        <div class="q" data-why="Listen carefully to stress: fifTEEN (not fifty — 50 cm was for large trees!)."><label>2. Soil depth (________ cm):</label><input type="text" data-answers="15|fifteen" placeholder="Number"></div>
+        <div class="q" data-why="After 'shallow-rooted ____', listen for the plural plant word paired with hardy herbs."><label>3. Suitable plants — shallow-rooted ________:</label><input type="text" data-answers="flowers" placeholder="1 plural noun"></div>
+        <div class="q" data-why="Distractor check: insects/pests are RARE up high — what actually dries the soil fast?"><label>4. Main challenge — strong ________:</label><input type="text" data-answers="wind" placeholder="1 noun"></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Part B table</button><div class="feedback" aria-live="polite"></div>
+    </form>
+    <details class="modelbox"><summary>📄 Script E — open AFTER you answer</summary>
+      <p>Good morning everyone. In today's environmental design lecture, we are looking at urban rooftop gardens and how cities build them safely. <strong>First</strong>, why are city councils investing in green roofs? Some people assume the main benefit is lower heating bills in winter, <strong>though</strong> in practice winter insulation gains were fairly small. What made a dramatic difference <strong>instead</strong> was summer cooling: plant layers kept <strong>top-floor rooms significantly cooler during heatwaves [B]</strong>. In addition, the soil beds <strong>absorb heavy rainfall, which reduces pressure on street drains [D]</strong> during storms. Harvested herbs are usually shared among residents rather than sold for profit. <strong>Turning now to</strong> how a rooftop garden is built, safety comes first. Before any soil is lifted up, the roof structure must be checked by an <strong>engineer [1]</strong> to confirm the load limit. To keep weight down, the soil layer is typically just <strong>fifteen (15) [2]</strong> centimetres deep, rather than the fifty centimetres needed for large trees. Because of that shallow soil, the most reliable plants are hardy herbs and shallow-rooted <strong>flowers [3]</strong>. <strong>Finally</strong>, one unexpected maintenance problem: insects are quite rare high above the street, so pests are seldom an issue. <strong>Instead</strong>, strong <strong>wind [4]</strong> dries the soil out rapidly, meaning automatic drip watering is essential.</p>
+    </details>
+  </div></details>
+
   <div class="card"><h3>When you make a mistake, ask why <span class="jp" lang="ja">/ 間違えた理由</span></h3>
-  <p><strong>A</strong> 🎧 I didn't hear it · <strong>P</strong> 🔮 My guess was wrong · <strong>D</strong> ⚠️ Trick answer · <strong>S</strong> ✏️ Spelling · <strong>F</strong> 💤 I lost focus. Knowing the reason tells you what to practise next — here, or in a full practice test (this reviewer trains 2 of the many Listening question types).</p></div>
+  <p><strong>A</strong> 🎧 I didn't hear it · <strong>P</strong> 🔮 My guess was wrong · <strong>D</strong> ⚠️ Trick answer · <strong>S</strong> ✏️ Spelling / word form · <strong>F</strong> 💤 I lost focus on signposts. Knowing the reason tells you what to practise next — here, or on <button type="button" class="inline-link" data-go="toolkit">official ielts.org sample tests →</button></p></div>
 </section>
 
 <!-- ============ SPEAKING ============ -->
@@ -492,7 +620,7 @@ footer a{color:var(--teal-dark)}
       <div class="timer" data-timer="60"><div class="tlabel">⏱ Prepare — 1 minute, keywords only</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
       <div class="timer" data-timer="60"><div class="tlabel">🗣️ Speak — first goal: 1 minute!</div><div class="time">01:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
     </div>
-    <p class="note">In the real test you speak for <strong>1–2 minutes</strong>. When 1 minute feels easy, try 2. <span class="jp" lang="ja">本番は1〜2分。慣れたら2分に挑戦。</span> More cue cards: a useful lesson · a place you enjoyed · something you bought · a person who helped you.</p>
+    <p class="note">In the real test you speak for <strong>1–2 minutes</strong>, and then the examiner usually asks <strong>1–2 brief rounding-off questions</strong> (e.g. <em>“Do your friends want to learn this skill too?”</em> — answer in 1–2 natural sentences!). <span class="jp" lang="ja">本番は1〜2分話したあと、短い締めくくりの質問が1〜2問あります。</span> More cue cards: a useful lesson · a place you enjoyed · something you bought · a person who helped you.</p>
     <div class="recorder" data-recorder><strong>🎙 Record yourself</strong><br>
       <button class="btn teal small" type="button" data-rec-start>● Start</button><button class="btn small ghost" type="button" data-rec-stop disabled>■ Stop</button>
       <div class="note" data-rec-status>Listen once for ideas, once for English.</div><audio controls data-rec-audio style="display:none"></audio></div>
@@ -562,8 +690,13 @@ footer a{color:var(--teal-dark)}
       <div class="mini"><h4>5 · Never leave a blank</h4>No minus points for wrong answers. Guess!</div>
       <div class="mini"><h4>True / False / Not Given</h4>FALSE = the text says the opposite. NOT GIVEN = the text doesn't say. Don't use your own knowledge.</div>
     </div>
+    <p style="margin:14px 0 0">
+      <button class="btn small teal" data-open="reading-practice">1 Starter completion</button>
+      <button class="btn small teal" data-open="reading-tfng">2 True / False / Not Given</button>
+      <button class="btn small teal" data-open="reading-headings">3 Headings &amp; Summary</button>
+    </p>
   </div>
-  <details class="lesson" id="reading-practice"><summary>📖 Starter practice — The Bike Library <span class="time">5 MIN</span></summary><div class="body">
+  <details class="lesson" id="reading-practice"><summary>📖 Lab 1 · Starter completion — The Bike Library <span class="time">5 MIN</span></summary><div class="body">
     <div class="rule" style="text-align:left"><strong>The Bike Library</strong><br>
     Riverton's Bike Library opened in 2023 in a former <strong>ticket office</strong> next to the central station. For £15 a year, members can borrow a bicycle for up to <strong>seven days</strong> at a time, and a helmet is included free. The library owns 120 bicycles, most of them donated by local residents. Volunteers check the brakes and tyres every week, and on the <strong>first Saturday</strong> of each month they run a free repair workshop where members can learn to fix common problems. The library is open from Tuesday to Saturday. Its manager says the most popular bicycles are the small city bikes, because most members ride only two or three kilometres to school or work.</div>
     <form class="quiz">
@@ -574,6 +707,67 @@ footer a{color:var(--teal-dark)}
       <button class="btn teal" type="submit">✓ Check</button><div class="feedback" aria-live="polite"></div>
     </form>
     <p class="note">Questions 1–4: the words in the passage are <strong>bold</strong> this time. In the real test they will not be — your job is to find them. Notice how the questions use different words (“included free” / “borrow”) from your first reading.</p>
+  </div></details>
+
+  <details class="lesson" id="reading-tfng"><summary>🧭 Lab 2 · Identifying Information — True / False / Not Given <span class="time">7 MIN · ACADEMIC CORE</span></summary><div class="body">
+    <div class="rule amber"><strong>⚠️ The #1 IELTS Reading rule — judge ONLY from the passage:</strong><br>
+    <strong>TRUE</strong> = the text confirms this exact idea (often in different words) ·
+    <strong>FALSE</strong> = the text proves the opposite ·
+    <strong>NOT GIVEN</strong> = you cannot prove TRUE or FALSE from the text alone — never assume!<br>
+    <span class="jp" lang="ja">反対のことが書いてあれば FALSE、そもそも書いていなければ NOT GIVEN です。自分の知識で推測しないこと！</span></div>
+
+    <div class="rule" style="text-align:left;background:#fbfefd">
+      <strong>How Sea Turtles Navigate the Open Ocean</strong><br>
+      Moments after emerging from underground sand nests at night, loggerhead sea turtle hatchlings scramble straight toward the sea and embark on a journey across thousands of kilometres of open water. Early naturalists assumed that young turtles relied on starlight once at sea; however, controlled indoor wave-tank trials conducted by biologist Kenneth Lohmann in the 1990s proved otherwise. Even in complete darkness inside windowless laboratories, hatchlings swam accurately when exposed to artificial magnetic fields matching different regions of the Atlantic Ocean.<br><br>
+      Decades later, adult females use this magnetic map to return to lay eggs along the very same stretch of coastline where they hatched. On land, nevertheless, human activity poses an immediate threat: bright beachfront hotels and streetlamps can confuse newly emerged hatchlings, drawing them inland away from the waves before their magnetic sense takes over in the water.
+    </div>
+
+    <form class="quiz">
+      <div class="q" data-why="Check paragraph 1: early naturalists ASSUMED starlight guided them, 'however… windowless laboratories proved otherwise' — directly contradicted!"><label>1. Laboratory experiments confirmed that hatchlings need starlight to navigate at sea.</label><select data-answer="F"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="'wave-tank trials conducted by biologist Kenneth Lohmann in the 1990s… artificial magnetic fields' matches this statement directly!"><label>2. In the 1990s, Kenneth Lohmann tested young turtles using simulated magnetic fields in tanks.</label><select data-answer="T"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="Classic IELTS trap! Paragraph 2 mentions 'adult females' returning to lay eggs — does the text say ANY word about adult MALES?"><label>3. Adult male sea turtles also swim back to their birth coastline every breeding season.</label><select data-answer="NG"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="Read the last sentence: bright beachfront hotels and streetlamps CAN confuse newly emerged hatchlings on land — opposite of 'no effect'!"><label>4. Artificial lights near beaches have no effect on newly hatched turtles on land.</label><select data-answer="F"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
+      <div class="q" data-why="The passage mentions loggerheads crossing thousands of kilometres, never comparing their swimming speed to green sea turtles!"><label>5. Loggerhead hatchlings swim faster across the Atlantic than green sea turtles.</label><select data-answer="NG"><option value="">Choose…</option><option value="T">TRUE</option><option value="F">FALSE</option><option value="NG">NOT GIVEN</option></select></div>
+      <button class="btn teal" type="submit">✓ Check True / False / Not Given</button><div class="feedback" aria-live="polite"></div>
+    </form>
+  </div></details>
+
+  <details class="lesson" id="reading-headings"><summary>🏛️ Lab 3 · Matching Headings &amp; Summary Completion <span class="time">8 MIN · ACADEMIC CORE</span></summary><div class="body">
+    <div class="rule"><strong>Speed secret:</strong> For <strong>Matching Headings</strong>, read the <em>whole paragraph's main purpose</em> (don't fall for a heading that only repeats one small detail!). For <strong>Summary Completion</strong>, use your <strong>Part-of-Speech X-Ray</strong> first.<br>
+    <span class="jp" lang="ja">見出し選びは「段落全体のテーマ」を選びます（細かい単語だけの引っ掛け選択肢に注意！）。</span></div>
+
+    <div class="rule" style="text-align:left;background:#fbfefd">
+      <strong>Why Sleep Shapes Memory</strong><br><br>
+      <strong>Paragraph A</strong> — For generations, scientists regarded sleep merely as passive <strong>rest</strong> that allowed tired muscles to recover after waking effort. Modern brain-imaging studies have overturned that view. During deep slow-wave sleep, networks in the hippocampus repeatedly replay patterns of daytime <strong>learning</strong>, transferring fragile short-term memories into stable long-term storage.<br><br>
+      <strong>Paragraph B</strong> — University memory experiments illustrate how powerful this overnight process can be. In controlled trials, students who slept for eight hours after studying unfamiliar vocabulary recalled significantly more words one week later than peers who spent an equal period awake during the day — even though neither group did extra revision.<br><br>
+      <strong>Paragraph C</strong> — These findings carry practical lessons for exam preparation. Staying awake all night to cram new chapters impairs both recall and <strong>attention</strong> the following morning. Spacing shorter study sessions across several evenings, followed by regular sleep, strengthens retention far more reliably.
+    </div>
+
+    <h3>Part A · Choose the correct heading (i–v) for Paragraphs A–C <span class="note">(two headings are distractors!)</span></h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>List of Headings:</strong><br>
+      <strong>i.</strong> Trial results comparing sleepers with students who stayed awake<br>
+      <strong>ii.</strong> How caffeine intake affects teenage athletes<br>
+      <strong>iii.</strong> Moving from seeing sleep as passive recovery to active memory work<br>
+      <strong>iv.</strong> Better exam-study habits supported by sleep science<br>
+      <strong>v.</strong> The high cost of hospital brain-scanning equipment
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Paragraph A contrasts the old belief ('passive rest') with brain scans showing active replay of daytime learning (v is a trap — cost is never mentioned!)."><label>1. Paragraph A</label><select data-answer="iii"><option value="">Choose i–v…</option><option value="i">i</option><option value="ii">ii</option><option value="iii">iii</option><option value="iv">iv</option><option value="v">v</option></select></div>
+        <div class="q" data-why="Paragraph B reports controlled university experiments comparing 8-hour sleepers vs awake learners."><label>2. Paragraph B</label><select data-answer="i"><option value="">Choose i–v…</option><option value="i">i</option><option value="ii">ii</option><option value="iii">iii</option><option value="iv">iv</option><option value="v">v</option></select></div>
+        <div class="q" data-why="Paragraph C explains practical study advice (avoiding all-night cramming and spacing review across evenings)."><label>3. Paragraph C</label><select data-answer="iv"><option value="">Choose i–v…</option><option value="i">i</option><option value="ii">ii</option><option value="iii">iii</option><option value="iv">iv</option><option value="v">v</option></select></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Headings</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Summary Completion — Write <strong>ONE WORD ONLY</strong> from the passage</h3>
+    <form class="quiz">
+      <div class="q" data-why="Look in Paragraph A after 'regarded sleep merely as passive ____' (1 Noun)."><label>1. Researchers previously believed sleep was simply passive ________ for tired muscles.</label><input type="text" data-answers="rest" placeholder="1 noun from Paragraph A"></div>
+      <div class="q" data-why="Look in Paragraph A: 'replay patterns of daytime ____' (1 Noun)."><label>2. Brain scans show that deep sleep replays daytime ________ to store memories.</label><input type="text" data-answers="learning" placeholder="1 noun from Paragraph A"></div>
+      <div class="q" data-why="Look in Paragraph C: 'impairs both recall and ____ the following morning' (1 Noun)."><label>3. All-night cramming harms memory recall as well as next-day ________.</label><input type="text" data-answers="attention" placeholder="1 noun from Paragraph C"></div>
+      <button class="btn teal" type="submit">✓ Check Summary</button><div class="feedback" aria-live="polite"></div>
+    </form>
   </div></details>
 </section>
 
@@ -590,8 +784,99 @@ footer a{color:var(--teal-dark)}
     <span class="jp" lang="ja">構成（パラグラフ）が大事です。書く前に計画しましょう。</span></div>
     <h3>The 5-step routine</h3>
     <div class="pattern"><div class="step s1">1 READ<small>What exactly is asked?</small></div><div class="step s1">2 PLAN<small>5 min · ideas in order</small></div><div class="step s2">3 WRITE<small>paragraphs!</small></div><div class="step s2">4 COUNT<small>150 / 250 words</small></div><div class="step s3">5 CHECK<small>verbs · plurals · spelling</small></div></div>
+    <p style="margin:14px 0 0">
+      <button class="btn small teal" data-open="writing-task1">1 Academic Task 1 Chart Lab</button>
+      <button class="btn small teal" data-open="writing-practice">2 Task 2 Essay Lab</button>
+    </p>
   </div>
-  <details class="lesson" id="writing-practice"><summary>✍️ Starter practice — plan a Task 2 essay <span class="time">7 MIN</span></summary><div class="body">
+
+  <details class="lesson" id="writing-task1"><summary>📊 Lab 1 · Academic Task 1 — Bar Chart, Overview Rule &amp; Computer Word Counter <span class="time">10 MIN · 150+ WORDS</span></summary><div class="body">
+    <div class="rule"><strong>🔑 2 Official Examiner Rules for Academic Task 1:</strong><br>
+    ① <strong>Always write a clear Overview</strong> (2 sentences naming the biggest overall changes/differences — without an Overview, Task Achievement stalls at Band 5!).<br>
+    ② <strong>Stick strictly to the data in full prose paragraphs</strong> — never invent outside opinions/reasons (e.g. <em>“because bus tickets got expensive”</em>), and <strong>never use bullet points</strong>!<br>
+    <span class="jp" lang="ja">①全体の大きな特徴（Overview）を必ず書く　②グラフにない理由を勝手に推測しない・箇条書きは厳禁！</span></div>
+
+    <div class="rule amber"><strong>Task 1 Prompt:</strong> “The bar chart below shows the percentage of upper-secondary students at a suburban school commuting by four modes of transport in <strong>2010</strong> and <strong>2025</strong>. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.” <em>(Write at least 150 words · spend ~20 minutes.)</em></div>
+
+    <div class="vis-wrap">
+      <svg class="vis-svg" viewBox="0 0 580 268" role="img" aria-labelledby="chTitle chDesc">
+        <title id="chTitle">Student Commute Modes in 2010 and 2025 (%)</title>
+        <desc id="chDesc">Grouped bar chart comparing 2010 and 2025 student commuting percentages: Bicycle rose from 28% in 2010 to 44% in 2025; Train or Subway edged down from 38% to 35%; Bus dropped from 22% to 11%; Walking edged down from 12% to 10%.</desc>
+        <rect x="2" y="2" width="576" height="264" rx="12" fill="#fff" stroke="#c9d8d5" stroke-width="1.5"/>
+        <text x="290" y="24" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#14395e">How Students Commuted to School — 2010 vs 2025 (% of students)</text>
+        <!-- legend -->
+        <rect x="204" y="34" width="14" height="14" rx="3" fill="#14395e"/>
+        <text x="223" y="45" font-size="11.5" font-weight="bold" fill="#24323d">2010</text>
+        <rect x="284" y="34" width="14" height="14" rx="3" fill="#1e9484"/>
+        <text x="303" y="45" font-size="11.5" font-weight="bold" fill="#24323d">2025</text>
+        <!-- grid lines (0% at y=226, 50% at y=66 -> 3.2px per 1%) -->
+        <line x1="58" y1="226" x2="546" y2="226" stroke="#14395e" stroke-width="1.6"/>
+        <line x1="58" y1="162" x2="546" y2="162" stroke="#dce7e5" stroke-dasharray="4 3"/>
+        <line x1="58" y1="98" x2="546" y2="98" stroke="#dce7e5" stroke-dasharray="4 3"/>
+        <text x="48" y="230" text-anchor="end" font-size="11" fill="#5d6d7a">0%</text>
+        <text x="48" y="166" text-anchor="end" font-size="11" fill="#5d6d7a">20%</text>
+        <text x="48" y="102" text-anchor="end" font-size="11" fill="#5d6d7a">40%</text>
+
+        <!-- Group 1: Bicycle 28% (h=89.6, y=136.4) vs 44% (h=140.8, y=85.2) -->
+        <rect x="88" y="136.4" width="38" height="89.6" rx="4" fill="#14395e"/>
+        <text x="107" y="130" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">28%</text>
+        <rect x="132" y="85.2" width="38" height="140.8" rx="4" fill="#1e9484"/>
+        <text x="151" y="79" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14705f">44%</text>
+        <text x="129" y="246" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">Bicycle</text>
+
+        <!-- Group 2: Train/Subway 38% (h=121.6, y=104.4) vs 35% (h=112, y=114) -->
+        <rect x="208" y="104.4" width="38" height="121.6" rx="4" fill="#14395e"/>
+        <text x="227" y="98" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">38%</text>
+        <rect x="252" y="114" width="38" height="112" rx="4" fill="#1e9484"/>
+        <text x="271" y="108" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14705f">35%</text>
+        <text x="249" y="246" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">Train / Subway</text>
+
+        <!-- Group 3: Bus 22% (h=70.4, y=155.6) vs 11% (h=35.2, y=190.8) -->
+        <rect x="330" y="155.6" width="38" height="70.4" rx="4" fill="#14395e"/>
+        <text x="349" y="149" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">22%</text>
+        <rect x="374" y="190.8" width="38" height="35.2" rx="4" fill="#1e9484"/>
+        <text x="393" y="185" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14705f">11%</text>
+        <text x="371" y="246" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">Bus</text>
+
+        <!-- Group 4: Walking 12% (h=38.4, y=187.6) vs 10% (h=32, y=194) -->
+        <rect x="448" y="187.6" width="38" height="38.4" rx="4" fill="#14395e"/>
+        <text x="467" y="181" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14395e">12%</text>
+        <rect x="492" y="194" width="38" height="32" rx="4" fill="#1e9484"/>
+        <text x="511" y="188" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14705f">10%</text>
+        <text x="489" y="246" text-anchor="middle" font-size="12" font-weight="bold" fill="#14395e">Walking</text>
+      </svg>
+    </div>
+
+    <h3>Step 1 · Quick Task 1 Examiner Check</h3>
+    <form class="quiz">
+      <div class="q" data-why="A good Overview highlights the biggest overall shifts WITHOUT drowning in numbers or guessing outside reasons."><label>1. Which sentence works best as your <strong>Overview</strong>?</label><select data-answer="b"><option value="">Choose…</option><option value="a">In 2010 walking was 12% and in 2025 walking was 10%.</option><option value="b">Overall, cycling rose sharply to become the main commute mode, whereas bus use fell by half.</option><option value="c">Students clearly preferred bicycles because train fares increased.</option></select></div>
+      <div class="q" data-why="Task 1 must report ONLY what the chart shows — never invent outside reasons like ticket prices or weather!"><label>2. Which sentence breaks IELTS Task 1 rules?</label><select data-answer="c"><option value="">Choose…</option><option value="a">The proportion of bus commuters dropped from 22% to 11%.</option><option value="b">Walking remained the least common option in both years.</option><option value="c">Bus travel declined because local bus routes were cancelled.</option></select></div>
+      <div class="q" data-why="Both Train/Subway (38% → 35%) and Walking (12% → 10%) changed by only 2–3 percentage points!"><label>3. Which two modes changed the least between 2010 and 2025?</label><select data-answer="a"><option value="">Choose…</option><option value="a">Train/subway and walking</option><option value="b">Bicycle and bus</option><option value="c">Bus and walking</option></select></div>
+      <button class="btn teal" type="submit">✓ Check Task 1 rules</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Step 2 · Practise typing on screen (IELTS on Computer simulator · spellcheck OFF)</h3>
+    <div class="timer" data-timer="1200"><div class="tlabel">⏱ Optional Task 1 timer — 20 minutes</div><div class="time">20:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+    <div>
+      <label for="t1Draft">Type your 4-paragraph Task 1 report (Intro → Overview → Details 1 → Details 2):</label>
+      <textarea id="t1Draft" class="exam-box" data-minwords="150" placeholder="Paragraph 1 (Paraphrase prompt): The bar chart compares…&#10;&#10;Paragraph 2 (Overview): Overall, …&#10;&#10;Paragraph 3 &amp; 4 (Key figures &amp; comparisons): In 2010, …"></textarea>
+      <div class="wtarget" aria-live="polite">Words: 0 / 150 minimum (150 more to go)</div>
+    </div>
+
+    <details class="modelbox"><summary>📄 Full 150+ word Models — open AFTER you write</summary>
+      <div class="model starter"><span class="tag">Starter · 157 words · 4 clear paragraphs</span>
+        <p><em>The bar chart compares the proportions of upper-secondary students at a suburban school who used four types of transport to travel to school in 2010 and 2025.</em></p>
+        <p><em>Overall, cycling grew dramatically over the fifteen-year period to overtake rail travel as the most popular commute method. By contrast, the share of students taking the bus dropped by half, while train and walking figures changed only slightly.</em></p>
+        <p><em>In 2010, trains and subways were the leading choice at 38%, followed by bicycles at 28%. By 2025, however, bicycle use had climbed sharply to 44% — the highest figure on the chart — whereas rail use edged down slightly to 35%.</em></p>
+        <p><em>The remaining two modes accounted for smaller shares in both years. Bus commuting fell markedly from 22% in 2010 to just 11% in 2025. Walking stayed the least common option throughout the period, dipping slightly from 12% to 10% of students.</em></p>
+      </div>
+      <div class="model stepup"><span class="tag">Step up · borrow exact phrases</span>
+        <p class="note" style="margin:0">Notice the high-scoring moves inside that clean report: <strong>paraphrased opening</strong> (<em>compares the proportions…</em>) · <strong>clear number-free Overview</strong> (<em>Overall, … By contrast, …</em>) · <strong>Verb + Adverb</strong> (<em>climbed sharply, dipped slightly</em>) · <strong>comparison structure</strong> (<em>the highest figure on the chart / dropped by half</em>).</p>
+      </div>
+    </details>
+  </div></details>
+
+  <details class="lesson" id="writing-practice"><summary>✍️ Lab 2 · Task 2 Essay — Plan, Computer Typing Box &amp; Models <span class="time">10 MIN · 250+ WORDS</span></summary><div class="body">
     <div class="rule amber"><strong>Task 2:</strong> “Are online courses as effective as classroom lessons? Discuss both views and give your own opinion.”</div>
     <div class="grid2">
       <div><label>My opinion (one sentence)</label><input type="text" placeholder="Online courses can be as effective, but…"></div>
@@ -599,6 +884,15 @@ footer a{color:var(--teal-dark)}
       <div><label>View 2 + reason</label><input type="text" placeholder="teacher feedback in class"></div>
       <div><label>Example</label><input type="text" placeholder="a worker studying at night"></div>
     </div>
+
+    <h3>Optional · Write your full Task 2 essay (live 250-word counter · spellcheck OFF)</h3>
+    <div class="timer" data-timer="2400"><div class="tlabel">⏱ Optional Task 2 timer — 40 minutes</div><div class="time">40:00</div><button class="btn small" type="button" data-t-start>Start</button><button class="btn small ghost" type="button" data-t-reset>Reset</button></div>
+    <div>
+      <label for="t2Draft">Write in connected paragraphs (Introduction → Body 1 → Body 2 → Conclusion):</label>
+      <textarea id="t2Draft" class="exam-box" data-minwords="250" placeholder="Introduction (restate topic + give your clear opinion)…&#10;&#10;Body Paragraph 1 (On the one hand, online courses…)…&#10;&#10;Body Paragraph 2 (On the other hand, face-to-face classes…)…&#10;&#10;Conclusion (In conclusion, …)…"></textarea>
+      <div class="wtarget" aria-live="polite">Words: 0 / 250 minimum (250 more to go)</div>
+    </div>
+
     <details class="modelbox"><summary>📄 Model paragraph — open AFTER your plan</summary>
       <div class="model starter"><span class="tag">Starter paragraph</span><p><em>Online courses have clear advantages. Students can study at any time and watch a lesson again if it is difficult. For example, a person who works during the day can study late in the evening. This flexibility helps many learners continue studying.</em></p><p class="note">Pattern: topic sentence → reason → example → result. Four sentences, one idea.</p></div>
       <div class="model stepup"><span class="tag">Step up · try ONE upgrade</span><p><em>Online courses offer considerable flexibility, as learners can revisit difficult material and progress at their own pace; a student with a daytime job, for instance, may study late in the evening. That said, this independence only benefits learners who are sufficiently self-disciplined.</em></p><p class="note">Upgrades to borrow (one!): a precise word (<em>considerable, revisit</em>) · “as / for instance / That said” linking · a longer sentence.</p></div>
@@ -895,6 +1189,13 @@ footer a{color:var(--teal-dark)}
     </details>
     <h3>Why paper for progress?</h3>
     <p>This site has <strong>no accounts and saves nothing</strong>. A paper Passport in a student's notebook survives shared school computers, new phones, and cleared browsers — and a teacher can check it in five seconds. Use the site for <strong>audio, timers, recording, and instant answers</strong>; use paper for <strong>plans, keywords, and the record</strong>.</p>
+    <h3>Next step — try real official IELTS sample tests (free) <span class="jp" lang="ja">/ 公式サンプル問題</span></h3>
+    <div class="rule amber">
+      Once these starter lessons feel comfortable, test yourself directly on official <strong>ielts.org</strong> materials:<br>
+      <a class="btn small teal" href="https://ielts.org/take-a-test/preparation-resources/sample-test-questions/academic-test" target="_blank" rel="noopener">🌐 Official Academic Sample Tests (Computer Player)</a>
+      <a class="btn small ghost" href="https://ielts.org/cdn/ielts-downloadable-assets/ielts-sample-tests/ielts-speaking-sample-tasks-2023.pdf" target="_blank" rel="noopener">🗣️ Official Speaking Sample Tasks (PDF)</a>
+      <a class="btn small ghost" href="https://ielts.org/cdn/computer-delivered-sample-tests-academic-writing/ielts-academic-writing-example-responses-to-parts-1-and-2-with-band-scores-and-examiner-comments.pdf" target="_blank" rel="noopener">✍️ Official Writing Scripts &amp; Examiner Comments (PDF)</a>
+    </div>
     <h3>Official information</h3>
     <p class="note">Always confirm the current format and rules at <a href="https://ielts.org/take-a-test/test-types/ielts-academic-test" target="_blank" rel="noopener">ielts.org</a> and <a href="https://takeielts.britishcouncil.org/what-is-ielts/test-day-advice" target="_blank" rel="noopener">British Council test-day advice</a>. All tasks, scripts, audio and models here are original practice material — not official IELTS questions. This is an <strong>unofficial</strong> resource: it is not affiliated with, endorsed by, or approved by IELTS, the British Council, IDP, Cambridge, or any school, and practice results are not IELTS band scores. Tap <strong>ⓘ Disclaimer</strong> (bottom-right) for the full text.</p>
   </div>
@@ -932,8 +1233,10 @@ footer a{color:var(--teal-dark)}
 "use strict";
 /* ---------- tabs ---------- */
 var LEGACY={"mission1":["listening","mission1"],"mission2":["listening","mission2"],"mission3":["listening","mission3"],
-"mission4":["listening","mission4"],"mission5":["speaking","mission5"],"mission6":["speaking","mission6"],"mission7":["speaking","mission7"],
-"speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"writing-practice":["writing","writing-practice"],
+"mission4":["listening","mission4"],"mission-map":["listening","mission-map"],"mission-lecture":["listening","mission-lecture"],
+"mission5":["speaking","mission5"],"mission6":["speaking","mission6"],"mission7":["speaking","mission7"],
+"speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"reading-tfng":["reading","reading-tfng"],
+"reading-headings":["reading","reading-headings"],"writing-task1":["writing","writing-task1"],"writing-practice":["writing","writing-practice"],
 "pos-hinshi":["grammar","pos-hinshi"],"pos-xray":["grammar","pos-xray"],"pos-patterns":["grammar","pos-patterns"],
 "pos-traps":["grammar","pos-traps"],"pos-ielts":["grammar","pos-ielts"]};
 function activate(tab, targetId){
@@ -999,7 +1302,7 @@ document.querySelectorAll("audio[src]").forEach(function(a){
     if(a.nextElementSibling&&a.nextElementSibling.className==="audio-err")return;
     var d=document.createElement("p");
     d.className="audio-err";
-    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the three MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
+    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the five MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
     a.insertAdjacentElement("afterend",d);
   });
 });
@@ -1035,6 +1338,21 @@ document.querySelectorAll("input.wc").forEach(function(input){
   var span=input.parentElement.querySelector(".wordcount");
   input.addEventListener("input",function(){var n=countWords(input.value);span.textContent=n+" / 2 words"+(n>2?" — ⚠️ over!":"");span.classList.toggle("over",n>2);});
 });
+document.querySelectorAll("textarea[data-minwords]").forEach(function(ta){
+  ta.setAttribute("spellcheck","false");
+  ta.setAttribute("autocorrect","off");
+  var min=+ta.getAttribute("data-minwords")||150;
+  var out=ta.parentElement.querySelector(".wtarget");
+  function upd(){
+    var n=countWords(ta.value);
+    if(out){
+      out.textContent="Words: "+n+" / "+min+" minimum"+(n>=min?" — ✓ minimum reached!":" ("+(min-n)+" more to go)");
+      out.classList.toggle("reached",n>=min);
+    }
+  }
+  ta.addEventListener("input",upd);
+  upd();
+});
 /* ---------- quizzes ---------- */
 document.querySelectorAll("form.quiz input[type=text], #wl").forEach(function(inp){
   inp.setAttribute("autocapitalize","none");
@@ -1061,6 +1379,14 @@ document.querySelectorAll("form.quiz").forEach(function(form){
     });
     var groups={};form.querySelectorAll("input[type=radio][data-correct]").forEach(function(r){groups[r.name]=r;});
     Object.keys(groups).forEach(function(name,i){total++;if(groups[name].checked)correct++;else missed.push(i+1);});
+    form.querySelectorAll("fieldset[data-multi]").forEach(function(fs,i){
+      total++;
+      var need=+fs.getAttribute("data-multi")||2;
+      var boxes=Array.prototype.slice.call(fs.querySelectorAll("input[type=checkbox]"));
+      var picked=boxes.filter(function(c){return c.checked;});
+      var ok=picked.length===need&&picked.every(function(c){return c.hasAttribute("data-correct");});
+      if(ok)correct++;else missed.push(i+1);
+    });
     var fb=form.querySelector(".feedback");
     if(correct===total){fb.className="feedback good";fb.innerHTML="🎉 "+correct+" / "+total+" Perfect! Stop here, or pick another segment — your choice.<span class='why'>ここで終わっても、つづけてもOKです。</span>";}
     else{
