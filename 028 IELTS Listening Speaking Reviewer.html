@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing · Grammar Boost</title>
-<meta name="description" content="An unofficial IELTS starter aligned with current IELTS on Computer &amp; Academic task formats: 2026 test-day guide, Listening with 5 audio tracks (including map labelling &amp; lecture notes), Speaking with timers and recorder, Reading (completion, True/False/Not Given, Matching Headings), Writing Task 1 chart &amp; Task 2 essay labs with live word counters, and optional Grammar Boost.">
+<meta name="description" content="An unofficial IELTS starter covering all 10 official IELTS Listening task types with 8 audio tracks (including 2-speaker dialogues, SVG map labelling, matching, flow-chart, sentence, form, table &amp; summary completion), Speaking timers &amp; recorder, 3 Reading labs, Writing Task 1 &amp; 2 labs with live word counters, and optional Grammar Boost.">
 <meta name="theme-color" content="#14395e">
 <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%F0%9F%8E%A7%3C/text%3E%3C/svg%3E">
 <style>
@@ -76,6 +76,10 @@ audio{width:100%;margin:8px 0}
 textarea.exam-box{min-height:150px;line-height:1.6;font-size:.96rem;margin-top:6px}
 .vis-wrap{background:#f8fbfa;border:1.5px solid var(--line);border-radius:14px;padding:12px;margin:12px 0;text-align:center}
 .vis-svg{display:block;width:100%;max-width:600px;height:auto;margin:0 auto}
+.flowchart{display:grid;gap:4px;margin:12px 0}
+.fc-step{background:#f8fbfa;border:2px solid var(--teal);border-radius:12px;padding:10px 14px;font-weight:bold;color:var(--navy)}
+.fc-step span{font-weight:normal;color:var(--ink)}
+.fc-arrow{text-align:center;color:var(--teal-dark);font-weight:bold;font-size:1.15rem;line-height:1}
 details.modelbox{border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin:12px 0;background:#fcfefd}
 details.modelbox summary{cursor:pointer;font-weight:bold;color:var(--navy)}
 .model{border-radius:12px;padding:12px 15px;margin:10px 0}
@@ -216,7 +220,8 @@ button,summary,label,select,input,textarea,a.btn{touch-action:manipulation;-webk
   body{background:#fff;line-height:1.4}
   .card{box-shadow:none;border:1px solid #999}
   details.lesson{page-break-inside:avoid;border:1px solid #999}
-  #panel-grammar details.lesson{page-break-inside:auto}
+  #panel-grammar details.lesson,#panel-listening details.lesson{page-break-inside:auto}
+  .vis-wrap,.flowchart,.fc-step{break-inside:avoid;background:#fff;border-color:#999}
   .tbl-wrap{overflow:visible}.tbl-wrap table{min-width:0}
   details.lesson>summary::after{content:""}
   .jp{color:#333}
@@ -261,7 +266,7 @@ footer a{color:var(--teal-dark)}
     <button class="btn" type="button" data-go="needs">🧭 Start Needs Check</button></div>
     <div class="seg-grid">
       <button class="seg" data-go="testday"><span class="ico">🗺️</span><h3>Test Day — how IELTS works</h3><p>2026 computer format (+ Writing on Paper option), check-in, room order, check times, and scores.</p><span class="time">READ · ABOUT 5 MIN</span></button>
-      <button class="seg" data-go="listening"><span class="ico">🎧</span><h3>Listening</h3><p>Predict, paraphrase, trick answers, numbers &amp; spelling, campus map labelling, and lecture tables — with 5 audio tracks.</p><span class="time">6 LESSONS · AUDIO</span></button>
+      <button class="seg" data-go="listening"><span class="ico">🎧</span><h3>Listening</h3><p>All <strong>10 official task types</strong> (form, note, table, summary &amp; sentence completion, 1-answer &amp; 2-answer MCQ, matching, map &amp; flow-chart) across 8 audio tracks.</p><span class="time">9 LESSONS · ALL 10 TYPES</span></button>
       <button class="seg" data-go="speaking"><span class="ico">🗣️</span><h3>Speaking</h3><p>Parts 1, 2 (with rounding-off questions) and 3 with patterns, timers, local recording, and models.</p><span class="time">3 PARTS + MINI CHECK</span></button>
       <button class="seg" data-go="reading"><span class="ico">📖</span><h3>Reading</h3><p>Timing strategy plus 3 official task styles: completion, True / False / Not Given, and Matching Headings &amp; Summary.</p><span class="time">OVERVIEW + 3 LABS</span></button>
       <button class="seg" data-go="writing"><span class="ico">✍️</span><h3>Writing</h3><p>Academic Task 1 bar-chart lab + Overview rules, Task 2 essay planner, full models, and live computer word counters.</p><span class="time">TASK 1 + TASK 2 LABS</span></button>
@@ -381,7 +386,39 @@ footer a{color:var(--teal-dark)}
   <div class="card">
     <h2>🎧 Listening <span class="jp" lang="ja">/ リスニング</span></h2>
     <p class="subtitle">About 30 minutes · 40 questions · 4 recordings, each played ONE time · answers mostly come in question order. Pick any lesson — no order needed.</p>
-    <p><button class="btn small teal" data-open="mission1">1 Predict</button> <button class="btn small teal" data-open="mission2">2 Same meaning</button> <button class="btn small teal" data-open="mission3">3 Trick answers</button> <button class="btn small teal" data-open="mission4">4 Numbers &amp; spelling</button> <button class="btn small teal" data-open="mission-map">5 Campus map</button> <button class="btn small teal" data-open="mission-lecture">6 Lecture &amp; table</button> <button class="btn small" data-go="speaking" data-target="mission7">Mini check →</button></p>
+    <p><strong>Core skills:</strong>
+      <button class="btn small teal" data-open="mission1">1 Predict</button>
+      <button class="btn small teal" data-open="mission2">2 Same meaning</button>
+      <button class="btn small teal" data-open="mission3">3 MCQ (1 answer)</button>
+      <button class="btn small teal" data-open="mission4">4 Notes &amp; spelling</button>
+    </p>
+    <p><strong>Parts 1–4 task suite:</strong>
+      <button class="btn small teal" data-open="mission-form">5 Form (2-voice call)</button>
+      <button class="btn small teal" data-open="mission-map">6 Map labelling</button>
+      <button class="btn small teal" data-open="mission-career">7 Matching &amp; Short answer</button>
+      <button class="btn small teal" data-open="mission-seminar">8 Flow-chart &amp; Sentence</button>
+      <button class="btn small teal" data-open="mission-lecture">9 Choose TWO · Table · Summary</button>
+      <button class="btn small" data-go="speaking" data-target="mission7">Mini check →</button>
+    </p>
+    <details class="modelbox" style="margin-bottom:0"><summary>📋 Official ielts.org coverage check — jump to any of the 10 Listening task types</summary>
+      <div class="tbl-wrap">
+        <table class="resp-tbl">
+          <thead><tr><th>#</th><th>Official ielts.org Task Type</th><th>Section &amp; Audio Format</th><th>Open Lesson</th></tr></thead>
+          <tbody>
+            <tr><td data-label="#">1</td><td data-label="Task Type"><strong>Multiple Choice (one answer)</strong></td><td data-label="Format">Self-correction distractors (A / B / C)</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission3">Lesson 3 →</button></td></tr>
+            <tr><td data-label="#">2</td><td data-label="Task Type"><strong>Multiple Choice (more than one answer)</strong></td><td data-label="Format">Choose TWO letters from A–E</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-lecture">Lesson 9 (Part A) →</button></td></tr>
+            <tr><td data-label="#">3</td><td data-label="Task Type"><strong>Plan / Map / Diagram Labelling</strong></td><td data-label="Format">Part 2 tour guide + SVG campus map (A–F)</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-map">Lesson 6 →</button></td></tr>
+            <tr><td data-label="#">4</td><td data-label="Task Type"><strong>Form Completion</strong></td><td data-label="Format">Part 1 two-speaker booking call</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-form">Lesson 5 →</button></td></tr>
+            <tr><td data-label="#">5</td><td data-label="Task Type"><strong>Note Completion</strong></td><td data-label="Format">Numbers, spelling &amp; strict word limits</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission4">Lesson 4 →</button> · <button type="button" class="inline-link" data-go="speaking" data-target="mission7">Mini check →</button></td></tr>
+            <tr><td data-label="#">6</td><td data-label="Task Type"><strong>Table Completion</strong></td><td data-label="Format">Part 4 university lecture table</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-lecture">Lesson 9 (Part B) →</button></td></tr>
+            <tr><td data-label="#">7</td><td data-label="Task Type"><strong>Flow-chart Completion (from a list)</strong></td><td data-label="Format">Part 3 two-speaker research chat (A–G bank)</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-seminar">Lesson 8 (Part A) →</button></td></tr>
+            <tr><td data-label="#">8</td><td data-label="Task Type"><strong>Sentence Completion</strong></td><td data-label="Format">Part 3 research conclusions (max 2 words)</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-seminar">Lesson 8 (Part B) →</button></td></tr>
+            <tr><td data-label="#">9</td><td data-label="Task Type"><strong>Short-Answer Questions</strong></td><td data-label="Format">Part 2 high-school career talk (<em>Wh-</em> questions)</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-career">Lesson 7 (Part B) →</button></td></tr>
+            <tr><td data-label="#">10</td><td data-label="Task Type"><strong>Matching &amp; Summary Completion</strong></td><td data-label="Format">Match teams to A–F + Part 4 summary paragraph</td><td data-label="Open"><button type="button" class="inline-link" data-open="mission-career">Lesson 7 (Part A) →</button> · <button type="button" class="inline-link" data-open="mission-lecture">Lesson 9 (Part C) →</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 
   <details class="lesson" id="mission1"><summary>🎧 Lesson 1 · Predict — guess before you listen <span class="time">3 MIN · PRINT MISSION 1</span></summary><div class="body">
@@ -415,9 +452,10 @@ footer a{color:var(--teal-dark)}
   <details class="lesson" id="mission3"><summary>🎧 Lesson 3 · Trick answers — don't stop at the first answer <span class="time">6 MIN · PRINT MISSION 3</span></summary><div class="body">
     <div class="rule">⚠️ The <strong>first</strong> answer is often a trick! Listen for: <strong>but · however · instead · changed to</strong><br><span class="jp" lang="ja">最初の答えで止まらないで。あとで変わることがあります。</span></div>
     <p><strong>🎧 Listen and answer.</strong> <span class="jp" lang="ja">聞いて答えましょう（答えのあとでスクリプトを見てもOK）</span></p>
-    <!-- Audio: the five MP3s sit NEXT TO this HTML file (repo root, same folder as index.html):
+    <!-- Audio: the eight MP3s sit NEXT TO this HTML file (repo root, same folder as index.html):
          028-script-a-distractors.mp3 · 028-script-b-accuracy.mp3 · 028-script-c-mini-review.mp3 ·
-         028-script-d-map.mp3 · 028-script-e-lecture.mp3
+         028-script-d-map.mp3 · 028-script-e-lecture.mp3 · 028-script-f-form.mp3 ·
+         028-script-g-career.mp3 · 028-script-h-seminar.mp3
          No sub-folder is needed. If you rename one, update the src here too. -->
     <audio controls preload="metadata" src="028-script-a-distractors.mp3">Audio not available in this browser.</audio>
     <form class="quiz">
@@ -459,7 +497,46 @@ footer a{color:var(--teal-dark)}
     <div class="rule">✏️ <strong>Spelling trick:</strong> LOOK 👀 → COVER 🙈 → WRITE ✍️ → CHECK ✓<br><span class="jp" lang="ja">見て・隠して・書いて・確認。間違えたら3回書こう。</span></div>
   </div></details>
 
-  <details class="lesson" id="mission-map"><summary>🗺️ Lesson 5 · Plan / Map labelling — follow directions (Part 2) <span class="time">6 MIN · OFFICIAL FORMAT</span></summary><div class="body">
+  <details class="lesson" id="mission-form"><summary>📞 Lesson 5 · Form Completion — 2-speaker booking call (Part 1) <span class="time">6 MIN · 2 SPEAKERS</span></summary><div class="body">
+    <div class="rule"><strong>Part 1 is ALWAYS two people solving an everyday task:</strong> expect a <strong>spelled-out surname</strong>, an <strong>alphanumeric code (postcode / ID)</strong>, a <strong>changed day/time</strong>, and a <strong>student vs adult price trap</strong>!<br>
+    <span class="jp" lang="ja">Part 1は必ず2人の日常会話（申込・予約など）です。綴り・郵便番号・曜日の変更・学割料金の引っ掛けに集中！</span></div>
+
+    <div class="tbl-wrap">
+      <table class="resp-tbl">
+        <thead><tr><th>Harbour Sports Centre — Evening Swimming Club Form</th><th>Entry</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Field">First name</td><td data-label="Entry">Leo <em>(example)</em></td></tr>
+          <tr><td data-label="Field"><strong>1. Surname</strong></td><td data-label="Entry"><strong>[ 1 ]</strong></td></tr>
+          <tr><td data-label="Field"><strong>2. Postcode</strong></td><td data-label="Entry"><strong>[ 2 ]</strong></td></tr>
+          <tr><td data-label="Field"><strong>3. Swimming level</strong></td><td data-label="Entry"><strong>[ 3 ]</strong> swimmer</td></tr>
+          <tr><td data-label="Field"><strong>4. Confirmed class evening</strong></td><td data-label="Entry"><strong>[ 4 ]</strong></td></tr>
+          <tr><td data-label="Field"><strong>5. Monthly student fee</strong></td><td data-label="Entry">£ <strong>[ 5 ]</strong></td></tr>
+          <tr><td data-label="Field"><strong>6. Item to bring on Day 1</strong></td><td data-label="Entry">a <strong>[ 6 ]</strong> for locker</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <audio controls preload="metadata" src="028-script-f-form.mp3">Audio not available in this browser.</audio>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Listen to Leo spell every letter aloud: C-H-A-M-B-E-R-S (don't drop the final -s!)."><label>1. Surname:</label><input type="text" data-answers="Chambers" placeholder="Spelled surname"></div>
+        <div class="q" data-why="Two letters + one number, then one number + two letters (e.g. WS7 3PL)."><label>2. Postcode:</label><input type="text" data-answers="WS7 3PL|WS73PL" placeholder="Letters &amp; numbers"></div>
+        <div class="q" data-why="1 word before 'swimmer' describing his current level."><label>3. Swimming level (________ swimmer):</label><input type="text" data-answers="beginner" placeholder="1 word"></div>
+        <div class="q" data-why="Distractor alert! He asked for Tuesday, 'however Tuesday is completely full… instead'!"><label>4. Confirmed evening:</label><input type="text" data-answers="Thursday|Thursdays" placeholder="Day of the week"></div>
+        <div class="q" data-why="28 is the adult rate — write the full-time STUDENT rate only!"><label>5. Monthly student fee (£________):</label><input type="text" data-answers="19|nineteen" placeholder="Number"></div>
+        <div class="q" data-why="Look at the form: 'a ____ for locker' — write the 1 singular Noun!"><label>6. Bring on Day 1 (a ________ for locker):</label><input type="text" data-answers="padlock" placeholder="1 noun"></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Form answers</button><div class="feedback" aria-live="polite"></div>
+    </form>
+    <details class="modelbox"><summary>📄 Script F (2 speakers) — open AFTER you answer</summary>
+      <p><strong>Leo:</strong> Hello! I am calling to join the evening swimming club for students. My first name is Leo, and my surname is <strong>Chambers [1]</strong> — spelled C-H-A-M-B-E-R-S.<br>
+      <strong>Receptionist:</strong> Welcome, Leo! I have our registration form open right here: Chambers, C-H-A-M-B-E-R-S. Could you give me your postcode, and tell me which day you were hoping to attend?<br>
+      <strong>Leo:</strong> Sure, my postcode is <strong>WS7 3PL [2]</strong>. I was hoping for Tuesday evenings if possible, and I am a <strong>beginner [3]</strong> swimmer.<br>
+      <strong>Receptionist:</strong> Got it — WS7 3PL, level: beginner. Tuesday is completely full this term, I am afraid, so your class day will be <strong>Thursday [4]</strong> instead. Full-time students pay <strong>£19 [5]</strong> a month rather than the adult rate of £28, and please bring a <strong>padlock [6]</strong> for your locker on day one.</p>
+    </details>
+  </div></details>
+
+  <details class="lesson" id="mission-map"><summary>🗺️ Lesson 6 · Plan / Map labelling — follow directions (Part 2) <span class="time">6 MIN · OFFICIAL FORMAT</span></summary><div class="body">
     <div class="rule"><strong>3-step Map Strategy before the audio starts:</strong> ① Find <strong>★ YOU ARE HERE</strong> and the compass (<strong>N ↑</strong>) · ② Read the named landmarks already printed on the map · ③ Put your finger on ★ and move with the speaker!<br>
     <span class="jp" lang="ja">音声が始まる前に「現在地（★）」「方角（北↑）」「すでに名前がある建物」を確認し、指でたどりながら聞きましょう。</span></div>
 
@@ -532,7 +609,96 @@ footer a{color:var(--teal-dark)}
     </details>
   </div></details>
 
-  <details class="lesson" id="mission-lecture"><summary>🎓 Lesson 6 · Academic lecture — Choose TWO &amp; Table Completion (Parts 3–4) <span class="time">7 MIN · OFFICIAL FORMAT</span></summary><div class="body">
+  <details class="lesson" id="mission-career"><summary>🎬 Lesson 7 · Matching &amp; Short-Answer Questions — school talk (Part 2) <span class="time">7 MIN · 2 TASK TYPES</span></summary><div class="body">
+    <div class="rule"><strong>How IELTS Matching works:</strong> the numbered items (<strong>1–4</strong>) are spoken in exact order, while the box options (<strong>A–F</strong>) are <strong>paraphrased in synonyms</strong>! Read A–F carefully first so you recognise the ideas when the speaker paraphrases them.<br>
+    <span class="jp" lang="ja">番号（1〜4）は音声と同じ順番で出てきますが、選択肢（A〜F）は別の言葉に言いかえられています！</span></div>
+
+    <audio controls preload="metadata" src="028-script-g-career.mp3">Audio not available in this browser.</audio>
+
+    <h3>Part A · Matching — What main activity does each student team do? (Choose A–F)</h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>Main Activities (A–F):</strong><br>
+      <strong>A.</strong> writing daily news scripts<br>
+      <strong>B.</strong> making digital animations for local events<br>
+      <strong>C.</strong> printing paper concert posters<br>
+      <strong>D.</strong> filming outdoor local history sites<br>
+      <strong>E.</strong> checking microphones and editing audio levels<br>
+      <strong>F.</strong> digitising old photographs for museums
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Trap check: 'Many assume… writes news scripts [A], though IN FACT your main job is testing studio microphones and editing sound levels'!"><label>1. Podcast Team</label><select data-answer="E"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+        <div class="q" data-why="Paraphrase: 'travels out with local historians to film neighbourhood landmarks' = outdoor local history sites!"><label>2. Documentary Team</label><select data-answer="D"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+        <div class="q" data-why="Past trap: 'used to ask trainees to print concert posters [C], HOWEVER everything is digital now… animations'!"><label>3. Graphic Design Team</label><select data-answer="B"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+        <div class="q" data-why="Paraphrase: 'scanning historic photographs' = digitising old photographs!"><label>4. Archive Team</label><select data-answer="F"><option value="">Choose A–F…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Matching</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Short-Answer Questions — Write <strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong></h3>
+    <form class="quiz">
+      <div class="q" data-why="Listen for the exact closing date ('do not wait until June' is the warning, not the deadline!)."><label>1. When is the closing date for applications?</label><input type="text" class="wc" data-answers="12 May|May 12|12th May" placeholder="Date"><span class="wordcount"></span></div>
+      <div class="q" data-why="Trap check: 'two days' is only induction — how long does the FULL placement run?"><label>2. How long does the full summer placement last?</label><input type="text" class="wc" data-answers="three weeks|3 weeks" placeholder="Duration"><span class="wordcount"></span></div>
+      <div class="q" data-why="Adjective + plural noun (2 words): what should trainees wear on their feet?"><label>3. What must trainees wear on studio days?</label><input type="text" class="wc" data-answers="comfortable shoes" placeholder="Max 2 words"><span class="wordcount"></span></div>
+      <button class="btn teal" type="submit">✓ Check Short Answers</button><div class="feedback" aria-live="polite"></div>
+    </form>
+    <details class="modelbox"><summary>📄 Script G — open AFTER you answer</summary>
+      <p>Hello everyone, and thank you for inviting me to speak to high school students today about our Summer Youth Media Placement at Horizon Studios. First, each trainee joins one of four teams, so listen carefully to what each team actually does. Many students assume the <strong>Podcast Team</strong> writes news scripts all week, <strong>though in fact</strong> your main job there is <strong>testing studio microphones and editing sound levels [E]</strong>. If you love outdoor work, the <strong>Documentary Team</strong> <strong>travels out with local historians to film neighbourhood landmarks [D]</strong>. Over in the <strong>Graphic Design Team</strong>, we used to ask trainees to print concert posters, <strong>however</strong> everything is digital now, so you will be <strong>creating social media animations for community events [B]</strong>. Finally, the <strong>Archive Team</strong> works quietly <strong>scanning historic photographs for city museums [F]</strong>. Before we finish, three quick practical answers students always ask! First, when do applications close? The closing date is <strong>12 May [1]</strong>, so please do not wait until June. Second, how long does each placement last? Although induction takes just two days, the full placement runs for <strong>three weeks [2]</strong> in July. And finally, what must trainees wear on studio days? Leave formal suits at home — simply wear <strong>comfortable shoes [3]</strong> because you will be on your feet filming.</p>
+    </details>
+  </div></details>
+
+  <details class="lesson" id="mission-seminar"><summary>🔬 Lesson 8 · Flow-Chart (List A–G) &amp; Sentence Completion — research seminar (Part 3) <span class="time">8 MIN · 2 SPEAKERS</span></summary><div class="body">
+    <div class="rule"><strong>Part 3 Academic Discussion (Student + Tutor):</strong> Speakers test ideas, reject weak methods (<em>“originally planned plastic bottles, though…”</em>), and confirm each step of an investigation in order!<br>
+    <span class="jp" lang="ja">Part 3は学生と指導教員の研究ディスカッションです。「最初は〜しようと思ったけれどやめた」という変更表現に注意！</span></div>
+
+    <audio controls preload="metadata" src="028-script-h-seminar.mp3">Audio not available in this browser.</audio>
+
+    <h3>Part A · Flow-Chart Completion — Choose the correct phrase (A–G) for Steps 1–4</h3>
+    <div class="mini" style="margin-bottom:10px">
+      <strong>Word / Phrase List (A–G):</strong> &nbsp;
+      <strong>A.</strong> plastic bottles &nbsp;·&nbsp;
+      <strong>B.</strong> glass jars &nbsp;·&nbsp;
+      <strong>C.</strong> metal filter &nbsp;·&nbsp;
+      <strong>D.</strong> laser scanner &nbsp;·&nbsp;
+      <strong>E.</strong> salt solution &nbsp;·&nbsp;
+      <strong>F.</strong> sand bath &nbsp;·&nbsp;
+      <strong>G.</strong> optical microscope
+    </div>
+    <div class="flowchart">
+      <div class="fc-step">Step 1: <span>Collect river water samples using clean <strong>[ 1 ]</strong></span></div>
+      <div class="fc-arrow">↓</div>
+      <div class="fc-step">Step 2: <span>Pour each sample through a fine <strong>[ 2 ]</strong> in the lab</span></div>
+      <div class="fc-arrow">↓</div>
+      <div class="fc-step">Step 3: <span>Warm trapped residue gently in a <strong>[ 3 ]</strong> so lighter plastics float</span></div>
+      <div class="fc-arrow">↓</div>
+      <div class="fc-step">Step 4: <span>Identify polymer types under an <strong>[ 4 ]</strong></span></div>
+    </div>
+    <form class="quiz">
+      <div class="grid2">
+        <div class="q" data-why="Trap check: Kenji REJECTED plastic bottles [A] because they contaminate water — what clean container did he choose?"><label>1. Step 1 container</label><select data-answer="B"><option value="">Choose A–G…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option></select></div>
+        <div class="q" data-why="In Step 2, what traps tiny fibres when pouring the sample?"><label>2. Step 2 equipment</label><select data-answer="C"><option value="">Choose A–G…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option></select></div>
+        <div class="q" data-why="Sand grains were the problem sitting on the filter — what liquid makes lighter plastic particles float up?"><label>3. Step 3 liquid</label><select data-answer="E"><option value="">Choose A–G…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option></select></div>
+        <div class="q" data-why="Grammar bonus clue: 'under an ____' requires a vowel sound → optical microscope [G]!"><label>4. Step 4 instrument</label><select data-answer="G"><option value="">Choose A–G…</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option></select></div>
+      </div>
+      <button class="btn teal" type="submit">✓ Check Flow-Chart</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
+    <h3>Part B · Sentence Completion — Write <strong>NO MORE THAN TWO WORDS</strong></h3>
+    <form class="quiz">
+      <div class="q" data-why="Look after 'Washing ____' — what everyday item sheds the most river fibres? (Adjective + Noun, 2 words)"><label>1. Washing ________ is believed to be the largest source of plastic fibres in rivers.</label><input type="text" class="wc" data-answers="synthetic clothing" placeholder="Max 2 words"><span class="wordcount"></span></div>
+      <div class="q" data-why="Grammar clue: 'makes fibre levels ____' requires a base Verb (1 word)!"><label>2. Heavy rainfall causes plastic fibre levels in the river to ________ soon after storms.</label><input type="text" class="wc" data-answers="double" placeholder="1 base verb"><span class="wordcount"></span></div>
+      <div class="q" data-why="What exact 2-word item must team members wear in the lab?"><label>3. During lab testing, team members must wear ________ to avoid shedding fibres.</label><input type="text" class="wc" data-answers="cotton coats" placeholder="Max 2 words"><span class="wordcount"></span></div>
+      <button class="btn teal" type="submit">✓ Check Sentences</button><div class="feedback" aria-live="polite"></div>
+    </form>
+    <details class="modelbox"><summary>📄 Script H (2 speakers) — open AFTER you answer</summary>
+      <p><strong>Dr. Patel:</strong> Come in, Kenji. Let us check the four stages of your river microplastics investigation before lab work starts next week. Have you finalized Step One yet?<br>
+      <strong>Kenji:</strong> Yes, Dr. Patel. I originally planned to borrow plastic bottles from the canteen, <strong>though</strong> obviously plastic containers could contaminate the water! So in Step One, we collect river water using clean <strong>glass jars [B]</strong>. Then in Step Two, back in the lab, we pour each sample through a fine <strong>metal filter [C]</strong> to trap tiny fibres.<br>
+      <strong>Dr. Patel:</strong> Good thinking avoiding plastic bottles. Watch out in Step Three, though — sand grains will also sit on that filter alongside any plastic. How are you separating heavier grit before counting?<br>
+      <strong>Kenji:</strong> Right — in Step Three we warm the trapped material gently in a <strong>salt solution [E]</strong> so lighter plastic particles float to the surface. Then in Step Four, we identify the polymer types under an <strong>optical microscope [G]</strong>. Overall, published studies show washing <strong>synthetic clothing [1]</strong> is the biggest source of river fibres, and heavy rain makes fibre levels <strong>double [2]</strong> soon after storms. Also, during lab sessions everyone must wear <strong>cotton coats [3]</strong> so our own sleeves do not shed synthetic fibres!</p>
+    </details>
+  </div></details>
+
+  <details class="lesson" id="mission-lecture"><summary>🎓 Lesson 9 · Academic lecture — Choose TWO, Table &amp; Summary Completion (Part 4) <span class="time">8 MIN · 3 TASK TYPES</span></summary><div class="body">
     <div class="rule"><strong>Part 4 Lecture Secret:</strong> Even without a break mid-recording, lecturers guide you with <strong>signpost phrases</strong> (<em>First… / Turning now to… / Finally, one unexpected problem…</em>). Follow the table headings in order!<br>
     <span class="jp" lang="ja">大学の講義パートでは「First / Turning now to / Finally」などの合図の言葉で今どの行を話しているかが分かります。</span></div>
 
@@ -573,8 +739,18 @@ footer a{color:var(--teal-dark)}
       </div>
       <button class="btn teal" type="submit">✓ Check Part B table</button><div class="feedback" aria-live="polite"></div>
     </form>
+
+    <h3>Part C · Summary Completion — Write <strong>ONE WORD ONLY</strong> <span class="jp" lang="ja">/ 要約の穴埋め（1語のみ）</span></h3>
+    <p class="note">Complete the summary of the final part of the lecture:</p>
+    <form class="quiz">
+      <div class="q" data-why="What small creatures are 'quite rare high above the street' (plural noun)?"><label>1. High above street level, ________ are uncommon, so garden pests rarely cause trouble.</label><input type="text" data-answers="insects" placeholder="1 plural noun"></div>
+      <div class="q" data-why="Instead of pests, strong ____ dries soil rapidly."><label>2. However, strong ________ dries the shallow rooftop soil out very quickly.</label><input type="text" data-answers="wind" placeholder="1 noun"></div>
+      <div class="q" data-why="Listen to the last three words before 'is essential': 'automatic drip ____'!"><label>3. To prevent plants drying out, automatic drip ________ is essential.</label><input type="text" data-answers="watering" placeholder="1 noun"></div>
+      <button class="btn teal" type="submit">✓ Check Part C summary</button><div class="feedback" aria-live="polite"></div>
+    </form>
+
     <details class="modelbox"><summary>📄 Script E — open AFTER you answer</summary>
-      <p>Good morning everyone. In today's environmental design lecture, we are looking at urban rooftop gardens and how cities build them safely. <strong>First</strong>, why are city councils investing in green roofs? Some people assume the main benefit is lower heating bills in winter, <strong>though</strong> in practice winter insulation gains were fairly small. What made a dramatic difference <strong>instead</strong> was summer cooling: plant layers kept <strong>top-floor rooms significantly cooler during heatwaves [B]</strong>. In addition, the soil beds <strong>absorb heavy rainfall, which reduces pressure on street drains [D]</strong> during storms. Harvested herbs are usually shared among residents rather than sold for profit. <strong>Turning now to</strong> how a rooftop garden is built, safety comes first. Before any soil is lifted up, the roof structure must be checked by an <strong>engineer [1]</strong> to confirm the load limit. To keep weight down, the soil layer is typically just <strong>fifteen (15) [2]</strong> centimetres deep, rather than the fifty centimetres needed for large trees. Because of that shallow soil, the most reliable plants are hardy herbs and shallow-rooted <strong>flowers [3]</strong>. <strong>Finally</strong>, one unexpected maintenance problem: insects are quite rare high above the street, so pests are seldom an issue. <strong>Instead</strong>, strong <strong>wind [4]</strong> dries the soil out rapidly, meaning automatic drip watering is essential.</p>
+      <p>Good morning everyone. In today's environmental design lecture, we are looking at urban rooftop gardens and how cities build them safely. <strong>First</strong>, why are city councils investing in green roofs? Some people assume the main benefit is lower heating bills in winter, <strong>though</strong> in practice winter insulation gains were fairly small. What made a dramatic difference <strong>instead</strong> was summer cooling: plant layers kept <strong>top-floor rooms significantly cooler during heatwaves [B]</strong>. In addition, the soil beds <strong>absorb heavy rainfall, which reduces pressure on street drains [D]</strong> during storms. Harvested herbs are usually shared among residents rather than sold for profit. <strong>Turning now to</strong> how a rooftop garden is built, safety comes first. Before any soil is lifted up, the roof structure must be checked by an <strong>engineer [1]</strong> to confirm the load limit. To keep weight down, the soil layer is typically just <strong>fifteen (15) [2]</strong> centimetres deep, rather than the fifty centimetres needed for large trees. Because of that shallow soil, the most reliable plants are hardy herbs and shallow-rooted <strong>flowers [3]</strong>. <strong>Finally</strong>, one unexpected maintenance problem: <strong>insects</strong> are quite rare high above the street, so pests are seldom an issue. <strong>Instead</strong>, strong <strong>wind [4]</strong> dries the soil out rapidly, meaning automatic drip <strong>watering</strong> is essential.</p>
     </details>
   </div></details>
 
@@ -1233,7 +1409,8 @@ footer a{color:var(--teal-dark)}
 "use strict";
 /* ---------- tabs ---------- */
 var LEGACY={"mission1":["listening","mission1"],"mission2":["listening","mission2"],"mission3":["listening","mission3"],
-"mission4":["listening","mission4"],"mission-map":["listening","mission-map"],"mission-lecture":["listening","mission-lecture"],
+"mission4":["listening","mission4"],"mission-form":["listening","mission-form"],"mission-map":["listening","mission-map"],
+"mission-career":["listening","mission-career"],"mission-seminar":["listening","mission-seminar"],"mission-lecture":["listening","mission-lecture"],
 "mission5":["speaking","mission5"],"mission6":["speaking","mission6"],"mission7":["speaking","mission7"],
 "speaking3":["speaking","speaking3"],"reading-practice":["reading","reading-practice"],"reading-tfng":["reading","reading-tfng"],
 "reading-headings":["reading","reading-headings"],"writing-task1":["writing","writing-task1"],"writing-practice":["writing","writing-practice"],
@@ -1302,7 +1479,7 @@ document.querySelectorAll("audio[src]").forEach(function(a){
     if(a.nextElementSibling&&a.nextElementSibling.className==="audio-err")return;
     var d=document.createElement("p");
     d.className="audio-err";
-    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the five MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
+    d.textContent="⚠️ Audio didn't load. Refresh once — if it still won't play, the eight MP3 files were not uploaded next to this page in the repository. Tell your teacher.";
     a.insertAdjacentElement("afterend",d);
   });
 });
