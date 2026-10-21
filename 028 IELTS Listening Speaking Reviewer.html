@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>028 — Unofficial IELTS Reviewer | Test Day · Listening · Speaking · Reading · Writing · Grammar Boost</title>
 <meta name="description" content="An unofficial IELTS starter for student self-study: test-day walkthrough, Listening with recorded audio, Speaking with timers and recording, Reading and Writing starters, optional Parts of Speech &amp; Sentence Patterns boost, plus printable paper materials. Not affiliated with IELTS, the British Council, IDP or Cambridge.">
 <meta name="theme-color" content="#14395e">
@@ -148,9 +148,63 @@ details.lesson[open]>summary::after{content:"−"}
 .subtitle{color:#3b6d94}
 .s1{background:#14705f}.s2{background:#24628f}
 .step small{opacity:.96}
-main{padding-bottom:96px}
-@media(max-width:560px){#disclaimerBtn{font-size:0;padding:14px;border-radius:50%}
-  #disclaimerBtn::after{content:"ⓘ";font-size:1.05rem}}
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+#disclaimerBtn{bottom:calc(16px + env(safe-area-inset-bottom,0px));right:calc(16px + env(safe-area-inset-right,0px))}
+.disclaimer-panel{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
+button,summary,label,select,input,textarea,a.btn{touch-action:manipulation;-webkit-tap-highlight-color:rgba(30,148,132,.14)}
+
+/* ---- phone & tablet touch optimization (desktop & print untouched) ---- */
+@media (pointer:coarse), screen and (max-width:1024px){
+  .btn,.tab-btn,.grow-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .btn.small{padding:9px 16px;font-size:.88rem}
+  details.lesson>summary{min-height:54px;padding:15px 50px 15px 18px}
+  details.modelbox summary{min-height:44px;display:flex;align-items:center}
+  input[type=text],select,textarea{font-size:16px;min-height:46px;padding:11px 12px}
+  .options label{min-height:46px;display:flex;align-items:center;gap:10px;padding:10px 12px}
+  .options input[type=radio]{width:20px;height:20px;flex:0 0 20px;margin:0}
+  .checkline{padding:5px 0;gap:10px}
+  .checkline input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;margin-top:2px}
+  .inline-link{padding:6px 2px;display:inline-block}
+  .tabbar .inner{-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabbar .inner::-webkit-scrollbar{display:none}
+}
+@media screen and (min-width:641px) and (max-width:1024px){
+  main{padding-left:20px;padding-right:20px}
+  .seg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media screen and (max-width:640px){
+  header{padding:26px 14px 20px}
+  header .inner .btn{width:auto;min-width:150px}
+  main{padding:14px 10px calc(92px + env(safe-area-inset-bottom,0px))}
+  .card{padding:18px 15px;border-radius:15px;margin-bottom:15px}
+  h2{font-size:1.36rem}
+  details.lesson>summary{font-size:1rem;padding:14px 44px 14px 15px}
+  details.lesson>summary::after{right:14px}
+  details.lesson .body{padding:4px 15px 16px}
+  .tl{padding:12px}
+  .xray{padding:10px;gap:6px}
+  .tok{flex:1 1 calc(50% - 6px);min-width:120px;padding:7px 8px}
+  .grow-box{padding:13px}
+  .grow-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .grow-btn{width:100%;padding:8px 8px;font-size:.79rem;text-align:center}
+  /* stack wide reference tables into clean thumb-friendly cards on phones */
+  .tbl-wrap{overflow-x:visible}
+  .tbl-wrap table.resp-tbl{min-width:0;border:0}
+  table.resp-tbl thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  table.resp-tbl tbody{display:grid;gap:10px}
+  table.resp-tbl tr{display:block;background:#fff;border:1.5px solid var(--line);border-left:5px solid var(--teal);border-radius:12px;padding:9px 12px}
+  table.resp-tbl tr:nth-child(even) td{background:transparent}
+  table.resp-tbl td{display:block;position:relative;border:0;border-bottom:1px dashed #e2ecea;padding:6px 0 6px 104px;text-align:left;min-height:30px}
+  table.resp-tbl td:last-child{border-bottom:0}
+  table.resp-tbl td[data-label]::before{content:attr(data-label);position:absolute;left:0;top:7px;width:94px;font-weight:bold;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:var(--teal-dark);line-height:1.25}
+}
+@media screen and (max-width:520px){
+  .grid2.even2{grid-template-columns:1fr}
+  .seg-grid{grid-template-columns:1fr;gap:11px}
+  .pattern{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){#disclaimerBtn{font-size:0;padding:14px;border-radius:50%;width:48px;height:48px}
+  #disclaimerBtn::after{content:"ⓘ";font-size:1.15rem}}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.panel.active{animation:none}}
 @media print{
   #disclaimerBtn,.tabbar,.recorder,.timer button,#jpToggle,#printBtn,button.btn,.feedback,.wordcount,.audio-err,.grow-steps,.inline-link{display:none!important}
@@ -583,31 +637,31 @@ footer a{color:var(--teal-dark)}
 
     <h3>Main categories <span class="jp" lang="ja">/ 基本の9品詞</span></h3>
     <div class="tbl-wrap">
-      <table>
+      <table class="resp-tbl">
         <thead><tr><th>Romaji</th><th>Japanese</th><th>English</th><th>Job in a sentence</th><th>Examples</th></tr></thead>
         <tbody>
-          <tr><td><strong>Kanshi</strong></td><td lang="ja">冠詞</td><td><strong>Article</strong></td><td>Signals a noun is coming (<em>a/an</em> = one; <em>the</em> = specific)</td><td><em>a, an, the</em></td></tr>
-          <tr><td><strong>Meishi</strong></td><td lang="ja">名詞</td><td><strong>Noun</strong></td><td>Person, place, thing, or idea (often Subject or Object)</td><td><em>cat, student, school</em></td></tr>
-          <tr><td><strong>Dōshi</strong></td><td lang="ja">動詞</td><td><strong>Verb</strong></td><td>Action or state — the engine of every clause</td><td><em>eat, run, study</em></td></tr>
-          <tr><td><strong>Keiyōshi</strong></td><td lang="ja">形容詞</td><td><strong>Adjective</strong></td><td>Describes a noun or subject (<em>happy student</em>, <em>is happy</em>)</td><td><em>happy, big, beautiful</em></td></tr>
-          <tr><td><strong>Fukushi</strong></td><td lang="ja">副詞</td><td><strong>Adverb</strong></td><td>Adds <em>how, how much,</em> or <em>how often</em> to a verb/adjective</td><td><em>slowly, very, often</em></td></tr>
-          <tr><td><strong>Daimeishi</strong></td><td lang="ja">代名詞</td><td><strong>Pronoun</strong></td><td>Replaces a noun so you don't repeat the same word</td><td><em>I, you, he, they</em></td></tr>
-          <tr><td><strong>Zenchishi</strong></td><td lang="ja">前置詞</td><td><strong>Preposition</strong></td><td>Goes <em>before</em> a noun to show place, time, or direction</td><td><em>in, on, under, at</em></td></tr>
-          <tr><td><strong>Setsuzokushi</strong></td><td lang="ja">接続詞</td><td><strong>Conjunction</strong></td><td>Connects words or joins two <em>S + V</em> clauses (vital in IELTS!)</td><td><em>and, but, because</em></td></tr>
-          <tr><td><strong>Kandōshi</strong></td><td lang="ja">感動詞</td><td><strong>Interjection</strong></td><td>Short emotion word (natural speech only — never formal essays)</td><td><em>Oh!, Wow!, Hey!</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Kanshi</strong></td><td data-label="Japanese" lang="ja">冠詞</td><td data-label="English"><strong>Article</strong></td><td data-label="Job">Signals a noun is coming (<em>a/an</em> = one; <em>the</em> = specific)</td><td data-label="Examples"><em>a, an, the</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Meishi</strong></td><td data-label="Japanese" lang="ja">名詞</td><td data-label="English"><strong>Noun</strong></td><td data-label="Job">Person, place, thing, or idea (often Subject or Object)</td><td data-label="Examples"><em>cat, student, school</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Dōshi</strong></td><td data-label="Japanese" lang="ja">動詞</td><td data-label="English"><strong>Verb</strong></td><td data-label="Job">Action or state — the engine of every clause</td><td data-label="Examples"><em>eat, run, study</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Keiyōshi</strong></td><td data-label="Japanese" lang="ja">形容詞</td><td data-label="English"><strong>Adjective</strong></td><td data-label="Job">Describes a noun or subject (<em>happy student</em>, <em>is happy</em>)</td><td data-label="Examples"><em>happy, big, beautiful</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Fukushi</strong></td><td data-label="Japanese" lang="ja">副詞</td><td data-label="English"><strong>Adverb</strong></td><td data-label="Job">Adds <em>how, how much,</em> or <em>how often</em> to a verb/adjective</td><td data-label="Examples"><em>slowly, very, often</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Daimeishi</strong></td><td data-label="Japanese" lang="ja">代名詞</td><td data-label="English"><strong>Pronoun</strong></td><td data-label="Job">Replaces a noun so you don't repeat the same word</td><td data-label="Examples"><em>I, you, he, they</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Zenchishi</strong></td><td data-label="Japanese" lang="ja">前置詞</td><td data-label="English"><strong>Preposition</strong></td><td data-label="Job">Goes <em>before</em> a noun to show place, time, or direction</td><td data-label="Examples"><em>in, on, under, at</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Setsuzokushi</strong></td><td data-label="Japanese" lang="ja">接続詞</td><td data-label="English"><strong>Conjunction</strong></td><td data-label="Job">Connects words or joins two <em>S + V</em> clauses (vital in IELTS!)</td><td data-label="Examples"><em>and, but, because</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Kandōshi</strong></td><td data-label="Japanese" lang="ja">感動詞</td><td data-label="English"><strong>Interjection</strong></td><td data-label="Job">Short emotion word (natural speech only — never formal essays)</td><td data-label="Examples"><em>Oh!, Wow!, Hey!</em></td></tr>
         </tbody>
       </table>
     </div>
 
     <h3>Other useful categories <span class="jp" lang="ja">/ 知っておくと便利な4分類</span></h3>
     <div class="tbl-wrap">
-      <table>
+      <table class="resp-tbl">
         <thead><tr><th>Romaji</th><th>Japanese</th><th>English</th><th>Why it helps you</th><th>Examples</th></tr></thead>
         <tbody>
-          <tr><td><strong>Jodōshi</strong></td><td lang="ja">助動詞</td><td><strong>Auxiliary / helping verb</strong></td><td>Goes before a <strong>base verb</strong> to show ability, future, or obligation</td><td><em>can, will, must</em></td></tr>
-          <tr><td><strong>Joshi</strong></td><td lang="ja">助詞</td><td><strong>Particle</strong></td><td>Marks roles in Japanese — English uses <strong>word order + prepositions</strong> instead</td><td>Japanese <span lang="ja">は</span> (<em>wa</em>), <span lang="ja">が</span> (<em>ga</em>), <span lang="ja">を</span> (<em>o</em>)</td></tr>
-          <tr><td><strong>Suushi</strong></td><td lang="ja">数詞</td><td><strong>Numeral</strong></td><td>Counts or orders things (tested constantly in Listening &amp; Task 1!)</td><td><em>one, two, three</em></td></tr>
-          <tr><td><strong>Meishi-shūshoku</strong></td><td lang="ja">名詞修飾</td><td><strong>Noun modification</strong></td><td>Describes a noun using another noun or adjective right in front of it</td><td><em>school bag, blue car</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Jodōshi</strong></td><td data-label="Japanese" lang="ja">助動詞</td><td data-label="English"><strong>Auxiliary / helping verb</strong></td><td data-label="Why it helps">Goes before a <strong>base verb</strong> to show ability, future, or obligation</td><td data-label="Examples"><em>can, will, must</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Joshi</strong></td><td data-label="Japanese" lang="ja">助詞</td><td data-label="English"><strong>Particle</strong></td><td data-label="Why it helps">Marks roles in Japanese — English uses <strong>word order + prepositions</strong> instead</td><td data-label="Examples">Japanese <span lang="ja">は</span> (<em>wa</em>), <span lang="ja">が</span> (<em>ga</em>), <span lang="ja">を</span> (<em>o</em>)</td></tr>
+          <tr><td data-label="Romaji"><strong>Suushi</strong></td><td data-label="Japanese" lang="ja">数詞</td><td data-label="English"><strong>Numeral</strong></td><td data-label="Why it helps">Counts or orders things (tested constantly in Listening &amp; Task 1!)</td><td data-label="Examples"><em>one, two, three</em></td></tr>
+          <tr><td data-label="Romaji"><strong>Meishi-shūshoku</strong></td><td data-label="Japanese" lang="ja">名詞修飾</td><td data-label="English"><strong>Noun modification</strong></td><td data-label="Why it helps">Describes a noun using another noun or adjective right in front of it</td><td data-label="Examples"><em>school bag, blue car</em></td></tr>
         </tbody>
       </table>
     </div>
@@ -702,14 +756,14 @@ footer a{color:var(--teal-dark)}
     <h3>Step B · All 5 Core Patterns + 3 Useful Extensions <span class="jp" lang="ja">/ 5文型＋3つの広げ方</span></h3>
     <p class="note"><strong>Pattern letters:</strong> <strong>S</strong> = Subject (<span lang="ja">主語</span>: who/what the sentence is about) · <strong>V</strong> = Verb (<span lang="ja">動詞</span>: action or state) · <strong>O</strong> = Object (<span lang="ja">目的語</span>: person/thing affected) · <strong>C</strong> = Complement (<span lang="ja">補語</span>: describes/identifies S or O) · <strong>IO</strong> = Indirect Object (<span lang="ja">間接目的語</span>: person receiving) · <strong>DO</strong> = Direct Object (<span lang="ja">直接目的語</span>: thing given/sent).</p>
     <div class="tbl-wrap">
-      <table>
+      <table class="resp-tbl">
         <thead><tr><th>Pattern</th><th>Structure</th><th>Core Example</th><th>Same Pattern in IELTS Speaking / Writing!</th></tr></thead>
         <tbody>
-          <tr><td><strong>1. S + V</strong></td><td>Subject + Verb</td><td><em>Birds fly.</em></td><td><em>Prices <strong>rose</strong>.</em> (Task 1 chart)</td></tr>
-          <tr><td><strong>2. S + V + O</strong></td><td>Subject + Verb + Object</td><td><em>I like music.</em></td><td><em>Technology <strong>improves education</strong>.</em></td></tr>
-          <tr><td><strong>3. S + V + C</strong></td><td>Subject + Verb + Complement (<em>S = C</em>)</td><td><em>She is happy.</em></td><td><em>Online learning <strong>became popular</strong>.</em></td></tr>
-          <tr><td><strong>4. S + V + IO + DO</strong></td><td>Subject + Verb + Indirect Obj + Direct Obj</td><td><em>He gave <strong>me</strong> <strong>a gift</strong>.</em></td><td><em>Travel teaches <strong>students</strong> <strong>new skills</strong>.</em></td></tr>
-          <tr><td><strong>5. S + V + O + C</strong></td><td>Subject + Verb + Object + Complement (<em>O = C</em>)</td><td><em>They made <strong>me</strong> <strong>happy</strong>.</em></td><td><em>Smartphones make <strong>communication</strong> <strong>easy</strong>.</em></td></tr>
+          <tr><td data-label="Pattern"><strong>1. S + V</strong></td><td data-label="Structure">Subject + Verb</td><td data-label="Core Example"><em>Birds fly.</em></td><td data-label="In IELTS"><em>Prices <strong>rose</strong>.</em> (Task 1 chart)</td></tr>
+          <tr><td data-label="Pattern"><strong>2. S + V + O</strong></td><td data-label="Structure">Subject + Verb + Object</td><td data-label="Core Example"><em>I like music.</em></td><td data-label="In IELTS"><em>Technology <strong>improves education</strong>.</em></td></tr>
+          <tr><td data-label="Pattern"><strong>3. S + V + C</strong></td><td data-label="Structure">Subject + Verb + Complement (<em>S = C</em>)</td><td data-label="Core Example"><em>She is happy.</em></td><td data-label="In IELTS"><em>Online learning <strong>became popular</strong>.</em></td></tr>
+          <tr><td data-label="Pattern"><strong>4. S + V + IO + DO</strong></td><td data-label="Structure">Subject + Verb + Indirect Obj + Direct Obj</td><td data-label="Core Example"><em>He gave <strong>me</strong> <strong>a gift</strong>.</em></td><td data-label="In IELTS"><em>Travel teaches <strong>students</strong> <strong>new skills</strong>.</em></td></tr>
+          <tr><td data-label="Pattern"><strong>5. S + V + O + C</strong></td><td data-label="Structure">Subject + Verb + Object + Complement (<em>O = C</em>)</td><td data-label="Core Example"><em>They made <strong>me</strong> <strong>happy</strong>.</em></td><td data-label="In IELTS"><em>Smartphones make <strong>communication</strong> <strong>easy</strong>.</em></td></tr>
         </tbody>
       </table>
     </div>
@@ -883,12 +937,19 @@ var LEGACY={"mission1":["listening","mission1"],"mission2":["listening","mission
 "pos-hinshi":["grammar","pos-hinshi"],"pos-xray":["grammar","pos-xray"],"pos-patterns":["grammar","pos-patterns"],
 "pos-traps":["grammar","pos-traps"],"pos-ielts":["grammar","pos-ielts"]};
 function activate(tab, targetId){
+  var activeBtn=null;
   document.querySelectorAll(".tab-btn").forEach(function(b){
     var on=b.getAttribute("data-tab")===tab;
     b.classList.toggle("active",on);
     b.setAttribute("aria-selected",on?"true":"false");
     b.tabIndex=on?0:-1;
+    if(on)activeBtn=b;
   });
+  var bar=document.querySelector(".tabbar .inner");
+  if(bar&&activeBtn&&bar.scrollWidth>bar.clientWidth){
+    var left=activeBtn.offsetLeft-(bar.clientWidth/2)+(activeBtn.offsetWidth/2);
+    try{bar.scrollTo({left:left,behavior:"smooth"});}catch(e){bar.scrollLeft=left;}
+  }
   document.querySelectorAll(".panel").forEach(function(p){
     var on=p.id==="panel-"+tab;
     p.classList.toggle("active",on);
@@ -975,6 +1036,13 @@ document.querySelectorAll("input.wc").forEach(function(input){
   input.addEventListener("input",function(){var n=countWords(input.value);span.textContent=n+" / 2 words"+(n>2?" — ⚠️ over!":"");span.classList.toggle("over",n>2);});
 });
 /* ---------- quizzes ---------- */
+document.querySelectorAll("form.quiz input[type=text], #wl").forEach(function(inp){
+  inp.setAttribute("autocapitalize","none");
+  inp.setAttribute("autocorrect","off");
+  inp.setAttribute("autocomplete","off");
+  inp.setAttribute("spellcheck","false");
+  inp.setAttribute("enterkeyhint","done");
+});
 function norm(s){return s.toLowerCase().replace(/[£.,/#!$%^&*;:{}=\-_`~()"]/g,"").replace(/\s+/g," ").trim();}
 document.querySelectorAll("form.quiz").forEach(function(form){
   form.addEventListener("submit",function(ev){
