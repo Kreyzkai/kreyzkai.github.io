@@ -18,7 +18,7 @@ Each tool follows a two-phase architecture:
 
 | File | Purpose |
 |------|---------|
-| `Index.html` | Landing page with cards linking to all tools |
+| `index.html` | Landing page with cards linking to all tools |
 | `001` - Multiple Choice Maker | Teacher form → student multiple-choice quiz |
 | `002` - Binary Choices | Configurable binary choice game with image upload |
 | `003` - Word Guesser | Hangman-style word guessing game |
@@ -109,12 +109,19 @@ All student games include:
 
 ## Adding a New Tool
 
-1. Create new HTML file (number in sequence)
+1. Create new HTML file at the repo root named `NNN Title Case Name.html` (see README.md)
 2. Copy teacher form structure from similar tool (e.g., 001 for multiple choice)
 3. Embed student game template as `const studentTemplate = \`...\``
 4. Implement `generate()` and data collection in teacher form
-5. Add card link to `Index.html` with matching numbering
-6. Test download + student game interactivity
+5. Add card link to `index.html` with the same number in the badge
+6. Run `python3 tools/check-links.py` and test download + student game interactivity
+
+## Repository layout rules
+- Live tools live flat at the repository root as `NNN Title Case Name.html`.
+- A project with many assets gets its own folder, e.g. `028 IELTS Academic Quest/`.
+- Unlaunched or superseded HTML goes in `_archive/` (Jekyll skips it; nothing is deleted).
+- `028 IELTS Listening Speaking Reviewer.html` is a permanent redirect stub for printed
+  028 QR codes. Do not delete or repoint it.
 
 ## Tech Stack
 - **Framework**: None (vanilla HTML/CSS/JS)
