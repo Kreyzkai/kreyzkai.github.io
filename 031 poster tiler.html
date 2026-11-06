@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poster Tiler — Print Large Posters Across Multiple Sheets</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Cpath stroke='white' stroke-width='4' stroke-linecap='round' d='M24 9v46M42 9v46M9 24h46M9 42h46'/%3E%3C/svg%3E">
+<style id="pageStyle">@page{size:210mm 297mm;margin:0}</style>
+<style>
+:root{
+  --bg:#070c1a; --panel:#0e1526; --panel-2:#0a1120; --card:#111a30; --card-2:#16223c;
+  --line:#1f2c49; --line-2:#2b3c5f; --text:#e8edf6; --muted:#8598b8; --muted-2:#5b6c8c;
+  --accent:#6366f1; --accent-2:#22d3ee; --violet:#8b5cf6;
+  --good:#34d399; --warn:#fbbf24; --bad:#fb7185;
+  --shadow:0 24px 70px rgba(0,0,0,.55);
+}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;}
+:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;border-radius:6px;}
+
+/* ============ APP GRID ============ */
+#app{display:grid;grid-template-columns:312px 1fr;grid-template-rows:56px 1fr 28px;height:100vh;animation:appIn .45s ease both;}
+@keyframes appIn{from{opacity:0}to{opacity:1}}
+
+/* ============ TOP BAR ============ */
+#topbar{
+  grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:0 16px;
+  background:linear-gradient(180deg,#101a33 0%,#0c1327 100%);
+  border-bottom:1px solid var(--line);position:relative;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0;}
+.brand svg{flex:0 0 auto;filter:drop-shadow(0 3px 8px rgba(99,102,241,.45));}
+.brand-name{font-size:15px;font-weight:800;letter-spacing:.01em;line-height:1.05;white-space:nowrap;}
+.brand-name em{font-style:normal;background:linear-gradient(100deg,#a5b4fc,#67e8f9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.brand-sub{font-size:9.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;}
+.top-spacer{flex:1;}
+
+.zoom-cluster{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:4px 8px;}
+.zoom-pct{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted);min-width:44px;text-align:center;user-select:none;}
+.vdiv{width:1px;height:22px;background:var(--line);margin:0 4px;}
+
+input[type=range].slim{-webkit-appearance:none;appearance:none;width:118px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--accent) var(--fill,50%),#223152 var(--fill,50%));outline:none;cursor:pointer;}
+input[type=range].slim::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:#e8edf6;border:2px solid var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.5);}
+input[type=range].slim::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#e8edf6;border:2px solid var(--accent);}
+
+/* ============ BUTTONS ============ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  background:var(--card-2);color:var(--text);border:1px solid var(--line-2);
+  border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;
+  transition:transform .12s ease,border-color .12s,background .12s,box-shadow .12s;white-space:nowrap;
+}
+.btn:hover{background:#1b2745;border-color:#3a4f7d;transform:translateY(-1px);}
+.btn:active{transform:translateY(0) scale(.98);}
+.btn-primary{
+  background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 52%,#22d3ee 130%);
+  border:none;color:#fff;padding:9px 18px;font-size:13px;border-radius:11px;
+  box-shadow:0 8px 24px rgba(99,102,241,.4),inset 0 1px 0 rgba(255,255,255,.3);
+}
+.btn-primary:hover{box-shadow:0 10px 30px rgba(139,92,246,.5),inset 0 1px 0 rgba(255,255,255,.35);background:linear-gradient(135deg,#6d6ff5 0%,#9567f7 52%,#38d6ef 130%);}
+.btn-block{width:100%;}
+.btn-danger:hover{border-color:var(--bad);color:#fecdd3;background:#2a1622;}
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 auto;
+  background:transparent;border:1px solid transparent;border-radius:9px;color:var(--muted);cursor:pointer;
+  transition:all .12s;
+}
+.icon-btn:hover{background:var(--card-2);color:var(--text);border-color:var(--line);}
+.icon-btn.active{color:#c7d2fe;background:#1d2440;border-color:#3730a3;}
+
+/* ============ SIDEBAR ============ */
+#sidebar{
+  grid-row:2;overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border-right:1px solid var(--line);padding:14px 13px 24px;scrollbar-width:thin;scrollbar-color:#223152 transparent;
+}
+#sidebar::-webkit-scrollbar{width:9px}
+#sidebar::-webkit-scrollbar-thumb{background:#223152;border-radius:6px}
+
+.section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 13px;margin-bottom:12px;}
+.section-title{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:0 2px 11px;}
+.section-title svg{color:#7c86e8;}
+
+select,input[type=number]{
+  background:var(--panel-2);border:1px solid var(--line-2);color:var(--text);
+  border-radius:9px;padding:7px 9px;font-size:12px;font-family:inherit;outline:none;transition:border-color .12s, box-shadow .12s;
+}
+select:focus,input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.22);}
+select{width:100%;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238598b8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:14px;cursor:pointer;}
+.field-label{font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin:0 1px 5px;}
+
+.dim-row{display:flex;align-items:flex-end;gap:8px;margin-top:10px;}
+.dim-field{flex:1;display:flex;flex-direction:column;gap:4px;}
+.dim-field input{width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;}
+.dim-field span{font-size:9px;color:var(--muted-2);text-align:center;letter-spacing:.08em;}
+.dim-x{padding-bottom:9px;color:var(--muted-2);font-size:13px;}
+
+.seg{display:flex;background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;padding:3px;gap:3px;margin-top:9px;}
+.seg button{flex:1;background:transparent;border:none;color:var(--muted);font-size:11px;font-weight:700;padding:7px 6px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
+.seg button.active{background:linear-gradient(135deg,#3730a3,#4c1d95);color:#e0e7ff;box-shadow:0 2px 8px rgba(79,70,229,.4);}
+.hint-line{font-size:10.5px;color:var(--muted);margin:9px 2px 0;font-family:ui-monospace,Menlo,monospace;}
+
+/* layout chips */
+.chips{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;}
+.chip{background:var(--panel-2);border:1px solid var(--line-2);color:var(--muted);font-size:11px;font-weight:700;border-radius:8px;padding:5px 10px;cursor:pointer;font-family:ui-monospace,Menlo,monospace;transition:all .12s;}
+.chip:hover{color:var(--text);border-color:#3a4f7d;}
+.chip.active{background:#1d2440;border-color:var(--accent);color:#c7d2fe;}
+
+.cols-rows{display:flex;gap:10px;}
+.cr-field{flex:1;}
+.stepper{display:flex;align-items:stretch;background:var(--panel-2);border:1px solid var(--line-2);border-radius:9px;overflow:hidden;}
+.stepper button{width:30px;background:transparent;border:none;color:var(--muted);font-size:15px;cursor:pointer;transition:all .1s;}
+.stepper button:hover{background:var(--card-2);color:var(--text);}
+.stepper input{flex:1;border:none;text-align:center;background:transparent;padding:8px 2px;font-family:ui-monospace,Menlo,monospace;font-size:13px;min-width:0;}
+.stepper input:focus{box-shadow:none;}
+
+.poster-readout{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;margin-top:11px;}
+.poster-readout .big{font-size:15px;font-weight:800;letter-spacing:.02em;font-family:ui-monospace,Menlo,monospace;color:#eef2ff;}
+.poster-readout .small{font-size:10px;color:var(--muted);margin-top:3px;font-family:ui-monospace,Menlo,monospace;}
+
+.mini-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.mini-field{display:flex;flex-direction:column;gap:4px;}
+.mini-field input{width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;}
+
+.check-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 2px;border-top:1px solid var(--line);}
+.check-row:first-of-type{border-top:none;margin-top:8px;}
+.check-row .cr-text{font-size:11.5px;font-weight:600;color:#cdd7ea;}
+.check-row .cr-sub{font-size:9.5px;color:var(--muted-2);margin-top:1px;}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto;}
+
+/* image section */
+.btn-row{display:flex;gap:7px;margin-top:8px;}
+.btn-row .btn{flex:1;padding:7px 6px;font-size:11px;}
+.slider-row{display:flex;align-items:center;gap:10px;margin-top:11px;}
+.slider-row input[type=range]{flex:1;}
+.scale-val{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);min-width:40px;text-align:right;}
+.icon-row{display:flex;gap:5px;margin-top:10px;justify-content:space-between;}
+
+/* quality */
+.qrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:4px 2px;font-size:11.5px;}
+.qrow .k{color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
+.qrow .v{font-family:ui-monospace,Menlo,monospace;color:#dbe4f5;font-size:11px;}
+.dpi-hero{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-top:8px;}
+.dpi-num{font-size:30px;font-weight:800;font-family:ui-monospace,Menlo,monospace;line-height:1;}
+.dpi-cap{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-top:3px;}
+.badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;padding:3px 10px;margin-top:6px;}
+.badge.excellent{background:rgba(52,211,153,.14);color:var(--good);border:1px solid rgba(52,211,153,.4);}
+.badge.good{background:rgba(52,211,153,.12);color:#6ee7b7;border:1px solid rgba(52,211,153,.32);}
+.badge.ok{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.35);}
+.badge.low{background:rgba(251,113,133,.12);color:var(--bad);border:1px solid rgba(251,113,133,.4);}
+.dpi-note{font-size:10px;color:var(--muted);line-height:1.45;margin-top:8px;}
+
+/* how to print */
+ol.howto{margin:0;padding-left:17px;font-size:11px;color:#c3cee4;line-height:1.5;}
+ol.howto li{margin-bottom:6px;}
+ol.howto b{color:#fff;}
+kbd.k{background:var(--panel-2);border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:10px;font-family:ui-monospace,Menlo,monospace;color:#c7d2fe;}
+
+/* ============ STAGE ============ */
+#stageMain{position:relative;overflow:hidden;background:#070c1a;}
+#stageMain::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,#1c2742 1.15px,transparent 1.15px);background-size:24px 24px;pointer-events:none;}
+#stage{position:absolute;inset:0;overflow:auto;display:flex;scrollbar-width:thin;scrollbar-color:#223152 transparent;}
+#stage::-webkit-scrollbar{width:11px;height:11px}
+#stage::-webkit-scrollbar-thumb{background:#223152;border-radius:6px}
+#stage::-webkit-scrollbar-corner{background:transparent}
+#spacer{margin:auto;position:relative;padding:34px;}
+#poster{
+  position:relative;background:#ffffff;flex:0 0 auto;
+  box-shadow:var(--shadow),0 0 0 1px rgba(255,255,255,.08);border-radius:2px;overflow:hidden;
+}
+#posterImg{position:absolute;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;touch-action:none;}
+body.dragging,body.dragging #posterImg{cursor:grabbing !important;}
+#gridSvg{position:absolute;inset:0;pointer-events:none;overflow:visible;}
+.gl-outer{fill:none;stroke:#6366f1;stroke-width:.7;opacity:.95;}
+.gl-line{stroke:#6366f1;stroke-width:.32;stroke-dasharray:2.6 2;opacity:.7;}
+.gl-label{fill:#4f46e5;opacity:.55;font-weight:800;text-anchor:middle;paint-order:stroke;stroke:rgba(255,255,255,.85);stroke-width:.75;font-family:system-ui,sans-serif;}
+
+#emptyState{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:20px;}
+#emptyState h3{margin:10px 0 0;font-size:19px;font-weight:800;color:#1e293b;letter-spacing:-.01em;}
+#emptyState p{margin:0;font-size:12px;color:#64748b;max-width:340px;line-height:1.5;}
+#emptyState .empty-btns{display:flex;gap:10px;margin-top:14px;}
+.ebtn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;cursor:pointer;border:1px solid #cbd5e1;background:#f1f5f9;color:#0f172a;transition:all .12s;}
+.ebtn:hover{background:#e2e8f0;transform:translateY(-1px);}
+.ebtn.dark{background:#0f172a;border-color:#0f172a;color:#f8fafc;}
+.ebtn.dark:hover{background:#1e293b;}
+#emptyState .drop-frame{opacity:.9;}
+
+/* drop highlight */
+#stageMain.dragover #poster{box-shadow:var(--shadow),0 0 0 3px var(--accent),0 0 60px rgba(99,102,241,.5);}
+#stageMain.dragover #emptyState .drop-frame{animation:pulseFrame 1s ease infinite;}
+@keyframes pulseFrame{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+/* rulers */
+.ruler{position:absolute;z-index:6;pointer-events:none;}
+#rulerTop{top:0;left:26px;right:0;height:26px;}
+#rulerLeft{top:26px;left:0;bottom:0;width:26px;}
+#rulerCorner{position:absolute;top:0;left:0;width:26px;height:26px;z-index:7;background:#0c1424;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted-2);font-family:ui-monospace,Menlo,monospace;pointer-events:none;letter-spacing:.05em;}
+.ruler canvas{display:block;background:#0c1424;}
+#rulerTop canvas{border-bottom:1px solid var(--line);}
+#rulerLeft canvas{border-right:1px solid var(--line);}
+
+/* toast */
+#toast{position:absolute;bottom:18px;left:50%;transform:translate(-50%,16px);z-index:30;background:#131f3a;border:1px solid var(--line-2);color:#dfe6f7;font-size:12px;font-weight:600;padding:9px 16px;border-radius:11px;box-shadow:0 12px 34px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:all .25s ease;max-width:min(480px,80%);text-align:center;}
+#toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ============ STATUS BAR ============ */
+#statusbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 14px;background:#0b1224;border-top:1px solid var(--line);font-size:10px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;position:relative;z-index:20;}
+#statusbar .right{color:var(--muted-2);}
+
+/* ============ PRINT OUTPUT ============ */
+#print-root{display:none;}
+
+@media print{
+  html,body{background:#fff !important;height:auto !important;overflow:visible !important;}
+  #app{display:none !important;}
+  #toast{display:none !important;}
+  #print-root{display:block !important;}
+  .sheet{position:relative;overflow:hidden;background:#fff;page-break-after:always;break-after:page;}
+  .sheet:last-child{page-break-after:auto;break-after:auto;}
+  .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .clip{position:absolute;overflow:hidden;}
+  .clip img{position:absolute;transform-origin:center center;}
+  .guide-svg{position:absolute;inset:0;width:100%;height:100%;}
+  .tile-label{position:absolute;font-family:Helvetica,Arial,sans-serif;font-weight:700;font-size:2.55mm;line-height:1;letter-spacing:.14em;text-transform:uppercase;color:#45454e;white-space:nowrap;}
+  .tile-label.floating{background:rgba(255,255,255,.88);padding:1.1mm 1.6mm;border-radius:1mm;}
+  /* assembly page */
+  .assembly{padding:15mm 16mm;box-sizing:border-box;font-family:Helvetica,Arial,sans-serif;color:#141419;}
+  .assembly h1{font-size:24pt;margin:0 0 2mm;letter-spacing:-.01em;color:#141419;}
+  .assembly .sub{font-size:9.5pt;color:#666;letter-spacing:.18em;text-transform:uppercase;font-weight:700;margin-bottom:8mm;}
+  .assembly table{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:8mm;}
+  .assembly td{border-bottom:1px solid #e3e3e8;padding:2.6mm 1mm;}
+  .assembly td:first-child{color:#71717a;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;font-weight:700;width:38%;}
+  .map{display:grid;gap:1.4mm;margin:0 0 8mm;}
+  .map-cell{border:1.6px solid #141419;border-radius:1.5mm;height:23mm;display:flex;align-items:center;justify-content:center;font-size:13pt;font-weight:800;color:#141419;background:#f4f4f6;}
+  .assembly ol{font-size:10pt;line-height:1.55;padding-left:6mm;margin:0;}
+  .assembly ol li{margin-bottom:2.4mm;}
+  .assembly .foot{margin-top:9mm;border-top:1px solid #e3e3e8;padding-top:4mm;font-size:8pt;color:#8b8b94;letter-spacing:.06em;}
+}
+
+/* responsive */
+@media (max-width:1100px){#app{grid-template-columns:272px 1fr;}.zoom-cluster input[type=range].slim{width:80px;}}
+@media (max-width:900px){
+  #app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr 26px;}
+  #topbar{flex-wrap:wrap;height:auto;padding:10px 12px;row-gap:8px;}
+  #sidebar{grid-row:2;max-height:36vh;border-right:none;border-bottom:1px solid var(--line);}
+  #stageMain{grid-row:3;}
+  #statusbar{grid-row:4;}
+  .brand-sub{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══════════ TOP BAR ══════════ -->
+  <header id="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect width="64" height="64" rx="15" fill="url(#lg)"/>
+        <path d="M24.5 9v46M41 9v46M9 24.5h46M9 41h46" stroke="#fff" stroke-width="4.4" stroke-linecap="round" opacity=".95"/>
+        <circle cx="46" cy="46" r="8.5" fill="#22d3ee" stroke="#0c1327" stroke-width="3.5"/>
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="64" y2="64"><stop stop-color="#6366f1"/><stop offset=".55" stop-color="#8b5cf6"/><stop offset="1" stop-color="#4f46e5"/></linearGradient></defs>
+      </svg>
+      <div>
+        <div class="brand-name">Poster <em>Tiler</em></div>
+        <div class="brand-sub">Big prints · Home sheets</div>
+      </div>
+    </div>
+
+    <div class="top-spacer"></div>
+
+    <div class="zoom-cluster" aria-label="View zoom">
+      <button class="icon-btn" id="zoomOut" title="Zoom out (−)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+      </button>
+      <input type="range" class="slim" id="zoomSlider" min="10" max="300" value="100" aria-label="View zoom">
+      <button class="icon-btn" id="zoomIn" title="Zoom in (+)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <span class="zoom-pct" id="zoomPct">100%</span>
+      <div class="vdiv"></div>
+      <button class="icon-btn" id="fitViewBtn" title="Fit poster to window">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+      </button>
+      <button class="icon-btn" id="actualViewBtn" title="Actual size (100%)" style="font-size:10px;font-weight:800;font-family:ui-monospace,monospace;">1:1</button>
+    </div>
+
+    <button class="btn btn-primary" id="printBtn" title="Print tiled poster (Ctrl/Cmd+P)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H3a1 1 0 0 1-1-1v-6a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v6a1 1 0 0 1-1 1h-3"/><path d="M6 14h12v8H6z"/></svg>
+      Print Poster
+    </button>
+  </header>
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside id="sidebar">
+
+    <!-- PAPER -->
+    <section class="section" aria-label="Paper settings">
+      <div class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        Paper
+      </div>
+      <select id="paperPreset" aria-label="Paper size preset">
+        <option value="A5">A5 — 148 × 210 mm</option>
+        <option value="A4" selected>A4 — 210 × 297 mm</option>
+        <option value="A3">A3 — 297 × 420 mm</option>
+        <option value="A2">A2 — 420 × 594 mm</option>
+        <option value="B5">B5 — 176 × 250 mm</option>
+        <option value="B4">B4 — 250 × 353 mm</option>
+        <option value="LETTER">US Letter — 216 × 279 mm</option>
+        <option value="LEGAL">US Legal — 216 × 356 mm</option>
+        <option value="TABLOID">US Tabloid — 279 × 432 mm</option>
+        <option value="CUSTOM">Custom size…</option>
+      </select>
+      <div class="dim-row">
+        <div class="dim-field"><input type="number" id="paperW" min="50" max="1200" step="0.1" value="210" aria-label="Paper width (mm)"><span>WIDTH · MM</span></div>
+        <div class="dim-x">×</div>
+        <div class="dim-field"><input type="number" id="paperH" min="50" max="1200" step="0.1" value="297" aria-label="Paper height (mm)"><span>HEIGHT · MM</span></div>
+        <button class="icon-btn" id="swapOrient" title="Swap width / height" style="margin-bottom:14px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4 3 8M7 4l4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+        </button>
+      </div>
+      <div class="seg" role="group" aria-label="Orientation">
+        <button id="orientPortrait" class="active">
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><rect x="0.8" y="0.8" width="10.4" height="12.4" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+          Portrait
+        </button>
+        <button id="orientLandscape">
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0.8" y="0.8" width="12.4" height="10.4" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+          Landscape
+        </button>
+      </div>
+      <div class="hint-line" id="paperHint">210.0 × 297.0 mm · 8.27″ × 11.69″</div>
+    </section>
+
+    <!-- POSTER LAYOUT -->
+    <section class="section" aria-label="Poster layout">
+      <div class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+        Poster Grid
+      </div>
+
+      <div class="cols-rows">
+        <div class="cr-field">
+          <div class="field-label">Columns</div>
+          <div class="stepper">
+            <button id="colsMinus" aria-label="Fewer columns">−</button>
+            <input type="number" id="colsInput" min="1" max="12" step="1" value="2" aria-label="Columns">
+            <button id="colsPlus" aria-label="More columns">+</button>
+          </div>
+        </div>
+        <div class="cr-field">
+          <div class="field-label">Rows</div>
+          <div class="stepper">
+            <button id="rowsMinus" aria-label="Fewer rows">−</button>
+            <input type="number" id="rowsInput" min="1" max="12" step="1" value="2" aria-label="Rows">
+            <button id="rowsPlus" aria-label="More rows">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips" id="gridChips">
+        <button class="chip" data-c="2" data-r="2">2×2</button>
+        <button class="chip" data-c="3" data-r="2">3×2</button>
+        <button class="chip" data-c="2" data-r="3">2×3</button>
+        <button class="chip" data-c="3" data-r="3">3×3</button>
+        <button class="chip" data-c="4" data-r="3">4×3</button>
+        <button class="chip" data-c="4" data-r="4">4×4</button>
+      </div>
+
+      <div class="poster-readout">
+        <div class="big" id="posterDims">388 × 562 mm</div>
+        <div class="small" id="posterDimsIn">15.28″ × 22.13″ · 2 × 2 = 4 sheets</div>
+      </div>
+
+      <div class="mini-grid-2">
+        <div class="mini-field">
+          <div class="field-label">Tile margin (mm)</div>
+          <input type="number" id="marginInput" min="0" max="40" step="0.5" value="8" title="White border kept on each sheet — trim guide sits on this line">
+        </div>
+        <div class="mini-field">
+          <div class="field-label">Bleed past cut (mm)</div>
+          <input type="number" id="bleedInput" min="0" max="40" step="0.5" value="0" title="Extend the image past the trim line into the margin — handy if your cuts aren't perfect">
+        </div>
+      </div>
+
+      <label class="check-row">
+        <span><span class="cr-text">Grid overlay</span><div class="cr-sub">Show tile boundaries &amp; cell IDs on screen</div></span>
+        <input type="checkbox" id="showGrid" checked>
+      </label>
+      <label class="check-row">
+        <span><span class="cr-text">Print trim guides</span><div class="cr-sub">Dashed cut rectangle on every sheet</div></span>
+        <input type="checkbox" id="printGuides" checked>
+      </label>
+      <label class="check-row">
+        <span><span class="cr-text">Print sheet labels</span><div class="cr-sub">e.g. “B2 · sheet 4 of 6” in the margin</div></span>
+        <input type="checkbox" id="printLabels" checked>
+      </label>
+      <label class="check-row">
+        <span><span class="cr-text">Assembly map page</span><div class="cr-sub">Extra printed page showing how tiles fit</div></span>
+        <input type="checkbox" id="assemblyPage" checked>
+      </label>
+    </section>
+
+    <!-- IMAGE -->
+    <section class="section" aria-label="Image">
+      <div class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg>
+        Image
+      </div>
+
+      <button class="btn btn-block" id="importBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+        Import Image…
+      </button>
+
+      <div class="btn-row">
+        <button class="btn" id="fitBtn" title="Fit whole image inside the poster">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          Fit
+        </button>
+        <button class="btn" id="fillBtn" title="Fill the whole poster, cropping overflow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5M12 12h.01"/></svg>
+          Fill
+        </button>
+        <button class="btn" id="actualBtn" title="Image at 100% (1 px = 1/96″)">Actual</button>
+        <button class="btn" id="centerBtn" title="Center image on poster">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></svg>
+          Center
+        </button>
+      </div>
+
+      <div class="slider-row">
+        <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.05em;">SCALE</span>
+        <input type="range" class="slim" id="scaleSlider" min="5" max="400" value="100" aria-label="Image scale">
+        <span class="scale-val" id="scaleReadout">100%</span>
+      </div>
+
+      <div class="icon-row">
+        <button class="icon-btn" id="rotLBtn" title="Rotate 90° counter-clockwise">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+        <button class="icon-btn" id="rotRBtn" title="Rotate 90° clockwise">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+        </button>
+        <button class="icon-btn" id="flipHBtn" title="Flip horizontally">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M8 7l-5 5 5 5V7zM16 7l5 5-5 5V7z"/></svg>
+        </button>
+        <button class="icon-btn" id="flipVBtn" title="Flip vertically">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M7 8l5-5 5 5H7zM7 16l5 5 5-5H7z"/></svg>
+        </button>
+        <button class="icon-btn" id="loadSampleBtn" title="Load a sample poster image">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.2L21 10.6l-5 4.4 1.6 6.7-5.6-3.6L6.4 21.7 8 15 3 10.6l6.6-2.4L12 2z"/></svg>
+        </button>
+        <button class="icon-btn btn-danger" id="removeImgBtn" title="Remove image">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1.2 14a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- QUALITY -->
+    <section class="section" aria-label="Print quality">
+      <div class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0-8-8"/><path d="M12 12l4-4"/><path d="M4 20h.01"/></svg>
+        Quality Check
+      </div>
+      <div class="qrow"><span class="k">Source image</span><span class="v" id="qImage">—</span></div>
+      <div class="qrow"><span class="k">Placed size</span><span class="v" id="qPlaced">—</span></div>
+      <div class="qrow"><span class="k">Stretch</span><span class="v" id="qScale">—</span></div>
+      <div class="dpi-hero">
+        <div>
+          <div class="dpi-num" id="qDpi">–</div>
+          <div class="dpi-cap">Effective DPI</div>
+        </div>
+        <div>
+          <span class="badge good" id="qBadge">GOOD</span>
+          <div class="dpi-note" id="qTip">≥ 150 DPI prints cleanly from arm's length.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW TO PRINT -->
+    <section class="section" aria-label="How to print">
+      <div class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+        Printing Tips
+      </div>
+      <ol class="howto">
+        <li>Click <b>Print Poster</b> or press <kbd class="k">Ctrl</kbd>/<kbd class="k">⌘</kbd>+<kbd class="k">P</kbd>.</li>
+        <li>Set <b>scale to 100% / Actual size</b> — never “Fit to page”, or tiles won't match.</li>
+        <li><b>Margins: None</b>, and enable <b>background graphics</b> in your browser dialog.</li>
+        <li>Pick paper matching the size chosen here (e.g. <b>A4</b>), portrait/landscape as shown.</li>
+        <li>Trim each sheet on the <b>dashed guide</b>, match the corner letters (A1, B2…) and tape from behind.</li>
+      </ol>
+    </section>
+
+  </aside>
+
+  <!-- ══════════ STAGE ══════════ -->
+  <main id="stageMain" aria-label="Poster canvas">
+    <div id="stage">
+      <div id="spacer">
+        <div id="poster" aria-label="Poster workspace">
+          <img id="posterImg" alt="Poster" draggable="false" style="display:none">
+          <svg id="gridSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div id="emptyState">
+            <svg class="drop-frame" width="118" height="96" viewBox="0 0 118 96" fill="none" aria-hidden="true">
+              <rect x="4" y="8" width="110" height="76" rx="8" stroke="#64748b" stroke-width="3.4" stroke-dasharray="10 8"/>
+              <path d="M59 58V30M59 30l-13 13M59 30l13 13" stroke="#4f46e5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="97" cy="16" r="11" fill="#22d3ee" stroke="#fff" stroke-width="3.4"/>
+            </svg>
+            <h3>Drop your image here</h3>
+            <p>Drag &amp; drop any picture onto this canvas — then position, scale and rotate it across the sheet grid.</p>
+            <div class="empty-btns">
+              <button class="ebtn dark" id="emptyImportBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+                Import Image
+              </button>
+              <button class="ebtn" id="emptySampleBtn">Load Sample Poster</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="rulerTop" class="ruler"></canvas>
+    <canvas id="rulerLeft" class="ruler"></canvas>
+    <div id="rulerCorner">mm</div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <!-- ══════════ STATUS BAR ══════════ -->
+  <footer id="statusbar">
+    <span id="statusLeft">Poster — × — mm · – sheets</span>
+    <span class="right">Scroll: pan · Ctrl+Scroll: zoom · Shift+Scroll: scale image · Arrows: nudge (Shift = ×5) · [ ] scale · G: grid</span>
+  </footer>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" hidden>
+<div id="print-root" aria-hidden="true"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   POSTER TILER — tile a large image across multiple sheets
+   Coordinate system: millimetres in "poster space" (origin at
+   the top-left of the printable poster area, i.e. the union of
+   all sheet content areas). Screen px = mm × PPM × zoom.
+   ============================================================ */
+const PPM = 96 / 25.4;               // CSS px per mm
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const $ = id => document.getElementById(id);
+const fmt1 = n => (Math.round(n * 10) / 10).toString();
+const toIn = mm => (mm / 25.4).toFixed(2);
+const rowLetter = r => String.fromCharCode(65 + r);
+const cellId = (r, c) => rowLetter(r) + (c + 1);
+
+/* ---------- paper presets (portrait mm) ---------- */
+const PAPERS = {
+  A5:[148,210], A4:[210,297], A3:[297,420], A2:[420,594],
+  B5:[176,250], B4:[250,353],
+  LETTER:[215.9,279.4], LEGAL:[215.9,355.6], TABLOID:[279.4,431.8]
+};
+
+/* ---------- state ---------- */
+const state = {
+  paper:{ preset:'A4', w:210, h:297, landscape:false },
+  cols:2, rows:2,
+  zoom:1,
+  img:null   // {natW,natH,x,y,w,h,rot,flipH,flipV,src}
+};
+
+/* ---------- element refs ---------- */
+const stage=$('stage'), spacer=$('spacer'), posterEl=$('poster'), posterImg=$('posterImg'),
+      gridSvg=$('gridSvg'), emptyState=$('emptyState'), stageMain=$('stageMain');
+const zoomSlider=$('zoomSlider'), zoomPct=$('zoomPct');
+const colsInput=$('colsInput'), rowsInput=$('rowsInput');
+const marginInput=$('marginInput'), bleedInput=$('bleedInput');
+const scaleSlider=$('scaleSlider'), scaleReadout=$('scaleReadout');
+
+/* ============================================================
+   SIZE MATH
+   ============================================================ */
+function getGrid(){ return {cols:clamp(parseInt(colsInput.value)||1,1,12), rows:clamp(parseInt(rowsInput.value)||1,1,12)}; }
+function paperSize(){ return {w:clamp(parseFloat($('paperW').value)||210, 50, 1200), h:clamp(parseFloat($('paperH').value)||297, 50, 1200)}; }
+function computeLayout(){
+  const p = paperSize();
+  const {cols, rows} = getGrid();
+  const margin = clamp(parseFloat(marginInput.value) || 0, 0, Math.min(p.w, p.h) / 2 - 8);
+  const bleed  = clamp(parseFloat(bleedInput.value) || 0, 0, 40);
+  const cellW  = p.w - 2 * margin, cellH = p.h - 2 * margin;
+  return { paperW:p.w, paperH:p.h, margin, bleed, cols, rows, cellW, cellH,
+           posterW: cellW * cols, posterH: cellH * rows };
+}
+const mmPx = mm => mm * PPM * state.zoom;
+
+/* ============================================================
+   IMAGE LOADING
+   ============================================================ */
+function loadImageFile(file){
+  if(!file) return;
+  if(!file.type || !file.type.startsWith('image/')) { showToast('That file isn’t an image — try a JPG, PNG, WebP…'); return; }
+  const reader = new FileReader();
+  reader.onload = e => loadImageSrc(e.target.result);
+  reader.onerror = () => showToast('Could not read that file.');
+  reader.readAsDataURL(file);
+}
+function loadImageSrc(src){
+  const im = new Image();
+  im.onload = () => {
+    state.img = { natW:im.naturalWidth, natH:im.naturalHeight,
+                  x:0, y:0, w:im.naturalWidth / PPM, h:im.naturalHeight / PPM,
+                  rot:0, flipH:false, flipV:false, src };
+    posterImg.src = src;
+    fitImage('contain');            // sets w/h, centres, syncs slider
+    renderLayout();
+    showToast('Image loaded — ' + im.naturalWidth + ' × ' + im.naturalHeight + ' px');
+  };
+  im.onerror = () => showToast('Could not decode that image.');
+  im.src = src;
+}
+function natMm(){ const i = state.img; return { w:i.natW / PPM, h:i.natH / PPM }; }
+
+function setScalePct(pct, keepCenter){
+  const i = state.img; if(!i) return;
+  pct = clamp(pct, 2, 600);
+  const n = natMm();
+  const w = n.w * pct / 100, h = n.h * pct / 100;
+  if(keepCenter !== false){
+    const cx = i.x + i.w / 2, cy = i.y + i.h / 2;
+    i.x = cx - w / 2; i.y = cy - h / 2;
+  }
+  i.w = w; i.h = h;
+  scaleSlider.value = clamp(Math.round(pct), 5, 400);
+  setSliderFill(scaleSlider);
+  scaleReadout.textContent = Math.round(pct * 10) / 10 + '%';
+  renderImage();
+  updateQuality();
+}
+function fitImage(mode){
+  const i = state.img; if(!i) return;
+  const L = computeLayout(), n = natMm();
+  let s;
+  if(mode === 'contain') s = Math.min(L.posterW / n.w, L.posterH / n.h);
+  else if(mode === 'cover') s = Math.max(L.posterW / n.w, L.posterH / n.h);
+  else s = 1;                                   // actual pixels at 96 dpi
+  i.w = n.w * s; i.h = n.h * s;
+  i.x = (L.posterW - i.w) / 2; i.y = (L.posterH - i.h) / 2;
+  scaleSlider.value = clamp(Math.round(s * 100), 5, 400);
+  setSliderFill(scaleSlider);
+  scaleReadout.textContent = Math.round(s * 1000) / 10 + '%';
+  renderImage(); updateQuality();
+}
+function centerImage(){
+  const i = state.img; if(!i) return;
+  const L = computeLayout();
+  i.x = (L.posterW - i.w) / 2; i.y = (L.posterH - i.h) / 2;
+  renderImage();
+}
+function removeImage(){
+  state.img = null; posterImg.removeAttribute('src'); posterImg.style.display = 'none';
+  emptyState.style.display = 'flex';
+  $('qImage').textContent = '—'; $('qPlaced').textContent = '—'; $('qScale').textContent = '—'; $('qDpi').textContent = '–';
+  const b = $('qBadge'); b.textContent = 'NO IMAGE'; b.className = 'badge ok';
+  $('qTip').textContent = 'Import an image to check its print sharpness.';
+  updateStatusBar();
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function renderLayout(){
+  const L = computeLayout();
+  state.cols = L.cols; state.rows = L.rows;
+
+  const pw = mmPx(L.posterW), ph = mmPx(L.posterH);
+  posterEl.style.width  = pw + 'px';
+  posterEl.style.height = ph + 'px';
+
+  renderImage();
+  buildGrid(L);
+  updateReadouts(L);
+  drawRulers();
+
+  zoomPct.textContent = Math.round(state.zoom * 100) + '%';
+  zoomSlider.value = clamp(Math.round(state.zoom * 100), 10, 300);
+  setSliderFill(zoomSlider);
+}
+function renderImage(){
+  const i = state.img;
+  if(!i){ posterImg.style.display = 'none'; return; }
+  posterImg.style.display = 'block';
+  posterImg.style.left   = mmPx(i.x) + 'px';
+  posterImg.style.top    = mmPx(i.y) + 'px';
+  posterImg.style.width  = mmPx(i.w) + 'px';
+  posterImg.style.height = mmPx(i.h) + 'px';
+  posterImg.style.transformOrigin = 'center center';
+  posterImg.style.transform = 'rotate(' + i.rot + 'deg) scale(' + (i.flipH ? -1 : 1) + ',' + (i.flipV ? -1 : 1) + ')';
+  emptyState.style.display = 'none';
+}
+function buildGrid(L){
+  const show = $('showGrid').checked;
+  gridSvg.style.display = show ? 'block' : 'none';
+  gridSvg.setAttribute('viewBox', '0 0 ' + L.posterW + ' ' + L.posterH);
+  gridSvg.setAttribute('width', mmPx(L.posterW));
+  gridSvg.setAttribute('height', mmPx(L.posterH));
+  const parts = [];
+  for(let c = 1; c < L.cols; c++){
+    const x = (c * L.cellW).toFixed(3);
+    parts.push('<line class="gl-line" x1="' + x + '" y1="0" x2="' + x + '" y2="' + L.posterH + '"/>');
+  }
+  for(let r = 1; r < L.rows; r++){
+    const y = (r * L.cellH).toFixed(3);
+    parts.push('<line class="gl-line" x1="0" y1="' + y + '" x2="' + L.posterW + '" y2="' + y + '"/>');
+  }
+  parts.push('<rect class="gl-outer" x="0" y="0" width="' + L.posterW + '" height="' + L.posterH + '"/>');
+  const fs = clamp(Math.min(L.cellW, L.cellH) * 0.2, 5, 15);
+  for(let r = 0; r < L.rows; r++){
+    for(let c = 0; c < L.cols; c++){
+      const cx = (c + 0.5) * L.cellW, cy = (r + 0.5) * L.cellH;
+      parts.push('<text class="gl-label" x="' + cx.toFixed(2) + '" y="' + cy.toFixed(2) + '" font-size="' + fs.toFixed(1) + '" dominant-baseline="central">' + cellId(r, c) + '</text>');
+    }
+  }
+  gridSvg.innerHTML = parts.join('');
+}
+function updateReadouts(L){
+  $('posterDims').textContent = fmt1(L.posterW) + ' × ' + fmt1(L.posterH) + ' mm';
+  $('posterDimsIn').textContent = toIn(L.posterW) + '″ × ' + toIn(L.posterH) + '″ · ' + L.cols + ' × ' + L.rows + ' = ' + (L.cols * L.rows) + ' sheets';
+  $('paperHint').textContent = fmt1(L.paperW) + ' × ' + fmt1(L.paperH) + ' mm · ' + toIn(L.paperW) + '″ × ' + toIn(L.paperH) + '″';
+  $('statusLeft').textContent = 'Poster ' + fmt1(L.posterW) + ' × ' + fmt1(L.posterH) + ' mm · ' + L.cols + '×' + L.rows + ' grid · ' + (L.cols * L.rows) + ' sheets · ' + ($('paperPreset').value === 'CUSTOM' ? 'Custom' : $('paperPreset').value) + (state.paper.landscape ? ' landscape' : ' portrait');
+  // highlight matching chip
+  document.querySelectorAll('#gridChips .chip').forEach(ch => {
+    ch.classList.toggle('active', +ch.dataset.c === L.cols && +ch.dataset.r === L.rows);
+  });
+}
+function updateStatusBar(){
+  const L = computeLayout();
+  updateReadouts(L);
+}
+function updateQuality(){
+  const i = state.img; if(!i) return;
+  $('qImage').textContent  = i.natW + ' × ' + i.natH + ' px';
+  $('qPlaced').textContent = fmt1(i.w) + ' × ' + fmt1(i.h) + ' mm  (' + toIn(i.w) + '″ × ' + toIn(i.h) + '″)';
+  const stretch = i.w / (i.natW / PPM) * 100;
+  $('qScale').textContent  = stretch <= 100 ? (100 - stretch).toFixed(0) + '% below native res' : 'upscaled ' + (stretch - 100).toFixed(0) + '%';
+  const dpi = i.natW / (i.w / 25.4);
+  $('qDpi').textContent = Math.round(dpi);
+  const badge = $('qBadge'), tip = $('qTip');
+  let cls, txt, note;
+  if(dpi >= 200){ cls='excellent'; txt='EXCELLENT'; note='Razor sharp — great for close viewing.'; }
+  else if(dpi >= 150){ cls='good'; txt='GOOD'; note='≥ 150 DPI prints cleanly from arm’s length.'; }
+  else if(dpi >= 110){ cls='ok'; txt='ACCEPTABLE'; note='Fine at distance — consider fewer sheets or a bigger source.'; }
+  else { cls='low'; txt='LOW'; note='Will look soft. Use more pixels, fewer sheets, or smaller paper.'; }
+  badge.textContent = txt; badge.className = 'badge ' + cls; tip.textContent = note;
+}
+function setSliderFill(input){
+  const min = +input.min, max = +input.max, v = +input.value;
+  input.style.setProperty('--fill', ((v - min) / (max - min) * 100) + '%');
+}
+
+/* ============================================================
+   RULERS (canvas)
+   ============================================================ */
+const rulerTop = $('rulerTop'), rulerLeft = $('rulerLeft');
+function pickStep(){
+  const steps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+  for(const s of steps){ if(s * PPM * state.zoom >= 52) return s; }
+  return 1000;
+}
+function drawRulers(){
+  const L = computeLayout();
+  const dpr = window.devicePixelRatio || 1;
+  const posterRect = posterEl.getBoundingClientRect();
+  const stageRect  = stage.getBoundingClientRect();
+  const ox = posterRect.left - stageRect.left;     // screen x of poster origin (mm 0)
+  const oy = posterRect.top  - stageRect.top;
+  drawRuler(rulerTop,  rulerTop.clientWidth,  rulerTop.clientHeight,  true,  L.posterW, ox, dpr);
+  drawRuler(rulerLeft, rulerLeft.clientWidth, rulerLeft.clientHeight, false, L.posterH, oy, dpr);
+}
+function drawRuler(canvas, cssW, cssH, horizontal, posterMm, origin, dpr){
+  if(cssW <= 0 || cssH <= 0) return;
+  const W = Math.round(cssW * dpr), H = Math.round(cssH * dpr);
+  if(canvas.width !== W || canvas.height !== H){ canvas.width = W; canvas.height = H; }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+  ctx.fillStyle = '#0c1424';
+  ctx.fillRect(0, 0, cssW, cssH);
+
+  const pxPerMm = PPM * state.zoom;
+  const step = pickStep(), minor = step / 5;
+  ctx.strokeStyle = '#263453';
+  ctx.fillStyle = '#8296b8';
+  ctx.lineWidth = 1;
+  ctx.font = '9px ui-monospace, Menlo, monospace';
+  ctx.textAlign = horizontal ? 'left' : 'center';
+  ctx.textBaseline = 'top';
+
+  const limit = horizontal ? cssW : cssH;
+  for(let m = 0; m <= posterMm + 1e-6; m += minor){
+    const px = origin + m * pxPerMm;
+    if(px < -1 || px > limit + 1) continue;
+    const isMajor = Math.abs(m / step - Math.round(m / step)) < 1e-6;
+    const tick = isMajor ? 10 : 5;
+    ctx.beginPath();
+    if(horizontal){ ctx.moveTo(Math.round(px) + .5, cssH); ctx.lineTo(Math.round(px) + .5, cssH - tick); }
+    else          { ctx.moveTo(cssW, Math.round(px) + .5); ctx.lineTo(cssW - tick, Math.round(px) + .5); }
+    ctx.stroke();
+    if(isMajor){
+      const label = fmt1(m);
+      if(horizontal) ctx.fillText(label, px + 3, 3);
+      else           ctx.fillText(label, cssW / 2, px + 3);
+    }
+  }
+  // poster end cap
+  const endPx = origin + posterMm * pxPerMm;
+  if(endPx >= -1 && endPx <= limit + 1){
+    ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    if(horizontal){ ctx.moveTo(endPx, 2); ctx.lineTo(endPx, cssH); }
+    else          { ctx.moveTo(0, endPx); ctx.lineTo(cssW, endPx); }
+    ctx.stroke();
+  }
+}
+
+/* ============================================================
+   ZOOM / VIEW
+   ============================================================ */
+function fitZoom(){
+  const L = computeLayout();
+  const pw = L.posterW * PPM, ph = L.posterH * PPM;
+  return clamp(Math.min((stage.clientWidth - 64) / pw, (stage.clientHeight - 64) / ph), 0.05, 3);
+}
+function setZoom(z, anchor){
+  z = clamp(z, 0.05, 4);
+  const r = stage.getBoundingClientRect();
+  const ax = anchor ? anchor.x : r.left + r.width / 2;
+  const ay = anchor ? anchor.y : r.top + r.height / 2;
+  const pr = posterEl.getBoundingClientRect();
+  const wx = (ax - pr.left) / (PPM * state.zoom);
+  const wy = (ay - pr.top) / (PPM * state.zoom);
+  state.zoom = z;
+  renderLayout();
+  const pr2 = posterEl.getBoundingClientRect();
+  stage.scrollLeft += (pr2.left + wx * PPM * z) - ax;
+  stage.scrollTop  += (pr2.top  + wy * PPM * z) - ay;
+  drawRulers();
+}
+function centerScroll(){
+  stage.scrollLeft = (stage.scrollWidth  - stage.clientWidth)  / 2;
+  stage.scrollTop  = (stage.scrollHeight - stage.clientHeight) / 2;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimer = null;
+function showToast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ============================================================
+   SAMPLE IMAGE (generated — no network needed)
+   ============================================================ */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function makeSampleImage(){
+  const W = 2600, H = 3900;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const horizon = H * 0.635;
+
+  // sky
+  const sky = x.createLinearGradient(0, 0, 0, horizon);
+  sky.addColorStop(0.00, '#0b1030');
+  sky.addColorStop(0.34, '#2c2450');
+  sky.addColorStop(0.58, '#5b2c54');
+  sky.addColorStop(0.74, '#9a3c50');
+  sky.addColorStop(0.86, '#cf5a37');
+  sky.addColorStop(0.95, '#ef8b3e');
+  sky.addColorStop(1.00, '#f8c377');
+  x.fillStyle = sky; x.fillRect(0, 0, W, horizon + 2);
+
+  const rand = mulberry32(20260806);
+
+  // stars
+  for(let i = 0; i < 260; i++){
+    const sx = rand() * W, sy = rand() * H * 0.36, r = rand() * 1.7 + 0.4;
+    x.globalAlpha = 0.18 + rand() * 0.72;
+    x.fillStyle = '#ffffff';
+    x.beginPath(); x.arc(sx, sy, r, 0, Math.PI * 2); x.fill();
+  }
+  x.globalAlpha = 1;
+
+  // crescent moon, top right
+  const mx = W * 0.815, my = H * 0.115, mr = 74;
+  const moonGlow = x.createRadialGradient(mx, my, mr * 0.4, mx, my, mr * 4.4);
+  moonGlow.addColorStop(0, 'rgba(248,244,220,.5)'); moonGlow.addColorStop(1, 'rgba(248,244,220,0)');
+  x.fillStyle = moonGlow; x.fillRect(mx - mr * 5, my - mr * 5, mr * 10, mr * 10);
+  x.fillStyle = '#f5f0da'; x.beginPath(); x.arc(mx, my, mr, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#0b1030'; x.beginPath(); x.arc(mx + mr * 0.38, my - mr * 0.14, mr * 0.88, 0, Math.PI * 2); x.fill();
+
+  // sun with glow
+  const sunX = W * 0.5, sunY = horizon - 118, sunR = 168;
+  const glow = x.createRadialGradient(sunX, sunY, sunR * 0.3, sunX, sunY, sunR * 4.6);
+  glow.addColorStop(0, 'rgba(255,214,140,.75)'); glow.addColorStop(1, 'rgba(255,214,140,0)');
+  x.fillStyle = glow; x.fillRect(0, 0, W, horizon + 2);
+  x.fillStyle = '#ffd98a'; x.beginPath(); x.arc(sunX, sunY, sunR, 0, Math.PI * 2); x.fill();
+
+  // ridges (far -> near)
+  function ridge(baseY, amp, color, seed, jagg){
+    const rnd = mulberry32(seed);
+    const p1 = rnd() * 7, p2 = rnd() * 7, p3 = rnd() * 7, p4 = rnd() * 7;
+    x.fillStyle = color;
+    x.beginPath();
+    x.moveTo(-60, H);
+    x.lineTo(-60, baseY);
+    for(let px = -60; px <= W + 60; px += 16){
+      let n = Math.sin(px * 0.0042 + p1) * amp * 0.62
+            + Math.sin(px * 0.0117 + p2) * amp * 0.34
+            + Math.abs(Math.sin(px * 0.023 + p3)) * amp * jagg
+            + Math.sin(px * 0.052 + p4) * amp * 0.09;
+      x.lineTo(px, baseY - n);
+    }
+    x.lineTo(W + 60, H);
+    x.closePath(); x.fill();
+  }
+  ridge(horizon + 30, 240, '#33254a', 101, 0.42);
+  ridge(horizon + 150, 330, '#241c38', 202, 0.58);
+  ridge(horizon + 330, 430, '#171228', 303, 0.72);
+
+  // foreground hill
+  x.fillStyle = '#0d0a1a';
+  x.beginPath();
+  x.moveTo(0, H); x.lineTo(0, H * 0.845);
+  for(let px = 0; px <= W; px += 24){
+    const y = H * 0.845 + Math.sin(px * 0.0032 + 1.7) * 95 + Math.sin(px * 0.0091 + 0.4) * 34;
+    x.lineTo(px, y);
+  }
+  x.lineTo(W, H); x.closePath(); x.fill();
+
+  // pines on the foreground hill
+  function hillY(px){ return H * 0.845 + Math.sin(px * 0.0032 + 1.7) * 95 + Math.sin(px * 0.0091 + 0.4) * 34; }
+  function pine(px, h, col){
+    const base = hillY(px) + 6;
+    x.fillStyle = col;
+    x.fillRect(px - h * 0.028, base - h * 0.22, h * 0.056, h * 0.22);
+    for(let i = 0; i < 4; i++){
+      const ty = base - h * (0.16 + i * 0.235);
+      const tw = h * (0.335 - i * 0.072);
+      const th = h * 0.335;
+      x.beginPath();
+      x.moveTo(px, ty - th); x.lineTo(px - tw, ty); x.lineTo(px + tw, ty); x.closePath(); x.fill();
+    }
+  }
+  const pRand = mulberry32(777);
+  for(let i = 0; i < 26; i++){
+    const px = pRand() * W;
+    const edgeBias = Math.abs(px - W / 2) / (W / 2);         // keep the middle clear for text
+    if(edgeBias < 0.30 && pRand() < 0.72) continue;
+    pine(px, 130 + pRand() * 210, '#060410');
+  }
+
+  // birds
+  x.strokeStyle = '#141024'; x.lineWidth = 5; x.lineCap = 'round';
+  const bRand = mulberry32(909);
+  for(let i = 0; i < 6; i++){
+    const bx = W * (0.24 + bRand() * 0.5), by = H * (0.30 + bRand() * 0.16), s = 12 + bRand() * 12;
+    x.beginPath();
+    x.moveTo(bx - s, by);
+    x.quadraticCurveTo(bx - s * 0.45, by - s * 0.75, bx, by);
+    x.quadraticCurveTo(bx + s * 0.45, by - s * 0.75, bx + s, by);
+    x.stroke();
+  }
+
+  // typography
+  x.textAlign = 'center';
+  x.fillStyle = '#e9b264';
+  x.font = '700 46px Helvetica, Arial, sans-serif';
+  x.fillText('G R A N I T E   R A N G E', W / 2, H * 0.878);
+  // flanking rules
+  x.strokeStyle = '#e9b264'; x.lineWidth = 3.4;
+  x.beginPath(); x.moveTo(W * 0.185, H * 0.878 - 15); x.lineTo(W * 0.315, H * 0.878 - 15); x.stroke();
+  x.beginPath(); x.moveTo(W * 0.685, H * 0.878 - 15); x.lineTo(W * 0.815, H * 0.878 - 15); x.stroke();
+
+  x.save();
+  x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 30; x.shadowOffsetY = 6;
+  x.fillStyle = '#f6ead0';
+  x.font = '900 205px "Arial Black", Arial, sans-serif';
+  x.fillText('ALPINE', W / 2, H * 0.928);
+  x.fillText('DUSK',   W / 2, H * 0.985);
+  x.restore();
+
+  return c.toDataURL('image/jpeg', 0.92);
+}
+function loadSample(){ loadImageSrc(makeSampleImage()); }
+
+/* ============================================================
+   PRINT OUTPUT
+   ============================================================ */
+function buildPrint(){
+  const L = computeLayout();
+  const ov = L.bleed;
+  const img = state.img;
+  const root = $('print-root');
+  $('pageStyle').textContent = '@page{size:' + L.paperW + 'mm ' + L.paperH + 'mm;margin:0}';
+  root.innerHTML = '';
+
+  const wantMap = $('assemblyPage').checked;
+  const sheetTotal = L.cols * L.rows + (wantMap ? 1 : 0);
+  let sheetNo = 0;
+
+  if(wantMap){ sheetNo++; root.appendChild(buildAssemblySheet(L, sheetNo, sheetTotal)); }
+
+  const paperName = $('paperPreset').value === 'CUSTOM' ? 'Custom' : $('paperPreset').value;
+  for(let r = 0; r < L.rows; r++){
+    for(let c = 0; c < L.cols; c++){
+      sheetNo++;
+      const sheet = document.createElement('div');
+      sheet.className = 'sheet';
+      sheet.style.width  = L.paperW + 'mm';
+      sheet.style.height = L.paperH + 'mm';
+
+      // clip window: content cell expanded by bleed, clipped at paper edge
+      const clip = document.createElement('div');
+      clip.className = 'clip';
+      clip.style.left   = (L.margin - ov) + 'mm';
+      clip.style.top    = (L.margin - ov) + 'mm';
+      clip.style.width  = (L.cellW + 2 * ov) + 'mm';
+      clip.style.height = (L.cellH + 2 * ov) + 'mm';
+
+      if(img){
+        const im = document.createElement('img');
+        im.src = img.src;
+        im.alt = '';
+        im.style.width  = img.w + 'mm';
+        im.style.height = img.h + 'mm';
+        im.style.left   = (img.x - c * L.cellW + ov) + 'mm';
+        im.style.top    = (img.y - r * L.cellH + ov) + 'mm';
+        im.style.transform = 'rotate(' + img.rot + 'deg) scale(' + (img.flipH ? -1 : 1) + ',' + (img.flipV ? -1 : 1) + ')';
+        clip.appendChild(im);
+      }
+      sheet.appendChild(clip);
+
+      if($('printGuides').checked){
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 ' + L.paperW + ' ' + L.paperH);
+        svg.setAttribute('class', 'guide-svg');
+        svg.innerHTML =
+          '<rect x="' + L.margin + '" y="' + L.margin + '" width="' + L.cellW + '" height="' + L.cellH + '" fill="none" stroke="#ffffff" stroke-width="1.15" stroke-opacity="0.9"/>' +
+          '<rect x="' + L.margin + '" y="' + L.margin + '" width="' + L.cellW + '" height="' + L.cellH + '" fill="none" stroke="#1f2937" stroke-width="0.33" stroke-dasharray="4 3.1"/>' +
+          cornerTicks(L.margin, L.margin, L.cellW, L.cellH);
+        sheet.appendChild(svg);
+      }
+
+      if($('printLabels').checked){
+        const lab = document.createElement('div');
+        lab.className = 'tile-label';
+        lab.textContent = cellId(r, c) + '  ·  sheet ' + sheetNo + ' of ' + sheetTotal + '  ·  ' + paperName + '  ·  poster-tiler';
+        if(L.margin >= 6){
+          lab.style.left = (L.margin + 1) + 'mm';
+          lab.style.bottom = (L.margin / 2 - 1.35) + 'mm';
+        } else {
+          lab.classList.add('floating');
+          lab.style.left = (L.margin + 1.5) + 'mm';
+          lab.style.top  = (L.margin + 1.5) + 'mm';
+        }
+        sheet.appendChild(lab);
+      }
+      root.appendChild(sheet);
+    }
+  }
+}
+function cornerTicks(x, y, w, h){
+  const t = 7, s = 'stroke="#1f2937" stroke-width="0.55" stroke-linecap="round"';
+  const L = (x1, y1, x2, y2) => '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" ' + s + '/>';
+  return L(x, y + t, x, y) + L(x, y, x + t, y) +
+         L(x + w - t, y, x + w, y) + L(x + w, y, x + w, y + t) +
+         L(x, y + h - t, x, y + h) + L(x, y + h, x + t, y + h) +
+         L(x + w - t, y + h, x + w, y + h) + L(x + w, y + h, x + w, y + h - t);
+}
+function buildAssemblySheet(L, sheetNo, sheetTotal){
+  const d = document.createElement('div');
+  d.className = 'sheet assembly';
+  d.style.width = L.paperW + 'mm';
+  d.style.height = L.paperH + 'mm';
+
+  const mapCells = [];
+  for(let r = 0; r < L.rows; r++){
+    for(let c = 0; c < L.cols; c++) mapCells.push('<div class="map-cell">' + cellId(r, c) + '</div>');
+  }
+  const today = new Date().toLocaleDateString(undefined, { day:'numeric', month:'long', year:'numeric' });
+  const paperName = $('paperPreset').value === 'CUSTOM' ? 'Custom paper' : $('paperPreset').value;
+
+  d.innerHTML =
+    '<h1>Poster Assembly Guide</h1>' +
+    '<div class="sub">Keep this page — it shows how the sheets fit together</div>' +
+    '<table>' +
+      '<tr><td>Poster size</td><td>' + fmt1(L.posterW) + ' × ' + fmt1(L.posterH) + ' mm  (' + toIn(L.posterW) + '″ × ' + toIn(L.posterH) + '″)</td></tr>' +
+      '<tr><td>Sheets</td><td>' + (L.cols * L.rows) + ' × ' + paperName + (state.paper.landscape ? ' landscape' : ' portrait') + ' + this guide</td></tr>' +
+      '<tr><td>Grid</td><td>' + L.cols + ' columns × ' + L.rows + ' rows · each tile trims to ' + fmt1(L.cellW) + ' × ' + fmt1(L.cellH) + ' mm</td></tr>' +
+      '<tr><td>Tile margin</td><td>' + fmt1(L.margin) + ' mm on all sides · print at 100% (actual size)</td></tr>' +
+      '<tr><td>Printed</td><td>' + today + '</td></tr>' +
+    '</table>' +
+    '<div class="map" style="grid-template-columns:repeat(' + L.cols + ',1fr);max-width:150mm;">' + mapCells.join('') + '</div>' +
+    '<ol>' +
+      '<li>Print every page at <b>100% / Actual size</b>. Never use “Fit to page” — the tiles are designed to butt edge-to-edge.</li>' +
+      '<li>Margins must be set to <b>None</b>, with <b>background graphics enabled</b>.</li>' +
+      '<li>Trim each sheet along the <b>dashed rectangle</b> (corner ticks mark the corners).</li>' +
+      '<li>Lay the sheets out using the letter map above — rows run A, B, C… top to bottom; columns 1, 2, 3… left to right.</li>' +
+      '<li>Tape the sheets together from the <b>back</b>, starting from the centre seam and working outward.</li>' +
+    '</ol>' +
+    '<div class="foot">GENERATED WITH POSTER TILER · ' + sheetNo + ' OF ' + sheetTotal + ' PAGES · ' + new Date().getFullYear() + '</div>';
+  return d;
+}
+function doPrint(){
+  if(!state.img){ showToast('No image yet — import one first (or hit the star for a sample).'); return; }
+  buildPrint();
+  showToast('In the print dialog: scale 100%, margins None, background graphics on.');
+  setTimeout(() => window.print(), 60);
+}
+window.addEventListener('beforeprint', buildPrint);
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+// paper
+$('paperPreset').addEventListener('change', e => {
+  const v = e.target.value;
+  if(v === 'CUSTOM'){ renderLayout(); return; }
+  state.paper.preset = v;
+  let [w, h] = PAPERS[v];
+  if(state.paper.landscape){ const t = w; w = h; h = t; }
+  $('paperW').value = w; $('paperH').value = h;
+  renderLayout();
+});
+$('paperW').addEventListener('input', () => { $('paperPreset').value = 'CUSTOM'; renderLayout(); });
+$('paperH').addEventListener('input', () => { $('paperPreset').value = 'CUSTOM'; renderLayout(); });
+$('swapOrient').addEventListener('click', () => {
+  const wEl = $('paperW'), hEl = $('paperH');
+  const t = wEl.value; wEl.value = hEl.value; hEl.value = t;
+  state.paper.landscape = parseFloat(wEl.value) >= parseFloat(hEl.value);
+  syncOrientationButtons();
+  renderLayout();
+});
+function syncOrientationButtons(){
+  $('orientPortrait').classList.toggle('active', !state.paper.landscape);
+  $('orientLandscape').classList.toggle('active', state.paper.landscape);
+}
+$('orientPortrait').addEventListener('click', () => setOrientation(false));
+$('orientLandscape').addEventListener('click', () => setOrientation(true));
+function setOrientation(landscape){
+  if(state.paper.landscape === landscape) return;
+  state.paper.landscape = landscape;
+  const wEl = $('paperW'), hEl = $('paperH');
+  const w = parseFloat(wEl.value), h = parseFloat(hEl.value);
+  if((landscape && w < h) || (!landscape && w > h)){ wEl.value = h; hEl.value = w; }
+  syncOrientationButtons();
+  renderLayout();
+}
+
+// grid / cols rows
+function stepInput(el, delta){
+  el.value = clamp((parseInt(el.value) || 1) + delta, 1, 12);
+  renderLayout();
+}
+$('colsMinus').addEventListener('click', () => stepInput(colsInput, -1));
+$('colsPlus').addEventListener('click', () => stepInput(colsInput, +1));
+$('rowsMinus').addEventListener('click', () => stepInput(rowsInput, -1));
+$('rowsPlus').addEventListener('click', () => stepInput(rowsInput, +1));
+colsInput.addEventListener('input', renderLayout);
+rowsInput.addEventListener('input', renderLayout);
+$('gridChips').addEventListener('click', e => {
+  const chip = e.target.closest('.chip'); if(!chip) return;
+  colsInput.value = chip.dataset.c; rowsInput.value = chip.dataset.r;
+  renderLayout();
+});
+marginInput.addEventListener('input', renderLayout);
+bleedInput.addEventListener('input', renderLayout);
+$('showGrid').addEventListener('change', renderLayout);
+$('printGuides').addEventListener('change', () => {});
+$('printLabels').addEventListener('change', () => {});
+$('assemblyPage').addEventListener('change', () => {});
+
+// image actions
+$('importBtn').addEventListener('click', () => $('fileInput').click());
+$('emptyImportBtn').addEventListener('click', () => $('fileInput').click());
+$('emptySampleBtn').addEventListener('click', loadSample);
+$('loadSampleBtn').addEventListener('click', loadSample);
+$('fileInput').addEventListener('change', e => { loadImageFile(e.target.files[0]); e.target.value = ''; });
+$('fitBtn').addEventListener('click', () => fitImage('contain'));
+$('fillBtn').addEventListener('click', () => fitImage('cover'));
+$('actualBtn').addEventListener('click', () => fitImage('actual'));
+$('centerBtn').addEventListener('click', centerImage);
+$('removeImgBtn').addEventListener('click', removeImage);
+$('rotLBtn').addEventListener('click', () => { const i = state.img; if(!i) return; i.rot = (i.rot - 90 + 360) % 360; renderImage(); });
+$('rotRBtn').addEventListener('click', () => { const i = state.img; if(!i) return; i.rot = (i.rot + 90) % 360; renderImage(); });
+$('flipHBtn').addEventListener('click', () => { const i = state.img; if(!i) return; i.flipH = !i.flipH; renderImage(); });
+$('flipVBtn').addEventListener('click', () => { const i = state.img; if(!i) return; i.flipV = !i.flipV; renderImage(); });
+scaleSlider.addEventListener('input', () => setScalePct(parseFloat(scaleSlider.value), true));
+
+// print
+$('printBtn').addEventListener('click', doPrint);
+
+// zoom controls
+$('zoomIn').addEventListener('click', () => setZoom(state.zoom * 1.25));
+$('zoomOut').addEventListener('click', () => setZoom(state.zoom / 1.25));
+$('fitViewBtn').addEventListener('click', () => { setZoom(fitZoom()); centerScroll(); drawRulers(); });
+$('actualViewBtn').addEventListener('click', () => setZoom(1));
+zoomSlider.addEventListener('input', () => setZoom(parseFloat(zoomSlider.value) / 100));
+stage.addEventListener('scroll', drawRulers, { passive:true });
+stage.addEventListener('wheel', e => {
+  if(e.ctrlKey || e.metaKey){
+    e.preventDefault();
+    setZoom(state.zoom * Math.exp(-e.deltaY * 0.0016), { x:e.clientX, y:e.clientY });
+  } else if(e.shiftKey && state.img){
+    e.preventDefault();
+    const cur = parseFloat(scaleSlider.value) || 100;
+    setScalePct(cur * Math.exp(-e.deltaY * 0.0018), true);
+  }
+}, { passive:false });
+
+// drag image
+let drag = null;
+posterImg.addEventListener('pointerdown', e => {
+  if(!state.img) return;
+  e.preventDefault();
+  try { posterImg.setPointerCapture(e.pointerId); } catch(_){}
+  drag = { px:e.clientX, py:e.clientY, x:state.img.x, y:state.img.y };
+  document.body.classList.add('dragging');
+});
+posterImg.addEventListener('pointermove', e => {
+  if(!drag) return;
+  const k = 1 / (PPM * state.zoom);
+  state.img.x = drag.x + (e.clientX - drag.px) * k;
+  state.img.y = drag.y + (e.clientY - drag.py) * k;
+  renderImage();
+});
+function endDrag(){ drag = null; document.body.classList.remove('dragging'); }
+posterImg.addEventListener('pointerup', endDrag);
+posterImg.addEventListener('pointercancel', endDrag);
+
+// drop files anywhere on the stage
+['dragenter', 'dragover'].forEach(evt => stageMain.addEventListener(evt, e => {
+  e.preventDefault(); e.stopPropagation();
+  stageMain.classList.add('dragover');
+  if(e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+}));
+['dragleave', 'drop'].forEach(evt => stageMain.addEventListener(evt, e => {
+  e.preventDefault(); e.stopPropagation();
+  if(evt === 'dragleave' && stageMain.contains(e.relatedTarget)) return;
+  stageMain.classList.remove('dragover');
+}));
+stageMain.addEventListener('drop', e => {
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if(f) loadImageFile(f);
+});
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => e.preventDefault());
+
+// paste image from clipboard
+document.addEventListener('paste', e => {
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for(const item of items){
+    if(item.type && item.type.indexOf('image/') === 0){
+      const f = item.getAsFile();
+      if(f){ loadImageFile(f); showToast('Image pasted from clipboard'); }
+      return;
+    }
+  }
+});
+
+// keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if(tag === 'input' || tag === 'select' || tag === 'textarea') return;
+  const i = state.img;
+  const step = e.shiftKey ? 5 : 1;
+  switch(e.key){
+    case 'ArrowLeft':  if(i){ e.preventDefault(); i.x -= step; renderImage(); } break;
+    case 'ArrowRight': if(i){ e.preventDefault(); i.x += step; renderImage(); } break;
+    case 'ArrowUp':    if(i){ e.preventDefault(); i.y -= step; renderImage(); } break;
+    case 'ArrowDown':  if(i){ e.preventDefault(); i.y += step; renderImage(); } break;
+    case '[': if(i){ e.preventDefault(); setScalePct((parseFloat(scaleReadout.textContent) || 100) / 1.08, true); } break;
+    case ']': if(i){ e.preventDefault(); setScalePct((parseFloat(scaleReadout.textContent) || 100) * 1.08, true); } break;
+    case 'g': case 'G': { const cb = $('showGrid'); cb.checked = !cb.checked; renderLayout(); } break;
+    case '+': case '=': setZoom(state.zoom * 1.2); break;
+    case '-': case '_': setZoom(state.zoom / 1.2); break;
+  }
+});
+
+// rulers resize
+const ro = new ResizeObserver(() => { drawRulers(); });
+ro.observe(stageMain);
+window.addEventListener('resize', drawRulers);
+
+/* ============================================================
+   INIT
+   ============================================================ */
+syncOrientationButtons();
+setSliderFill(scaleSlider);
+setSliderFill(zoomSlider);
+renderLayout();
+loadSample();                       // pre-load a ready-to-print sample poster
+requestAnimationFrame(() => {
+  setZoom(fitZoom());
+  centerScroll();
+  drawRulers();
+});
+</script>
+</body>
+</html>
